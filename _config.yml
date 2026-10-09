@@ -1,0 +1,9 @@
+# GitHub Pages settings.
+# Only the public site (index.html, img/, fonts/, icons) is served.
+# Internal docs stay readable in the repo but are not published as web pages.
+# Folders starting with "_" (like _archive/) are never published.
+exclude:
+  - docs/
+  - finance/
+  - README.md
+  - CLAUDE.md

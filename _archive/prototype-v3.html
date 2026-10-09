@@ -1,0 +1,1014 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Nova's Pack</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
+</head>
+<body>
+<style>
+/* Layout: one phone-width column, sticky header, fixed bottom tab bar. Palette from Nova's photos: Shannon dusk blue = trust (token still named --spruce), Nova tan = the mascot, sunset gold = XP. */
+:root{
+  --bg:#F3F2EB; --surface:#FFFFFF; --sunk:#EAE7DD; --line:#DEDACD; --ctl:#958C7E;
+  --ink:#1E1B17; --muted:#5C544B;
+  --spruce:#1F4E6E; --ledge:#13344B; --on-spruce:#FFFFFF; --spruce-soft:#DDE8F1;
+  --tan:#C27A3A; --tan-ink:#8E5019; --tan-soft:#F4E3D1;
+  --gold:#F2B544; --on-gold:#1E1B17; --gold-soft:#FBEBC6;
+  --ok:#2F7D52; --danger:#B3402A; --danger-soft:#FBE7E1;
+  --shadow:0 1px 2px rgba(30,27,23,.06),0 6px 16px rgba(30,27,23,.08);
+  --f-display:"Bricolage Grotesque","Avenir Next","Segoe UI",system-ui,sans-serif;
+  --f-body:"Plus Jakarta Sans","Segoe UI",system-ui,-apple-system,sans-serif;
+  --r-card:16px; --r-btn:12px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#14120F; --surface:#211D19; --sunk:#2A2520; --line:#3A332C; --ctl:#7D7266;
+  --ink:#F5EEE4; --muted:#B5A898;
+  --spruce:#8EC1E0; --ledge:#5C93B5; --on-spruce:#0E1218; --spruce-soft:#1A2A36;
+  --tan:#E3A468; --tan-ink:#E3A468; --tan-soft:#3A2A1D;
+  --gold:#F5C35B; --on-gold:#1E1B17; --gold-soft:#3A3018;
+  --ok:#6CCB94; --danger:#F08A72; --danger-soft:#3A211B;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 16px rgba(0,0,0,.35); color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#14120F; --surface:#211D19; --sunk:#2A2520; --line:#3A332C; --ctl:#7D7266;
+  --ink:#F5EEE4; --muted:#B5A898;
+  --spruce:#8EC1E0; --ledge:#5C93B5; --on-spruce:#0E1218; --spruce-soft:#1A2A36;
+  --tan:#E3A468; --tan-ink:#E3A468; --tan-soft:#3A2A1D;
+  --gold:#F5C35B; --on-gold:#1E1B17; --gold-soft:#3A3018;
+  --ok:#6CCB94; --danger:#F08A72; --danger-soft:#3A211B;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 16px rgba(0,0,0,.35); color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{background:var(--bg);color:var(--ink)}
+body{font-family:var(--f-body);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px;border-radius:8px}
+h1,h2,h3{font-family:var(--f-display);line-height:1.1;margin:0;text-wrap:balance;letter-spacing:-.01em}
+h2{font-size:1.35rem;font-weight:800}
+h3{font-size:1.05rem;font-weight:800}
+p{margin:0}
+.muted{color:var(--muted)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.small{font-size:.85rem}
+.num{font-variant-numeric:tabular-nums}
+.eyebrow{font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+
+/* shell */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.top-in{max-width:620px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:10px}
+.brand{display:flex;align-items:center;gap:8px;font-family:var(--f-display);font-weight:800;font-size:1.05rem;margin-right:auto;background:none;border:0;padding:0;white-space:nowrap;min-width:0}
+.brand svg{width:34px;height:34px}
+.lvl-chip{white-space:nowrap;display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px 10px 4px 4px;font-size:.8rem;font-weight:700}
+.lvl-badge{width:26px;height:26px;border-radius:50%;background:var(--gold);color:var(--on-gold);display:grid;place-items:center;font-family:var(--f-display);font-weight:800;font-size:.85rem}
+.sos{white-space:nowrap;border:1.5px solid var(--danger);color:var(--danger);background:transparent;border-radius:999px;padding:5px 10px;font-weight:700;font-size:.78rem;display:flex;align-items:center;gap:5px}
+.sos svg{width:15px;height:15px}
+main{max-width:620px;margin:0 auto;padding-inline:16px;padding-block:16px 120px;display:flex;flex-direction:column;gap:18px}
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+.tabs-in{max-width:620px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr)}
+.tab{background:none;border:0;padding:8px 2px 9px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.7rem;font-weight:600;color:var(--muted)}
+.tab svg{width:23px;height:23px}
+.tab[aria-current="page"]{color:var(--spruce)}
+.tab[aria-current="page"] svg{stroke-width:2.4}
+
+/* primitives */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-card);padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.row{display:flex;align-items:center;gap:10px;min-width:0}
+.row.wrap{flex-wrap:wrap}
+.between{justify-content:space-between}
+.grow{flex:1;min-width:0}
+.stack{display:flex;flex-direction:column;gap:10px}
+a{color:var(--spruce)}
+a.btn{text-decoration:none}
+.btn{border:0;border-radius:var(--r-btn);padding:11px 16px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:7px;background:var(--sunk);color:var(--ink);transition:transform .12s ease-out}
+.btn:active{transform:translateY(2px)}
+.btn svg{width:18px;height:18px}
+.btn.primary{background:var(--spruce);color:var(--on-spruce);box-shadow:0 3px 0 var(--ledge)}
+.btn.primary:active{box-shadow:0 1px 0 var(--ledge)}
+.btn.gold{background:var(--gold);color:var(--on-gold);box-shadow:0 3px 0 color-mix(in srgb,var(--gold) 60%,#000)}
+.btn.danger{background:var(--danger);color:var(--surface)}
+.btn.ghost{background:transparent;border:1.5px solid var(--ctl)}
+.btn.sm{padding:7px 12px;font-size:.85rem;border-radius:10px}
+.btn.block{width:100%}
+.btn[disabled]{opacity:.5;cursor:default}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1.5px solid var(--ctl);background:var(--surface);border-radius:999px;padding:6px 13px;font-weight:600;font-size:.85rem}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.pill{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:2px 9px;font-size:.74rem;font-weight:700;background:var(--sunk);color:var(--muted);white-space:nowrap}
+.pill svg{width:13px;height:13px}
+.pill.spruce{background:var(--spruce-soft);color:var(--spruce)}
+.pill.tan{background:var(--tan-soft);color:var(--tan-ink)}
+.pill.gold{background:var(--gold-soft);color:var(--ink)}
+.pill.danger{background:var(--danger-soft);color:var(--danger)}
+.example{font-size:.72rem;font-weight:700;color:var(--muted);border:1px dashed var(--line);border-radius:999px;padding:1px 8px}
+.bar{height:10px;background:var(--sunk);border-radius:999px;overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--gold);border-radius:999px;transition:width .5s cubic-bezier(.3,1.3,.5,1)}
+.bar.spruce>i{background:var(--spruce)}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;background:var(--sunk);border-radius:12px;padding:4px;gap:4px}
+.seg button{border:0;background:transparent;border-radius:9px;padding:8px;font-weight:700;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+.ava{width:40px;height:40px;border-radius:50%;flex:none;overflow:hidden;background:var(--sunk)}
+.ava svg,.ava img{width:100%;height:100%;display:block;object-fit:cover}
+.section-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-weight:700;font-size:.85rem}
+.input,select.input,textarea.input{width:100%;border:1.5px solid var(--ctl);background:var(--surface);border-radius:12px;padding:10px 12px}
+textarea.input{min-height:84px;resize:vertical}
+.input:focus{outline:none;border-color:var(--spruce)}
+.note{border-radius:12px;padding:10px 12px;font-size:.85rem;display:flex;gap:8px;align-items:flex-start}
+.note svg{width:18px;height:18px;flex:none;margin-top:1px}
+.note.danger{background:var(--danger-soft);color:var(--danger)}
+.note.info{background:var(--spruce-soft);color:var(--spruce)}
+.note.gold{background:var(--gold-soft);color:var(--ink)}
+
+/* hero */
+.hello{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center}
+.hello .nova{width:84px;height:84px}
+.speech{background:var(--surface);border:1px solid var(--line);border-radius:16px 16px 16px 4px;padding:10px 14px;font-weight:500}
+.hero{position:relative;border-radius:20px;overflow:hidden;aspect-ratio:4/3;max-width:100%;background:var(--sunk)}
+.hero>img{width:100%;height:100%;object-fit:cover;object-position:center 35%;display:block}
+.hero-over{position:absolute;left:0;right:0;bottom:0;padding:48px 14px 14px;background:linear-gradient(transparent,rgba(8,12,18,.82));display:flex;flex-direction:column;gap:8px}
+.hero-over .eyebrow{color:#F5EEE4}
+.hero-over .speech{border:0}
+.gram{display:grid;grid-auto-flow:column;grid-auto-columns:38%;gap:8px;overflow-x:auto;scrollbar-width:none}
+.gram::-webkit-scrollbar{display:none}
+.gram img{width:100%;aspect-ratio:1;max-width:100%;object-fit:cover;border-radius:12px;display:block}
+.progress-card{background:var(--spruce);color:var(--on-spruce);border:0}
+.progress-card .muted{color:color-mix(in srgb,var(--on-spruce) 85%,transparent)}
+.progress-card .bar{background:color-mix(in srgb,var(--on-spruce) 20%,transparent)}
+.big-level{font-family:var(--f-display);font-weight:800;font-size:2.4rem;line-height:1}
+.statline{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:color-mix(in srgb,var(--on-spruce) 12%,transparent);border-radius:12px;padding:8px 10px}
+.stat b{display:block;font-family:var(--f-display);font-size:1.25rem}
+.stat span{font-size:.72rem}
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.day{aspect-ratio:1;max-width:100%;border-radius:50%;display:grid;place-items:center;font-size:.72rem;font-weight:700;background:var(--sunk);color:var(--muted)}
+.day.on{background:var(--gold);color:var(--on-gold)}
+.day.today{outline:2px solid var(--spruce);outline-offset:2px}
+.quick{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* challenges */
+.chal{display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:center;padding:10px;border-radius:14px;border:1.5px solid var(--line);background:var(--surface)}
+.chal.picked{border-color:var(--spruce)}
+.chal.done{background:var(--spruce-soft);border-color:transparent}
+.chal-ico{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:var(--tan-soft);color:var(--tan-ink)}
+.chal-ico svg{width:22px;height:22px}
+.chal .t{font-weight:700;line-height:1.25}
+.xp{font-weight:800;color:var(--tan-ink);font-size:.82rem}
+
+/* feed */
+.post{padding:0;overflow:hidden;gap:0}
+.post-head{padding:12px 14px;display:flex;gap:10px;align-items:center}
+.post-photo{aspect-ratio:16/11;max-width:100%;width:100%;background:var(--sunk);display:block}
+.post-photo.sq{aspect-ratio:1}
+.post-photo svg,.post-photo img{width:100%;height:100%;display:block;object-fit:cover}
+.post-body{padding:12px 14px 14px;display:flex;flex-direction:column;gap:10px}
+.react{display:flex;gap:8px;align-items:center}
+.kudos{border:1.5px solid var(--ctl);background:var(--surface);border-radius:999px;padding:6px 12px;font-weight:700;font-size:.85rem;display:inline-flex;gap:6px;align-items:center}
+.kudos svg{width:17px;height:17px}
+.kudos[aria-pressed="true"]{background:var(--tan-soft);border-color:var(--tan);color:var(--tan-ink)}
+.kudos[aria-pressed="true"] svg{fill:currentColor}
+.comment{font-size:.88rem}
+.comment b{font-weight:700}
+.alert-card{border:2px solid var(--danger);background:var(--danger-soft)}
+.alert-card h3{color:var(--danger)}
+.newbies{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none}
+.newbie{flex:none;width:132px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.newbie .ava{width:56px;height:56px}
+.poll-opt{position:relative;width:100%;text-align:left;border:1.5px solid var(--line);background:var(--surface);border-radius:12px;padding:10px 12px;font-weight:600;overflow:hidden;display:flex;justify-content:space-between;gap:8px}
+.poll-opt i{position:absolute;inset:0 auto 0 0;background:var(--gold-soft);z-index:0;transition:width .6s ease-out}
+.poll-opt span{position:relative;z-index:1}
+.poll-opt.mine{border-color:var(--gold)}
+.composer-photo{aspect-ratio:16/10;max-width:100%;border:2px dashed var(--line);border-radius:14px;display:grid;place-items:center;color:var(--muted);overflow:hidden;background:var(--sunk);cursor:pointer;position:relative}
+.composer-photo img{width:100%;height:100%;object-fit:cover}
+.composer-photo input{position:absolute;inset:0;opacity:0;cursor:pointer}
+
+/* Q&A, groups, places */
+.q{gap:8px}
+.vote{display:flex;flex-direction:column;align-items:center;border:1.5px solid var(--ctl);border-radius:12px;padding:4px 8px;background:var(--surface);font-weight:800;font-size:.85rem;min-width:46px}
+.vote svg{width:18px;height:18px}
+.vote[aria-pressed="true"]{border-color:var(--spruce);color:var(--spruce);background:var(--spruce-soft)}
+.answer{border-left:3px solid var(--line);padding:6px 0 6px 12px;display:flex;flex-direction:column;gap:6px}
+.answer.best{border-left-color:var(--ok)}
+.group-ico{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;flex:none;font-family:var(--f-display);font-weight:800;font-size:1.1rem}
+.stars{color:var(--tan-ink);font-weight:800}
+
+/* league */
+.league-head{background:linear-gradient(160deg,var(--spruce),var(--ledge));color:var(--on-spruce);border:0}
+.league-head .muted{color:color-mix(in srgb,var(--on-spruce) 88%,transparent)}
+.lb{display:flex;flex-direction:column}
+.lb-row{display:grid;grid-template-columns:28px 40px 1fr auto;gap:10px;align-items:center;padding:9px 4px;border-bottom:1px solid var(--line)}
+.lb-row:last-child{border-bottom:0}
+.lb-row.me{background:var(--gold-soft);border-radius:12px;border-bottom-color:transparent;padding-inline:8px}
+.lb-rank{font-family:var(--f-display);font-weight:800;text-align:center;color:var(--muted)}
+.zone{font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:6px 4px;display:flex;align-items:center;gap:8px}
+.zone::after{content:"";flex:1;height:1px;background:currentColor;opacity:.35}
+.zone.up{color:var(--ok)} .zone.down{color:var(--danger)}
+
+/* dog card */
+.dogcard-wrap{perspective:1200px;display:flex;justify-content:center}
+.dogcard{width:min(320px,100%);aspect-ratio:5/7;max-width:100%;position:relative;transform-style:preserve-3d;transition:transform .6s cubic-bezier(.3,1.2,.4,1);cursor:pointer;border:0;padding:0;background:none}
+.dogcard.flip{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:20px;padding:10px;display:flex;flex-direction:column;box-shadow:var(--shadow);text-align:left}
+.face.back{transform:rotateY(180deg)}
+.face-in{flex:1;border-radius:13px;background:var(--surface);display:flex;flex-direction:column;overflow:hidden;min-height:0}
+.r-common{background:linear-gradient(145deg,#9C948A,#CFC8BD)}
+.r-uncommon{background:linear-gradient(145deg,#1F4E6E,#8EC1E0)}
+.r-rare{background:linear-gradient(145deg,#2D4F8A,#8DB4E8)}
+.r-epic{background:linear-gradient(145deg,#6A3D8F,#C89BE8)}
+.r-legendary{background:linear-gradient(145deg,#B07A12,#F5C35B,#B07A12)}
+.card-top{display:flex;justify-content:space-between;align-items:center;padding:10px 12px 6px}
+.card-top b{font-family:var(--f-display);font-size:1.3rem;font-weight:800}
+.card-art{margin:0 12px;border-radius:10px;overflow:hidden;aspect-ratio:4/3;max-width:100%;background:var(--sunk);flex:none}
+.card-art svg,.card-art img{width:100%;height:100%;display:block;object-fit:cover}
+.card-stats{padding:8px 12px 12px;display:flex;flex-direction:column;gap:5px;font-size:.78rem;flex:1;justify-content:center}
+.cs{display:grid;grid-template-columns:62px 1fr 24px;gap:8px;align-items:center;font-weight:700}
+.cs .bar{height:7px}
+.badge-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:10px}
+.badge{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;padding:10px 6px;border-radius:14px;background:var(--surface);border:1px solid var(--line);font-size:.75rem;font-weight:700;line-height:1.2}
+.medal{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:var(--gold);color:var(--on-gold);box-shadow:inset 0 -3px 0 rgba(0,0,0,.15)}
+.medal svg{width:24px;height:24px}
+.badge.locked{opacity:.55}
+.badge.locked .medal{background:var(--sunk);color:var(--muted);box-shadow:none}
+.binder{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px}
+.mini{border-radius:12px;padding:5px;aspect-ratio:5/7;max-width:100%;display:flex}
+.mini .face-in{border-radius:8px;align-items:center;justify-content:center;gap:4px;padding:6px;text-align:center;font-size:.72rem;font-weight:700}
+.mini .face-in svg{width:56px;height:56px}
+.mini.empty{border:2px dashed var(--line);background:transparent}
+.mini.empty .face-in{background:transparent;color:var(--muted)}
+.swatches{display:flex;gap:8px;flex-wrap:wrap}
+.toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;border:1.5px solid var(--line);border-radius:12px}
+.switch{width:46px;height:28px;border-radius:999px;background:var(--ctl);border:0;position:relative;flex:none;transition:background .2s}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:var(--surface);transition:transform .2s;box-shadow:0 1px 2px rgba(0,0,0,.2)}
+.switch[aria-checked="true"]{background:var(--spruce)}
+.switch[aria-checked="true"]::after{transform:translateX(18px)}
+
+/* sheet, toast, level up */
+.scrim{position:fixed;inset:0;background:rgba(10,8,6,.5);z-index:50;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--bg);width:100%;max-width:620px;max-height:88%;overflow:auto;border-radius:22px 22px 0 0;padding:8px 16px calc(20px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:14px;animation:up .28s cubic-bezier(.2,1,.3,1)}
+.grab{width:42px;height:5px;border-radius:9px;background:var(--line);margin:4px auto 0}
+@keyframes up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.toasts{position:fixed;left:0;right:0;bottom:calc(76px + env(safe-area-inset-bottom,0px));z-index:60;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;padding-inline:16px}
+.toast{background:var(--ink);color:var(--bg);padding:9px 14px;border-radius:999px;font-weight:700;font-size:.88rem;display:flex;gap:8px;align-items:center;box-shadow:var(--shadow);animation:pop .3s cubic-bezier(.3,1.5,.5,1)}
+.toast .x{background:var(--gold);color:var(--on-gold);border-radius:999px;padding:1px 8px;font-size:.8rem}
+@keyframes pop{from{transform:translateY(12px) scale(.9);opacity:0}to{transform:none;opacity:1}}
+.levelup{text-align:center;align-items:center}
+.levelup .nova{width:120px;height:120px;animation:wag 1s ease-in-out 2}
+@keyframes wag{0%,100%{transform:rotate(0)}25%{transform:rotate(-6deg)}75%{transform:rotate(6deg)}}
+.levelup .big-level{color:var(--tan-ink);font-size:3.2rem}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:70;width:100%;height:100%}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+@media (min-width:700px){main{padding-top:24px}}
+@media (max-width:380px){.brand-text{display:none}}
+h2,h3{overflow-wrap:anywhere}
+</style>
+
+<header class="top"><div class="top-in">
+  <button class="brand" data-act="tab" data-tab="today" aria-label="Nova's Pack home"><span id="brandNova"></span><span class="brand-text">Nova's Pack</span></button>
+  <button class="sos" data-act="lost" aria-label="Send a lost dog alert"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4M12 17v.5"/></svg>Lost dog</button>
+  <div class="lvl-chip" id="lvlChip"></div>
+</div></header>
+
+<h1 class="sr">Nova's Pack</h1>
+<main id="app"></main>
+
+<nav class="tabs" aria-label="Sections"><div class="tabs-in" id="tabs"></div></nav>
+<div class="toasts" id="toasts" role="status"></div>
+<div id="sheetRoot"></div>
+<canvas id="confetti" hidden></canvas>
+
+<script>
+/* ---------- icons ---------- */
+const IC = {
+  home:'<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/>',
+  feed:'<rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-8 8"/>',
+  pack:'<circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M15.5 14.5c2.7 0 4.5 2 4.5 5"/>',
+  trophy:'<path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4"/><path d="M12 13v4M8 20h8"/>',
+  card:'<rect x="5" y="3" width="14" height="18" rx="2.5"/><circle cx="12" cy="10" r="3"/><path d="M8.5 17h7"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  camera:'<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>',
+  alert:'<path d="M12 3l9.5 17h-19z"/><path d="M12 10v4M12 17v.5"/>',
+  check:'<path d="M5 12.5l4.5 4.5L19 7"/>',
+  heart:'<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>',
+  msg:'<path d="M4 5h16v11H9l-5 4z"/>',
+  pin:'<path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',
+  flame:'<path d="M12 21c4 0 7-2.7 7-6.6 0-3.9-3.3-6-4.2-9.9C12.8 6.6 12 9 12 10c-1-1.3-1.6-2.4-1.7-4C7.7 8.3 5 11 5 14.4 5 18.3 8 21 12 21z"/>',
+  star:'<path d="M12 3.5l2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.8-5.2 2.8 1-5.8-4.2-4.1 5.8-.8z"/>',
+  up:'<path d="M6 15l6-6 6 6"/>',
+  x:'<path d="M6 6l12 12M18 6L6 18"/>',
+  shield:'<path d="M12 3l7 3v6c0 4.5-3 7.6-7 9-4-1.4-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/>',
+  route:'<circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M8 19h7a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h7"/>',
+  bolt:'<path d="M13 3L5 14h6l-1 7 8-11h-6z"/>',
+  space:'<circle cx="12" cy="12" r="8" stroke-dasharray="3 3"/><circle cx="12" cy="12" r="2"/>',
+  bone:'<path d="M7 9.5a2.5 2.5 0 1 1 2-3.5l6 6a2.5 2.5 0 1 1 3.5 2 2.5 2.5 0 1 1-3.5 2l-6-6a2.5 2.5 0 1 1-2-0.5z"/>',
+  sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M5 19l1.5-1.5M17.5 6.5L19 5"/>',
+  rain:'<path d="M7 15a4 4 0 1 1 1-7.9A5 5 0 0 1 18 9a3 3 0 0 1 0 6z"/><path d="M8 19l-1 2M12 19l-1 2M16 19l-1 2"/>',
+  puzzle:'<path d="M5 8h3a2 2 0 1 1 4 0h3v3a2 2 0 1 1 0 4v4H5v-4a2 2 0 1 0 0-4z"/>',
+  brush:'<path d="M14 4l6 6-8 8H6v-6z"/><path d="M9 9l6 6"/>',
+  wave:'<path d="M7 11V6a1.5 1.5 0 0 1 3 0v4M10 10V4.5a1.5 1.5 0 0 1 3 0V10M13 10V5.5a1.5 1.5 0 0 1 3 0V12M7 11a1.5 1.5 0 0 0-3 0c0 5 3 9 8 9s7-3 7-7v-3a1.5 1.5 0 0 0-3 0"/>',
+  smile:'<circle cx="12" cy="12" r="9"/><path d="M8.5 14.5c1 1.3 2.2 2 3.5 2s2.5-.7 3.5-2M9 9.5v.5M15 9.5v.5"/>',
+  whistle:'<path d="M3 13a5 5 0 0 0 10 0V9h8V6H8a5 5 0 0 0-5 5z"/><circle cx="8" cy="13" r="1.5"/>',
+  calm:'<path d="M3 18h18"/><path d="M6 18c0-3 2.5-5 6-5s6 2 6 5"/><path d="M9 9a3 3 0 0 1 6 0"/>',
+  calendar:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>',
+  sparkle:'<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z"/>',
+  moon:'<path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/>',
+  reset:'<path d="M4 12a8 8 0 1 0 2.3-5.6L4 8.7"/><path d="M4 4v4.7h4.7"/>',
+  edit:'<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13 7l4 4"/>',
+};
+const ic = (n, cls='') => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[n]||''}</svg>`;
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt = n => n.toLocaleString('en-IE');
+
+/* ---------- dog illustration ---------- */
+const BREEDS = {
+  gsd:{label:'German Shepherd', base:'#C98A4B', cap:'#2B211A', muzzle:'#1F1A17', ears:'up', inner:'#E3B07C'},
+  lab:{label:'Labrador', base:'#E7C27D', cap:'#E7C27D', muzzle:'#F2D9A6', ears:'flop', earC:'#D8AE62'},
+  collie:{label:'Border Collie', base:'#F6F1E7', cap:'#22201E', muzzle:'#F6F1E7', ears:'flop', earC:'#22201E'},
+  beagle:{label:'Beagle', base:'#F4EBDD', cap:'#B9733A', muzzle:'#F4EBDD', ears:'flop', earC:'#8C5428'},
+  dachshund:{label:'Dachshund', base:'#9C5A2C', cap:'#9C5A2C', muzzle:'#B8743F', ears:'flop', earC:'#7E4520'},
+  shiba:{label:'Shiba Inu', base:'#D9853B', cap:'#D9853B', muzzle:'#F7EBDA', ears:'up', inner:'#F7EBDA'},
+  greyhound:{label:'Greyhound', base:'#8D8A86', cap:'#8D8A86', muzzle:'#A9A6A1', ears:'flop', earC:'#76736F'},
+  indie:{label:'Indie / Mixed', base:'#B98552', cap:'#B98552', muzzle:'#E6C9A2', ears:'up', inner:'#E6C9A2'},
+  wolfhound:{label:'Irish Wolfhound', base:'#A79D8E', cap:'#8E8475', muzzle:'#B9B0A2', ears:'flop', earC:'#7C7365'},
+  golden:{label:'Golden Retriever', base:'#D9A35A', cap:'#D9A35A', muzzle:'#EBC88C', ears:'flop', earC:'#C58D45'},
+};
+function dogInner(key, opt={}){
+  const p = {...(BREEDS[key]||BREEDS.indie), ...(opt.coat?{base:opt.coat}:{})};
+  const ears = p.ears==='up'
+    ? `<path d="M27 44 L24 10 L46 30 Z" fill="${p.cap}"/><path d="M73 44 L76 10 L54 30 Z" fill="${p.cap}"/><path d="M30 38 L28 18 L41 31 Z" fill="${p.inner||p.base}"/><path d="M70 38 L72 18 L59 31 Z" fill="${p.inner||p.base}"/>`
+    : `<ellipse cx="25" cy="50" rx="10" ry="20" transform="rotate(18 25 50)" fill="${p.earC||p.cap}"/><ellipse cx="75" cy="50" rx="10" ry="20" transform="rotate(-18 75 50)" fill="${p.earC||p.cap}"/>`;
+  const tag = opt.tag ? `<path d="M36 82 Q50 90 64 82" stroke="#E0566E" stroke-width="5" fill="none" stroke-linecap="round"/><circle cx="50" cy="90" r="5" fill="#F2B544"/>` : '';
+  const cheek = p.muzzle==='#1F1A17' ? '#3A2D24' : p.muzzle;
+  return `${ears}
+  <ellipse cx="50" cy="54" rx="27" ry="25" fill="${p.base}"/>
+  <path d="M23 54 Q23 29 50 29 Q77 29 77 54 Q64 46 50 51 Q36 46 23 54Z" fill="${p.cap}"/>
+  ${opt.nova?`<path d="M43 50 Q50 46 57 50 L56 63 Q50 61 44 63Z" fill="${p.cap}"/><ellipse cx="40.5" cy="48.6" rx="2.8" ry="1.8" fill="${p.inner}"/><ellipse cx="59.5" cy="48.6" rx="2.8" ry="1.8" fill="${p.inner}"/>`:''}
+  <ellipse cx="50" cy="69" rx="15" ry="12" fill="${cheek}"/>
+  <circle cx="40" cy="55" r="3.4" fill="#1F1A17"/><circle cx="60" cy="55" r="3.4" fill="#1F1A17"/>
+  <circle cx="41.2" cy="53.8" r="1.1" fill="#FFF"/><circle cx="61.2" cy="53.8" r="1.1" fill="#FFF"/>
+  <ellipse cx="50" cy="63.5" rx="5.5" ry="3.8" fill="#1F1A17"/><ellipse cx="48.6" cy="62.6" rx="1.6" ry="1" fill="#6B5A4E"/>
+  <path d="M50 67 L50 71 M44 72 Q50 77 56 72" stroke="#1F1A17" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+  ${opt.tongue?'<path d="M47 73 Q50 82 53 73 Z" fill="#E07A7A"/>':''}${tag}`;
+}
+function dogSVG(key, opt={}){
+  const bg = opt.bg ? `<rect width="100" height="100" fill="${opt.bg}"/>` : '';
+  return `<svg viewBox="0 0 100 100" role="img" aria-label="${esc(opt.label||'Dog illustration')}">${bg}${dogInner(key,opt)}</svg>`;
+}
+function novaSVG(){ return dogSVG('gsd',{tag:true,tongue:true,nova:true,label:'Nova, the German Shepherd mascot'}); }
+const SCENES = {
+  park:{sky:'#CFE3D8', ground:'#7DB089', extra:'<circle cx="270" cy="40" r="18" fill="#F2B544"/><circle cx="60" cy="178" r="11" fill="#D9604A"/>'},
+  beach:{sky:'#CFE6F0', ground:'#EBD7AE', extra:'<rect y="120" width="320" height="22" fill="#7FB7C9"/><circle cx="262" cy="42" r="16" fill="#F2B544"/>'},
+  rain:{sky:'#A7B6BC', ground:'#6E8F78', extra:Array.from({length:22},(_,i)=>`<path d="M${(i*37)%320} ${(i*53)%110} l-6 14" stroke="#E6EEF1" stroke-width="2" stroke-linecap="round"/>`).join('')+'<ellipse cx="240" cy="190" rx="50" ry="8" fill="#8FA9B3"/>'},
+  couch:{sky:'#E9DCCB', ground:'#5E7F74', extra:'<rect x="20" y="40" width="60" height="44" rx="4" fill="#F4EDE2" stroke="#C9B9A3" stroke-width="3"/>'},
+  snow:{sky:'#DDE6EC', ground:'#F7F9FA', extra:Array.from({length:30},(_,i)=>`<circle cx="${(i*41)%320}" cy="${(i*29)%140}" r="${2+(i%3)}" fill="#FFF"/>`).join('')},
+  trick:{sky:'#F0E2D0', ground:'#C7A27C', extra:'<circle cx="250" cy="170" r="14" fill="#D9604A"/><path d="M60 60 l10 -18 l10 18 z" fill="#F2B544"/>'},
+};
+function sceneSVG(breed, kind, label){
+  const s = SCENES[kind]||SCENES.park;
+  return `<svg viewBox="0 0 320 220" preserveAspectRatio="xMidYMid slice" role="img" aria-label="${esc(label)}"><rect width="320" height="220" fill="${s.sky}"/><ellipse cx="160" cy="250" rx="260" ry="100" fill="${s.ground}"/>${s.extra}<g transform="translate(95 40) scale(1.35)">${dogInner(breed,{tongue:kind!=='rain'})}</g></svg>`;
+}
+
+/* ---------- example community (clearly marked) ---------- */
+const M = {
+  m1:{owner:'Aoife', dog:'Bran', breed:'wolfhound', city:'Galway', lvl:12},
+  m2:{owner:'Priya', dog:'Mango', breed:'indie', city:'Bengaluru', lvl:9},
+  m3:{owner:'Sam', dog:'Biscuit', breed:'beagle', city:'Leeds', lvl:7},
+  m4:{owner:'Lucía', dog:'Churro', breed:'dachshund', city:'Madrid', lvl:15},
+  m5:{owner:'Kenji', dog:'Mochi', breed:'shiba', city:'Osaka', lvl:11},
+  m6:{owner:'Maya', dog:'Pepper', breed:'collie', city:'Toronto', lvl:18, trainer:true},
+  m7:{owner:'Tomás', dog:'Luna', breed:'lab', city:'Lisbon', lvl:6},
+  m8:{owner:'Grace', dog:'Otis', breed:'greyhound', city:'Melbourne', lvl:21},
+  m9:{owner:'Ciarán', dog:'Rex', breed:'gsd', city:'local', lvl:8},
+  m10:{owner:'Niamh', dog:'Honey', breed:'golden', city:'local', lvl:4},
+  m11:{owner:'Dr. Ana', dog:'Pip', breed:'beagle', city:'Lisbon', lvl:16, vet:true},
+  nova:{owner:'her human', dog:'Nova', breed:'gsd', city:'Limerick', lvl:24, photo:'face', insta:true},
+};
+const IMG = n => String(n).startsWith('data:') ? n : `img/${n}.jpg`;
+const INSTA = 'https://www.instagram.com/novathehumanhandler/';
+const BG = ['#DDE8F1','#F4E3D1','#FBEBC6','#E3E8F2','#EFE0E8','#E6E2D6'];
+const memAva = (id,i=0) => M[id].photo ? `<img src="${IMG(M[id].photo)}" alt="${esc(M[id].dog)}">` : dogSVG(M[id].breed,{bg:BG[(+id.slice(1))%BG.length],label:M[id].dog});
+const cityOf = id => M[id].city==='local' ? S.dog.city : M[id].city;
+function interleave(a,b){ const o=[]; for(let i=0;i<Math.max(a.length,b.length);i++){ if(a[i]) o.push(a[i]); if(b[i]) o.push(b[i]); } return o; }
+
+const NOVA_POSTS = [
+  {id:'n1', by:'nova', img:'sunset', text:'Sunset shift on the Shannon. Human took 40 photos. I approved one.', tag:'Golden hour', kudos:926, ago:'from Instagram', comments:[['Aoife','That light though.']]},
+  {id:'n3', by:'nova', img:'night', text:'Night patrol. Reflective lead on, standards high, stick acquired.', tag:'Night walk', kudos:1090, ago:'from Instagram', comments:[]},
+  {id:'n2', by:'nova', img:'bellyup', text:'Off duty. Complaints go to my handler, who is also me.', tag:'Off duty', kudos:1056, ago:'from Instagram', comments:[['Kenji','The teeth. Iconic.']]},
+  {id:'n4', by:'nova', img:'xmas', text:'Christmas bonus received. Still demanding a raise.', tag:'Seasonal', kudos:1041, ago:'from Instagram', comments:[]},
+  {id:'n5', by:'nova', img:'raincoat', text:"Raincoat era. It's Limerick, so that's most of the year.", tag:'Rain or Shine', kudos:1017, ago:'from Instagram', comments:[]},
+];
+const POSTS = [
+  {id:'p1', by:'m5', scene:'snow', text:'First snow of the season. Mochi has opinions about it.', tag:'Daily: derp face', kudos:214, ago:'2h', comments:[['Maya','That side-eye is perfect.']]},
+  {id:'p2', by:'m8', scene:'couch', text:'Otis turned 11 today. Still does one zoomie lap every morning, then naps until four.', tag:'Golden Oldie', kudos:532, ago:'4h', comments:[['Aoife','Happy birthday Otis!'],['Kenji','Goals.']]},
+  {id:'p3', by:'m2', scene:'park', text:'Did the sniff-walk challenge. 10 minutes, about 40 metres covered, zero regrets.', tag:'Daily: sniff walk', kudos:188, ago:'6h', comments:[]},
+  {id:'p4', by:'m9', scene:'rain', text:'Rain or shine. Mostly rain.', tag:'Rain or Shine badge', kudos:97, ago:'8h', comments:[['Niamh','See you at the Saturday walk?']]},
+  {id:'p5', by:'m4', scene:'trick', text:'Churro finally nailed "spin". Three weeks of five-minute sessions.', tag:'Trick mastered', kudos:301, ago:'1d', comments:[]},
+  {id:'p6', by:'m7', scene:'beach', text:'Saturday group walk on the beach. Nine dogs, one very sandy car.', tag:'Meetup', kudos:156, ago:'1d', comments:[]},
+];
+const POLLS = [
+  {id:'poll1', q:'When does your dog get their main walk?', opts:[['Before 8am',1061],['Lunchtime',338],['After work',1154],['Late evening',261]]},
+  {id:'poll2', q:'Breed vs breed: who has the best zoomies?', opts:[['Shepherds',842],['Collies',910],['Labs',655],['Terriers',1203]]},
+];
+const NEWBIES = [
+  {name:'Ola & Bjørn', city:'Oslo', breed:'wolfhound'},
+  {name:'Ravi & Toffee', city:'Pune', breed:'indie'},
+  {name:'Erin & Scout', city:'Cork', breed:'collie'},
+  {name:'Jo & Waffles', city:'Austin', breed:'dachshund'},
+];
+const QUESTIONS = [
+  {id:'q1', by:'m9', tag:'Reactive', title:'My shepherd barks at every dog on the lead. Where do I even start?', votes:46, answers:[
+    {by:'m6', text:'Start with distance. Find the spot where your dog notices another dog but can still take a treat, and reward calmly there. Shrink the distance over weeks, not days.', votes:38, best:true},
+    {by:'m8', text:'Quiet-time walks helped us most. Early mornings, plus the small "needs space" groups on here.', votes:12}]},
+  {id:'q3', by:'m10', tag:'Health', title:'My dog ate a few grapes 20 minutes ago. Do I need to worry?', votes:29, answers:[
+    {by:'m11', text:'Yes, call your vet or an emergency vet now. Grapes and raisins can cause kidney damage in some dogs, and acting early matters. Don\'t wait for symptoms.', votes:41, best:true}]},
+  {id:'q2', by:'m7', tag:'Puppy', title:'How long can a 4-month-old pup be left alone?', votes:31, answers:[
+    {by:'m6', text:'Build it up in small steps, starting with a few minutes. Many trainers suggest keeping it short at this age and getting a midday visit if you work full days.', votes:19, best:true},
+    {by:'m3', text:'A dog walker twice a week made a big difference for us.', votes:6}]},
+  {id:'q4', by:'m1', tag:'German Shepherd', title:'Shepherd owners: how do you cope with the shedding?', votes:22, answers:[
+    {by:'m9', text:'De-shedding rake twice a week, a proper hoover, and accepting that fur is now an ingredient.', votes:17}]},
+];
+const HEALTH_WORDS = /\b(vomit\w*|sick\w*|blood\w*|bleed\w*|limp\w*|seizure\w*|poison\w*|ate|eaten|eating (?:a|some|my)|chocolate|grapes?|raisins?|xylitol|swollen|diarrh\w*|not eating|collaps\w*|breathing|lump\w*)\b/i;
+function groups(){ const c=S.dog.city; return [
+  {id:'g1', name:`${c} Riverside Walkers`, kind:'Local', members:214, next:'Sat 10:00 · river path car park', color:'spruce', meet:'m9'},
+  {id:'g2', name:`Quiet Walks ${c}`, kind:'Needs space', members:58, next:'Sun 07:30 · groups of 4 max', color:'tan', space:true, meet:'m10'},
+  {id:'g3', name:`${c} Puppy Club`, kind:'Life stage', members:96, next:'Wed 18:30 · indoor socialising', color:'gold', meet:'m10'},
+  {id:'g4', name:'German Shepherd Owners', kind:'Breed', members:12408, next:'Online · weekly Q&A, Thu', color:'spruce', global:true, meet:'m9'},
+  {id:'g5', name:'Reactive & Proud', kind:'Needs space', members:9112, next:'Online · moderated, positive-only', color:'tan', space:true, global:true},
+  {id:'g6', name:'Senior Dogs Club', kind:'Life stage', members:6930, next:'Online · monthly photo day', color:'gold', global:true},
+];}
+const PLACES = [
+  {id:'v1', cat:'Vets', name:'Riverside Vet Clinic', area:'City centre', rating:4.8, vouches:31, price:'Consult €55', tags:['Fear-free','Good with big breeds','Out-of-hours line']},
+  {id:'v2', cat:'Vets', name:'Northside Animal Hospital', area:'North side', rating:4.5, vouches:12, price:'Consult €60', tags:['Open late','Clear price list']},
+  {id:'gr1', cat:'Groomers', name:'Suds & Snouts', area:'Docklands', rating:4.9, vouches:18, price:'Full groom from €45', tags:['Big-breed table','Calm with nervous dogs']},
+  {id:'s1', cat:'Sitters', name:'Eimear · home boarding', area:'South side', rating:5.0, vouches:9, price:'€30 / night', tags:['Max 2 dogs','Garden, fenced','Meet-and-greet first']},
+  {id:'c1', cat:'Cafés', name:'The Lead & Ladle', area:'Riverside', rating:4.7, vouches:44, price:'Dog menu', tags:['Dogs inside','Water bowls','Quiet corner']},
+  {id:'pk1', cat:'Parks', name:'Riverside loop', area:'3.2 km loop', rating:4.6, vouches:27, price:'Free', tags:['Off-lead field','Quiet before 8am','Bins on route']},
+  {id:'pk2', cat:'Parks', name:'Wetlands trail', area:'4 km out and back', rating:4.4, vouches:15, price:'Free', tags:['On-lead only','Good for reactive dogs']},
+];
+const LEAGUE_NAMES = ['Kennel','Park','Trail','Summit','Legend'];
+const RIVALS = [['Maya','m6',412],['Ciarán','m9',356],['Kenji','m5',298],['Grace','m8',271],['Lucía','m4',240],['Aoife','m1',212],['Priya','m2',188],['Niamh','m10',150],['Sam','m3',122],['Tomás','m7',96],['Ravi','m2',64],['Ola','m1',38]];
+
+/* ---------- game rules ---------- */
+const XP = { hashtag:[30,1], walk:[20,2], trick:[15,2], challenge:[25,3], post:[10,3], answer:[15,5], ask:[5,3], kudos:[2,20], vote:[3,5], review:[15,2], welcome:[10,3], meetup:[50,99], quest:[150,99] };
+const TITLES = [[1,'Human in Training'],[3,'Treat Dispenser'],[5,'Sniffari Scout'],[8,'Trick Trainer'],[11,'Park Regular'],[15,'Trusted Handler'],[20,'Pack Mentor'],[25,'Alpha Walker'],[30,'Top Dog'],[40,'Pack Legend']];
+const levelOf = xp => Math.floor(Math.sqrt(xp/75))+1;
+const xpFor = L => 75*(L-1)*(L-1);
+const titleOf = L => TITLES.filter(t=>L>=t[0]).pop()[1];
+const CHALLENGES = [
+  {id:'sniff', t:'10-minute sniff walk, dog leads the way', ic:'route', stat:'snoot'},
+  {id:'trick3', t:'Practise one trick three times', ic:'sparkle', stat:'smarts'},
+  {id:'route', t:'Try a route you have never walked', ic:'pin', stat:'snoot'},
+  {id:'settle', t:'Five calm minutes on the mat', ic:'calm', stat:'chill'},
+  {id:'paws', t:'Paw and ear check, then a treat', ic:'brush', stat:'chill'},
+  {id:'puzzle', t:'Puzzle toy or scatter feed for dinner', ic:'puzzle', stat:'smarts'},
+  {id:'hello', t:'Say hi to another dog owner', ic:'wave', stat:'pack'},
+  {id:'answer', t:'Answer one question in the Pack', ic:'msg', stat:'pack'},
+  {id:'derp', t:'Snap a derp-face photo', ic:'camera', stat:'zoomies'},
+  {id:'recall', t:'Practise recall five times', ic:'whistle', stat:'smarts'},
+  {id:'golden', t:'Golden-hour photo by the water', ic:'sun', stat:'snoot'},
+];
+const HASHTAGS = [
+  {tag:'SunsetShift', d:'Post your dog on a sunset or evening walk.'},
+  {tag:'OffDuty', d:"Post your dog's most unbothered nap pose. Belly-up gets bonus respect."},
+  {tag:'DressCode', d:'Post your dog in their work uniform: raincoat, jumper or bandana.'},
+];
+const QUESTS = [
+  {id:'explorer', t:'Explorer', d:'Walk 3 new routes this week', goal:3, key:'newRoutes'},
+  {id:'social', t:'Social Butterfly', d:'Check in at a meetup and give 3 answers', goal:4, key:'social'},
+  {id:'trickweek', t:'Trick Week', d:'Log 5 trick practice sessions', goal:5, key:'tricks'},
+];
+const BADGES = [
+  {id:'founder', n:'Founding Pack', d:'Joined in the first 100', ic:'star', ok:()=>true},
+  {id:'first-sniff', n:'First Sniff', d:'Log your first walk', ic:'route', ok:s=>s.t.walks>=1},
+  {id:'rain', n:'Rain or Shine', d:'Walk on 5 rainy days', ic:'rain', ok:s=>s.t.rainy>=5},
+  {id:'dawn', n:'Dawn Patrol', d:'10 walks before 7am', ic:'sun', ok:s=>s.t.early>=10},
+  {id:'sit', n:'Sit Happens', d:'Master 5 tricks (3 sessions each)', ic:'sparkle', ok:s=>Math.floor(s.t.tricks/3)>=5},
+  {id:'turf', n:'New Turf', d:'Walk 10 new routes', ic:'pin', ok:s=>s.t.newRoutes>=10},
+  {id:'packanimal', n:'Pack Animal', d:'Check in at 5 meetups', ic:'pack', ok:s=>s.t.meetups>=5},
+  {id:'samaritan', n:'Good Samaritan', d:'Give 10 answers', ic:'msg', ok:s=>s.t.answers>=10},
+  {id:'welcome', n:'Welcome Wagon', d:'Welcome 10 newcomers', ic:'wave', ok:s=>s.t.welcomes>=10},
+  {id:'voice', n:'Trusted Voice', d:'Vouch for 5 local places', ic:'shield', ok:s=>s.t.vouches>=5},
+  {id:'snapper', n:'Snapper', d:'Share 5 photos', ic:'camera', ok:s=>s.t.posts>=5},
+  {id:'streak4', n:'Four-Week Wag', d:'Hit your walk goal 4 weeks running', ic:'flame', ok:s=>s.streakWeeks>=4},
+  {id:'hero', n:'Pack Hero', d:'Help reunite a lost dog', ic:'heart', ok:s=>s.t.heroes>=1},
+];
+
+/* ---------- state ---------- */
+const KEY='novapack.v1';
+const dkey = (d=new Date()) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const monday = (d=new Date()) => { const x=new Date(d); const k=(x.getDay()+6)%7; x.setDate(x.getDate()-k); return dkey(x); };
+const hash = s => [...s].reduce((a,c)=>(a*31+c.charCodeAt(0))>>>0,7);
+function offeredFor(day){ const ids=CHALLENGES.map(c=>c.id); const h=hash(day); const out=[]; let i=0; while(out.length<5){ const id=ids[(h+i*7)%ids.length]; if(!out.includes(id)) out.push(id); i++; } return out; }
+function fresh(){
+  const today=dkey();
+  return { v:1, tab:'today',
+    dog:{name:'Nova', breed:'gsd', age:'1', city:'Limerick', space:false, photo:'nova', insta:'novathehumanhandler'},
+    xp:262, day:today, dayXP:0, counts:{}, offered:offeredFor(today), picked:[], done:[],
+    week:monday(), weekXP:0, walkDays:[], streakWeeks:3, passes:2,
+    stats:{zoomies:34, smarts:22, snoot:28, pack:14, chill:18},
+    t:{walks:6, rainy:2, early:1, tricks:4, newRoutes:1, meetups:0, answers:1, welcomes:0, vouches:0, posts:1, heroes:0},
+    q:{newRoutes:1, social:0, tricks:1}, questDone:false,
+    badges:['founder','first-sniff'], myPosts:[], kudos:{}, votes:{}, qvotes:{}, myAnswers:{}, myQuestions:[], rsvp:{}, checked:{}, vouched:{}, greeted:{}, binder:[],
+    lbHidden:false, board:'league', packView:'ask', placeCat:'Vets', feedFilter:'all', alert:null, openQ:null };
+}
+let S;
+try{ S = JSON.parse(localStorage.getItem(KEY)) || fresh(); }catch(e){ S = fresh(); }
+if(!S || S.v!==1) S=fresh();
+if(S.dog.name==='Nova' && S.dog.breed==='gsd' && !S.dog.photo && !S.dog.noPhoto) S.dog.photo='nova';
+if(S.dog.insta===undefined) S.dog.insta = S.dog.name==='Nova' ? 'novathehumanhandler' : '';
+const igURL = h => `https://www.instagram.com/${encodeURIComponent(h)}/`;
+const photoSrc = k => S.dog.photo==='nova' ? (k==='ava'?'img/face.jpg':'img/card.jpg') : S.dog.photo;
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){ /* storage full or blocked: keep playing in memory */ } }
+function rollover(){
+  const today=dkey(), wk=monday();
+  if(S.week!==wk){
+    const hit = S.walkDays.length>=3;
+    if(hit) S.streakWeeks++; else if(S.passes>0){ S.passes--; } else S.streakWeeks=0;
+    S.week=wk; S.weekXP=0; S.walkDays=[]; S.q={newRoutes:0,social:0,tricks:0}; S.questDone=false;
+  }
+  if(S.day!==today){ S.day=today; S.dayXP=0; S.counts={}; S.offered=offeredFor(today); S.picked=[]; S.done=[]; }
+}
+rollover();
+const quest = () => QUESTS[hash(S.week)%QUESTS.length];
+const rarity = () => { const L=levelOf(S.xp); const hi=Object.values(S.stats).filter(v=>v>=50).length;
+  if(L>=30) return 'legendary'; if(S.streakWeeks>=26) return 'epic'; if(hi>=3) return 'rare'; if(L>=5) return 'uncommon'; return 'common'; };
+
+/* ---------- XP engine ---------- */
+function award(action, label){
+  const [base,cap]=XP[action]; const n=S.counts[action]||0;
+  S.counts[action]=n+1;
+  if(n>=cap){ toast(`${label} logged. Daily XP cap reached for this one.`); return 0; }
+  let amt = S.dayXP>=200 ? Math.ceil(base/2) : base;
+  const before=levelOf(S.xp);
+  S.xp+=amt; S.dayXP+=amt; S.weekXP+=amt;
+  toast(label, amt);
+  const after=levelOf(S.xp);
+  if(after>before) setTimeout(()=>{ if(document.querySelector('.scrim')) pendingLevel=after; else levelUp(after); }, 450);
+  return amt;
+}
+function bump(stat, by=1){ S.stats[stat]=Math.min(99,(S.stats[stat]||0)+by); }
+function checkBadges(){
+  BADGES.forEach(b=>{ if(!S.badges.includes(b.id) && b.ok(S)){ S.badges.push(b.id); setTimeout(()=>toast(`Badge earned: ${b.n}`),900); } });
+}
+function checkQuest(){
+  const q=quest();
+  if(!S.questDone && (S.q[q.key]||0)>=q.goal){ S.questDone=true; award('quest', `Weekly quest done: ${q.t}`); }
+}
+function after(){ checkBadges(); checkQuest(); save(); render(); }
+
+/* ---------- UI helpers ---------- */
+function toast(msg, xp){
+  const el=document.createElement('div'); el.className='toast';
+  el.innerHTML = `<span>${esc(msg)}</span>${xp?`<span class="x num">+${xp} XP</span>`:''}`;
+  const box=document.getElementById('toasts'); box.appendChild(el);
+  while(box.children.length>3) box.firstChild.remove();
+  setTimeout(()=>el.remove(), 2600);
+}
+let opener=null;
+function focusKey(el){ return el && el.dataset ? `[data-act="${el.dataset.act}"]${el.dataset.id?`[data-id="${el.dataset.id}"]`:''}${el.dataset.tab?`[data-tab="${el.dataset.tab}"]`:''}${el.dataset.k?`[data-k="${el.dataset.k}"]`:''}${el.dataset.i?`[data-i="${el.dataset.i}"]`:''}` : null; }
+function setInert(on){ ['app','tabs'].forEach(id=>{ const n=document.getElementById(id); if(n) n.inert=on; }); document.querySelector('.top').inert=on; document.body.style.overflow=on?'hidden':''; }
+function openSheet(html){
+  if(!document.querySelector('.scrim')) opener=focusKey(document.activeElement);
+  document.getElementById('sheetRoot').innerHTML = `<div class="scrim" data-act="scrim"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle"><div class="grab"></div>${html}</div></div>`;
+  const h=document.querySelector('.sheet h2'); if(h) h.id='sheetTitle';
+  setInert(true);
+  const f=document.querySelector('.sheet input, .sheet textarea, .sheet button'); if(f) f.focus({preventScroll:true});
+}
+function closeSheet(){ const had=!!document.querySelector('.scrim'); document.getElementById('sheetRoot').innerHTML=''; setInert(false);
+  if(had){ const k=opener; opener=null; setTimeout(()=>{ const t=k&&document.querySelector(k); if(t) t.focus({preventScroll:true}); if(pendingLevel){ const L=pendingLevel; pendingLevel=null; levelUp(L); } },0); } }
+let pendingLevel=null;
+function levelUp(L){
+  openSheet(`<div class="stack levelup"><div class="nova">${novaSVG()}</div><p class="eyebrow">Level up</p><div class="big-level num">Level ${L}</div><h2>${titleOf(L)}</h2><p class="muted">Promotion approved by management (Nova). She still wants a raise.</p><button class="btn primary block" data-act="close">Keep going</button></div>`);
+  confetti();
+}
+function confetti(){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const c=document.getElementById('confetti'); c.hidden=false; const x=c.getContext('2d');
+  const W=c.width=innerWidth, H=c.height=innerHeight;
+  const cols=['#F2B544','#1F4E6E','#C27A3A','#8EC1E0','#E0566E'];
+  const ps=Array.from({length:120},()=>({x:W/2+(Math.random()-.5)*80,y:H*.35,vx:(Math.random()-.5)*9,vy:-Math.random()*11-3,r:Math.random()*6+4,a:Math.random()*6,c:cols[Math.floor(Math.random()*cols.length)]}));
+  let f=0; (function tick(){ x.clearRect(0,0,W,H); ps.forEach(p=>{p.vy+=.32;p.x+=p.vx;p.y+=p.vy;p.a+=.15;x.save();x.translate(p.x,p.y);x.rotate(p.a);x.fillStyle=p.c;x.fillRect(-p.r/2,-p.r/4,p.r,p.r/2);x.restore();});
+    if(++f<110) requestAnimationFrame(tick); else { x.clearRect(0,0,W,H); c.hidden=true; } })();
+}
+function myAva(){ return S.dog.photo ? `<img src="${photoSrc('ava')}" alt="${esc(S.dog.name)}">` : dogSVG(S.dog.breed,{bg:'#DDE8F1',tag:S.dog.breed==='gsd',nova:S.dog.breed==='gsd',label:S.dog.name}); }
+function resize(file, max=900){
+  return new Promise((res,rej)=>{ const r=new FileReader(); r.onerror=rej; r.onload=()=>{ const im=new Image(); im.onload=()=>{ const k=Math.min(1,max/Math.max(im.width,im.height)); const c=document.createElement('canvas'); c.width=Math.round(im.width*k); c.height=Math.round(im.height*k); c.getContext('2d').drawImage(im,0,0,c.width,c.height); res(c.toDataURL('image/jpeg',.82)); }; im.onerror=rej; im.src=r.result; }; r.readAsDataURL(file); });
+}
+
+/* ---------- views ---------- */
+const TABS=[['today','Today','home'],['feed','Feed','feed'],['pack','Pack','pack'],['league','League','trophy'],['dog','My dog','card']];
+function render(){
+  rollover();
+  const L=levelOf(S.xp);
+  document.getElementById('brandNova').innerHTML=novaSVG();
+  document.getElementById('lvlChip').innerHTML=`<span class="lvl-badge num">${L}</span><span class="num">${fmt(S.xp)} XP</span>`;
+  document.getElementById('tabs').innerHTML=TABS.map(([id,l,i])=>`<button class="tab" data-act="tab" data-tab="${id}" ${S.tab===id?'aria-current="page"':''}>${ic(i)}${l}</button>`).join('');
+  const v={today:vToday,feed:vFeed,pack:vPack,league:vLeague,dog:vDog}[S.tab]||vToday;
+  document.getElementById('app').innerHTML=v();
+}
+function alertBanner(){
+  if(!S.alert) return '';
+  return `<section class="card alert-card"><div class="row between"><h3>${ic('alert','')} ${esc(S.dog.name)} is marked lost</h3><span class="pill danger">Live</span></div>
+    <p>Last seen: ${esc(S.alert.where)}${S.alert.when?` · ${esc(S.alert.when)}`:''}. Your flyer is pinned to the top of the ${esc(S.dog.city)} feed.</p>
+    <button class="btn primary" data-act="found">${ic('check')}${esc(S.dog.name)} is home safe</button></section>`;
+}
+function vToday(){
+  const L=levelOf(S.xp), lo=xpFor(L), hi=xpFor(L+1), pct=Math.round((S.xp-lo)/(hi-lo)*100);
+  const hour=new Date().getHours(); const greet=hour<12?'Morning':hour<18?'Afternoon':'Evening';
+  const days=['M','T','W','T','F','S','S']; const ws=new Date(S.week+'T00:00'); const todayIdx=(new Date().getDay()+6)%7;
+  const wk=days.map((d,i)=>{const dt=new Date(ws);dt.setDate(ws.getDate()+i);const on=S.walkDays.includes(dkey(dt));return `<div class="day ${on?'on':''} ${i===todayIdx?'today':''}" role="img" aria-label="${['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'][i]}: ${on?'walked':'no walk yet'}">${d}</div>`;}).join('');
+  const q=quest(), qp=Math.min(q.goal,S.q[q.key]||0);
+  const offered=S.offered.map(id=>CHALLENGES.find(c=>c.id===id));
+  const picking=S.picked.length<3;
+  const chal=offered.map(c=>{
+    const done=S.done.includes(c.id), picked=S.picked.includes(c.id);
+    if(!picking && !picked) return '';
+    const btn = done ? `<span class="pill spruce">${ic('check')}Done</span>`
+      : picked ? `<button class="btn primary sm" data-act="chalDone" data-id="${c.id}">Done</button>`
+      : `<button class="btn ghost sm" data-act="chalPick" data-id="${c.id}">Pick</button>`;
+    return `<div class="chal ${picked?'picked':''} ${done?'done':''}"><div class="chal-ico">${ic(c.ic)}</div><div><div class="t">${c.t}</div><div class="xp">+25 XP · ${c.stat[0].toUpperCase()+c.stat.slice(1)} up</div></div>${btn}</div>`;
+  }).join('');
+  const line = S.alert ? `Stay close to your phone. The pack is looking out for ${esc(S.dog.name)}.`
+    : S.done.length===3 ? `Three for three. Management (me) is impressed. Raise pending.`
+    : S.walkDays.includes(dkey()) ? `Walk logged. Adequate. Now, about that challenge list.`
+    : hour<12 ? `Morning, human. The lead is by the door. I've been patient for four minutes.`
+    : hour<18 ? `Afternoon report: no walk logged yet. I'm noting this for your review.`
+    : `Evening, human. The river looks great at sunset. Just saying.`;
+  return `${alertBanner()}
+  <section class="hero"><img src="img/hero.jpg" alt="Nova sitting by the River Shannon at sunset"><div class="hero-over"><p class="eyebrow">Nova · Professional human handler</p><div class="speech">${line}</div></div></section>
+
+  <section class="card progress-card">
+    <div class="row between"><div><p class="eyebrow" style="color:inherit;opacity:.8">${titleOf(L)}</p><div class="big-level num">Level ${L}</div></div>
+      <div class="ava" style="width:58px;height:58px;border:3px solid var(--gold)">${myAva()}</div></div>
+    <div class="bar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100" aria-label="Progress to next level"><i style="width:${pct}%"></i></div>
+    <p class="small muted num">${fmt(hi-S.xp)} XP to Level ${L+1} · ${titleOf(L+1)}</p>
+    <div class="statline">
+      <div class="stat"><b class="num">${S.streakWeeks}</b><span>week streak</span></div>
+      <div class="stat"><b class="num">${S.passes}</b><span>Paw Passes</span></div>
+      <div class="stat"><b class="num">${S.dayXP}</b><span>XP today</span></div>
+    </div>
+  </section>
+
+  <section class="quick">
+    <button class="btn gold" data-act="walk">${ic('route')}Log a walk</button>
+    <button class="btn primary" data-act="trick">${ic('sparkle')}Trick session</button>
+  </section>
+
+  <section class="card">
+    <div class="section-head"><h3>This week's walks</h3><span class="small muted num">${S.walkDays.length}/3 days for the streak</span></div>
+    <div class="week">${wk}</div>
+    <p class="small muted">Weekly goal, not daily. Miss a week and a Paw Pass covers it (2 a month).</p>
+  </section>
+
+  <section class="stack">
+    <div class="section-head"><h2>Daily challenges</h2><span class="small muted">${picking?`Pick ${3-S.picked.length} of 5`:`${S.done.length}/3 done`}</span></div>
+    ${chal}
+  </section>
+
+  <section class="stack">
+    <div class="section-head"><h2>Nova on Instagram</h2><a class="small" href="${INSTA}" target="_blank" rel="noopener" style="color:var(--spruce);font-weight:700">@novathehumanhandler</a></div>
+    <div class="gram">${[['grass','Nova close-up on the grass'],['pier','Nova on the pier at night'],['silhouette','Nova at sunset'],['redcoat','Nova in her red coat'],['railing','Nova by the river railing'],['blanket','Nova wrapped in a blanket'],['oldtown','Old town walk']].map(([k,a])=>`<img src="img/${k}.jpg" alt="${a}" loading="lazy">`).join('')}</div>
+    <a class="btn ghost" href="${INSTA}" target="_blank" rel="noopener">Follow Nova for proof</a>
+  </section>
+
+  ${(()=>{ const h=HASHTAGS[hash(S.week)%HASHTAGS.length]; const done=S.hashWeek===S.week;
+    return `<section class="card"><div class="section-head"><div><p class="eyebrow">This week's Instagram challenge</p><h3>#${h.tag}</h3></div><span class="pill gold num">+30 XP</span></div>
+    <p class="muted">${h.d} Tag @novathehumanhandler and #NovasPack. Best ones get a Shout-out Saturday.</p>
+    <div class="row wrap">${done?`<span class="pill spruce">${ic('check')}Posted this week</span>`:`<button class="btn primary sm" data-act="hashDone">I posted it</button>`}<a class="btn ghost sm" href="https://www.instagram.com/explore/tags/${h.tag.toLowerCase()}/" target="_blank" rel="noopener">See entries</a></div></section>`; })()}
+
+  <section class="card">
+    <div class="section-head"><div><p class="eyebrow">Weekly quest</p><h3>${q.t}</h3></div><span class="pill gold num">+150 XP</span></div>
+    <p class="muted">${q.d}</p>
+    <div class="bar spruce"><i style="width:${qp/q.goal*100}%"></i></div>
+    <p class="small muted num">${S.questDone?'Complete. Nice work.':`${qp} of ${q.goal}`}</p>
+  </section>`;
+}
+function vFeed(){
+  const filt=S.feedFilter;
+  const mine=S.myPosts.map(p=>postCard({...p, mine:true}));
+  const seed=interleave(NOVA_POSTS,POSTS).filter(p=> filt==='all' || (filt==='local'? cityOf(p.by)===S.dog.city : p.tag.toLowerCase().includes('daily'))).map(postCard);
+  const all=[...(filt==='all'||filt==='local'?mine:[]), ...seed];
+  const pollIdx = hash(S.day)%POLLS.length;
+  if(all.length>2) all.splice(2,0,pollCard(POLLS[pollIdx]));
+  return `${alertBanner()}
+  <section class="card">
+    <div class="row"><div class="ava">${myAva()}</div><button class="input grow" style="text-align:left;color:var(--muted)" data-act="compose">Share a photo of ${esc(S.dog.name)}…</button></div>
+    <div class="row wrap"><button class="btn sm ghost" data-act="compose">${ic('camera')}Photo</button><button class="btn sm ghost" data-act="tab" data-tab="pack" data-view="ask">${ic('msg')}Ask the pack</button><span class="small muted">+10 XP per post</span></div>
+  </section>
+  ${shoutCard()}
+  ${S.alert?'':`<section class="card alert-card"><div class="row between"><h3>Lost near ${esc(S.dog.city)}: Rex</h3><span class="example">Example</span></div>
+    <div class="row"><div class="ava" style="width:56px;height:56px">${memAva('m9')}</div><p class="small grow">German Shepherd, black and tan, red collar. Last seen near the river path 40 minutes ago. Friendly but nervous.</p></div>
+    <button class="btn danger sm" data-act="spotted">${ic('pin')}I've spotted Rex</button></section>`}
+  <section class="stack"><div class="section-head"><h3>New to the pack this week</h3><span class="small muted">+10 XP to welcome</span></div>
+    <div class="newbies">${NEWBIES.map((n,i)=>`<div class="newbie"><div class="ava">${dogSVG(n.breed,{bg:BG[i]})}</div><b class="small">${esc(n.name)}</b><span class="small muted">${esc(n.city)}</span>${S.greeted[i]?`<span class="pill spruce">Welcomed</span>`:`<button class="btn sm primary" data-act="welcome" data-i="${i}">Say hi</button>`}</div>`).join('')}</div></section>
+  <div class="chips" role="group" aria-label="Filter feed">${[['all','Everyone'],['local',`Near ${S.dog.city}`],['daily','Challenge posts']].map(([k,l])=>`<button class="chip" aria-pressed="${filt===k}" data-act="feedFilter" data-k="${k}">${esc(l)}</button>`).join('')}</div>
+  ${all.join('') || `<p class="muted">Nothing here yet. Post the first one.</p>`}
+  <p class="small muted" style="text-align:center">Members and posts marked from other cities are examples for this prototype.</p>`;
+}
+function shoutCard(){
+  const dleft=(6-new Date().getDay()+7)%7; const when = dleft===0?'today':dleft===1?'tomorrow':`in ${dleft} days`;
+  const picks=[['m6','Top weekly XP'],['m4','#OffDuty winner'],['m10','Wildcard']];
+  return `<section class="card"><div class="section-head"><div><p class="eyebrow">Shout-out Saturday · ${when}</p><h3>Nova features 3 pack dogs on her Instagram</h3></div><span class="example">Example picks</span></div>
+    <div class="row" style="gap:14px;justify-content:space-around">${picks.map(([id,l])=>`<div style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px"><div class="ava" style="width:54px;height:54px">${memAva(id)}</div><b class="small">${esc(M[id].dog)}</b><span class="small muted">${l}</span></div>`).join('')}</div>
+    ${S.dog.insta?`<p class="small muted">${esc(S.dog.name)} is in the running as @${esc(S.dog.insta)}. Top weekly XP, a challenge win or a wildcard pick gets featured. Each dog can be featured once every 8 weeks.</p>`
+      :`<p class="small muted">Link ${esc(S.dog.name)}'s Instagram to be eligible.</p><button class="btn gold sm" style="align-self:flex-start" data-act="editDog">${ic('camera')}Link Instagram</button>`}
+  </section>`;
+}
+function postCard(p){
+  const who = p.mine ? {owner:'You', dog:S.dog.name, city:S.dog.city} : {...M[p.by], city:cityOf(p.by)};
+  const ava = p.mine ? myAva() : memAva(p.by);
+  const photo = p.img ? `<img src="${IMG(p.img)}" alt="${esc(p.text||'Photo')}" loading="lazy">` : sceneSVG(p.mine?S.dog.breed:M[p.by].breed, p.scene, `${who.dog} photo`);
+  const on=!!S.kudos[p.id]; const k=(p.kudos||0)+(on?1:0);
+  const comments=[...(p.comments||[]), ...((S.myAnswers['c_'+p.id])||[]).map(t=>['You',t])];
+  return `<article class="card post">
+    <div class="post-head"><div class="ava">${ava}</div><div class="grow"><b>${esc(who.dog)}</b> <span class="muted small">with ${esc(who.owner)}</span>${who.insta?` <a class="small" href="${INSTA}" target="_blank" rel="noopener" style="color:var(--spruce);font-weight:700">@novathehumanhandler</a>`:''}<div class="small muted">${esc(who.city)} · ${p.ago||'just now'}</div></div>${p.tag?`<span class="pill tan">${esc(p.tag)}</span>`:''}</div>
+    <div class="post-photo ${p.img?'sq':''}">${photo}</div>
+    <div class="post-body">
+      ${p.text?`<p>${esc(p.text)}</p>`:''}
+      <div class="react"><button class="kudos" aria-pressed="${on}" data-act="kudos" data-id="${p.id}" ${p.mine?'disabled':''}>${ic('heart')}<span class="num">${fmt(k)}</span> Good dog</button>
+      <button class="kudos" data-act="comment" data-id="${p.id}">${ic('msg')}<span class="num">${comments.length}</span></button></div>
+      ${comments.slice(-2).map(c=>`<p class="comment"><b>${esc(c[0])}</b> ${esc(c[1])}</p>`).join('')}
+    </div></article>`;
+}
+function pollCard(p){
+  const mine=S.votes[p.id];
+  const tot=p.opts.reduce((a,o)=>a+o[1],0)+(mine!=null?1:0);
+  return `<section class="card"><div class="row between"><p class="eyebrow">Pack poll</p><span class="small muted num">${fmt(tot)} votes</span></div><h3>${esc(p.q)}</h3>
+    <div class="stack">${p.opts.map((o,i)=>{const n=o[1]+(mine===i?1:0);const pc=Math.round(n/tot*100);
+      return `<button class="poll-opt ${mine===i?'mine':''}" data-act="vote" data-id="${p.id}" data-i="${i}" ${mine!=null?'disabled':''}><i style="width:${mine!=null?pc:0}%"></i><span>${esc(o[0])}</span>${mine!=null?`<span class="num">${pc}%</span>`:''}</button>`}).join('')}</div>
+    ${mine==null?'<p class="small muted">Vote to see results · +3 XP</p>':''}</section>`;
+}
+function vPack(){
+  const v=S.packView;
+  const seg=`<div class="seg" role="group" aria-label="Pack sections">${[['ask','Ask'],['dogs','Dogs'],['groups','Groups'],['places','Places']].map(([k,l])=>`<button aria-pressed="${v===k}" data-act="packView" data-k="${k}">${l}</button>`).join('')}</div>`;
+  return `${seg}${v==='ask'?vAsk():v==='dogs'?vDogs():v==='groups'?vGroups():vPlaces()}`;
+}
+function vAsk(){
+  const qs=[...S.myQuestions, ...QUESTIONS];
+  return `<section class="card"><h3>Ask the pack</h3>
+    <div class="field"><label for="askText">Your question</label><textarea class="input" id="askText" placeholder="e.g. How do I stop Nova pulling on the lead?"></textarea></div>
+    <div class="field"><label for="askTag">Topic</label><select class="input" id="askTag">${['Training','Reactive','Puppy','Health','German Shepherd','Food','Travel'].map(t=>`<option>${t}</option>`).join('')}</select></div>
+    <div id="vetWarn"></div>
+    <button class="btn primary" data-act="ask">Post question</button></section>
+  ${qs.map(q=>{
+    const by = q.mine ? {owner:'You'} : M[q.by];
+    const up=!!S.qvotes[q.id]; const open=S.openQ===q.id;
+    const ans=[...(q.answers||[]), ...((S.myAnswers[q.id]||[]).map(t=>({you:true,text:t,votes:0})))];
+    const health=q.tag==='Health';
+    return `<article class="card q">
+      <div class="row" style="align-items:flex-start"><button class="vote" aria-pressed="${up}" data-act="qvote" data-id="${q.id}" aria-label="Upvote">${ic('up')}<span class="num">${(q.votes||0)+(up?1:0)}</span></button>
+        <div class="grow stack" style="gap:6px"><div class="row wrap"><span class="pill ${health?'danger':'spruce'}">${esc(q.tag)}</span><span class="small muted">asked by ${esc(by.owner)}</span></div>
+        <h3>${esc(q.title)}</h3>
+        ${health?`<div class="note danger">${ic('alert')}<span>Health question. Community answers aren't a diagnosis. If you're worried, call your vet now.</span></div>`:''}
+        <button class="btn sm ghost" style="align-self:flex-start" data-act="openQ" data-id="${q.id}">${open?'Hide':'Show'} ${ans.length} answer${ans.length===1?'':'s'}</button></div></div>
+      ${open?`<div class="stack">${ans.map(a=>{const m=a.you?null:M[a.by];return `<div class="answer ${a.best?'best':''}"><div class="row wrap"><b class="small">${a.you?'You':esc(m.owner)}</b>${m&&m.trainer?`<span class="pill spruce">${ic('shield')}Verified trainer</span>`:''}${m&&m.vet?`<span class="pill spruce">${ic('shield')}Verified vet</span>`:''}${a.best?`<span class="pill gold">${ic('check')}Best answer</span>`:''}<span class="small muted num">${a.votes} helpful</span></div><p class="small">${esc(a.text)}</p></div>`}).join('')}
+        <div class="field"><label for="ans_${q.id}">Your answer</label><textarea class="input" id="ans_${q.id}" placeholder="Share what worked for you"></textarea></div>
+        <button class="btn primary sm" style="align-self:flex-start" data-act="answer" data-id="${q.id}">Post answer · +15 XP</button></div>`:''}
+    </article>`;}).join('')}
+  <p class="small muted" style="text-align:center">Example questions and members for this prototype.</p>`;
+}
+function vDogs(){
+  const f=S.dirFilter||'all';
+  const ex=['m6','m4','m9','m10','m5','m2','m8','m1','m3','m7'].filter(id=> f==='all' || (f==='local'? cityOf(id)===S.dog.city : M[id].breed===S.dog.breed));
+  const row=(ava,name,sub,link,pills)=>`<article class="card" style="padding:12px"><div class="row"><div class="ava" style="width:52px;height:52px">${ava}</div><div class="grow"><b>${name}</b><div class="small muted">${sub}</div><div class="row wrap" style="gap:6px;margin-top:4px">${pills}</div></div>${link}</div></article>`;
+  const follow=h=>`<a class="btn primary sm" href="${igURL(h)}" target="_blank" rel="noopener">Follow</a>`;
+  const meIsNova = S.dog.insta==='novathehumanhandler';
+  const me = S.dog.insta ? row(myAva(), esc(S.dog.name)+' (you)', `@${esc(S.dog.insta)} · ${esc(BREEDS[S.dog.breed].label)} · ${esc(S.dog.city)}`, follow(S.dog.insta), `<span class="pill gold">${ic('star')}Founding Pack</span>${meIsNova?'<span class="pill spruce">Founder</span>':''}`) : '';
+  const nova = meIsNova ? '' : row(memAva('nova'),'Nova','@novathehumanhandler · German Shepherd · Limerick',follow('novathehumanhandler'),'<span class="pill spruce">Founder</span>');
+  return `<section class="card"><h3>Pack Directory</h3><p class="small muted">Every member's dog Instagram, by breed and city. Follow each other and no dog account goes unseen.</p>
+    ${S.dog.insta?'':`<button class="btn gold" data-act="editDog">${ic('camera')}Link ${esc(S.dog.name)}'s Instagram</button>`}</section>
+  <div class="chips" role="group" aria-label="Filter directory">${[['all','All dogs'],['local',`Near ${S.dog.city}`],['breed',`${BREEDS[S.dog.breed].label}s`]].map(([k,l])=>`<button class="chip" aria-pressed="${f===k}" data-act="dirFilter" data-k="${k}">${esc(l)}</button>`).join('')}</div>
+  ${me}${nova}
+  ${ex.map(id=>row(memAva(id), esc(M[id].dog), `${esc(BREEDS[M[id].breed].label)} · ${esc(cityOf(id))}`, '<span class="example">Example</span>', `<span class="pill">Level ${M[id].lvl}</span>`)).join('') || '<p class="muted">No dogs match yet. Invite some.</p>'}
+  <p class="small muted" style="text-align:center">Example members have no real Instagram accounts linked.</p>`;
+}
+function vGroups(){
+  return `<div class="note info">${ic('space')}<span>Groups marked <b>Needs space</b> are small, quiet and moderated for reactive or nervous dogs.</span></div>
+  ${groups().map(g=>{const r=!!S.rsvp[g.id], ch=!!S.checked[g.id];
+    return `<article class="card"><div class="row"><div class="group-ico" style="background:var(--${g.color}-soft);color:var(--${g.color==='gold'?'ink':g.color==='tan'?'tan-ink':'spruce'})">${esc(g.name[0])}</div>
+      <div class="grow"><h3>${esc(g.name)}</h3><div class="row wrap" style="gap:6px;margin-top:4px"><span class="pill ${g.space?'tan':'spruce'}">${g.space?ic('space'):''}${esc(g.kind)}</span><span class="small muted num">${fmt(g.members+(r?1:0))} members</span>${g.global?'<span class="small muted">· Worldwide</span>':''}</div></div></div>
+      <p class="small">${ic('calendar').replace('<svg','<svg style="width:15px;height:15px;vertical-align:-2px"')} ${esc(g.next)}</p>
+      <div class="row wrap">${r?`<span class="pill spruce">${ic('check')}Going</span>`:`<button class="btn sm primary" data-act="rsvp" data-id="${g.id}">${g.global?'Join':'RSVP'}</button>`}
+      ${r && !g.global ? (ch?`<span class="pill gold">Checked in · card collected</span>`:`<button class="btn sm gold" data-act="checkin" data-id="${g.id}">Check in at meetup · +50 XP</button>`):''}</div>
+    </article>`;}).join('')}
+  <p class="small muted" style="text-align:center">Example groups. Local groups follow the city on your dog's profile.</p>`;
+}
+function vPlaces(){
+  const cats=['Vets','Groomers','Sitters','Cafés','Parks'];
+  const list=PLACES.filter(p=>p.cat===S.placeCat);
+  return `<div class="chips" role="group" aria-label="Place type">${cats.map(c=>`<button class="chip" aria-pressed="${S.placeCat===c}" data-act="placeCat" data-k="${c}">${c}</button>`).join('')}</div>
+  <div class="note gold">${ic('shield')}<span>Ranked by vouches from members near ${esc(S.dog.city)}, with the price they actually paid. Not by ads.</span></div>
+  ${list.map(p=>{const v=!!S.vouched[p.id];return `<article class="card"><div class="row between" style="align-items:flex-start"><div class="grow"><h3>${esc(p.name)}</h3><p class="small muted">${esc(p.area)}, ${esc(S.dog.city)}</p></div><span class="example">Example</span></div>
+    <div class="row wrap"><span class="stars num">${'★'.repeat(Math.round(p.rating))} ${p.rating.toFixed(1)}</span><span class="pill spruce">${ic('shield')}<span class="num">${p.vouches+(v?1:0)}</span> local vouches</span><span class="pill gold">${esc(p.price)}</span></div>
+    <div class="row wrap">${p.tags.map(t=>`<span class="pill">${esc(t)}</span>`).join('')}</div>
+    ${v?`<span class="pill spruce" style="align-self:flex-start">${ic('check')}You vouched</span>`:`<button class="btn sm primary" style="align-self:flex-start" data-act="vouch" data-id="${p.id}">Vouch · +15 XP</button>`}
+  </article>`;}).join('')}`;
+}
+function vLeague(){
+  const L=levelOf(S.xp); const lg=LEAGUE_NAMES[Math.min(4,Math.floor(L/6))];
+  const dleft=7-((new Date().getDay()+6)%7);
+  if(S.lbHidden) return `<section class="card"><h3>Leaderboards are hidden</h3><p class="muted">XP, badges and quests keep working. Leaderboards are always optional.</p><button class="btn primary" data-act="lbToggle">Show leaderboards</button></section>`;
+  const boards=[['league',`${lg} League`],['city',S.dog.city],['breed',BREEDS[S.dog.breed].label+'s'],['new','New this month']];
+  let rows=RIVALS.map(([n,id,xp])=>({n,id,xp}));
+  if(S.board==='city') rows=rows.filter((_,i)=>i%2===1).map(r=>({...r,xp:Math.round(r.xp*.7)}));
+  if(S.board==='breed') rows=rows.slice(0,8).map((r,i)=>({...r,xp:Math.round(r.xp*.8)-i*5}));
+  if(S.board==='new') rows=rows.slice(6).map(r=>({...r,xp:Math.round(r.xp*.9)}));
+  rows.push({n:'You',me:true,xp:S.weekXP});
+  rows.sort((a,b)=>b.xp-a.xp);
+  const myI=rows.findIndex(r=>r.me); const above=rows[myI-1];
+  const pctile=Math.max(1,Math.round((myI+1)/rows.length*100));
+  const lb=rows.map((r,i)=>{
+    const zoneUp = S.board==='league' && i===7 ? `<div class="zone up">Promotion zone above</div>`:'';
+    const zoneDn = S.board==='league' && i===rows.length-5 ? `<div class="zone down">Drop zone below · new members are safe for 4 weeks</div>`:'';
+    const ava = r.me ? myAva() : memAva(r.id);
+    return `${zoneUp}${zoneDn}<div class="lb-row ${r.me?'me':''}"><span class="lb-rank num">${i+1}</span><div class="ava">${ava}</div><div class="grow"><b>${esc(r.me?S.dog.name+' (you)':M[r.id].dog)}</b><div class="small muted">${esc(r.me?S.dog.city:r.n+' · '+cityOf(r.id))}</div></div><b class="num">${fmt(r.xp)}</b></div>`;}).join('');
+  return `<section class="card league-head"><p class="eyebrow" style="color:inherit;opacity:.8">This week · resets in ${dleft} day${dleft===1?'':'s'}</p><h2>${lg} League</h2>
+    <p class="muted">Top ${pctile}% so far${above?` · ${fmt(above.xp-S.weekXP+1)} XP to pass ${esc(above.me?'':M[above.id].dog)}`:' · You lead the league'}</p>
+    <p class="small muted">Scored on consistency and helping others, never distance or speed. Small and senior dogs compete fairly.</p></section>
+  <div class="chips" role="group" aria-label="Leaderboard">${boards.map(([k,l])=>`<button class="chip" aria-pressed="${S.board===k}" data-act="board" data-k="${k}">${esc(l)}</button>`).join('')}</div>
+  <section class="card"><div class="lb">${lb}</div></section>
+  <section class="card"><div class="section-head"><div><p class="eyebrow">Pack vs Pack · October</p><h3>${esc(S.dog.city)} Riverside Walkers</h3></div><span class="pill gold">Shared reward</span></div>
+    <p class="muted">Group goal: 1,000 walks this month. Every walk you log counts.</p><div class="bar spruce"><i style="width:${Math.min(100,(642+S.t.walks)/10)}%"></i></div><p class="small muted num">${642+S.t.walks} / 1,000 walks</p></section>
+  <button class="btn ghost" data-act="lbToggle">${ic('x')}Hide leaderboards</button>
+  <p class="small muted" style="text-align:center">Rival scores are examples for this prototype.</p>`;
+}
+function dogCard(){
+  const L=levelOf(S.xp), r=rarity();
+  const art = S.dog.photo ? `<img src="${photoSrc('card')}" alt="${esc(S.dog.name)}">` : sceneSVG(S.dog.breed,'park',S.dog.name);
+  const st=[['Zoomies','zoomies'],['Smarts','smarts'],['Snoot','snoot'],['Pack','pack'],['Chill','chill']];
+  const earned=BADGES.filter(b=>S.badges.includes(b.id));
+  return `<div class="dogcard-wrap"><button class="dogcard" id="dogcard" data-act="flip" aria-describedby="flipHint">
+    <div class="face r-${r}"><div class="face-in">
+      <div class="card-top"><b>${esc(S.dog.name)}</b><span class="lvl-badge num">${L}</span></div>
+      <div class="card-art">${art}</div>
+      <div class="card-stats">${st.map(([l,k])=>`<div class="cs"><span>${l}</span><div class="bar spruce"><i style="width:${S.stats[k]}%"></i></div><span class="num">${S.stats[k]}</span></div>`).join('')}</div>
+      <div class="row between" style="padding:0 12px 10px"><span class="small muted">${esc(BREEDS[S.dog.breed].label)} · ${esc(S.dog.age)} yr${S.dog.age==='1'?'':'s'}</span><span class="pill gold" style="text-transform:capitalize">${r}</span></div>
+    </div></div>
+    <div class="face back r-${r}"><div class="face-in" style="padding:14px;gap:10px">
+      <b style="font-family:var(--f-display);font-size:1.2rem">${esc(S.dog.name)}'s stickers</b>
+      <div class="badge-grid" style="grid-template-columns:repeat(3,1fr)">${earned.map(b=>`<div class="badge" style="padding:6px;border:0"><div class="medal" style="width:40px;height:40px">${ic(b.ic)}</div>${esc(b.n)}</div>`).join('') || '<p class="small muted">Earn badges to fill this side.</p>'}</div>
+      <p class="small muted" style="margin-top:auto">${S.dog.insta?`@${esc(S.dog.insta)} · `:''}${esc(S.dog.city)} · ${S.dog.space?'Needs space on walks':'Happy to say hi'}</p>
+    </div></div></button></div>`;
+}
+function vDog(){
+  const coll = S.binder.map(id=>`<div class="mini r-uncommon"><div class="face-in">${memAva(id)}<span>${esc(M[id].dog)}</span><span class="muted">${esc(BREEDS[M[id].breed].label)}</span></div></div>`).join('');
+  const empties = Array.from({length:Math.max(0,6-S.binder.length)},()=>`<div class="mini empty"><div class="face-in">${ic('plus').replace('<svg','<svg style="width:22px;height:22px"')}<span>Meet a dog</span></div></div>`).join('');
+  return `${dogCard()}
+  <p class="small muted" style="text-align:center" id="flipHint">Tap the card to flip it. Rarity comes from your journey, never from buying anything.</p>
+  <div class="row"><button class="btn primary grow" data-act="editDog">${ic('edit')}Edit ${esc(S.dog.name)}</button>${S.dog.insta?`<a class="btn ghost" href="${igURL(S.dog.insta)}" target="_blank" rel="noopener">@${esc(S.dog.insta)}</a>`:''}</div>
+  ${S.dog.insta?'':`<div class="note gold">${ic('camera')}<span>Link ${esc(S.dog.name)}'s Instagram to appear in the Pack Directory and get picked for Shout-out Saturday.</span></div>`}
+  ${S.dog.space?`<div class="note info">${ic('space')}<span>${esc(S.dog.name)} shows a "Needs space" tag to nearby members, and you'll see quiet routes and small groups first.</span></div>`:''}
+  <section class="stack"><div class="section-head"><h2>Badges</h2><span class="small muted num">${S.badges.length}/${BADGES.length}</span></div>
+    <div class="badge-grid">${BADGES.map(b=>{const has=S.badges.includes(b.id);return `<div class="badge ${has?'':'locked'}" title="${esc(b.d)}"><div class="medal">${ic(b.ic)}</div>${esc(b.n)}<span class="muted" style="font-weight:500">${esc(b.d)}</span></div>`}).join('')}</div></section>
+  <section class="stack"><div class="section-head"><h2>Card binder</h2><span class="small muted">Collect cards by meeting dogs at meetups</span></div><div class="binder">${coll}${empties}</div></section>
+  <section class="card"><h3>Settings</h3>
+    <div class="toggle"><span>Show leaderboards</span><button class="switch" role="switch" aria-checked="${!S.lbHidden}" data-act="lbToggle" aria-label="Show leaderboards"></button></div>
+    <div id="resetBox"><button class="btn ghost block" data-act="reset">${ic('reset')}Start over with a new dog</button></div>
+  </section>`;
+}
+
+/* ---------- sheets ---------- */
+function walkSheet(){
+  openSheet(`<h2>Log a walk</h2>
+  <fieldset class="field" style="border:0;padding:0;margin:0"><legend style="font-weight:700;font-size:.85rem;margin-bottom:6px">How long?</legend><div class="chips" id="walkLen">${[10,20,30,45,60].map((m,i)=>`<button class="chip" aria-pressed="${i===1}" data-act="pickChip" data-k="${m}">${m} min</button>`).join('')}</div></fieldset>
+  <div class="toggle"><span>${ic('rain').replace('<svg','<svg style="width:18px;height:18px;vertical-align:-3px"')} It rained</span><button class="switch" role="switch" aria-checked="false" data-act="sw" id="wRain" aria-label="It rained"></button></div>
+  <div class="toggle"><span>${ic('sun').replace('<svg','<svg style="width:18px;height:18px;vertical-align:-3px"')} Before 7am</span><button class="switch" role="switch" aria-checked="${new Date().getHours()<7}" data-act="sw" id="wEarly" aria-label="Before 7am"></button></div>
+  <div class="toggle"><span>${ic('pin').replace('<svg','<svg style="width:18px;height:18px;vertical-align:-3px"')} A route we've never done</span><button class="switch" role="switch" aria-checked="false" data-act="sw" id="wNew" aria-label="New route"></button></div>
+  <button class="btn gold block" data-act="saveWalk">Log walk · +20 XP</button>`);
+}
+function composeSheet(){
+  openSheet(`<h2>Share a photo</h2>
+  <label class="composer-photo" id="cPhoto">${ic('camera').replace('<svg','<svg style="width:36px;height:36px"')}<span class="small">Tap to add a photo of ${esc(S.dog.name)}</span><input type="file" accept="image/*" id="cFile" data-file="compose" aria-label="Choose photo"></label>
+  <div class="field"><label for="cText">Caption</label><textarea class="input" id="cText" placeholder="What's ${esc(S.dog.name)} up to?"></textarea></div>
+  <div class="field"><label for="cTag">Tag</label><select class="input" id="cTag"><option value="">No tag</option>${S.offered.map(id=>`<option>Daily: ${CHALLENGES.find(c=>c.id===id).t.split(',')[0].toLowerCase()}</option>`).join('')}<option>Trick mastered</option><option>Meetup</option></select></div>
+  <button class="btn primary block" data-act="post">Post · +10 XP</button>`);
+}
+function editSheet(){
+  const d=S.dog;
+  openSheet(`<h2>Edit ${esc(d.name)}</h2>
+  <label class="composer-photo" style="aspect-ratio:4/3">${d.photo?`<img src="${photoSrc('card')}" alt="">`:`${dogSVG(d.breed,{bg:'#DDE8F1',nova:d.breed==='gsd'}).replace('<svg','<svg style="width:120px;height:120px"')}<span class="small" style="position:absolute;bottom:10px">Tap to use a real photo</span>`}<input type="file" accept="image/*" data-file="dog" aria-label="Dog photo"></label>
+  ${d.photo?`<button class="btn ghost sm" data-act="clearPhoto">Use the illustration instead</button>`:''}
+  <div class="field"><label for="eName">Name</label><input class="input" id="eName" value="${esc(d.name)}" maxlength="20"></div>
+  <div class="field"><label for="eBreed">Breed</label><select class="input" id="eBreed">${Object.entries(BREEDS).map(([k,b])=>`<option value="${k}" ${k===d.breed?'selected':''}>${b.label}</option>`).join('')}</select></div>
+  <div class="row"><div class="field grow"><label for="eAge">Age (years)</label><input class="input" id="eAge" inputmode="numeric" value="${esc(d.age)}" maxlength="2"></div><div class="field grow"><label for="eCity">City</label><input class="input" id="eCity" value="${esc(d.city)}" maxlength="30"></div></div>
+  <div class="field"><label for="eInsta">${esc(d.name)}'s Instagram</label><div class="row" style="gap:6px"><span style="font-weight:800;color:var(--muted)">@</span><input class="input" id="eInsta" value="${esc(d.insta||'')}" placeholder="dog's handle" autocapitalize="off" autocomplete="off" spellcheck="false" maxlength="31"></div><p class="small muted">Adds a Follow button in the Pack Directory and makes ${esc(d.name)} eligible for Shout-out Saturday.</p></div>
+  <div class="toggle"><span><b>Needs space</b><br><span class="small muted">Shows a tag to nearby members and puts quiet routes first</span></span><button class="switch" role="switch" aria-checked="${d.space}" data-act="sw" id="eSpace" aria-label="Needs space"></button></div>
+  <button class="btn primary block" data-act="saveDog">Save</button>`);
+}
+function lostSheet(){
+  if(S.alert){ S.tab='today'; save(); render(); return; }
+  openSheet(`<h2>Send a lost dog alert</h2>
+  <p class="muted">Members within 5 km of the spot get an alert with ${esc(S.dog.name)}'s card as a flyer.</p>
+  <div class="row card" style="padding:12px"><div class="ava" style="width:64px;height:64px">${myAva()}</div><div class="grow"><b>${esc(S.dog.name)}</b><div class="small muted">${esc(BREEDS[S.dog.breed].label)} · ${esc(S.dog.age)} yr · ${esc(S.dog.city)}</div>${S.dog.space?'<span class="pill tan">Nervous, don\'t chase</span>':''}</div></div>
+  <div class="field"><label for="lWhere">Last seen where?</label><input class="input" id="lWhere" placeholder="e.g. river path near the bridge"></div>
+  <div class="field"><label for="lWhen">When?</label><input class="input" id="lWhen" placeholder="e.g. 20 minutes ago"></div>
+  <div class="note gold">${ic('alert')}<span>Prototype: this pins an alert in the app. Also call your local pound, nearby vets and your microchip database.</span></div>
+  <button class="btn danger block" data-act="sendAlert">Send alert to nearby members</button>`);
+}
+
+/* ---------- actions ---------- */
+const A = {
+  tab(el){ S.tab=el.dataset.tab; if(el.dataset.view) S.packView=el.dataset.view; save(); render(); scrollTo({top:0}); },
+  close: closeSheet,
+  scrim(el,e){ if(e.target===el) closeSheet(); },
+  walk: walkSheet,
+  pickChip(el){ el.parentElement.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',c===el)); },
+  sw(el){ el.setAttribute('aria-checked', el.getAttribute('aria-checked')!=='true'); },
+  saveWalk(){
+    const on=id=>document.getElementById(id).getAttribute('aria-checked')==='true';
+    const mins=+document.querySelector('#walkLen [aria-pressed="true"]').dataset.k;
+    const rain=on('wRain'), early=on('wEarly'), isNew=on('wNew');
+    closeSheet();
+    S.t.walks++; if(rain) S.t.rainy++; if(early) S.t.early++;
+    if(isNew){ S.t.newRoutes++; S.q.newRoutes=(S.q.newRoutes||0)+1; bump('snoot',2); }
+    bump('zoomies', mins>=30?2:1);
+    const td=dkey(); if(!S.walkDays.includes(td)) S.walkDays.push(td);
+    award('walk', `${mins}-minute walk logged`); after();
+  },
+  trick(){ S.t.tricks++; S.q.tricks=(S.q.tricks||0)+1; bump('smarts',1); award('trick','Trick session logged'); if(S.t.tricks%3===0) setTimeout(()=>toast(`Trick mastered. That's ${Math.floor(S.t.tricks/3)} so far.`),700); after(); },
+  chalPick(el){ if(S.picked.length<3 && !S.picked.includes(el.dataset.id)) S.picked.push(el.dataset.id); save(); render(); },
+  chalDone(el){ const c=CHALLENGES.find(x=>x.id===el.dataset.id); if(S.done.includes(c.id)) return; S.done.push(c.id); bump(c.stat,2);
+    if(c.id==='route'){ S.t.newRoutes++; S.q.newRoutes=(S.q.newRoutes||0)+1; }
+    if(c.id==='trick3'||c.id==='recall'){ S.q.tricks=(S.q.tricks||0)+1; }
+    award('challenge', 'Challenge complete'); after(); },
+  compose: composeSheet,
+  async post(){
+    const text=document.getElementById('cText').value.trim(); const img=document.getElementById('cPhoto').dataset.img||null;
+    if(!text && !img){ toast('Add a photo or a caption first.'); return; }
+    const tag=document.getElementById('cTag').value;
+    closeSheet();
+    S.myPosts.unshift({id:'my'+Date.now(), text, img, scene:'park', tag, kudos:0, ago:'just now', comments:[]});
+    if(S.myPosts.length>12) S.myPosts.length=12;
+    S.t.posts++; bump('zoomies',1); award('post','Photo shared'); S.tab='feed'; after();
+  },
+  kudos(el){ const id=el.dataset.id; S.kudosEver=S.kudosEver||{}; if(S.kudos[id]){ delete S.kudos[id]; save(); render(); return; } S.kudos[id]=1;
+    if(S.kudosEver[id]){ save(); render(); return; } S.kudosEver[id]=1; award('kudos','Good dog given'); after(); },
+  comment(el){ const id=el.dataset.id;
+    openSheet(`<h2>Add a comment</h2><div class="field"><label for="cmText">Comment</label><textarea class="input" id="cmText" maxlength="200"></textarea></div><button class="btn primary block" data-act="saveComment" data-id="${id}">Post comment</button>`); },
+  saveComment(el){ const t=document.getElementById('cmText').value.trim(); if(!t) return; const k='c_'+el.dataset.id; (S.myAnswers[k]=S.myAnswers[k]||[]).push(t); closeSheet(); toast('Comment posted'); save(); render(); },
+  vote(el){ const id=el.dataset.id; if(S.votes[id]!=null) return; S.votes[id]=+el.dataset.i; award('vote','Vote counted'); after(); },
+  welcome(el){ S.greeted[el.dataset.i]=1; S.t.welcomes++; bump('pack',1); award('welcome','Newcomer welcomed'); after(); },
+  spotted(){ openSheet(`<h2>Thanks for looking out</h2><p class="muted">In the live app this sends your location and a photo straight to Rex's owner. For now, here's how it would feel.</p><button class="btn danger block" data-act="spottedSend">Send sighting</button>`); },
+  spottedSend(){ closeSheet(); S.t.heroes++; bump('pack',3); toast('Sighting sent. Rex is home safe.'); award('meetup','Pack Hero sighting'); after(); },
+  hashDone(){ S.hashWeek=S.week; bump('pack',2); award('hashtag','Instagram challenge entered'); after(); },
+  dirFilter(el){ S.dirFilter=el.dataset.k; save(); render(); },
+  feedFilter(el){ S.feedFilter=el.dataset.k; save(); render(); },
+  packView(el){ S.packView=el.dataset.k; save(); render(); },
+  ask(){ const t=document.getElementById('askText').value.trim(); if(t.length<8){ toast('Write a bit more so people can help.'); return; }
+    const tag=document.getElementById('askTag').value;
+    S.myQuestions.unshift({id:'mq'+Date.now(), mine:true, tag: HEALTH_WORDS.test(t)?'Health':tag, title:t, votes:0, answers:[]});
+    award('ask','Question posted'); after(); },
+  qvote(el){ const id=el.dataset.id; S.qvotes[id]=!S.qvotes[id]; save(); render(); },
+  openQ(el){ S.openQ = S.openQ===el.dataset.id ? null : el.dataset.id; save(); render(); },
+  answer(el){ const id=el.dataset.id; const t=document.getElementById('ans_'+id).value.trim(); if(t.length<4){ toast('Add your answer first.'); return; }
+    (S.myAnswers[id]=S.myAnswers[id]||[]).push(t); S.t.answers++; S.q.social=(S.q.social||0)+1; bump('pack',1);
+    if(S.offered.includes('answer') && S.picked.includes('answer') && !S.done.includes('answer')){ S.done.push('answer'); bump('pack',2); award('challenge','Challenge complete'); }
+    award('answer','Answer posted'); after(); },
+  rsvp(el){ S.rsvp[el.dataset.id]=1; toast('You\'re in. We\'ll remind you the day before.'); save(); render(); },
+  checkin(el){ const g=groups().find(x=>x.id===el.dataset.id); S.checked[g.id]=1; S.t.meetups++; S.q.social=(S.q.social||0)+1; bump('pack',3); bump('chill',1);
+    if(g.meet && !S.binder.includes(g.meet)){ S.binder.push(g.meet); setTimeout(()=>toast(`Card collected: ${M[g.meet].dog}`),800); }
+    award('meetup','Meetup check-in'); after(); },
+  placeCat(el){ S.placeCat=el.dataset.k; save(); render(); },
+  vouch(el){ S.vouched[el.dataset.id]=1; S.t.vouches++; award('review','Vouch added'); after(); },
+  board(el){ S.board=el.dataset.k; save(); render(); },
+  lbToggle(){ S.lbHidden=!S.lbHidden; save(); render(); },
+  flip(){ document.getElementById('dogcard').classList.toggle('flip'); },
+  editDog: editSheet,
+  clearPhoto(){ S.dog.photo=null; S.dog.noPhoto=true; save(); closeSheet(); render(); },
+  saveDog(){ const n=document.getElementById('eName').value.trim()||S.dog.name;
+    S.dog={...S.dog, name:n, breed:document.getElementById('eBreed').value, age:(document.getElementById('eAge').value.replace(/\D/g,'')||S.dog.age), city:document.getElementById('eCity').value.trim()||S.dog.city, space:document.getElementById('eSpace').getAttribute('aria-checked')==='true', insta:document.getElementById('eInsta').value.trim().replace(/^@/,'').replace(/[^A-Za-z0-9._]/g,'').slice(0,30)};
+    closeSheet(); toast('Saved'); save(); render(); },
+  lost: lostSheet,
+  sendAlert(){ const w=document.getElementById('lWhere').value.trim(); if(!w){ toast('Add where you last saw them.'); return; }
+    S.alert={where:w, when:document.getElementById('lWhen').value.trim()}; closeSheet(); S.tab='today'; save(); render(); toast('Alert pinned for nearby members'); },
+  found(){ S.alert=null; save(); render(); toast(`So glad ${S.dog.name} is home.`); },
+  reset(){ document.getElementById('resetBox').innerHTML=`<div class="stack"><p class="small">This clears your dog, XP and badges on this device.</p><div class="row"><button class="btn danger grow" data-act="resetYes">Yes, start over</button><button class="btn ghost grow" data-act="resetNo">Cancel</button></div></div>`; },
+  resetYes(){ S=fresh(); save(); render(); scrollTo({top:0}); toast('Fresh start. Welcome to the pack.'); },
+  resetNo(){ render(); },
+};
+document.addEventListener('click', e=>{ const el=e.target.closest('[data-act]'); if(!el||el.disabled) return; const f=A[el.dataset.act]; if(!f) return;
+  const k=focusKey(el); const inSheet=!!el.closest('.sheet'); f(el,e);
+  if(!inSheet && !document.querySelector('.scrim') && k && !document.body.contains(el)){ const t=document.querySelector(k)||document.querySelector('#app button'); if(t) t.focus({preventScroll:true}); } });
+document.addEventListener('change', async e=>{
+  const el=e.target; if(!el.dataset||!el.dataset.file||!el.files||!el.files[0]) return;
+  try{
+    const url=await resize(el.files[0]);
+    if(el.dataset.file==='compose'){ const box=document.getElementById('cPhoto'); box.dataset.img=url; box.querySelectorAll('svg,span,img').forEach(n=>n.remove()); box.insertAdjacentHTML('afterbegin',`<img src="${url}" alt="Selected photo">`); }
+    else { S.dog.photo=await resize(el.files[0],600); S.dog.noPhoto=false; save(); editSheet(); render(); }
+  }catch(err){ toast('That photo could not be read. Try a JPG or PNG.'); }
+});
+document.addEventListener('input', e=>{
+  if(e.target.id==='askText'){ const w=document.getElementById('vetWarn'); if(w) w.innerHTML = HEALTH_WORDS.test(e.target.value) ? `<div class="note danger">${ic('alert')}<span>This sounds like a health worry. If it's urgent, call your vet now. The pack can share experience, not a diagnosis.</span></div>` : ''; }
+});
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeSheet(); });
+const h=(location.hash||'').slice(1); if(TABS.some(t=>t[0]===h)) S.tab=h;
+render();
+</script>
+
+</body>
+</html>
