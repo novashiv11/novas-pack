@@ -11,7 +11,6 @@ Live site (once GitHub Pages is on): https://novashiv11.github.io/novas-pack/
 | `index.html` | Public welcome page. Static, no cookies or trackers. |
 | `privacy.html` | Full privacy notice. |
 | `site.css`, `site.js` | Shared styles; `site.js` holds the WhatsApp invite link (the only setting). |
-| `print/flyer-a6.pdf` | Print-ready flyers: 4 × A6 on an A4 sheet, with a QR code to the site. |
 | `img/` | Nova's photos in use, the share image (`og-image.jpg`), the Nova illustration and the QR code (`brand/`). |
 | `fonts/` | Self-hosted Bricolage Grotesque and Plus Jakarta Sans (SIL Open Font License). |
 | `favicon.svg`, `favicon.ico`, `apple-touch-icon.png` | Site icons. |
