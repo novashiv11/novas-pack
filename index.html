@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Nova's Pack · Everyone's welcome in the pack</title>
-<meta name="description" content="A free, friendly community for everyone who loves animals, hosted by Nova the German Shepherd. Starting in Limerick, open to all. Ages 16+. DM PACK to @novathehumanhandler to join.">
+<meta name="description" content="A free, friendly community for everyone who loves animals, hosted by Nova the German Shepherd. Chat on WhatsApp, walks in Limerick.">
 <link rel="canonical" href="https://novashiv11.github.io/novas-pack/">
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#F3F2EB" media="(prefers-color-scheme: light)">
@@ -15,276 +15,61 @@
 <meta property="og:locale" content="en_IE">
 <meta property="og:url" content="https://novashiv11.github.io/novas-pack/">
 <meta property="og:title" content="Everyone's welcome in Nova's Pack">
-<meta property="og:description" content="A free, friendly community for anyone who loves animals. Starting in Limerick, open to everyone. DM PACK to @novathehumanhandler to join.">
+<meta property="og:description" content="A free, friendly community for anyone who loves animals. Chat on WhatsApp, walks in Limerick. Message PACK to @novathehumanhandler.">
 <meta property="og:image" content="https://novashiv11.github.io/novas-pack/img/og-image.jpg">
 <meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Nova, a black-and-tan German Shepherd, by the River Shannon, next to the words: Everyone's welcome in the pack.">
+<meta property="og:image:alt" content="Nova, a black-and-tan German Shepherd in a knitted scarf, next to the words: Everyone's welcome in the pack.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Everyone's welcome in Nova's Pack">
-<meta name="twitter:description" content="A free, friendly community for anyone who loves animals. Starting in Limerick, open to everyone.">
+<meta name="twitter:description" content="A free, friendly community for anyone who loves animals. Chat on WhatsApp, walks in Limerick.">
 <meta name="twitter:image" content="https://novashiv11.github.io/novas-pack/img/og-image.jpg">
-<meta name="twitter:image:alt" content="Nova, a black-and-tan German Shepherd, by the River Shannon, next to the words: Everyone's welcome in the pack.">
+<meta name="twitter:image:alt" content="Nova, a black-and-tan German Shepherd in a knitted scarf, next to the words: Everyone's welcome in the pack.">
 
+<link rel="icon" href="favicon.ico" sizes="32x32">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
-<link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preload" href="fonts/bricolage-grotesque-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/plus-jakarta-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
-
-<style>
-/* Fonts are self-hosted (from Google Fonts, SIL OFL 1.1) so visitors' IPs are never sent to Google. */
-@font-face{font-family:"Bricolage Grotesque";font-style:normal;font-weight:700 800;font-display:swap;src:url(fonts/bricolage-grotesque-latin.woff2) format("woff2")}
-@font-face{font-family:"Plus Jakarta Sans";font-style:normal;font-weight:400 700;font-display:swap;src:url(fonts/plus-jakarta-sans-latin.woff2) format("woff2")}
-
-:root{
-  --bg:#F3F2EB; --surface:#FFFFFF; --sunk:#E9E6DB; --line:#DCD7C9;
-  --ink:#1E1B17; --muted:#5C544B;
-  --blue:#1F4E6E; --blue-ledge:#13344B; --on-blue:#FFFFFF; --blue-soft:#DCE7F0;
-  --tan:#C27A3A; --tan-text:#8E5019; --tan-soft:#F4E3D1;
-  --gold:#F2B544; --gold-ledge:#A97B1E; --gold-soft:#FBEBC6;
-  --live-bg:#DCE7F0; --live-ink:#173D57; --soon-bg:#FBEBC6; --soon-ink:#6E3D10;
-  --focus:#1E1B17;
-  --f-display:"Bricolage Grotesque","Avenir Next","Segoe UI",system-ui,sans-serif;
-  --f-body:"Plus Jakarta Sans","Segoe UI",system-ui,-apple-system,sans-serif;
-  color-scheme:light;
-}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#14120F; --surface:#1F1B17; --sunk:#29241F; --line:#3A332C;
-  --ink:#F5EEE4; --muted:#B9AD9E;
-  --blue:#8EC1E0; --blue-ledge:#4F86A8; --on-blue:#0E1218; --blue-soft:#1A2A36;
-  --tan:#E3A468; --tan-text:#E3A468; --tan-soft:#3A2A1D;
-  --gold:#F2B544; --gold-ledge:#A97B1E; --gold-soft:#3A3018;
-  --live-bg:#1A2A36; --live-ink:#B9DAEE; --soon-bg:#3A3018; --soon-ink:#F5D08A;
-  --focus:#F5EEE4;
-  color-scheme:dark;
-}}
-:root[data-theme="dark"]{
-  --bg:#14120F; --surface:#1F1B17; --sunk:#29241F; --line:#3A332C;
-  --ink:#F5EEE4; --muted:#B9AD9E;
-  --blue:#8EC1E0; --blue-ledge:#4F86A8; --on-blue:#0E1218; --blue-soft:#1A2A36;
-  --tan:#E3A468; --tan-text:#E3A468; --tan-soft:#3A2A1D;
-  --gold:#F2B544; --gold-ledge:#A97B1E; --gold-soft:#3A3018;
-  --live-bg:#1A2A36; --live-ink:#B9DAEE; --soon-bg:#3A3018; --soon-ink:#F5D08A;
-  --focus:#F5EEE4;
-  color-scheme:dark;
-}
-
-*,*::before,*::after{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
-html,body{background:var(--bg);color:var(--ink)}
-body{margin:0;font-family:var(--f-body);font-size:1rem;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-wrap:break-word}
-img,svg{display:block;max-width:100%}
-h1,h2,h3{font-family:var(--f-display);font-weight:800;line-height:1.08;letter-spacing:-.015em;margin:0;text-wrap:balance}
-p,ul,ol{margin:0}
-a{color:var(--blue);text-underline-offset:.18em;text-decoration-thickness:.08em}
-a:hover{text-decoration-thickness:.14em}
-:focus-visible{outline:3px solid var(--focus);outline-offset:3px;border-radius:6px}
-.vh{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-.skip{position:absolute;left:12px;top:-60px;z-index:10;background:var(--surface);color:var(--ink);padding:10px 14px;border-radius:12px;font-weight:700}
-.skip:focus{top:12px}
-
-.wrap{width:100%;max-width:1040px;margin:0 auto;padding-inline:max(16px,env(safe-area-inset-left)) max(16px,env(safe-area-inset-right))}
-.col{max-width:680px;margin:0 auto}
-
-/* top bar */
-.bar{padding-block:14px 0}
-.bar .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px}
-.brand{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-weight:800;font-size:1.2rem;color:var(--ink);text-decoration:none}
-.brand img{width:40px;height:40px}
-/* Nova's black saddle disappears on dark backgrounds, so the illustration always sits on a light disc. */
-.disc{background:#DCE7F0;border-radius:50%;padding:3px}
-.bar .ig{font-weight:700;font-size:.92rem;color:var(--ink);text-decoration:none;padding:10px 4px;min-height:44px;display:inline-flex;align-items:center}
-.bar .ig:hover{text-decoration:underline}
-
-/* buttons: 12px corners, 3px ledge */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:12px 20px;border-radius:12px;font-family:var(--f-body);font-weight:800;font-size:1rem;line-height:1.2;text-decoration:none;border:0;cursor:pointer;transition:transform .12s ease-out,box-shadow .12s ease-out}
-.btn svg{width:20px;height:20px;flex:none}
-.btn:active{transform:translateY(3px);box-shadow:0 0 0 transparent}
-.btn-gold{background:var(--gold);color:#1E1B17;box-shadow:0 3px 0 var(--gold-ledge)}
-.btn-blue{background:var(--blue);color:var(--on-blue);box-shadow:0 3px 0 var(--blue-ledge)}
-.btn-line{background:var(--surface);color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--line),0 3px 0 var(--line)}
-.ctas{display:flex;flex-wrap:wrap;gap:12px}
-
-/* hero */
-.hero{padding-block:20px 8px}
-.hero-grid{display:grid;grid-template-columns:1fr;gap:22px;align-items:center}
-.hero-photo{position:relative;margin:0}
-.hero-photo .frame{border-radius:16px;overflow:hidden;background:var(--sunk);aspect-ratio:4/3}
-.hero-photo .frame img{width:100%;height:100%;object-fit:cover;object-position:center 35%}
-.host{position:absolute;left:12px;bottom:-18px;display:flex;align-items:center;gap:8px;background:var(--surface);color:var(--ink);border-radius:999px;padding:5px 14px 5px 5px;box-shadow:0 2px 0 var(--line),0 6px 18px rgba(20,18,15,.12);font-weight:700;font-size:.88rem;line-height:1.2}
-.host img{width:38px;height:38px;border-radius:50%;background:#DCE7F0}
-.host span{display:block;font-weight:500;color:var(--muted);font-size:.78rem}
-.hero-text{display:flex;flex-direction:column;gap:16px;padding-top:14px}
-.eyebrow{font-size:.78rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--tan-text)}
-.hero h1{font-size:clamp(2.5rem,11.5vw,4.4rem)}
-.lede{font-size:1.1rem;color:var(--muted);max-width:36ch}
-.facts{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.88rem;color:var(--muted);font-weight:600;padding:0;list-style:none}
-.facts li{display:flex;align-items:center;gap:6px}
-.facts li::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--tan)}
-@media (min-width:860px){
-  .hero{padding-block:40px 24px}
-  .hero-grid{grid-template-columns:1.1fr .9fr;gap:48px}
-  .hero-photo{order:2;max-width:460px;justify-self:end;width:100%}
-  .hero-photo .frame{aspect-ratio:1}
-  .hero-text{order:1;padding-top:0}
-}
-
-/* sections */
-main{display:block}
-.sections{display:flex;flex-direction:column;gap:64px;padding-block:56px 72px}
-.sec{display:flex;flex-direction:column;gap:16px}
-.sec h2{font-size:clamp(1.8rem,7vw,2.5rem)}
-.sec > p{max-width:62ch}
-.muted{color:var(--muted)}
-.small{font-size:.9rem}
-
-/* note from Nova */
-.memo{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px;display:flex;flex-direction:column;gap:12px}
-.memo dl{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;margin:0;font-size:.86rem;color:var(--muted);padding-bottom:12px;border-bottom:1px dashed var(--line)}
-.memo dt{font-weight:500}
-.memo dd{margin:0;font-weight:700;color:var(--ink)}
-.memo p{font-size:1.05rem}
-.memo .sig{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-weight:800;font-size:1.3rem;color:var(--tan-text)}
-.memo .sig img{width:44px;height:44px}
-.memo .sig small{display:block;font-family:var(--f-body);font-weight:500;font-size:.8rem;color:var(--muted)}
-
-/* who it's for */
-.chips{display:flex;flex-wrap:wrap;gap:8px;padding:0;list-style:none}
-.chips li{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-weight:700;font-size:.92rem}
-.chips li:nth-child(3n+1){background:var(--blue-soft);border-color:transparent}
-.chips li:nth-child(3n+2){background:var(--tan-soft);border-color:transparent}
-.chips li:nth-child(3n){background:var(--gold-soft);border-color:transparent}
-.aside{background:var(--sunk);border-radius:16px;padding:14px 16px;font-size:.95rem;color:var(--ink)}
-
-/* what you get */
-.offer{display:grid;grid-template-columns:1fr;gap:12px;padding:0;list-style:none}
-@media (min-width:640px){.offer{grid-template-columns:1fr 1fr}}
-.offer li{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:8px}
-.offer h3{font-size:1.2rem}
-.offer h3 a{color:inherit;text-decoration-color:var(--tan)}
-[id$="-h"]{scroll-margin-top:16px}
-.offer p{color:var(--muted);font-size:.95rem}
-.status{align-self:flex-start;display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:3px 10px 3px 8px;font-size:.78rem;font-weight:800;letter-spacing:.02em}
-.status::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor}
-.status[data-status="live"]{background:var(--live-bg);color:var(--live-ink)}
-.status[data-status="soon"]{background:var(--soon-bg);color:var(--soon-ink)}
-.status[data-status="soon"]::before{background:transparent;box-shadow:inset 0 0 0 2px currentColor}
-
-/* feature blocks */
-.feature{display:grid;grid-template-columns:1fr;gap:18px;align-items:start}
-.feature figure{margin:0;border-radius:16px;overflow:hidden;background:var(--sunk);aspect-ratio:4/3}
-.feature figure img{width:100%;height:100%;object-fit:cover}
-.feature .body{display:flex;flex-direction:column;gap:14px}
-@media (min-width:760px){.feature{grid-template-columns:.8fr 1.2fr;gap:28px}.feature figure{aspect-ratio:1}}
-.rules{display:flex;flex-direction:column;gap:10px;padding:0;list-style:none}
-.rules li{display:grid;grid-template-columns:24px 1fr;gap:10px;align-items:start}
-.rules svg{width:22px;height:22px;margin-top:2px;color:var(--blue)}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px}
-.card h3{font-size:1.1rem;margin-bottom:10px}
-
-/* shout-out */
-.shout{background:var(--blue);color:var(--on-blue);border-radius:16px;padding:24px 20px;display:flex;flex-direction:column;gap:14px}
-.shout .eyebrow{color:inherit}
-.shout h2{font-size:clamp(1.8rem,7vw,2.5rem)}
-.trio{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0;list-style:none}
-.trio li{background:color-mix(in srgb,var(--on-blue) 13%,transparent);border-radius:12px;padding:12px 8px;text-align:center;font-size:.86rem;font-weight:700;line-height:1.3}
-.trio b{display:block;font-family:var(--f-display);font-size:1.4rem;line-height:1;margin-bottom:6px}
-
-/* challenges */
-.tags{display:grid;grid-template-columns:1fr;gap:10px;padding:0;list-style:none}
-@media (min-width:640px){.tags{grid-template-columns:repeat(3,1fr)}}
-.tags li{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px 16px}
-.tags b{display:block;font-family:var(--f-display);font-size:1.25rem;color:var(--blue)}
-.tags span{color:var(--muted);font-size:.93rem}
-
-/* house rules */
-.house{display:grid;grid-template-columns:1fr;gap:12px;padding:0;list-style:none}
-@media (min-width:640px){.house{grid-template-columns:1fr 1fr}}
-.house li{border-left:3px solid var(--gold);padding:2px 0 2px 14px}
-.house b{display:block;font-family:var(--f-display);font-size:1.12rem}
-.house span{color:var(--muted);font-size:.95rem}
-
-/* lost pet */
-.lost{border:2px solid var(--tan);background:var(--surface);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:12px}
-.lost h2{font-size:1.5rem}
-.lost ol{padding-left:1.3em;display:flex;flex-direction:column;gap:8px}
-.lost li::marker{font-weight:800;color:var(--tan-text)}
-
-/* join steps */
-.steps{display:flex;flex-direction:column;gap:14px;counter-reset:s;padding:0;list-style:none}
-.steps li{display:grid;grid-template-columns:44px 1fr;gap:14px;align-items:start}
-.steps li::before{counter-increment:s;content:counter(s);width:44px;height:44px;border-radius:50%;background:var(--gold);color:#1E1B17;display:grid;place-items:center;font-family:var(--f-display);font-weight:800;font-size:1.2rem}
-.steps b{display:block;font-size:1.05rem}
-.steps span{color:var(--muted);font-size:.95rem}
-
-/* photo strip */
-.strip{display:grid;grid-auto-flow:column;grid-auto-columns:42%;gap:8px;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;padding-bottom:6px;margin:0;list-style:none;padding-left:0}
-.strip li{scroll-snap-align:start}
-.strip img{width:100%;height:auto;aspect-ratio:1;object-fit:cover;border-radius:12px;background:var(--sunk)}
-@media (min-width:640px){.strip{grid-auto-columns:23%}}
-
-/* privacy */
-.privacy{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:12px;font-size:.95rem}
-.privacy h2{font-size:1.6rem}
-.privacy h3{font-size:1.1rem;margin-top:6px}
-.privacy ul{padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
-.age{display:flex;gap:12px;align-items:center;background:var(--gold-soft);border-radius:12px;padding:12px 14px;font-weight:700}
-.age b{flex:none;display:grid;place-items:center;width:46px;height:46px;border-radius:50%;background:var(--gold);color:#1E1B17;font-family:var(--f-display);font-size:1.05rem}
-
-.final{text-align:center;display:flex;flex-direction:column;align-items:center;gap:16px}
-.final img{width:96px;height:96px;padding:8px}
-.final .ctas{justify-content:center}
-
-footer{border-top:1px solid var(--line);padding-block:24px calc(24px + env(safe-area-inset-bottom));color:var(--muted);font-size:.88rem}
-footer .wrap{display:flex;flex-direction:column;gap:8px;align-items:center;text-align:center}
-footer a{color:var(--ink)}
-footer nav ul{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 18px;padding:0;list-style:none}
-footer nav a{display:inline-block;padding:10px 2px}
-
-@media (prefers-reduced-motion: reduce){
-  *,*::before,*::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}
-  .btn:active{transform:none}
-}
-</style>
+<link rel="stylesheet" href="site.css">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
 
-<div class="bar">
+<header class="bar">
   <div class="wrap">
-    <a class="brand" href="./" aria-label="Nova's Pack, home"><img class="disc" src="img/brand/nova-head.svg" alt="" width="40" height="40">Nova's Pack</a>
-    <a class="ig" href="https://www.instagram.com/novathehumanhandler/">@novathehumanhandler</a>
-  </div>
-</div>
-
-<header class="hero">
-  <div class="wrap hero-grid">
-    <figure class="hero-photo">
-      <div class="frame"><img src="img/hero.jpg" width="560" height="560" alt="Nova, a young black-and-tan German Shepherd in a harness, sitting by the River Shannon under a blue sky" fetchpriority="high"></div>
-      <figcaption class="host"><img src="img/brand/nova-head.svg" alt="" width="38" height="38"><div>Your host, Nova<span>Professional human handler</span></div></figcaption>
-    </figure>
-    <div class="hero-text">
-      <p class="eyebrow">A friendly community for animal lovers</p>
-      <h1>Everyone's welcome in the pack.</h1>
-      <p class="lede">First pet or fifth. Dogs, cats, hens, rabbits, horses, or no pet at all yet. Come ask, share, learn, and meet kind people nearby.</p>
-      <div class="ctas">
-        <a class="btn btn-gold" href="https://ig.me/m/novathehumanhandler"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg>Join: DM “PACK”</a>
-        <a class="btn btn-line" href="#how-to-join">How it works</a>
-      </div>
-      <ul class="facts">
-        <li>Free</li><li>Ages 16+</li><li>Starting in Limerick, open to everyone</li>
-      </ul>
-    </div>
+    <a class="brand" href="./"><img class="disc" src="img/brand/nova-head.svg" alt="" width="40" height="40"><span>Nova's Pack</span></a>
+    <a class="ig" href="https://www.instagram.com/novathehumanhandler/" aria-label="Nova on Instagram, @novathehumanhandler"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor"/></svg><span class="ig-text">@novathehumanhandler</span></a>
   </div>
 </header>
 
 <main id="main">
+  <section class="hero" aria-labelledby="hero-h">
+    <div class="wrap hero-grid">
+      <div class="hero-text">
+        <p class="host-row"><img src="img/face.jpg" width="240" height="240" alt="">Hosted by Nova, professional human handler</p>
+        <h1 id="hero-h">Everyone's welcome in the pack.</h1>
+        <p class="lede">First pet or fifth. Dogs, cats, hens, rabbits, horses, or no pet yet. One friendly WhatsApp chat for daft questions, showing off your lot, and meeting kind people nearby.</p>
+        <div class="join-ctas">
+          <a class="btn btn-gold" href="https://ig.me/m/novathehumanhandler"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg>Message “PACK” to Nova on Instagram</a>
+          <p class="cta-note">We'll send your WhatsApp invite. Nova's human replies within a day.</p>
+          <a class="btn btn-line" data-wa hidden href="#how-to-join"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 0 1-11.7 7.1L4 20l1-4.1A8 8 0 1 1 20 12z"/></svg>No Instagram? Join on WhatsApp</a>
+        </div>
+        <ul class="facts">
+          <li>Free</li><li>Chat is 18+</li><li>Online for all, walks in Limerick</li>
+        </ul>
+      </div>
+      <figure class="hero-photo">
+        <div class="frame"><img src="img/card.jpg" width="560" height="560" alt="Nova, a young black-and-tan German Shepherd, in a knitted scarf, tongue out, looking straight at the camera" fetchpriority="high"></div>
+      </figure>
+    </div>
+  </section>
+
   <div class="wrap">
     <div class="col sections">
 
-      <section class="sec" aria-labelledby="note-h">
+      <section aria-labelledby="note-h">
         <h2 id="note-h" class="vh">A note from Nova</h2>
         <article class="memo">
           <dl>
@@ -294,7 +79,7 @@ footer nav a{display:inline-block;padding:10px 2px}
           </dl>
           <p>Hi, I'm Nova. German Shepherd, about a year old, and full-time handler of one questionable adult human here in Limerick. I have asked for a raise. I am still waiting.</p>
           <p>I started this pack because everyone deserves somewhere kind to ask the questions they're afraid are daft, show off whoever they share their sofa with, and find good people nearby. Thirty years of dogs or your first rabbit last Tuesday; paws, hooves or feathers: there's a spot for you.</p>
-          <p>No silly questions. No judgement. No selling animals. Pull up a blanket.</p>
+          <p>No silly questions. No judgement. Pull up a blanket. Not the grey one; that's mine.</p>
           <p class="sig"><img class="disc" src="img/brand/nova-head.svg" alt="" width="44" height="44"><span>Nova<small>Typed by my human, under close supervision</small></span></p>
         </article>
       </section>
@@ -304,109 +89,82 @@ footer nav a{display:inline-block;padding:10px 2px}
         <h2 id="who-h">Newbies, old hands, and everyone in between</h2>
         <ul class="chips">
           <li>First-time owners</li><li>Lifelong animal people</li><li>Dog people</li>
-          <li>Cat people</li><li>Hen and chicken keepers</li><li>Rabbit and small-pet folk</li>
-          <li>Horse and pony people</li><li>Rescuers and fosters</li><li>Older pets and their people</li>
-          <li>No pet yet, just love animals</li>
+          <li>Cat people</li><li>Hen keepers</li><li>Rabbit and small-pet folk</li>
+          <li>Horse and pony people</li><li>Budgies, lizards, fish: yes, you too</li><li>Rescuers and fosters</li>
+          <li>Older pets and their people</li><li>No pet yet? Still in.</li>
         </ul>
-        <p class="aside">The chat, challenges and shout-outs are for every species from day one. Our weekly walk starts dog-first, because that's what Limerick asked for first. Want something for your hens, horse or cat? Say so in the chat and we'll build it with you.</p>
+        <p class="aside">The chat, challenges and shout-outs are for every species. The weekly walk starts dog-first because the host is a dog and she pulled rank. Want something for hens, horses or cats? Say so in the chat.</p>
       </section>
 
       <section class="sec" aria-labelledby="get-h">
         <p class="eyebrow">What you get</p>
         <h2 id="get-h">What's open now, and what's coming</h2>
-        <p class="muted">We only promise what's real. If it says "Coming soon", it isn't running yet.</p>
-        <ul class="offer">
-          <li>
-            <span class="status" data-status="live">Open now</span>
-            <h3>The pack chat</h3>
-            <p>Our WhatsApp Community. Ask anything, swap tips, share photos, and hear about walks first. Health questions always get "check with your vet" first: we share experience, we never diagnose.</p>
-          </li>
-          <li>
-            <span class="status" data-status="live">Open now</span>
-            <h3><a href="#tags-h">Weekly challenges</a></h3>
-            <p>A photo theme on Instagram. Post your animal with the hashtag, tag Nova, and see everyone else's.</p>
-          </li>
-          <li>
-            <span class="status" data-status="live">Open now</span>
-            <h3><a href="#shout-h">Shout-out Saturday</a></h3>
-            <p>Nova features members' animals to her followers every Saturday. Everyone gets a turn.</p>
-          </li>
-          <li>
-            <span class="status" data-status="soon">Coming soon</span>
-            <h3><a href="#walk-h">The Pack Walk</a></h3>
-            <p>A calm weekly group walk in Limerick, co-run with a reward-based trainer.</p>
-          </li>
-          <li>
-            <span class="status" data-status="soon">Coming soon</span>
-            <h3><a href="#learn-h">Learn with Nova</a></h3>
-            <p>Short clips of Nova and her human learning the basics, checked by a trainer.</p>
-          </li>
-          <li>
-            <span class="status" data-status="soon">Coming soon</span>
-            <h3>A Limerick map, vouched by members</h3>
-            <p>Dog-friendly places, secure fields, trainers and groomers, each recommended by a real member who's happy to be named. Nobody can pay to be on it or to rank higher. Got a favourite spot? Tell us in the chat.</p>
-          </li>
-        </ul>
-      </section>
+        <p class="muted">Nova has a strict no-fibbing policy: "Open now" means today; "Coming soon" means her human is on it.</p>
+        <div class="offer">
 
-      <section class="sec" aria-labelledby="walk-h">
-        <span class="status" data-status="soon">Coming soon · first date announced in the chat</span>
-        <h2 id="walk-h">The Pack Walk</h2>
-        <div class="feature">
-          <figure><img src="img/redcoat.jpg" width="560" height="560" loading="lazy" alt="Nova in a red jumper and harness, on lead on a path at dusk"></figure>
-          <div class="body">
-            <p>A calm, weekly group walk for dogs and their people. We walk on lead, side by side with plenty of space between dogs: a "parallel walk". Dogs get used to each other without the chaos of a free-for-all greeting, and people get a chat. Each walk is co-run with a reward-based trainer, who'll share one small thing to practise along the way.</p>
-            <div class="card">
-              <h3>Walk rules</h3>
+          <article class="item" aria-labelledby="chat-h">
+            <h3 id="chat-h">The pack chat</h3>
+            <p class="status" data-status="live">Open now</p>
+            <p>Our WhatsApp Community. Ask anything, swap tips, share photos, hear about walks first. If your animal seems unwell, call your vet first: we share experience, we never diagnose. Adults (18+).</p>
+          </article>
+
+          <article class="item" aria-labelledby="tags-h">
+            <h3 id="tags-h">Photo challenges</h3>
+            <p class="status" data-status="live">Open now</p>
+            <p>A theme each week, on rotation. Post on Instagram and tag @novathehumanhandler, or just post it in the chat.</p>
+            <ul class="tags">
+              <li><b>#NewToThePack</b> introduce your animal, or yourself</li>
+              <li><b>#OffDuty</b> the most relaxed nap pose, any species</li>
+              <li><b>#GoldenHour</b> your animal in the evening light</li>
+            </ul>
+          </article>
+
+          <article class="item wide shout" id="shout-out" aria-labelledby="shout-h">
+            <h3 id="shout-h">Shout-out Saturday</h3>
+            <p class="status" data-status="live">Open now</p>
+            <p>Brilliant pet accounts go quiet because nobody sees them. Nova finds this unacceptable. Every Saturday she shares up to three members' animals with her followers:</p>
+            <ul class="trio">
+              <li><b>1</b>A newcomer<span>in the order you joined</span></li>
+              <li><b>2</b>Most helpful<span>nominated by members</span></li>
+              <li><b>3</b>Challenge favourite<span>picked by Nova's human, never by likes</span></li>
+            </ul>
+            <p>Any species. Each pet is featured at most once every 8 weeks, and we rotate so lots of pets get a turn. We always ask first, only use photos you took or may share, and you can opt out any time. Ages 16+.</p>
+          </article>
+
+          <article class="item wide" id="pack-walk" aria-labelledby="walk-h">
+            <h3 id="walk-h">The Pack Walk</h3>
+            <p class="status" data-status="soon">Coming soon</p>
+            <p>A calm weekly walk for dogs and their people in Limerick. Everyone stays on lead, side by side with plenty of space between dogs (a "parallel walk"), so dogs get used to each other without the chaos of a meet-and-greet. Co-run with a reward-based trainer, who'll share one small thing to practise. Adults (18+). Sign-ups open in the chat once our trainer is confirmed.</p>
+            <details>
+              <summary>Walk rules</summary>
               <ul class="rules">
-                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>Public places only. The meeting point is shared in the pack chat.</span></li>
-                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>Leads on, the whole time.</span></li>
-                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>Adults only (18+).</span></li>
-                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>Dogs who find other dogs stressful (reactive dogs) sit out group walks. No judgement at all: ask the trainer about calmer options.</span></li>
-                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>Restricted breeds, German Shepherds like Nova included, wear a muzzle and a strong lead no longer than 2 m, <a href="https://www.gov.ie/en/publication/905aa-my-legal-responsibilities-as-a-dog-owner/">as Irish law requires</a>.</span></li>
-                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>Healthy, vaccinated and not in season. Not sure? Check with your vet first.</span></li>
-                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>Bring poo bags and water. Leave every place cleaner than we found it.</span></li>
+                <li>Public, on-lead places only. The meeting point is shared in the chat.</li>
+                <li>Leads on the whole time: a fixed lead of 2 m or less, no retractable leads. One dog per adult.</li>
+                <li>No dog-to-dog greetings. That's the whole point of a parallel walk.</li>
+                <li>All dogs: licensed, microchipped, and wearing a collar with your name and address.</li>
+                <li>German Shepherds (Nova included) and other restricted breeds wear a muzzle and a strong lead of 2 m or less, held by an adult who can control them. It's <a href="https://www.gov.ie/en/publication/905aa-my-legal-responsibilities-as-a-dog-owner/">Irish law</a>, and Nova wears hers with dignity. XL Bully types: bring your Certificate of Exemption.</li>
+                <li>Plenty of great dogs need more space than a group walk gives. They skip this one; their people are very welcome, and we'll point you to calmer options.</li>
+                <li>Healthy, up to date with vaccinations, and not in season. Puppies once your vet says they're fully vaccinated.</li>
+                <li>You're responsible for your own dog at all times. The trainer may ask any dog to sit out.</li>
+                <li>Poo bags and water, always. We cancel for Met Éireann orange or red warnings.</li>
+                <li>Ask before photographing other people or their dogs.</li>
               </ul>
-            </div>
-          </div>
+            </details>
+          </article>
+
+          <article class="item" id="learn" aria-labelledby="learn-h">
+            <h3 id="learn-h">Learn with Nova</h3>
+            <p class="status" data-status="soon">Coming soon</p>
+            <p>Short clips of Nova and her human working on the basics, starting with recall, loose-lead walking and settling down. Our journey, not expert instruction: every clip is checked by our reward-based trainer first. Treats, toys and praise only; no shock, prong or choke collars, ever.</p>
+          </article>
+
+          <article class="item" aria-labelledby="map-h">
+            <h3 id="map-h">A Limerick map, vouched by members</h3>
+            <p class="status" data-status="soon">Coming soon</p>
+            <p>Pet-friendly cafés, vets, groomers, sitters, feed stores and secure dog fields. Every place is recommended by a named member who has used it. Nobody can pay to be recommended or to rank higher. Got a favourite? Tell us in the chat.</p>
+          </article>
+
         </div>
-      </section>
-
-      <section class="sec" aria-labelledby="learn-h">
-        <span class="status" data-status="soon">Coming soon</span>
-        <h2 id="learn-h">Learn with Nova</h2>
-        <div class="feature">
-          <figure><img src="img/tongue.jpg" width="560" height="560" loading="lazy" alt="Nova on a pink lead, looking up at the camera with her tongue out"></figure>
-          <div class="body">
-            <p>Short clips of Nova and her human working on the basics: coming back when called, walking on a loose lead, and settling down. First up: recall, loose lead and settle.</p>
-            <p>This is our journey, not expert instruction. Every clip is checked by a reward-based trainer before it goes up. Kind methods only: treats, toys and praise. No shock, prong or choke collars, ever.</p>
-            <p class="small muted">If your animal has a behaviour or health worry, a qualified trainer or your vet beats any clip on the internet, ours included.</p>
-          </div>
-        </div>
-      </section>
-
-      <section class="shout" aria-labelledby="shout-h">
-        <span class="status" data-status="live">Open now</span>
-        <p class="eyebrow">Every Saturday</p>
-        <h2 id="shout-h">Shout-out Saturday</h2>
-        <p>Lots of lovely small pet accounts go quiet because nobody sees them. Every Saturday, Nova shares up to three members' animals with her followers on Instagram:</p>
-        <ul class="trio">
-          <li><b>1</b>A newcomer</li>
-          <li><b>2</b>The most helpful member</li>
-          <li><b>3</b>A challenge favourite</li>
-        </ul>
-        <p>Any species. Each pet is featured at most once every 8 weeks, so everyone gets a turn. We always ask first, and you can opt out any time.</p>
-      </section>
-
-      <section class="sec" aria-labelledby="tags-h">
-        <p class="eyebrow">Challenges</p>
-        <h2 id="tags-h">Post it, tag Nova, join in</h2>
-        <p class="muted">Post on Instagram with the hashtag and tag @novathehumanhandler. Nova shares favourites in her Stories.</p>
-        <ul class="tags">
-          <li><b>#NewToThePack</b><span>Introduce your animal, or yourself if you don't have one yet.</span></li>
-          <li><b>#OffDuty</b><span>Your pet's most relaxed nap pose. Dogs, cats, hens, anyone.</span></li>
-          <li><b>#GoldenHour</b><span>Your animal in the evening light: on a walk, in the garden, or by the window.</span></li>
-        </ul>
       </section>
 
       <section class="sec" aria-labelledby="rules-h">
@@ -415,82 +173,59 @@ footer nav a{display:inline-block;padding:10px 2px}
         <ul class="house">
           <li><b>No silly questions</b><span>Everyone started somewhere. Newbies get help, not lectures.</span></li>
           <li><b>No judgement</b><span>Big dogs, small hens, old cats, rescue chaos. All welcome.</span></li>
-          <li><b>No selling animals</b><span>No buying, selling or rehoming animals for money. This is a community, not a marketplace.</span></li>
-          <li><b>Vet first</b><span>Any health question gets "check with your vet" first. We share experience; we never diagnose.</span></li>
-          <li><b>Keep locations vague</b><span>Never share your home address or exact spot. "Near Castletroy" is plenty.</span></li>
-          <li><b>Be kind, or be gone</b><span>No shaming, pile-ons or spam. Admins remove posts, and people, that break the rules.</span></li>
+          <li><b>No selling or rehoming animals</b><span>No selling, giving away, swapping or rehoming animals here, even for free. No breeding or stud offers. Need to rehome? A registered rescue will help.</span></li>
+          <li><b>Vet first</b><span>Worried your animal is unwell? Call your vet before you post. We share experience; we never diagnose.</span></li>
+          <li><b>Keep it private</b><span>No home addresses or exact spots ("near Castletroy" is plenty), and no one else's details or health information.</span></li>
+          <li><b>No uninvited DMs</b><span>Don't message members privately unless they've said yes. Report it and they're removed.</span></li>
+          <li><b>Be kind, or be gone</b><span>No shaming, pile-ons or spam. Admins remove posts, and people who break the rules.</span></li>
         </ul>
       </section>
 
       <section class="lost" aria-labelledby="lost-h">
         <h2 id="lost-h">Lost or found a pet?</h2>
-        <p>Move fast, and go where Limerick already looks:</p>
+        <p>Any species. Move fast, and go where Limerick already looks:</p>
         <ol>
           <li>Post on <a href="https://www.facebook.com/LimerickLostandFound">Limerick Animal Lost &amp; Found</a> (Facebook, run by volunteers).</li>
           <li>Report it on the <a href="https://ispca.ie/lost-and-found-info">ISPCA lost and found register</a>.</li>
-          <li>Check or update the microchip details. <a href="https://www.europetnet.com/">Europetnet</a> shows which Irish database holds a chip number. Tell local vets and the dog warden too.</li>
+          <li>Check the microchip details. <a href="https://www.europetnet.com/">Europetnet</a> shows which Irish database holds a chip number. Ring local vets and the Limerick dog shelter (<a href="tel:+35361301604">061 301604</a>).</li>
           <li>Then share that post in the pack chat so we can spread the word.</li>
         </ol>
-        <p class="small muted">Tip from the ISPCA: don't mention a reward on posters. It can attract the wrong kind of attention.</p>
+        <p><b>Found a dog?</b> A vet can scan for a chip. By law you return it to its owner, hand it to the dog warden, or keep it and tell the warden or Gardaí in writing.</p>
+        <p class="small muted">Tip from the ISPCA: don't mention a reward on posters, and never pay a "finder" before you've seen your pet. See an animal in danger? ISPCA cruelty line <a href="tel:+353818515515">0818 515 515</a> (Mon–Fri, 9–5) or <a href="https://ispca.ie/report-cruelty">report online</a>; out of hours, the Gardaí.</p>
       </section>
 
       <section class="sec" id="how-to-join" aria-labelledby="join-h">
         <p class="eyebrow">How to join</p>
         <h2 id="join-h">Three easy steps</h2>
         <ol class="steps">
-          <li><div><b>Follow <a href="https://www.instagram.com/novathehumanhandler/">@novathehumanhandler</a></b><span>So you catch the challenges and Shout-out Saturday.</span></div></li>
-          <li><div><b>DM Nova the word PACK</b><span>Tell us who's in your family: their names and what kind of animal. No pet yet? Just say so. Nova's human replies with your invite to the pack chat.</span></div></li>
-          <li><div><b>Post a hello with #NewToThePack</b><span>Your animal, or yourself if you're pet-less for now. The pack will say hi.</span></div></li>
+          <li><div><b>Follow <a href="https://www.instagram.com/novathehumanhandler/">@novathehumanhandler</a></b><span>That's where the challenges and Shout-out Saturday happen.</span></div></li>
+          <li><div><b>Message Nova the word PACK</b><span>Nova's human sends your WhatsApp invite, usually within a day (there's a day job; Nova is negotiating). Tell us who's in your family, or say "no pet yet". The chat is 18+.</span></div></li>
+          <li><div><b>Say hello with #NewToThePack</b><span>On Instagram, or in the chat if you'd rather. The pack will say hi.</span></div></li>
         </ol>
-        <div class="ctas">
-          <a class="btn btn-gold" href="https://ig.me/m/novathehumanhandler"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg>DM “PACK” to Nova</a>
+        <div class="join-ctas">
+          <a class="btn btn-gold" href="https://ig.me/m/novathehumanhandler"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg>Message “PACK” to Nova</a>
+          <a class="btn btn-line" data-wa hidden href="#how-to-join"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 0 1-11.7 7.1L4 20l1-4.1A8 8 0 1 1 20 12z"/></svg>No Instagram? Join on WhatsApp</a>
         </div>
-        <p class="small muted">The button opens Instagram on your phone. On a computer, open Instagram and message @novathehumanhandler.</p>
-      </section>
-
-      <section class="sec" aria-labelledby="host-h">
-        <p class="eyebrow">Meet your host</p>
-        <h2 id="host-h">Nova, at work and at rest</h2>
-        <ul class="strip" aria-label="Photos of Nova (scrolls sideways)" tabindex="0">
-          <li><img src="img/sunset.jpg" width="560" height="560" loading="lazy" alt="Nova seen from behind, watching the sun set over the river"></li>
-          <li><img src="img/blanket.jpg" width="560" height="560" loading="lazy" alt="Black-and-white photo of Nova wrapped in a blanket on the sofa"></li>
-          <li><img src="img/bellyup.jpg" width="560" height="560" loading="lazy" alt="Nova asleep belly-up on the sofa"></li>
-          <li><img src="img/raincoat.jpg" width="560" height="560" loading="lazy" alt="Nova lying on paving stones in a padded coat"></li>
-          <li><img src="img/pier.jpg" width="560" height="560" loading="lazy" alt="Nova lying on the riverside at night, on lead"></li>
-          <li><img src="img/night.jpg" width="560" height="560" loading="lazy" alt="Nova on a night walk in a reflective harness"></li>
-          <li><img src="img/xmas.jpg" width="560" height="560" loading="lazy" alt="Nova in a red Christmas jumper on a chair"></li>
-        </ul>
+        <p class="small muted">The Instagram button opens the app on your phone. On a computer, open Instagram and message @novathehumanhandler. WhatsApp join requests are approved by an admin.</p>
       </section>
 
       <section class="privacy" id="privacy" aria-labelledby="privacy-h">
-        <h2 id="privacy-h">Ages 16+ and your privacy</h2>
-        <p class="age"><b>16+</b><span>Nova's Pack is for people aged 16 and over. Pack Walks are for adults (18+).</span></p>
-        <h3>This website</h3>
-        <ul>
-          <li>No cookies, no analytics, no ads, no trackers. Our fonts are stored here, not loaded from Google.</li>
-          <li>The site is hosted on GitHub Pages. GitHub logs visitors' IP addresses for security; see <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement">GitHub's privacy statement</a>.</li>
+        <h2 id="privacy-h">Ages and privacy</h2>
+        <ul class="ages">
+          <li><b>18+</b><span>The WhatsApp pack chat and Pack Walks.</span></li>
+          <li><b>16+</b><span>Following Nova, photo challenges and Shout-out Saturday on Instagram.</span></li>
         </ul>
-        <h3>When you join</h3>
-        <ul>
-          <li><b>What we keep:</b> your name or Instagram handle, your animals' names and species (or "no pet yet"), and, only if you want walk news, a rough area like "Castletroy". Never your address.</li>
-          <li><b>Why:</b> to welcome you, add you to the pack chat, and, only with your OK each time, feature your animal on Shout-out Saturday.</li>
-          <li><b>Legal basis:</b> your consent. You can withdraw it any time.</li>
-          <li><b>How long:</b> until you leave the pack or ask us to delete it. We never sell or share it.</li>
-          <li><b>Apps we use:</b> Instagram and WhatsApp (both Meta) handle your messages under their own privacy policies. In WhatsApp groups, other members may be able to see your phone number.</li>
-          <li><b>Your rights:</b> see, correct or delete your data, or object. Just DM us. You can also complain to the <a href="https://www.dataprotection.ie/">Data Protection Commission</a>.</li>
-          <li><b>Who we are:</b> Nova's Pack is run by Shiv, Nova's human, in Limerick, Ireland. Contact: DM <a href="https://ig.me/m/novathehumanhandler">@novathehumanhandler</a>.</li>
-        </ul>
-        <p class="small muted">Photos: please share only your own animals. Screenshots and many apps strip location data, but check before posting, and never show where you live. A full privacy policy is coming soon.</p>
+        <p><b>Your privacy, in short:</b> we keep only what you send us to welcome you (your name or handle, your animals' names and species), and delete it within 30 days of you leaving. We never sell it. Instagram and WhatsApp (Meta) handle your messages under their own policies, and other chat members may see your phone number. This website has no cookies, analytics or trackers.</p>
+        <p><a class="more" href="privacy.html">Read the full privacy notice</a></p>
       </section>
 
       <section class="final" aria-labelledby="final-h">
         <img class="disc" src="img/brand/nova-head.svg" alt="" width="96" height="96">
         <h2 id="final-h">Come say hi. There's room for everyone.</h2>
-        <div class="ctas">
-          <a class="btn btn-gold" href="https://ig.me/m/novathehumanhandler"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg>Join: DM “PACK”</a>
+        <div class="join-ctas center">
+          <a class="btn btn-gold" href="https://ig.me/m/novathehumanhandler"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg>Message “PACK” to Nova</a>
           <a class="btn btn-blue" href="https://www.instagram.com/novathehumanhandler/">Follow Nova</a>
         </div>
-        <p class="small muted">Free to join. Starting in Limerick, open to everyone, everywhere.</p>
       </section>
 
     </div>
@@ -503,12 +238,14 @@ footer nav a{display:inline-block;padding:10px 2px}
     <nav aria-label="Footer">
       <ul>
         <li><a href="https://www.instagram.com/novathehumanhandler/">Instagram</a></li>
-        <li><a href="#privacy">Privacy</a></li>
+        <li><a href="privacy.html">Privacy</a></li>
         <li><a href="#how-to-join">How to join</a></li>
       </ul>
     </nav>
-    <p>Photos of Nova by her human. © 2026 Nova's Pack.</p>
+    <p>Photos of Nova by her human.</p>
   </div>
 </footer>
+
+<script src="site.js"></script>
 </body>
 </html>

@@ -7,3 +7,4 @@ exclude:
   - finance/
   - README.md
   - CLAUDE.md
+  - print/flyer-src.html

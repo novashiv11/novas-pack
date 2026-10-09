@@ -12,7 +12,10 @@ Handoff summary for Claude Code. Read this first, then `docs/00-master-brief.md`
 | Path | What |
 |---|---|
 | `index.html` | Public welcome page. Static, GitHub Pages, no cookies/trackers, self-hosted fonts. Live/coming-soon labels use `data-status="live|soon"`. |
-| `img/` | Nova photos (~560px crops from Instagram; replace with full-res originals when Shiv uploads them), `og-image.jpg` (1200×630), `brand/nova-head.svg`. |
+| `privacy.html` | Full GDPR Art. 13 notice. Needs Shiv's full name + dedicated email when available. |
+| `site.css` / `site.js` | Shared styles. `site.js` holds `WHATSAPP_INVITE`; the "Join on WhatsApp" buttons stay hidden until it's set. |
+| `print/flyer-a6.pdf` | 4-up A6 flyer with QR to the site. Source: `print/flyer-src.html` (open in Chrome → Print → Save as PDF, A4, no margins, background graphics on). |
+| `img/` | Photos in use: `card.jpg` (hero), `face.jpg` (avatar), `og-image.jpg` (1200×630), `brand/` (Nova SVG, QR). **Indoor only** until muzzled outdoor shots exist; the rest are in `_archive/img/`. |
 | `fonts/` | Self-hosted woff2 + OFL licences. |
 | `_archive/prototype-v3.html` | Old prototype app (dog-only, contains fake social proof). **Spec only, never publish.** `_` folders are skipped by Pages. |
 | `_config.yml` | Excludes `docs/`, `finance/`, README and CLAUDE.md from the published site. The repo itself is public. |
@@ -73,16 +76,18 @@ Handoff summary for Claude Code. Read this first, then `docs/00-master-brief.md`
 
 ## Facts to remember
 - **German Shepherds are a restricted breed in Ireland**: muzzle + strong lead ≤2 m held by someone over 16 in public places ([gov.ie](https://www.gov.ie/en/publication/905aa-my-legal-responsibilities-as-a-dog-owner/)). Applies to Nova, to Pack Walks and to Learn with Nova filming (off-lead recall = private land or a hired secure field).
-- Digital age of consent in Ireland: 16 (Data Protection Act 2018 s.31). Pack Walks: 18+.
+- Ages: **WhatsApp chat and Pack Walks 18+** (Shiv, 9 Oct 2026). Instagram challenges and Shout-out 16+ (digital age of consent, Data Protection Act 2018 s.31).
+- Rehoming: none at all, free or paid (S.I. 681/2019 covers supply too). Walk sign-up = acknowledgement, never a liability waiver.
 - Lost pets: Limerick Animal Lost & Found (facebook.com/LimerickLostandFound), ISPCA register (ispca.ie/lost-and-found-info), Europetnet (finds which of the 4 Irish microchip databases holds a chip).
 - `ig.me/m/novathehumanhandler` opens an Instagram DM on phones; it may not work on desktop web.
 - This sandbox can't reach facebook.com, instagram.com, ispca.ie or gov.ie directly: verify via web search and ask Shiv to tap-test links.
 
 ## Phase 1 tasks (in order)
-1. ✅ Welcome page (`index.html`). Spec: `docs/specs/01-welcome-page.md`.
-2. `docs/community-kit.md`: WhatsApp Community structure, house rules, meetup safety, short privacy notice, Pack Walk format + sign-up post, trainer pitch, Limerick Lost & Found / ISPCA message, PACK quick reply + welcome message.
+1. ✅ Welcome page (`index.html` + `privacy.html`). Spec: `docs/specs/01-welcome-page.md`.
+2. ✅ `docs/community-kit.md`: WhatsApp Community structure, house rules, meetup safety, short privacy notice, Pack Walk format + sign-up post, trainer pitch, Limerick Lost & Found / ISPCA message, PACK quick reply + welcome message.
 3. Learn with Nova season 1: `docs/learn-with-nova.md` (8 episodes: recall, loose lead, settle, calm greetings, leave it, wait at doors, handling and vet visits, a fun trick; each with shot list, steps, one common mistake, when to see a professional; reward-based only) + `learn.html` (clips from `/clips`).
-4. `docs/launch-kit.md`: 5 Reel scripts, 7-day plan, Instagram bio, Facebook/WhatsApp post, A6 flyer, Shout-out Saturday rules + caption template.
+4. ✅ `docs/launch-kit.md` (done before task 3, because launch needed it) + `print/flyer-a6.pdf`. Also ✅ `docs/money-plan.md` (Shiv asked for it).
+   Was: `docs/launch-kit.md`: 5 Reel scripts, 7-day plan, Instagram bio, Facebook/WhatsApp post, A6 flyer, Shout-out Saturday rules + caption template.
 5. Business pack: `docs/business-plan.md`, `finance/model.xlsx` (12 months, 3 scenarios, assumptions explained), `docs/brand-book.md`, `docs/ireland-setup-gdpr.md`, draft privacy policy / terms / community guidelines ("not legal advice").
 6. Phase 2 web app — **only when Shiv says there are ~50 active members.**
 

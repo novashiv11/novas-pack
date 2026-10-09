@@ -1,6 +1,6 @@
 # Spec 01: Welcome page (`index.html`)
 
-**Status:** built 9 Oct 2026 · Phase 1, task 1
+**Status:** v2, 9 Oct 2026 · Phase 1, task 1 · reviewed by 5 independent reviewers
 
 ## One-paragraph spec
 
@@ -26,11 +26,29 @@
 
 | Item | Label | Flips to "Open now" when |
 |---|---|---|
-| Pack chat (WhatsApp Community) | Open now | Must exist **before** the page is shared |
-| Weekly challenges | Open now | already live (Instagram) |
+| Pack chat (WhatsApp Community, 18+) | Open now | Must exist **before** the page is shared |
+| Photo challenges | Open now | already live (Instagram or chat) |
 | Shout-out Saturday | Open now | first Saturday after the first members join |
 | Pack Walk | Coming soon | a trainer is signed up and the first date is set |
 | Learn with Nova | Coming soon | the first trainer-checked clip is posted |
 | Vouched Limerick map | Coming soon | 10+ places, each vouched by a named member who agreed to be named |
 
 To flip a label, find `data-status="soon"` on that item in `index.html`, change it to `data-status="live"`, and change the text to "Open now".
+
+## Review round 1 (9 Oct 2026): what was found and fixed
+
+Five independent reviewers (QA and accessibility, brand, community safety, legal and privacy, growth). No Critical issues in the code. Criticals and Majors in content, all fixed in v2:
+
+| Finding | Fix |
+|---|---|
+| Outdoor photos show Nova unmuzzled in public, right beside the law the page quotes (all 5 reviewers) | Indoor photos only; outdoor shots archived until muzzled versions exist; share image remade |
+| Shout-out panel spilled out of its box at 320 px / 200% zoom (WCAG 1.4.4, 1.4.12) | Responsive grid |
+| Join button below the first screen in Instagram's in-app browser; page about 13 screens long | Text-first hero (button at about 490 px on a 375×553 screen); duplicate sections merged; walk rules folded away |
+| Only one join route, and it needs Instagram | "No Instagram? Join on WhatsApp" button (shows once the invite link is set in `site.js`) |
+| "Everyone gets a turn" and "what Limerick asked for" weren't true | Reworded |
+| WhatsApp exposes members' phone numbers to 16–17-year-olds | Shiv's decision: chat and walks 18+ |
+| Privacy notice missing Art. 13 items (basis per purpose, third parties, US transfers, retention, all rights) | Full `privacy.html`, short summary on the page |
+| Rehoming rule allowed "free to good home" | No rehoming at all, free or paid |
+| Map promise clashed with future paid listings | "Nobody can pay to be recommended or to rank higher" |
+| Walk rules incomplete (no greetings, flexi leads, licence/chip, responsibility) | Full list in a tap-to-open section |
+| Species slips (dog-only map, no birds/reptiles/fish) | Fixed chips and map wording |
