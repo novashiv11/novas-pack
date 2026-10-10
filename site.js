@@ -182,7 +182,7 @@ const NP = (() => {
       "That's my nose. I'll allow it once.",
       "Snacks first, boops second. You've got it backwards.",
       "My human boops me 40 times a day. I'm still waiting on that raise.",
-      "Boop logged. Have you made your Pack Card yet?",
+      "Boop logged. Now make your pet's card. I'm judging Saturday.",
       "Excuse me, I'm working. Professionally.",
       "Fine. One more. Then you join the pack.",
       "Every species welcome. Even people who boop without asking.",
@@ -201,31 +201,6 @@ const NP = (() => {
       else { let i; do { i = (Math.random() * LINES.length) | 0; } while (i === last); last = i; line = LINES[i]; }
       bubble.textContent = line;
       boop.classList.remove("bounce"); void boop.offsetWidth; boop.classList.add("bounce");
-    });
-  }
-
-  // Who's in your family? Nova replies and the CTA personalises.
-  const fam = $("#family");
-  if (fam) {
-    const say = $("#familySay"), cta = $("#familyCta");
-    const REPLIES = {
-      dog: ["Dogs", "A fellow professional. Respect."],
-      cat: ["Cats", "Cats! I respect cats. From a distance."],
-      bird: ["Birds", "Birds are welcome. Please keep the singing to daytime."],
-      small: ["Small pets", "Small but mighty. Rabbits run this place, honestly."],
-      horse: ["Horses", "A horse? You win. You win everything."],
-      scaly: ["Scaly friends", "Lizards and fish: calm, mysterious, very welcome."],
-      other: ["Pets", "Chickens, goats, a tortoise called Kevin? All pack."],
-      none: ["You", "No pet yet? Still pack. You can borrow my human."],
-    };
-    fam.addEventListener("click", (e) => {
-      const b = e.target.closest("button[data-sp]");
-      if (!b) return;
-      fam.querySelectorAll("button[data-sp]").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
-      const [who, line] = REPLIES[b.dataset.sp] || REPLIES.other;
-      say.textContent = line;
-      cta.href = `card.html?species=${b.dataset.sp}`;
-      cta.textContent = b.dataset.sp === "none" ? "Make your supporter card →" : `Make a card for your ${who.toLowerCase().replace(/s$/, "")} →`;
     });
   }
 
@@ -254,9 +229,4 @@ const NP = (() => {
     });
   }
 
-  // Highlight today in the weekly timeline.
-  const day = new Date().getDay(); // 0 Sun … 6 Sat
-  document.querySelectorAll("[data-day]").forEach((el) => {
-    if (Number(el.dataset.day) === day) { el.classList.add("today"); el.setAttribute("aria-current", "date"); }
-  });
 })();

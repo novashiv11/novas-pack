@@ -11,7 +11,7 @@ Handoff summary for Claude Code. Read this first, then `docs/00-master-brief.md`
 ## Repo map
 | Path | What |
 |---|---|
-| `index.html` | Interactive hub: Boop Nova, species picker → card, challenge ticket + countdown ring, week timeline, swipe deck, icon rules, folded lost-pet/privacy. Keep visible text short (<~300 words). |
+| `index.html` | One reason, one path: hero "Your pet could be featured by Nova" (boop toy + one CTA) → 3 steps (species chips → card · this week's tag + copy · Saturday countdown) → Nova's note → "Good to know" folds. Keep it ~200 words and one primary CTA. |
 | `card.html` + `card.js` | **Pack Card maker**: client-side canvas card (1080×1350), share/download, weekly streak (localStorage). Photo never uploaded. |
 | `privacy.html` | GDPR Art. 13 notice (Discord, Instagram, card maker, localStorage). Needs Shiv's full name + email when available. |
 | `site.css` / `site.js` | Shared styles. `site.js`: `COMMUNITY_URL` (Discord invite; empty = chat "Opening soon"), challenge rotation (8 themes, week 0 = Mon 12 Oct 2026), streak logic. |

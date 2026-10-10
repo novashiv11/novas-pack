@@ -39,8 +39,10 @@
 <main id="main">
   <div class="wrap maker">
     <div class="maker-intro">
-      <p class="eyebrow">Pack Card maker</p>
-      <h1>Make your pet's Pack Card</h1>
+      <ol class="progress" aria-label="Progress">
+        <li class="on" aria-current="step">1 Card</li><li>2 Post</li><li>3 Saturday</li>
+      </ol>
+      <h1>Make your pet's card</h1>
       <p class="lede">Any species. Share it, tag <b>@novathehumanhandler</b>. Your photo never leaves your phone. 16+.</p>
     </div>
 
@@ -84,6 +86,12 @@
           <button class="btn btn-line" type="button" id="captionBtn">Copy a caption</button>
         </div>
         <p class="status-msg" id="status" role="status" aria-live="polite"></p>
+
+        <section class="next-steps" id="nextSteps" hidden aria-labelledby="next-h">
+          <h2 id="next-h">Nice card. Two steps left.</h2>
+          <div class="next-item"><span class="step-num" aria-hidden="true">2</span><div><b>Post it with <span data-challenge-tag>#NewToThePack</span></b><p class="small muted">On Instagram or TikTok. Tag @novathehumanhandler so Nova sees it.</p><button class="btn btn-gold" type="button" id="captionBtn2">Copy caption</button></div></div>
+          <div class="next-item"><span class="step-num" aria-hidden="true">3</span><div><b>Saturday: Nova picks favourites</b><p class="small muted"><span data-shoutout-when></span> <a href="https://ig.me/m/novathehumanhandler">DM “PACK”</a> to join the pack.</p></div></div>
+        </section>
 
         <section class="streak" aria-labelledby="streak-h">
           <h2 id="streak-h">Your Pack streak</h2>

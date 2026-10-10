@@ -231,11 +231,16 @@
     draw();
     return new Promise((resolve) => canvas.toBlob((b) => resolve(b), "image/png"));
   }
+  function showNext() {
+    const n = $("nextSteps");
+    if (n && n.hidden) { n.hidden = false; n.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "nearest" }); }
+  }
   function download(blob) {
     const url = URL.createObjectURL(blob);
     const a = Object.assign(document.createElement("a"), { href: url, download: fileName() });
     document.body.append(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 2000);
+    showNext();
   }
   $("shareBtn").addEventListener("click", async () => {
     const blob = readyBlob || await toBlob();
@@ -244,7 +249,7 @@
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
       try {
         await navigator.share({ files: [file], title: "My Pack Card", text: caption() });
-        say("Shared! Tag @novathehumanhandler so Nova sees it."); NP.confetti($("shareBtn"));
+        say("Shared! Tag @novathehumanhandler so Nova sees it."); NP.confetti($("shareBtn")); showNext();
       } catch (err) {
         if (err && err.name !== "AbortError") { download(blob); say("Sharing didn't work here, so we downloaded it instead."); }
       }
@@ -257,11 +262,13 @@
     const blob = await toBlob();
     if (blob) { download(blob); say("Downloaded. Post it and tag @novathehumanhandler."); NP.confetti($("downloadBtn")); }
   });
-  $("captionBtn").addEventListener("click", async () => {
+  const copyCaption = async () => {
     const text = caption();
-    try { await navigator.clipboard.writeText(text); say("Caption copied."); }
+    try { await navigator.clipboard.writeText(text); say("Caption copied. Paste it when you post."); }
     catch { say(text); }
-  });
+  };
+  $("captionBtn").addEventListener("click", copyCaption);
+  $("captionBtn2").addEventListener("click", copyCaption);
 
   // ---------- streak ----------
   function showStreak() {
