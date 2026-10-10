@@ -189,6 +189,55 @@ details[open] summary::before{transform:rotate(45deg)}
 .final img{width:96px;height:96px;padding:8px}
 .final h2{font-size:clamp(1.75rem,7vw,2.4rem)}
 
+/* this week + rhythm */
+.week{background:var(--surface);border:2px solid var(--gold);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:8px}
+.week .tag{font-family:var(--f-display);font-weight:800;font-size:clamp(1.8rem,8vw,2.4rem);color:var(--blue);line-height:1.05}
+.week .when{font-weight:700;color:var(--tan-text);font-size:.92rem}
+.rhythm{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:0;list-style:none}
+@media (min-width:640px){.rhythm{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.rhythm li{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.rhythm .day{font-size:.75rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--tan-text)}
+.rhythm b{font-family:var(--f-display);font-size:1.1rem}
+.rhythm span:last-child{color:var(--muted);font-size:.9rem}
+.text-link{font-weight:700}
+
+/* card maker */
+.maker{padding-block:24px 48px;display:flex;flex-direction:column;gap:20px}
+.maker-intro{display:flex;flex-direction:column;gap:10px;max-width:640px}
+.maker-intro h1{font-size:clamp(2rem,8.5vw,3.2rem);color:var(--blue)}
+.maker-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:24px;align-items:start}
+@media (min-width:880px){.maker-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.maker-preview{position:sticky;top:16px}}
+.maker-form{display:flex;flex-direction:column;gap:18px}
+fieldset{border:0;margin:0;padding:0;min-width:0}
+legend{font-weight:800;margin-bottom:8px;padding:0}
+.species{display:flex;flex-wrap:wrap;gap:8px}
+.species input{position:absolute;opacity:0;width:1px;height:1px}
+.species label{display:inline-flex;align-items:center;min-height:44px;padding:8px 14px;border-radius:999px;background:var(--surface);border:1.5px solid var(--line);font-weight:700;font-size:.92rem;cursor:pointer}
+.species input:checked + label{background:var(--blue);border-color:var(--blue);color:var(--on-blue)}
+.species input:focus-visible + label{outline:3px solid var(--focus);outline-offset:3px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-weight:800}
+.field label.sub{font-weight:600;font-size:.9rem;color:var(--muted);margin-top:4px}
+.field input[type=text],.field select{min-height:48px;padding:10px 12px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;width:100%}
+.field input[type=file]{font:inherit;color:var(--muted);max-width:100%}
+.field input[type=file]::file-selector-button{font:inherit;font-weight:800;min-height:44px;padding:8px 14px;margin-right:10px;border-radius:12px;border:0;background:var(--blue);color:var(--on-blue);cursor:pointer}
+.hint{font-size:.85rem;color:var(--muted)}
+.stat{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;align-items:center;margin-bottom:10px}
+.stat label{font-weight:700}
+.stat output{font-family:var(--f-display);font-weight:800;color:var(--blue)}
+.stat input[type=range]{grid-column:1/-1;width:100%;min-height:32px;accent-color:var(--gold)}
+.maker-preview{display:flex;flex-direction:column;gap:14px;min-width:0}
+.maker-preview canvas{width:100%;height:auto;max-width:480px;border-radius:16px;box-shadow:0 6px 24px rgba(20,18,15,.18);background:var(--blue)}
+.maker-preview .btn{width:100%}
+.status-msg{min-height:1.5em;font-weight:700;color:var(--tan-text)}
+.streak{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:10px}
+.streak h2{font-size:1.3rem}
+.streak-num{font-family:var(--f-display);font-weight:800;font-size:1.4rem}
+.streak-num b{font-size:2.6rem;color:var(--blue)}
+.btn:disabled{opacity:.7;cursor:default;transform:none}
+.linkish{background:none;border:0;padding:10px 0;min-height:44px;text-align:left;font:inherit;font-size:.88rem;color:var(--muted);text-decoration:underline;cursor:pointer}
+.next{text-align:center}
+
 /* privacy page */
 .doc{max-width:680px;margin:0 auto;padding-block:32px 64px;display:flex;flex-direction:column;gap:14px}
 .doc h1{font-size:clamp(2rem,8vw,3rem);color:var(--blue)}

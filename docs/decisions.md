@@ -4,6 +4,13 @@ Newest first. **Who** = who made the call. Shiv decides strategy, money, anythin
 
 | # | Date | Decision | Why | Who |
 |---|---|---|---|---|
+| 31 | 10 Oct 2026 | Old Limerick-era docs (community kit, launch kit, money plan, launch plan) moved to `_archive/docs-v1/`. `docs/global-plan.md` is now the single plan. | One source of truth; less to maintain. | Builder |
+| 30 | 10 Oct 2026 | Usage: no new research agents; build directly; one small QA pass per deliverable. | Shiv asked to save Claude usage. | **Shiv** |
+| 29 | 10 Oct 2026 | Engagement system: weekly rhythm (Mon challenge, Wed Ask, Sat Shout-out, Sun #PackWalk), Pack Card, weekly streak with grace weeks, badges for real actions. **No** XP-per-message bots, guilt notifications, infinite feeds or points for likes. | Shiv asked for Reels/TikTok-level engagement; this is the humane version that keeps his rule 4 and fits upcoming EU addictive-design rules. | Builder |
+| 28 | 10 Oct 2026 | **Pack Card maker** (`card.html`): client-side only, photo never uploaded, re-encoded without location data; card choices and streak in localStorage with a delete button. | Shareable result = viral loop (Wordle/Wrapped pattern) with zero backend or privacy risk. | Builder |
+| 27 | 10 Oct 2026 | **Community home: Discord** (18+), replacing WhatsApp. One line in `site.js` (`COMMUNITY_URL`). Chat items show "Opening soon" until it's set. | Worldwide scale, usernames instead of phone numbers, AutoMod, onboarding questions, roles for badges. | Builder (Shiv: "decide yourself"; reversible) |
+| 26 | 10 Oct 2026 | No flyers or anything offline. | Shiv won't print or distribute. | **Shiv** |
+| 25 | 10 Oct 2026 | **Pivot: worldwide, online-only.** Limerick-first, Pack Walks in person and the vouched Limerick map are dropped. Sunday #PackWalk becomes a global "real life" ritual. | Shiv's call. | **Shiv** |
 | 24 | 9 Oct 2026 | **Money plan:** workshops → walk sponsors → brand posts → merch → verified listings (200+ members). Automation stack: Instagram saved/keyword replies, Luma, Stripe, Tally, Fourthwall. Prices and splits are suggestions. | Shiv asked for an automated money plan. See `docs/money-plan.md`. | Builder (proposal); Shiv decides prices |
 | 23 | 9 Oct 2026 | Pack Walk sign-ups go through **Luma** (free events), not only WhatsApp Events. | Luma caps numbers, runs a waitlist, records the rules tick-box and sends reminders. WhatsApp Events can't cap numbers. | Builder |
 | 22 | 9 Oct 2026 | Walk sign-up uses an **acknowledgement of owners' duties**, not a liability waiver. | Excluding liability for injury is an unfair term once events are paid (Consumer Rights Act 2022). Owners are strictly liable for their dogs anyway. | Builder (legal review) |
@@ -30,6 +37,9 @@ Newest first. **Who** = who made the call. Shiv decides strategy, money, anythin
 | 1 | 9 Oct 2026 | **Lean launch** strategy (option A). Inclusive brand, dog-first weekly ritual. 90-day wedge: Pack Walk, vouched Limerick map, Learn with Nova. Postponed: leagues, rarity tiers, card binder, Plus tier, business listings, in-app lost-pet alerts, native app. Money order and "never" list as in `CLAUDE.md`. | See `docs/01-audit-and-build-prompt.md`. | Shiv |
 
 ## Open items for Shiv
+
+- **Discord:** create the server (`docs/global-plan.md`, Appendix A) and send Claude the invite link.
+- **Email for the pack** (privacy contact). Legal review: needed before sharing publicly.
 
 - **Full name and a dedicated email** for the privacy notice (GDPR: people must be able to identify and contact the controller). Needed within days of launch, and before any money comes in.
 - **Repo is public.** The money plan, and later the business plan and finance model, are readable by anyone on GitHub. Fine, or move them somewhere private?
