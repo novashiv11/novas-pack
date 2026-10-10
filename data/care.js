@@ -122,9 +122,11 @@ export const PREVENTIVES = {
   ],
 };
 
-// A simplified five-step poop scale for dogs and cats, based on the Purina Fecal Scoring Chart (1 to 7, where 2 is ideal).
-// Score 3 here is the ideal step, scores 1 and 2 run from hard to firm, and scores 4 and 5 cover soft to watery.
-// Rabbits normally pass round, dry pellets, so for them watch the size and number of droppings instead.
+// A simplified five-step poop scale for dogs and cats, based on vet faecal charts such as the Purina Fecal Scoring
+// Chart (1 to 7, where 2 is ideal and 3 is also fine). Score 3 here is the ideal step and 2 is also healthy; score 1 is
+// hard and dry, and scores 4 and 5 cover soft to watery. Rabbits normally pass round, dry pellets, so for them watch
+// the size and number of droppings instead (see POOP_HINTS).
+export const POOP_SCALE_NAME = "Nova's simplified scale (based on vet faecal charts)";
 export const POOP_SCALE = [
   {
     score: 1,
@@ -135,8 +137,8 @@ export const POOP_SCALE = [
   {
     score: 2,
     emoji: "\u{1F330}",
-    label: "Firm and a little dry",
-    hint: "Firm and segmented but a touch hard or dry. Usually fine, so keep an eye on it.",
+    label: "Firm and segmented",
+    hint: "Firm and segmented, easy to pick up. Also healthy.",
   },
   {
     score: 3,
@@ -158,6 +160,11 @@ export const POOP_SCALE = [
   },
 ];
 
+// Extra notes shown under the scale for one species.
+export const POOP_HINTS = {
+  rabbit: "Soft, sticky, grape-like clusters (caecotropes) are normal, and rabbits eat them. Worry about runny, shapeless poop.",
+};
+
 // Optional extras the app can tick when logging a poop.
 export const POOP_FLAGS = [
   { id: "blood", label: "Blood (red streaks or clots)" },
@@ -170,56 +177,190 @@ export const POOP_FLAGS = [
 
 // Plain-language rules the app shows as a calm "Call your vet" card. Deliberately conservative. Never a diagnosis.
 // Where sources differ on timing (for example 24 to 72 hours for diarrhoea), the shorter, safer time is used.
+//   id     the rule in js/logic.js (healthAlerts) that uses this advice
+//   level  "emergency" (call now, or go to an emergency vet) | "today" (call your vet today) | "watch" (book a visit)
 export const RED_FLAGS = [
+  // Emergencies
   {
+    id: "breathing",
+    level: "emergency",
+    when: "Breathing trouble: struggling, noisy or very fast breathing, pale or blue gums, or open-mouth breathing in a cat or rabbit",
+    advice: "Go to your vet or an emergency vet now, and call them on the way. Keep your pet calm and cool.",
+  },
+  {
+    id: "bloat",
+    level: "emergency",
+    when: "A swollen, hard belly, or retching with nothing coming up",
+    advice: "Go to your vet or an emergency vet now. This can become life-threatening within hours, especially in large, deep-chested dogs. There is no home remedy, so do not wait to see if it settles.",
+  },
+  {
+    id: "toxin",
+    level: "emergency",
+    when: "You think your pet has eaten something poisonous, or something that could block the gut",
+    advice: "Call your vet or an animal poison line now. Do not make your pet sick unless a vet tells you to. Keep the packaging. Do not wait for signs to appear.",
+  },
+  {
+    id: "maggots",
+    level: "emergency",
+    when: "Maggots or fly eggs on your pet (flystrike), most often around a rabbit's bottom in warm weather",
+    advice: "Call an emergency vet now. Do not wait or treat at home.",
+  },
+  {
+    id: "straining-urine-cat",
+    level: "emergency",
+    when: "A cat, especially a male cat, straining to pee with little or nothing coming out",
+    advice: "Call your vet or an emergency vet now. Do not wait to see if it improves: a cat who can't pee can become seriously ill quickly.",
+  },
+  {
+    id: "rabbit-gut",
+    level: "emergency",
+    when: "Rabbit: not eating, or no droppings (or only tiny ones), for 12 hours or more",
+    advice: "This is an emergency, so call a rabbit-savvy or emergency vet now, and sooner if your rabbit is hunched, bloated, quiet or grinding their teeth. A rabbit's gut can slow down or stop quickly. Do not give home remedies.",
+  },
+  {
+    id: "black-tarry",
+    level: "emergency",
     when: "Black, tarry poop, or a lot of blood",
     advice: "Call your vet now. Black or tarry poop and large amounts of blood need prompt attention, so use an emergency vet out of hours.",
   },
   {
+    id: "blood-unwell",
+    level: "emergency",
     when: "Blood in the poop along with vomiting, tiredness or not eating",
     advice: "Call your vet now rather than waiting to see if it settles.",
   },
+  // Call your vet today
   {
+    id: "vomiting",
+    level: "today",
+    when: "Vomiting twice or more in 24 hours, or once in a puppy, kitten, older pet or pet with a health condition",
+    advice: "Call your vet today. Call straight away if there is blood in the vomit, they can't keep water down, their belly looks swollen, or they seem very weak.",
+  },
+  {
+    id: "not-eating-cat",
+    level: "today",
+    when: "Cat not eating for 24 hours or more",
+    advice: "Call your vet today, and sooner for kittens, older or overweight cats, or if they are also vomiting, hiding or very quiet. Cats can become seriously ill if they go without food.",
+  },
+  {
+    id: "not-eating-dog",
+    level: "today",
+    when: "Dog not eating for 24 hours or more (sooner for puppies, older dogs or dogs with a health condition)",
+    advice: "Call your vet today, and straight away if they are also vomiting, have a swollen belly, or seem weak or in pain.",
+  },
+  {
+    id: "not-eating-small",
+    level: "today",
+    when: "Bird or small pet not eating",
+    advice: "Call a vet who treats your kind of pet today. Birds and small pets can become ill quickly when they stop eating.",
+  },
+  {
+    id: "straining-urine",
+    level: "today",
+    when: "Straining to pee with little or nothing coming out (dogs, female cats, rabbits and other pets)",
+    advice: "Call your vet today, and go now if nothing at all is coming out, or they are crying, vomiting or very quiet.",
+  },
+  {
+    id: "lethargy",
+    level: "today",
+    when: "Very tired, flat or weak, or tired along with other signs (rabbits and birds that seem quiet or fluffed up)",
+    advice: "Call your vet today. Go now if they collapse, can't stand, have pale gums or are breathing fast.",
+  },
+  {
+    id: "loose-24h",
+    level: "today",
     when: "Diarrhoea (loose or watery poop) for more than 24 hours",
     advice: "Call your vet today for advice, even if your pet seems bright.",
   },
   {
+    id: "loose-unwell",
+    level: "today",
     when: "Diarrhoea with vomiting, tiredness, or not eating or drinking",
     advice: "Call your vet the same day. If your pet is very weak, collapses or has pale gums, go to an emergency vet now.",
   },
   {
+    id: "loose-vulnerable",
+    level: "today",
     when: "Puppy, kitten or senior pet (or a pet with a health condition) with diarrhoea",
     advice: "Call your vet the same day and do not wait 24 hours, because young, older or unwell pets can dry out quickly.",
   },
   {
-    when: "No poop for more than 48 hours (dog or cat)",
-    advice: "Call your vet, and sooner for a kitten or if your pet is also vomiting, off their food or has a sore tummy.",
-  },
-  {
-    when: "Straining to poop with little or nothing coming out",
-    advice: "Call your vet straight away. In cats, especially male cats, straining in the litter tray can be an emergency, and it can be hard to tell poop from pee.",
-  },
-  {
-    when: "Worms or rice-like bits seen in the poop or around the bottom",
-    advice: "Tell your vet and book a visit soon, and sooner for a puppy or kitten or if your pet seems unwell. Do not treat at home without advice.",
-  },
-  {
-    when: "Any change in poop that lasts more than 2 days (mucus, unusual colour, looser or harder than normal)",
-    advice: "Book a vet visit and show them your Poop log.",
-  },
-  {
-    when: "Rabbit: no poop, or only tiny droppings, and not eating for about 12 hours",
-    advice: "This is an emergency, so call a rabbit-savvy or emergency vet straight away, and sooner if your rabbit is hunched, bloated, quiet or grinding their teeth. Do not give home remedies.",
-  },
-  {
+    id: "rabbit-runny",
+    level: "today",
     when: "Rabbit: fewer or smaller droppings than usual, runny poop, or a dirty bottom",
     advice: "Call your vet the same day, and check your rabbit's back end for fly eggs or maggots in warm weather.",
   },
   {
-    when: "You think your pet has eaten something poisonous, or something that could block the gut",
-    advice: "Call your vet or an emergency vet now. Do not wait for signs to appear.",
+    id: "no-poop-48h",
+    level: "today",
+    when: "No poop for more than 48 hours (dog or cat)",
+    advice: "Call your vet, and sooner for a kitten or if your pet is also vomiting, off their food or has a sore tummy.",
+  },
+  {
+    id: "straining",
+    level: "today",
+    when: "Straining to poop with little or nothing coming out",
+    advice: "Call your vet straight away. In cats, especially male cats, straining in the litter tray can be an emergency, and it can be hard to tell poop from pee.",
+  },
+  // Book a visit
+  {
+    id: "worms",
+    level: "watch",
+    when: "Worms or rice-like bits seen in the poop or around the bottom",
+    advice: "Tell your vet and book a visit soon, and sooner for a puppy or kitten or if your pet seems unwell. Do not treat at home without advice.",
+  },
+  {
+    id: "change-2-days",
+    level: "watch",
+    when: "Any change in poop that lasts more than 2 days (mucus, unusual colour, looser or harder than normal)",
+    advice: "Book a vet visit and show them your Poop log.",
   },
 ];
+
+// Common poisons to keep out of reach. Not a complete list: if in doubt, call your vet or an animal poison line.
+export const TOXINS = [
+  "Chocolate",
+  "Grapes and raisins",
+  "Xylitol (sugar-free gum, some peanut butters)",
+  "Lilies (cats: every part, even pollen)",
+  "Onions and garlic",
+  "Human painkillers",
+];
+
+// Routine care suggestions: { id, name, everyWeeks, what }. Suggestions only, never a schedule: coats, breeds,
+// ages and lifestyles differ, so your vet or groomer may suggest something different.
+export const CARE_TASKS = {
+  dog: [
+    { id: "brush", name: "Brushing", everyWeeks: 1, what: "Most coats need a brush at least once a week. Long or double coats need it more often, especially when shedding." },
+    { id: "teeth", name: "Teeth brushing", everyWeeks: 1, what: "Daily is best. Use a pet toothpaste, never a human one, and build up slowly with short, happy sessions." },
+    { id: "ears-skin", name: "Ear and skin check", everyWeeks: 2, what: "Look in the ears and run your hands over their body. Call your vet about redness, a bad smell, discharge, new lumps or a lot of head shaking." },
+    { id: "nails", name: "Nail trim", everyWeeks: 4, what: "If nails click on hard floors, they need a trim. Take off just the tips and avoid the quick; your vet or groomer can show you how." },
+    { id: "dental-check", name: "Dental check", everyWeeks: 4, what: "Lift the lip and look. Tell your vet about bad breath, red or bleeding gums, brown build-up or broken teeth." },
+    { id: "weigh", name: "Weigh-in", everyWeeks: 4, what: "Weigh and log it here. Ask your vet what a healthy weight and body shape look like for your dog." },
+  ],
+  cat: [
+    { id: "brush", name: "Brushing", everyWeeks: 1, what: "Short-haired cats enjoy a weekly brush. Long-haired cats need a few minutes most days to stop mats." },
+    { id: "litter", name: "Litter tray deep clean", everyWeeks: 1, what: "Scoop every day, and wash the tray weekly with hot water and a mild, unscented cleaner. Some strong disinfectants are harmful to cats." },
+    { id: "teeth", name: "Teeth brushing", everyWeeks: 1, what: "Daily is best if your cat accepts it. Use a pet toothpaste, never a human one, and stop if they get upset." },
+    { id: "nails", name: "Claw check and trim", everyWeeks: 4, what: "Check claws, especially in older or indoor cats, whose claws can grow into their pads. Trim just the clear tip, one or two claws at a time." },
+    { id: "dental-check", name: "Dental check", everyWeeks: 4, what: "Lift the lip and look. Tell your vet about bad breath, red gums, drooling or eating on one side." },
+    { id: "weigh", name: "Weigh-in", everyWeeks: 4, what: "Weigh and log it here. Small changes matter in cats, so tell your vet about steady weight loss or gain." },
+  ],
+  rabbit: [
+    { id: "teeth-check", name: "Rabbit teeth check", everyWeeks: 1, what: "Check the front teeth meet neatly, and look for drooling, a wet chin, lumps on the jaw or eating less. Only your vet can check the back teeth, so never force it." },
+    { id: "bottom-check", name: "Bottom and flystrike check", everyWeeks: 1, what: "Check their bottom is clean and dry at least weekly, and every day in warm weather. Maggots or fly eggs are an emergency." },
+    { id: "brush", name: "Grooming", everyWeeks: 1, what: "Brush weekly, and every day during a moult, so they swallow less fur." },
+    { id: "hutch", name: "Hutch deep clean", everyWeeks: 1, what: "Spot-clean the toilet area every day and deep-clean the whole space weekly with a pet-safe cleaner. Fresh hay every day." },
+    { id: "weigh", name: "Weigh-in", everyWeeks: 4, what: "Weigh and log it here. Rabbits hide illness well, and weight loss can be an early sign." },
+    { id: "nails", name: "Nail trim", everyWeeks: 6, what: "Rabbit nails often need a trim every 6 to 8 weeks. Ask your vet or vet nurse to show you first." },
+  ],
+  other: [
+    { id: "health-check", name: "Health check", everyWeeks: 1, what: "Look over eyes, nose, skin, feathers or fur, and droppings. Note anything new for your vet." },
+    { id: "clean", name: "Habitat deep clean", everyWeeks: 1, what: "Deep-clean the cage, tank or enclosure. How often depends on the species, so ask a vet who treats your kind of pet." },
+    { id: "weigh", name: "Weigh-in", everyWeeks: 4, what: "Small pets and birds can lose weight without it showing. Kitchen scales work; log it here." },
+    { id: "nails-beak", name: "Nails, claws or beak check", everyWeeks: 4, what: "Check for overgrowth. Ask a vet who knows your kind of pet before trimming anything." },
+  ],
+};
 
 export const VET_FIRST =
   "Nova's Pack is a diary, not a vet, so it cannot diagnose or tell you what to give, and if you are worried about your pet, call your vet first.";
@@ -298,6 +439,56 @@ export const SOURCES = [
     title: "House Rabbit Society, GI stasis",
     url: "https://rabbit.org/care/gi-stasis/",
   },
+  // Symptom rules and poisons (spec v1.1)
+  {
+    title: "PDSA, First aid for pets struggling to breathe",
+    url: "https://www.pdsa.org.uk/pet-help-and-advice/pet-health-hub/other-veterinary-advice/first-aid-for-pets-struggling-to-breathe",
+  },
+  {
+    title: "PDSA, Bloat (swollen belly) in dogs",
+    url: "https://www.pdsa.org.uk/pet-help-and-advice/pet-health-hub/symptoms/bloat-swollen-belly-in-dogs",
+  },
+  {
+    title: "PDSA, Blocked bladder in cats",
+    url: "https://www.pdsa.org.uk/media/6937/phh_cat_c_blocked-bladder-cat.pdf",
+  },
+  {
+    title: "PDSA, My cat isn't eating",
+    url: "https://www.pdsa.org.uk/pet-help-and-advice/pet-health-hub/symptoms/my-cats-not-eating",
+  },
+  {
+    title: "PDSA, Vomiting in dogs",
+    url: "https://www.pdsa.org.uk/pet-help-and-advice/pet-health-hub/symptoms/vomiting-in-dogs",
+  },
+  {
+    title: "PDSA, First aid for poisons and toxins",
+    url: "https://www.pdsa.org.uk/pet-help-and-advice/pet-health-hub/other-veterinary-advice/first-aid-for-poisons-and-toxins",
+  },
+  {
+    title: "PDSA, Grapes, raisins and sultana poisoning in dogs",
+    url: "https://www.pdsa.org.uk/media/10559/phh_dog_c_grapes-raisins-and-sultana-poisoning.pdf",
+  },
+  {
+    title: "Texas A&M School of Veterinary Medicine, Human treats, poison to pets",
+    url: "https://vetmed.tamu.edu/news/pet-talk/human-treats,-poison-to-pets/",
+  },
+  {
+    title: "International Cat Care, Lily toxicity",
+    url: "https://icatcare.org/cat-campaigns/lily-toxicity",
+  },
+  // Care routine
+  {
+    title: "PDSA, How to check your rabbit's teeth",
+    url: "https://www.pdsa.org.uk/pet-help-and-advice/pet-health-hub/other-veterinary-advice/how-to-check-your-rabbits-teeth",
+  },
+  {
+    title: "PDSA, How to clip your cat's claws",
+    url: "https://www.pdsa.org.uk/pet-help-and-advice/pet-health-hub/other-veterinary-advice/how-to-clip-your-cat-s-claws",
+  },
+  {
+    title: "Colorado State University Veterinary Teaching Hospital, How to brush your dog's teeth",
+    url: "https://vetmedbiosci.colostate.edu/vth/animal-health/how-to-brush-your-dogs-teeth/",
+  },
   // Preventives
   {
     title: "ESCCAP, Worm control in dogs and cats (UK and Ireland, and European guidelines)",
@@ -367,6 +558,14 @@ export const SOURCES = [
   {
     title: "BSAVA, Promoting cat training to reduce veterinary visit stress (International Cat Day 2021)",
     url: "https://bsava.com/article/promoting-cat-training-to-reduce-veterinary-visit-stress-a-key-focus-of-international-cat-day-2021/",
+  },
+  {
+    title: "Petplan with Dogs Trust, Essential guide to toilet training",
+    url: "https://petplan.co.uk/dog-insurance/dog-care-and-advice/essential-guide-to-toilet-training.html",
+  },
+  {
+    title: "RSPCA, Treating separation-related behaviour in dogs",
+    url: "https://rspca.org.uk/adviceandwelfare/pets/dogs/behaviour/separationrelatedbehaviour/treatment",
   },
   // Irish restricted-breed law
   {
