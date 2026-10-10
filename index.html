@@ -51,7 +51,7 @@
     <div class="wrap v-hero-grid">
       <div class="boop-wrap">
         <button class="boop" id="boop" type="button" aria-describedby="boopSay">
-          <img src="img/card.jpg" width="560" height="560" alt="Nova, a young black-and-tan German Shepherd in a knitted scarf. Tap to boop her nose." fetchpriority="high">
+          <img src="img/card.jpg" width="560" height="560" alt="Boop Nova's nose. Nova is a young black-and-tan German Shepherd in a knitted scarf." fetchpriority="high">
           <span class="boop-hint" aria-hidden="true">👆 Boop me</span>
         </button>
         <p class="bubble" id="boopSay" aria-live="polite">Go on. Boop the nose.</p>
@@ -102,10 +102,11 @@
             <button class="btn btn-gold" type="button" id="copyTag">Copy hashtag</button>
             <a class="btn btn-line" href="card.html">Make a card for it</a>
           </div>
+          <p class="vh" id="copyStatus" aria-live="polite"></p>
         </div>
-        <div class="ring" role="img" aria-labelledby="ringText">
+        <div class="ring" role="img" aria-label="Days to Shout-out Saturday">
           <svg viewBox="0 0 80 80" aria-hidden="true"><circle class="ring-bg" cx="40" cy="40" r="34"/><circle class="ring-fill" id="ringFill" cx="40" cy="40" r="34"/></svg>
-          <div class="ring-text" id="ringText"><b id="ringNum">–</b><span id="ringLab">days</span><small>to Shout-out Saturday</small></div>
+          <div class="ring-text" id="ringText"><b id="ringNum" aria-hidden="true">–</b><span id="ringLab">days</span><small>to Shout-out Saturday</small></div>
         </div>
       </section>
 
@@ -178,7 +179,7 @@
         <ol class="taps">
           <li><span aria-hidden="true">🪪</span><a href="card.html">Make your card</a></li>
           <li><span aria-hidden="true">💬</span><span><a data-community hidden href="#join">Join the chat</a><span data-if-no-community><a href="https://ig.me/m/novathehumanhandler">DM “PACK”</a></span></span></li>
-          <li><span aria-hidden="true">👋</span><span>Post #NewToThePack</span></li>
+          <li><span aria-hidden="true">👋</span><span>Post your intro</span></li>
         </ol>
       </section>
 

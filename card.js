@@ -288,7 +288,7 @@
     state.stats = state.stats.map(() => 40 + ((Math.random() * 61) | 0));
     if (Math.random() < 0.1) state.stats[(Math.random() * 3) | 0] = 100;
     buildStats(); update();
-    say(state.stats.includes(100) ? "Ooh, a perfect 100. Rare." : "Rolled. Not happy? Roll again.");
+    say(state.stats.includes(100) ? `Rolled: ${pick}, with a perfect 100. Rare.` : `Rolled: ${pick}. Not happy? Roll again.`);
   });
   $("tickBtn").addEventListener("click", () => {
     if (NP.streak().doneThisWeek) { say("Already counted this week. See you next week."); return; }

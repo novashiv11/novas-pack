@@ -117,7 +117,7 @@ const NP = (() => {
     const ticked = new Set(weeksList());
     const out = [];
     for (let i = n - 1; i >= 0; i--) {
-      const d = new Date(now.getTime() - i * WEEK);
+      const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7 * i, 12); // DST-safe
       const id = isoWeek(d);
       out.push({ id, done: ticked.has(id), current: i === 0 });
     }
@@ -240,13 +240,16 @@ const NP = (() => {
     const num = $("#ringNum"), lab = $("#ringLab");
     if (num) num.textContent = d === 0 ? "🎉" : String(d);
     if (lab) lab.textContent = d === 0 ? "today" : d === 1 ? "day" : "days";
+    const box = ring.closest(".ring");
+    if (box) box.setAttribute("aria-label", d === 0 ? "Shout-out Saturday is today" : `${d} day${d === 1 ? "" : "s"} to Shout-out Saturday`);
   }
   const copy = $("#copyTag");
   if (copy) {
     copy.addEventListener("click", async () => {
       const tag = `${NP.challenge().tag} #NovasPack @novathehumanhandler`;
-      try { await navigator.clipboard.writeText(tag); copy.textContent = "Copied ✓"; }
-      catch { copy.textContent = tag; }
+      const st = document.getElementById("copyStatus");
+      try { await navigator.clipboard.writeText(tag); copy.textContent = "Copied ✓"; if (st) st.textContent = `Copied ${tag}`; }
+      catch { if (st) st.textContent = `Copy this: ${tag}`; copy.textContent = "Couldn't copy"; }
       setTimeout(() => { copy.textContent = "Copy hashtag"; }, 2500);
     });
   }
