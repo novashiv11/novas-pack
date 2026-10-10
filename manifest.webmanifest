@@ -96,21 +96,21 @@
       "sizes": "1080x1920",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "Today: quick logs, health alerts and what's due, at a glance"
+      "label": "Home: your partner's level, stats and today's 1% better quest"
     },
     {
       "src": "img/screenshots/health-narrow.png",
       "sizes": "1080x1920",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "Health: vaccines, preventives and medicines, with due dates"
+      "label": "Adventure Book: real-life stamps you earn together"
     },
     {
       "src": "img/screenshots/today-wide.png",
       "sizes": "1280x720",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "Your pet's day in one place, private on your device"
+      "label": "Level up together with your dog, one small step a day"
     }
   ]
 }
