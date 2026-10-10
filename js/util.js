@@ -187,7 +187,8 @@ export function confirmBox(title, text, yes = "Yes", danger = false) {
 
 // ---------- toast with Undo ----------
 let toastTimer = 0;
-export function toast(msg, actions = []) {
+/** toast(msg, [[label, fn], ...], { ms }) — ms overrides how long it stays (default 4.5 s, or 8 s with buttons). */
+export function toast(msg, actions = [], { ms } = {}) {
   const box = document.getElementById("toast");
   if (!box) return;
   clearTimeout(toastTimer);
@@ -202,7 +203,7 @@ export function toast(msg, actions = []) {
   } }, label));
   box.replaceChildren(h("p", msg), ...btns);
   box.classList.add("show");
-  toastTimer = setTimeout(hide, actions.length ? 8000 : 4500);
+  toastTimer = setTimeout(hide, ms || (actions.length ? 8000 : 4500));
 }
 
 // ---------- photo: resize on the device and re-encode (drops EXIF, including location) ----------
@@ -219,4 +220,50 @@ export async function resizePhoto(file, max = 512) {
     g.drawImage(img, 0, 0, w, hgt);
     return c.toDataURL("image/jpeg", 0.85);
   } finally { URL.revokeObjectURL(url); }
+}
+
+// ---------- additions (v1.1) ----------
+
+/** True unless the person asked their device for less motion. */
+export function motionOK() {
+  return !(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
+}
+/** A tiny tap of haptic feedback where the phone supports it (Android). */
+export function buzz(ms = 10) {
+  try { if (navigator.vibrate) navigator.vibrate(ms); } catch { /* not allowed */ }
+}
+
+/** Save text as a file through the browser's download. */
+export function saveFile(filename, text, type) {
+  const url = URL.createObjectURL(new Blob([text], { type }));
+  const a = Object.assign(document.createElement("a"), { href: url, download: filename });
+  document.body.append(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+}
+
+/**
+ * Offer a file through the phone's share sheet (Save to Files, email, Drive...) when it can take files,
+ * otherwise download it. Resolves "shared", "saved" or "cancelled".
+ */
+export async function shareOrSave(filename, text, type, title) {
+  let file = null;
+  try { file = new File([text], filename, { type }); } catch { file = null; }
+  let can = false;
+  try { can = !!(file && navigator.share && navigator.canShare && navigator.canShare({ files: [file] })); } catch { can = false; }
+  if (can) {
+    try { await navigator.share({ files: [file], title }); return "shared"; } catch (e) {
+      if (e && e.name === "AbortError") return "cancelled";
+      // Anything else (no user gesture left, share blocked): fall back to a download.
+    }
+  }
+  saveFile(filename, text, type);
+  return "saved";
+}
+
+/** Digits and + only, for a tel: link. Empty if there's nothing callable. */
+export function telHref(phone) {
+  const n = String(phone || "").replace(/[^\d+]/g, "");
+  return n.replace(/\D/g, "").length >= 3 ? `tel:${n}` : "";
 }

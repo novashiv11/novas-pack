@@ -66,3 +66,15 @@ export async function wipe() {
   for (const k of ["pets", "events", "records", "meds", "foods"]) S[k] = [];
   S.settings = {};
 }
+
+// ---------- v1.1 helpers ----------
+/** Diary entries that count as "a log" for onboarding and nudges (not weights or vet visits). */
+export const LOG_TYPES = ["poop", "meal", "treat", "med", "walk", "training", "symptom"];
+export function realPets() { return S.pets.filter((p) => !p.sample); }
+/** Logs for one pet, or for every real (non-sample) pet when petId is omitted. */
+export function logsOf(petId) {
+  const ids = petId ? new Set([petId]) : new Set(realPets().map((p) => p.id));
+  return S.events.filter((e) => ids.has(e.petId) && LOG_TYPES.includes(e.type));
+}
+/** Session-only UI flags (not saved): e.g. which week just closed, an update waiting to apply. */
+export const UI = { weekPulse: "", applyUpdate: null };

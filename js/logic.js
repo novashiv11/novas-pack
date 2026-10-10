@@ -1,7 +1,9 @@
-// What's due, medicine schedules and the poop "Call your vet" rules. No DOM here.
+// What's due, medicine schedules and the "Call your vet" rules (poop and symptoms). No DOM here.
 
 import { S, eventsOf, forPet } from "./state.js";
 import { isoDate, addDays, addMonths, daysBetween, startOfDay, dayStart, DAY } from "./util.js";
+
+const HOUR = 3600000;
 
 // Extra things owners can tick with a poop. The spec's red flags include vomiting and tiredness,
 // which aren't poop properties, so they live here rather than in the content file.
@@ -42,6 +44,31 @@ export function dueText(st) {
   if (st.state === "today") return "Due today";
   if (st.state === "soon" || st.state === "later") return st.days === 1 ? "Due tomorrow" : `Due in ${st.days} days`;
   return "No next date";
+}
+
+/**
+ * Before "Mark done" on a vaccine: was it late, or is it part of a puppy or kitten course?
+ * Returns { ask, late, course, note }. When `ask` is true the UI shows `note` (never a schedule of its own).
+ */
+export const COURSE_NOTE = "Late, or part of a puppy/kitten course? Ask your vet whether to restart the course.";
+export function recordDoneCheck(rec, p, today = isoDate()) {
+  const none = { ask: false, late: false, course: false, note: "" };
+  if (!rec || rec.kind !== "vaccine") return none;
+  const late = recordStatus(rec, today).state === "overdue";
+  const days = p && p.birthday ? daysBetween(p.birthday, today) : null;
+  const course = !!p && (p.species === "dog" || p.species === "cat") &&
+    ((days !== null && days >= 0 && days < 183) || /puppy|kitten|primary/i.test(`${rec.name} ${rec.note || ""}`));
+  return late || course ? { ask: true, late, course, note: COURSE_NOTE } : none;
+}
+
+// ---------- backup timing ----------
+export const BACKUP_EVERY_DAYS = 14;
+/** Offer "Back up now" after the 3rd real log, then every 14 days after a backup or a "Not now". */
+export function backupDue(now = Date.now()) {
+  const real = new Set(S.pets.filter((x) => !x.sample).map((x) => x.id));
+  if (!real.size || S.events.filter((e) => real.has(e.petId)).length < 3) return false;
+  const last = Math.max(S.settings.lastBackup || 0, S.settings.backupSnooze || 0);
+  return !last || now - last >= BACKUP_EVERY_DAYS * DAY;
 }
 
 // ---------- medicines ----------
@@ -108,61 +135,211 @@ export function flagLabel(id) {
 const RUNNY_FROM = 4;
 export const isRunny = (p) => typeof p.score === "number" && p.score >= RUNNY_FROM;
 
-function guidance(re) {
-  const r = S.content.RED_FLAGS.find((x) => re.test(x.when));
-  return r || null;
+// ---------- "Call your vet" rules ----------
+
+export const SYMPTOM_IDS = ["not-eating", "vomiting", "lethargy", "breathing", "no-droppings", "maggots", "bloat", "toxin", "straining-urine", "diarrhoea"];
+export const LEVELS = ["emergency", "today", "watch"];
+const RANK = { emergency: 0, today: 1, watch: 2 };
+// Used only if data/care.js didn't load: every alert still says what to do.
+const FALLBACK = {
+  emergency: "Call your vet or an emergency vet now.",
+  today: "Call your vet today for advice.",
+  watch: "Keep an eye on it, and call your vet if it gets worse, keeps happening or you're worried.",
+};
+const guide = (id) => (id && S.content.RED_FLAGS.find((x) => x.id === id)) || null;
+
+/** Puppies and kittens under 6 months, dogs and cats aged 8 or over, and pets with a health condition get the sooner thresholds. */
+export function vulnerability(p, now = Date.now()) {
+  const today = isoDate(new Date(now));
+  const days = p && p.birthday ? daysBetween(p.birthday, today) : null;
+  const young = days !== null && days >= 0 && days < 183;
+  const senior = !!p && (p.species === "dog" || p.species === "cat") && !!p.birthday && addMonths(p.birthday, 96) <= today;
+  const c = p && p.conditions;
+  const conditions = typeof c === "string" ? c.trim().length > 0 : Array.isArray(c) ? c.length > 0 : false;
+  const who = young ? (p.species === "dog" ? "a puppy" : p.species === "cat" ? "a kitten" : "a young pet") + " (under 6 months)"
+    : senior ? `an older ${p.species} (8 or over)` : conditions ? "a pet with a health condition" : "";
+  return { young, senior, conditions, any: young || senior || conditions, who };
 }
 
-/**
- * Calm "Call your vet" reasons for a pet right now. Never a diagnosis.
- * Returns [{ reason, guide: {when, advice} | null }] (empty if nothing to flag).
- */
-export function poopAlerts(p, now = Date.now()) {
-  if (!p) return [];
-  const poops = eventsOf("poop", p.id);
+// The poop rules: [{ key, level, reason, guide, extra? }]. `events` defaults to the diary in memory.
+function poopRules(p, now, events) {
+  const poops = events.filter((e) => e.petId === p.id && e.type === "poop" && e.at <= now + 60000).sort((a, b) => b.at - a.at);
   const out = [];
-  const add = (reason, re) => { if (!out.some((o) => o.reason === reason)) out.push({ reason, guide: re ? guidance(re) : null }); };
-  const recent = poops.filter((e) => now - e.at < DAY && e.at <= now + 60000);
+  const add = (key, level, reason, gid, extra) => out.push({ key, level, reason, guide: guide(gid), extra });
+  const recent = poops.filter((e) => now - e.at < DAY);
   const has = (list, id) => list.some((e) => (e.flags || []).includes(id));
   const unwell = ALSO_NOTICED.filter((a) => has(recent, a.id)).map((a) => a.label.toLowerCase());
+  const vul = vulnerability(p, now);
+  const catNotFemale = p.species === "cat" && p.sex !== "female" && !p.lastSeason;
 
-  if (has(recent, "black-tarry")) add("Black or tarry poop logged in the last 24 hours.", /black|tarry/i);
+  if (has(recent, "black-tarry")) add("black-tarry", "emergency", "Black or tarry poop logged in the last 24 hours.", "black-tarry");
   if (has(recent, "blood")) {
-    if (unwell.length) add(`Blood in the poop, plus ${unwell.join(" and ")}.`, /blood.*(vomit|tired|not eating)/i);
-    else if (has(recent, "black-tarry")) add("Blood in the poop logged in the last 24 hours.", null);
-    else add("Blood in the poop logged in the last 24 hours. A small streak once can happen, but call your vet for advice, sooner if there's a lot, it keeps happening, or your pet seems unwell.", null);
+    if (unwell.length) add("blood-unwell", "emergency", `Blood in the poop, plus ${unwell.join(" and ")}.`, "blood-unwell");
+    else if (has(recent, "black-tarry")) add("blood", "emergency", "Blood in the poop logged in the last 24 hours.", null);
+    else add("blood", "today", "Blood in the poop logged in the last 24 hours.", null,
+      "A small streak once can happen, but call your vet for advice, sooner if there's a lot, it keeps happening, or your pet seems unwell.");
   }
-  if (has(recent, "straining")) add("Straining logged in the last 24 hours.", /strain/i);
-  if (has(recent, "worms")) add("Worms or rice-like bits logged.", /worm/i);
+  if (has(recent, "straining")) add("straining", catNotFemale ? "emergency" : "today", "Straining logged in the last 24 hours.", "straining");
+  if (has(recent, "worms")) add("worms", "watch", "Worms or rice-like bits logged.", "worms");
 
   // Runny: the latest poop is soft or watery. How long has it been going on?
   const latest = poops[0];
   if (latest && isRunny(latest) && now - latest.at < DAY) {
     let first = latest;
     for (const e of poops) { if (isRunny(e)) first = e; else break; }
-    const young = p.birthday && daysBetween(p.birthday, isoDate(new Date(now))) < 183;
-    if (p.species === "rabbit") add("Runny poop logged for your rabbit.", /rabbit.*runny/i);
-    if (unwell.length) add(`Loose poop, plus ${unwell.join(" and ")}.`, /diarrh\w* with/i);
-    if (now - first.at > DAY) add("Loose or watery poop for more than 24 hours.", /more than 24 hours/i);
-    else if (young) add("Loose poop in a young pet (under 6 months).", /puppy|kitten/i);
+    if (p.species === "rabbit") add("rabbit-runny", "today", "Runny poop logged for your rabbit.", "rabbit-runny");
+    if (unwell.length) add("loose-unwell", "today", `Loose poop, plus ${unwell.join(" and ")}.`, "loose-unwell");
+    if (now - first.at > DAY) add("loose-24h", "today", "Loose or watery poop for more than 24 hours.", "loose-24h");
+    else if (vul.any) add("loose-vulnerable", "today", `Loose poop in ${vul.who}.`, "loose-vulnerable");
   } else if (unwell.length) {
-    add(`You noted: ${unwell.join(", ")}.`, null);
+    add("noted", "watch", `You noted: ${unwell.join(", ")}.`, null);
   }
 
   // Mucus or an unusual colour that keeps coming back over more than 2 days.
   for (const id of ["mucus", "unusual-colour"]) {
     const hits = poops.filter((e) => (e.flags || []).includes(id) && now - e.at < 4 * DAY);
     if (hits.length >= 2 && now - hits[0].at < DAY && hits[0].at - hits[hits.length - 1].at > 2 * DAY) {
-      add(`${flagLabel(id).split(" (")[0]} for more than 2 days.`, /more than 2 days/i);
+      add(`change-${id}`, "watch", `${flagLabel(id).split(" (")[0]} for more than 2 days.`, "change-2-days");
     }
   }
 
   // No poop for over 48 hours, but only for people who log regularly (otherwise it's just a gap in the diary).
   if ((p.species === "dog" || p.species === "cat") && latest && now - latest.at > 2 * DAY) {
     const logged = poops.filter((e) => latest.at - e.at < 7 * DAY).length;
-    if (logged >= 4) add("No poop logged for more than 48 hours. If they really haven't been:", /48 hours/i);
+    if (logged >= 4) add("no-poop-48h", "today", "No poop logged for more than 48 hours. If they really haven't been:", "no-poop-48h");
   }
   return out;
+}
+
+/**
+ * Calm "Call your vet" reasons from the poop log. Never a diagnosis.
+ * Returns [{ reason, guide: {when, advice} | null }] (empty if nothing to flag). Kept for older callers: use healthAlerts.
+ */
+export function poopAlerts(p, now = Date.now(), events = S.events) {
+  if (!p) return [];
+  return poopRules(p, now, events).map((r) => ({ reason: r.extra ? `${r.reason} ${r.extra}` : r.reason, guide: r.guide }));
+}
+
+// The symptom rules (event { type: "symptom", at, symptoms: [ids] }): [{ key, level, reason, gid, advice? }].
+function symptomRules(p, now, events) {
+  const mine = events.filter((e) => e.petId === p.id && e.at <= now + 60000);
+  const logs = mine.filter((e) => e.type === "symptom" && Array.isArray(e.symptoms));
+  const out = [];
+  const add = (key, level, reason, gid, advice) => out.push({ key, level, reason, gid, advice });
+  const in24 = (id) => logs.filter((e) => now - e.at < DAY && e.symptoms.includes(id));
+  const vul = vulnerability(p, now);
+  const sp = p.species;
+  const small = sp === "bird" || sp === "other";
+
+  // "Unresolved": logged within 72 hours and nothing since that shows it's better (a meal for not eating, a poop for no droppings).
+  const since = (id, isFix, alsoFlag) => {
+    const fixed = Math.max(0, ...mine.filter((e) => isFix(e) && !(alsoFlag && (e.flags || []).includes(alsoFlag))).map((e) => e.at));
+    const hits = logs.filter((e) => e.symptoms.includes(id))
+      .concat(alsoFlag ? mine.filter((e) => e.type === "poop" && (e.flags || []).includes(alsoFlag)) : [])
+      .filter((e) => e.at > fixed && now - e.at < 3 * DAY);
+    return hits.length ? Math.min(...hits.map((e) => e.at)) : null;
+  };
+
+  // Emergencies, any species (logged in the last 24 hours).
+  if (in24("breathing").length) add("breathing", "emergency", "Breathing trouble logged.", "breathing");
+  if (in24("bloat").length) add("bloat", "emergency", "Swollen, hard belly or retching with nothing coming up.", "bloat");
+  if (in24("toxin").length) add("toxin", "emergency", "May have eaten something poisonous.", "toxin",
+    "Call your vet or an animal poison line now. Do not make your pet sick unless a vet tells you to. Keep the packaging.");
+  if (in24("maggots").length) add("maggots", "emergency", "Maggots or fly eggs seen.", "maggots", "Call an emergency vet now. Do not wait or treat at home.");
+  if (in24("straining-urine").length) {
+    if (sp === "cat" && p.sex !== "female" && !p.lastSeason) {
+      add("straining-urine", "emergency", p.sex === "male" ? "A male cat straining to pee." : "A cat straining to pee (an emergency in male cats).", "straining-urine-cat");
+    } else add("straining-urine", "today", "Straining to pee.", "straining-urine");
+  }
+
+  // Not eating, and (rabbits) no droppings.
+  const noFood = since("not-eating", (e) => e.type === "meal" || e.type === "treat", "not-eating");
+  if (sp === "rabbit") {
+    const noPoop = since("no-droppings", (e) => e.type === "poop");
+    const start = Math.min(noFood ?? Infinity, noPoop ?? Infinity);
+    if (start !== Infinity) {
+      const what = noFood !== null && noPoop !== null ? "Not eating and no droppings" : noFood !== null ? "Not eating" : "No droppings";
+      if (now - start >= 12 * HOUR) add("rabbit-gut", "emergency", `${what} for 12 hours or more.`, "rabbit-gut");
+      else add("rabbit-gut", "today", `${what} logged for your rabbit.`, null,
+        "Call your vet today. If it reaches 12 hours, or they're hunched, bloated or grinding their teeth, it's an emergency. When they eat or poop again, log it and this note clears.");
+    }
+  } else if (noFood !== null) {
+    const hrs = now - noFood;
+    if (sp === "cat" || sp === "dog") {
+      const gid = sp === "cat" ? "not-eating-cat" : "not-eating-dog";
+      if (hrs >= DAY) add("not-eating", "today", "Not eating for 24 hours or more.", gid);
+      else if (vul.any) add("not-eating", "today", `Not eating, in ${vul.who}.`, gid);
+      else add("not-eating", "watch", "Off their food.", null, sp === "cat"
+        ? "Call your vet if they still haven't eaten 24 hours after they stopped, and sooner for kittens, older or overweight cats, or if they're also vomiting or hiding. Log a meal when they eat and this note clears."
+        : "Call your vet if they still haven't eaten 24 hours after they stopped, and sooner if they're also vomiting, have a swollen belly or seem unwell. Log a meal when they eat and this note clears.");
+    } else add("not-eating", "today", "Not eating.", "not-eating-small");
+  }
+  if (sp !== "rabbit" && in24("no-droppings").length) {
+    const st = since("no-droppings", (e) => e.type === "poop");
+    if (st !== null) {
+      if (small) add("no-droppings", "today", "No droppings logged.", null, "Call a vet who treats your kind of pet today. Small pets and birds can become ill quickly.");
+      else if (now - st >= DAY) add("no-poop-48h", "today", "No poop for a day or more after you noted it.", "no-poop-48h");
+      else add("no-droppings", "watch", "No poop noted.", null, "Call your vet if it's been more than 48 hours, and sooner for a kitten, or if they're straining, vomiting or off their food. Log a poop when they go and this note clears.");
+    }
+  }
+
+  // Vomiting: twice in 24 hours, or once for vulnerable pets. Rabbits can't vomit, so anything like it needs a vet.
+  const vom = in24("vomiting").length;
+  if (vom) {
+    if (sp === "rabbit") add("vomiting", "today", "Something like vomiting logged for your rabbit.", null, "Rabbits can't vomit, so call your vet today and describe what you saw.");
+    else if (vom >= 2) add("vomiting", "today", "Vomiting twice or more in 24 hours.", "vomiting");
+    else if (vul.any) add("vomiting", "today", `Vomiting in ${vul.who}.`, "vomiting");
+    else add("vomiting", "watch", "Vomited once in the last 24 hours.", null,
+      "One vomit can happen. Call your vet if it happens again, there's blood, they can't keep water down, or they seem unwell. Call straight away if they're retching with nothing coming up.");
+  }
+
+  // Diarrhoea (the symptom, as well as runny poop in the poop log).
+  if (in24("diarrhoea").length) {
+    const st = since("diarrhoea", (e) => e.type === "poop" && typeof e.score === "number" && !isRunny(e));
+    const sick = in24("vomiting").length || in24("lethargy").length || noFood !== null;
+    if (sp === "rabbit") add("rabbit-runny", "today", "Runny poop logged for your rabbit.", "rabbit-runny");
+    if (sick) add("loose-unwell", "today", "Diarrhoea, plus other signs of being unwell.", "loose-unwell");
+    if (st !== null && now - st >= DAY) add("loose-24h", "today", "Diarrhoea for more than 24 hours.", "loose-24h");
+    else if (vul.any) add("loose-vulnerable", "today", `Diarrhoea in ${vul.who}.`, "loose-vulnerable");
+    else if (sp !== "rabbit" && !sick) add("diarrhoea", "watch", "Diarrhoea logged.", null,
+      "Call your vet if it lasts more than 24 hours, there's blood, or they're vomiting, off their food or tired.");
+  }
+
+  // Tired or low energy.
+  if (in24("lethargy").length) {
+    const other = in24("vomiting").length || in24("diarrhoea").length || noFood !== null;
+    if (sp === "rabbit" || sp === "bird") add("lethargy", "today", sp === "rabbit" ? "Your rabbit seems quiet or tired." : "Your bird seems quiet or fluffed up.", "lethargy");
+    else if (other) add("lethargy", "today", "Tired or low energy, plus other signs.", "lethargy");
+    else if (vul.any) add("lethargy", "today", `Tired or low energy, in ${vul.who}.`, "lethargy");
+    else add("lethargy", "watch", "Tired or low energy.", null,
+      "Keep an eye on them. Call your vet today if they're very flat, won't get up, have pale gums, or it lasts more than a day.");
+  }
+  return out;
+}
+
+/**
+ * Every "Call your vet" alert for a pet right now, from the poop log and logged symptoms, most urgent first.
+ * Returns [{ level: "emergency"|"today"|"watch", reason, advice, id }]. Conservative wording, never a diagnosis or a dose.
+ * Pure apart from reading content: pass `events` to test it without the app's state.
+ */
+export function healthAlerts(p, now = Date.now(), events = S.events) {
+  if (!p) return [];
+  const list = [
+    ...symptomRules(p, now, events).map((r) => ({ key: r.key, level: r.level, reason: r.reason, advice: r.advice || (guide(r.gid) || {}).advice })),
+    ...poopRules(p, now, events).map((r) => ({ key: r.key, level: r.level, reason: r.reason, advice: r.extra || (r.guide || {}).advice })),
+  ];
+  // One alert per rule (the most urgent wins), and the vague "You noted" line only when nothing more specific fired.
+  const byKey = new Map();
+  for (const a of list) {
+    const old = byKey.get(a.key);
+    if (!old || RANK[a.level] < RANK[old.level]) byKey.set(a.key, a);
+  }
+  if (byKey.size > 1) byKey.delete("noted");
+  const seen = new Set();
+  return [...byKey.values()]
+    .filter((a) => (seen.has(a.reason) ? false : seen.add(a.reason)))
+    .map((a) => ({ level: a.level, reason: a.reason, advice: a.advice || FALLBACK[a.level], id: a.key }))
+    .sort((a, b) => RANK[a.level] - RANK[b.level]);
 }
 
 /** Poops per day for the last 7 days, oldest first: [{ day, label, count, worst, flagged }]. */

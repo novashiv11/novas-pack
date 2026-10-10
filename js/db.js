@@ -1,8 +1,10 @@
 // Nova's Pack: on-device storage (IndexedDB). Nothing here ever leaves the device.
 //
 // Stores (all keyed by `id`, except settings which is keyed by `key`):
-//   pets      { id, name, species, birthday?, photo?, allergies?, training?, sample?, createdAt }
-//   events    { id, petId, type, at, ... }  type: poop | meal | treat | med | walk | training | weight | vet
+//   pets      { id, name, species, birthday?, photo?, allergies?, conditions?, sex?, vet?, insurer?, microchip?,
+//               neutered?, lastSeason?, training?, sample?, createdAt }
+//   events    { id, petId, type, at, ... }  type: poop | meal | treat | med | walk | training | weight | vet | symptom | care
+//               symptom: { symptoms: [ids] } (ids in js/logic.js SYMPTOM_IDS); care: { task } (an id from CARE_TASKS)
 //   records   { id, petId, kind: vaccine|preventive, name, given, nextDue?, note? }
 //   meds      { id, petId, name, dose, freq, times, everyDays?, start, end?, note? }
 //   foods     { id, petId, kind: food|treat, brand?, product?, name?, amount?, since?, until?, inUse?, note? }
@@ -13,25 +15,68 @@
 export const DB_NAME = "novas-pack";
 export const SCHEMA = 1;
 export const STORES = ["pets", "events", "records", "meds", "foods", "settings"];
-const EVENT_TYPES = ["poop", "meal", "treat", "med", "walk", "training", "weight", "vet"];
+const EVENT_TYPES = ["poop", "meal", "treat", "med", "walk", "training", "weight", "vet", "symptom", "care"];
+
+// ---------- storage health ----------
+
+export const QUOTA_MESSAGE = "Phone storage is full. Try a smaller photo or free some space.";
+/** True for "the device is out of space" errors (each browser names it differently). */
+export function isQuotaError(err) {
+  if (!err) return false;
+  return err.name === "QuotaExceededError" || err.name === "NS_ERROR_DOM_QUOTA_REACHED" || err.code === 22 || err.code === 1014 ||
+    /quota/i.test(String(err.message || ""));
+}
+/** A friendly line for a failed save. */
+export function saveErrorText(err, fallback = "Couldn't save on this device.") {
+  return isQuotaError(err) ? QUOTA_MESSAGE : fallback;
+}
+let quotaHandler = null;
+/** app.js registers a toast here, so every "storage full" failure is explained, whoever made the save. */
+export function onQuotaError(fn) { quotaHandler = fn; }
+function failed(err) {
+  if (isQuotaError(err) && quotaHandler) { try { quotaHandler(err); } catch { /* ignore */ } }
+  return err;
+}
+
+/**
+ * Ask the browser to keep this site's storage when space runs low. Silent in Chrome and Safari.
+ * `quiet` skips Firefox, which shows a permission prompt, so it's only asked there after a real action.
+ */
+export async function persist({ quiet = false } = {}) {
+  try {
+    const st = typeof navigator !== "undefined" && navigator.storage;
+    if (!st || !st.persist) return false;
+    if (st.persisted && await st.persisted()) return true;
+    if (quiet && /Firefox\//.test(navigator.userAgent || "")) return false;
+    return await st.persist();
+  } catch { return false; }
+}
 
 let dbp = null;
 
 export function open() {
   if (dbp) return dbp;
-  dbp = new Promise((resolve, reject) => {
-    if (!("indexedDB" in self)) { reject(new Error("no-indexeddb")); return; }
-    const req = indexedDB.open(DB_NAME, SCHEMA);
+  const p = new Promise((resolve, reject) => {
+    const fail = (err) => { if (dbp === p) dbp = null; reject(failed(err)); };
+    let req;
+    try {
+      if (!("indexedDB" in self) || !self.indexedDB) throw new Error("no-indexeddb");
+      req = indexedDB.open(DB_NAME, SCHEMA);
+    } catch (err) { Promise.resolve().then(() => fail(err)); return; } // after `dbp = p` below
     req.onupgradeneeded = () => upgrade(req.result, req.transaction);
     req.onsuccess = () => {
       const db = req.result;
-      db.onversionchange = () => db.close();
+      // Another tab is upgrading, or the browser closed the database: open a fresh connection next time.
+      db.onversionchange = () => { db.close(); if (dbp === p) dbp = null; };
+      db.onclose = () => { if (dbp === p) dbp = null; };
       resolve(db);
+      persist({ quiet: true });
     };
-    req.onerror = () => reject(req.error);
-    req.onblocked = () => reject(new Error("blocked"));
+    req.onerror = () => fail(req.error);
+    req.onblocked = () => fail(new Error("blocked"));
   });
-  return dbp;
+  dbp = p;
+  return p;
 }
 
 function upgrade(db) {
@@ -44,31 +89,35 @@ function upgrade(db) {
   }
 }
 
+/** db.transaction(), but a closed connection (Safari can drop it) resets so the next call reopens. */
+function txn(db, stores, mode) {
+  try { return db.transaction(stores, mode); } catch (err) { dbp = null; throw failed(err); }
+}
 function done(tx) {
   return new Promise((resolve, reject) => {
     tx.oncomplete = () => resolve();
-    tx.onerror = () => reject(tx.error);
-    tx.onabort = () => reject(tx.error || new Error("aborted"));
+    tx.onerror = () => reject(failed(tx.error));
+    tx.onabort = () => reject(failed(tx.error || new Error("aborted")));
   });
 }
 function reqP(r) {
-  return new Promise((resolve, reject) => { r.onsuccess = () => resolve(r.result); r.onerror = () => reject(r.error); });
+  return new Promise((resolve, reject) => { r.onsuccess = () => resolve(r.result); r.onerror = () => reject(failed(r.error)); });
 }
 
 export async function all(store) {
   const db = await open();
-  return reqP(db.transaction(store).objectStore(store).getAll());
+  return reqP(txn(db, store).objectStore(store).getAll());
 }
 export async function put(store, value) {
   const db = await open();
-  const tx = db.transaction(store, "readwrite");
+  const tx = txn(db, store, "readwrite");
   tx.objectStore(store).put(value);
   await done(tx);
   return value;
 }
 export async function del(store, id) {
   const db = await open();
-  const tx = db.transaction(store, "readwrite");
+  const tx = txn(db, store, "readwrite");
   tx.objectStore(store).delete(id);
   await done(tx);
 }
@@ -76,7 +125,7 @@ export async function del(store, id) {
 /** Read everything into plain arrays: { pets, events, records, meds, foods, settings }. */
 export async function loadAll() {
   const db = await open();
-  const tx = db.transaction(STORES);
+  const tx = txn(db, STORES);
   const out = {};
   await Promise.all(STORES.map(async (s) => { out[s] = await reqP(tx.objectStore(s).getAll()); }));
   return out;
@@ -86,7 +135,7 @@ export async function loadAll() {
 export async function deletePet(petId) {
   const db = await open();
   const names = ["events", "records", "meds", "foods"];
-  const tx = db.transaction(["pets", ...names], "readwrite");
+  const tx = txn(db, ["pets", ...names], "readwrite");
   tx.objectStore("pets").delete(petId);
   for (const n of names) {
     const idx = tx.objectStore(n).index("petId");
@@ -100,7 +149,7 @@ export async function deletePet(petId) {
 
 export async function deleteAll() {
   const db = await open();
-  const tx = db.transaction(STORES, "readwrite");
+  const tx = txn(db, STORES, "readwrite");
   STORES.forEach((s) => tx.objectStore(s).clear());
   await done(tx);
 }
@@ -121,6 +170,12 @@ function clean(o) {
   for (const k of Object.keys(o)) if (o[k] === undefined) delete o[k];
   return o;
 }
+/** A small nested object (vet, insurer, …) with only known fields, or undefined if nothing is left. */
+function obj(v, fields) {
+  if (!v || typeof v !== "object" || Array.isArray(v)) return undefined;
+  const o = clean(Object.fromEntries(Object.entries(fields).map(([k, f]) => [k, f(v[k])])));
+  return Object.keys(o).length ? o : undefined;
+}
 
 // One cleaner per store. Each returns a safe copy, or null if the row is unusable.
 const CLEAN = {
@@ -133,7 +188,13 @@ const CLEAN = {
     return clean({
       id: r.id, name: str(r.name, 40),
       species: ["dog", "cat", "rabbit", "bird", "other"].includes(r.species) ? r.species : "other",
-      birthday: date(r.birthday), photo: photo(r.photo), allergies: str(r.allergies, 1000),
+      birthday: date(r.birthday), photo: photo(r.photo), allergies: str(r.allergies, 1000), conditions: str(r.conditions, 1000),
+      sex: r.sex === "male" || r.sex === "female" ? r.sex : undefined,
+      vet: obj(r.vet, { name: (v) => str(v, 120), phone: (v) => str(v, 40), emergencyPhone: (v) => str(v, 40) }),
+      insurer: obj(r.insurer, { name: (v) => str(v, 120), policy: (v) => str(v, 80), renewal: date }),
+      microchip: obj(r.microchip, { number: (v) => str(v, 40), registry: (v) => str(v, 120), checkedOn: date }),
+      neutered: obj(r.neutered, { yes: (v) => (typeof v === "boolean" ? v : undefined), date }),
+      lastSeason: date(r.lastSeason),
       training, sample: r.sample === true || undefined, createdAt: num(r.createdAt),
     });
   },
@@ -144,6 +205,7 @@ const CLEAN = {
       score: num(r.score), flags: Array.isArray(r.flags) ? r.flags.filter((f) => id(f)).slice(0, 20) : undefined,
       note: str(r.note, 1000), name: str(r.name, 120), amount: str(r.amount, 120), medId: id(r.medId),
       skillId: id(r.skillId), minutes: num(r.minutes), kg: num(r.kg), clinic: str(r.clinic, 120),
+      symptoms: Array.isArray(r.symptoms) ? r.symptoms.filter((f) => id(f)).slice(0, 20) : undefined, task: id(r.task),
       sample: r.sample === true || undefined,
     });
   },
@@ -204,7 +266,7 @@ export function validateBackup(obj) {
 /** Write a validated backup. mode "replace" clears everything first; "merge" keeps existing rows (same id = backup wins). */
 export async function importData(data, mode) {
   const db = await open();
-  const tx = db.transaction(STORES, "readwrite");
+  const tx = txn(db, STORES, "readwrite");
   for (const s of STORES) {
     const st = tx.objectStore(s);
     if (mode === "replace") st.clear();

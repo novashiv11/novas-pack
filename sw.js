@@ -1,15 +1,16 @@
 // Nova's Pack service worker: makes the app work offline. It only ever talks to this site.
 //
 // When you change any app file, bump VERSION so every phone fetches the new files.
-// Pages and files are served from the cache first (fast, offline) and refreshed in the background,
-// so a normal update shows up the next time the app is opened.
-const VERSION = "2026-10-10-2";
+// A new version downloads every file in ASSETS in the background, all or nothing, then waits. The app shows
+// "Update ready"; tapping it sends SKIP_WAITING, this worker takes over and the page reloads. Until then the app keeps
+// running the version it started with, so old and new files are never mixed. ASSETS must list only files that exist.
+const VERSION = "2026-10-10-3";
 const CACHE = `novas-pack-${VERSION}`;
 const CLIPS = "novas-pack-clips";
 
 const ASSETS = [
   "./", "index.html", "app.css", "site.css", "manifest.webmanifest",
-  "js/app.js", "js/db.js", "js/ics.js", "js/util.js", "js/state.js", "js/logic.js", "js/forms.js", "js/sample.js",
+  "js/app.js", "js/install.js", "js/db.js", "js/ics.js", "js/util.js", "js/state.js", "js/logic.js", "js/forms.js", "js/sample.js",
   "js/views/parts.js", "js/views/today.js", "js/views/health.js", "js/views/food.js", "js/views/training.js", "js/views/more.js",
   "data/skills.js", "data/care.js",
   "fonts/bricolage-grotesque-latin.woff2", "fonts/plus-jakarta-sans-latin.woff2",
@@ -17,14 +18,16 @@ const ASSETS = [
   "favicon.svg", "favicon.ico", "apple-touch-icon.png",
   "card.html", "card.js", "site.js", "privacy.html",
 ];
+const PRECACHED = new Set(ASSETS.map((u) => new URL(u, self.location).href));
 
 self.addEventListener("install", (event) => {
-  event.waitUntil((async () => {
-    const cache = await caches.open(CACHE);
-    // One missing file shouldn't stop the rest from being cached.
-    await Promise.all(ASSETS.map((url) => cache.add(new Request(url, { cache: "reload" })).catch(() => {})));
-    await self.skipWaiting();
-  })());
+  // addAll is all or nothing: if any file fails, the install fails and the current version keeps running.
+  // No skipWaiting here: the new version waits until the person taps "Update".
+  event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(ASSETS.map((url) => new Request(url, { cache: "reload" })))));
+});
+
+self.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "SKIP_WAITING") self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
@@ -45,12 +48,14 @@ self.addEventListener("fetch", (event) => {
   event.respondWith(cached(req, event));
 });
 
-// Cache first, then refresh the cached copy in the background.
+// App files come only from this version's cache (they change together, with VERSION). Anything else: cache first,
+// then refresh the cached copy in the background.
 async function cached(req, event) {
   const cache = await caches.open(CACHE);
   const url = new URL(req.url);
   const key = url.origin + url.pathname; // ignore ?name=… so card.html works offline too
   const hit = await cache.match(key) || (req.mode === "navigate" ? await cache.match("./") : null);
+  if (hit && (PRECACHED.has(key) || req.mode === "navigate")) return hit;
   const fresh = fetch(req).then((res) => {
     if (res && res.ok && res.type === "basic") cache.put(key, res.clone()).catch(() => {});
     return res;

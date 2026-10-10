@@ -1,9 +1,12 @@
-// Every form in the app: pets, quick logs, vaccines, medicines, food, treats, vet visits.
-// Forms open in a bottom sheet (a <dialog>), except the first-run pet form which sits on the page.
+// Every form in the app: pets (with profile and contacts), one-tap logs, the Unwell checklist, vaccines,
+// care routine, medicines, food and treats. Forms open in a bottom sheet (a <dialog>), except the
+// first-run pet form, which sits on the page.
 
-import { S, pet, save, remove, setSetting, eventsOf, forPet, units, refresh } from "./state.js";
-import { h, put, em, uid, sheet, toast, confirmBox, isoDate, addDays, addMonths, daysBetween, toLocalInput, fromLocalInput, resizePhoto, fmtTime } from "./util.js";
-import { ALSO_NOTICED, scaleFor, skillsFor, medStatus, fromUnit, toUnit, poopAlerts, medIsActive } from "./logic.js";
+import { S, pet, save, remove, removePet, setSetting, eventsOf, forPet, units, refresh, UI } from "./state.js";
+import { h, put, em, uid, sheet, toast, confirmBox, isoDate, addDays, addMonths, daysBetween, toLocalInput, fromLocalInput, resizePhoto, fmtTime, fmtDate, weeklyStreak, isoWeek, motionOK, buzz } from "./util.js";
+import { ALSO_NOTICED, scaleFor, skillsFor, medStatus, fromUnit, toUnit, medIsActive, recordStatus, currentRecords, healthAlerts } from "./logic.js";
+import * as care from "../data/care.js";
+import * as ics from "./ics.js";
 
 export const SPECIES = [
   { id: "dog", label: "Dog", emoji: "🐶" },
@@ -21,9 +24,25 @@ export const TYPES = {
   med: { emoji: "💊", label: "Medicine" },
   walk: { emoji: "🚶", label: "Walk" },
   training: { emoji: "🎓", label: "Training" },
+  symptom: { emoji: "😟", label: "Unwell" },
   weight: { emoji: "⚖️", label: "Weight" },
   vet: { emoji: "🩺", label: "Vet visit" },
 };
+
+/** The Unwell checklist, in plain words. Ids are the shared contract with logic.js (healthAlerts). */
+export const SYMPTOMS = [
+  { id: "not-eating", label: "Not eating, or eating much less" },
+  { id: "vomiting", label: "Vomiting (being sick)" },
+  { id: "diarrhoea", label: "Diarrhoea (runny poop)" },
+  { id: "lethargy", label: "Very tired, flat or hiding" },
+  { id: "breathing", label: "Breathing fast, noisily or with effort" },
+  { id: "bloat", label: "Swollen, hard belly, or retching with nothing coming up" },
+  { id: "straining-urine", label: "Straining to pee, little or nothing coming out" },
+  { id: "no-droppings", label: "No poop or droppings, or far fewer than usual" },
+  { id: "maggots", label: "Maggots or fly eggs on the skin or bottom", only: ["rabbit"] },
+  { id: "toxin", label: "Might have eaten something poisonous" },
+];
+export const symptomLabel = (id) => (SYMPTOMS.find((s) => s.id === id) || { label: id }).label;
 
 // ---------- small form helpers ----------
 let n = 0;
@@ -41,26 +60,49 @@ export function field(label, input, hint) {
 const opt = () => h("span.opt", " (optional)");
 export function textIn(props = {}) { return h("input", { type: "text", autocomplete: "off", ...props }); }
 function errorLine() { return h("p.form-error", { role: "alert" }); }
-function segmented(name, legend, items, value, onchange) {
-  const box = h("div.seg-radio");
+
+/** The one segmented control: radio inputs (arrow keys work) styled as a 44 px track. */
+export function segmented(name, legend, items, value, onchange, { hideLegend = false } = {}) {
+  const box = h("div.seg");
   items.forEach(([v, label]) => {
     const id = fid();
-    const inp = h("input", { type: "radio", name, id, value: v, checked: v === value, onchange: () => onchange && onchange(v) });
-    box.append(inp, h("label", { for: id }, label));
+    box.append(
+      h("input", { type: "radio", name, id, value: v, checked: v === value, onchange: () => onchange && onchange(v) }),
+      h("label", { for: id }, label));
   });
-  return h("fieldset.fs", h("legend", legend), box);
+  return h("fieldset.fs.seg-fs", h(`legend${hideLegend ? ".vh" : ""}`, legend), box);
 }
 const radioVal = (form, name) => { const r = form.querySelector(`input[name="${name}"]:checked`); return r ? r.value : null; };
 export const slug = (s) => (s || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "pet";
+function dropEmpty(o) {
+  for (const k of Object.keys(o)) if (o[k] === undefined || o[k] === "") delete o[k];
+  return Object.keys(o).length ? o : undefined;
+}
+export function saveError(e) {
+  return e && e.name === "QuotaExceededError"
+    ? "Phone storage is full. Try a smaller photo or free some space."
+    : "Couldn't save on this device. If you're in private browsing, open the app in a normal tab.";
+}
+function check(label, props = {}, hint) {
+  const id = fid();
+  const inp = h("input", { type: "checkbox", id, ...props });
+  const kids = [inp, h("label", { for: id }, label)];
+  if (hint) { inp.setAttribute("aria-describedby", `${id}-h`); kids.push(h("p.hint.check-hint", { id: `${id}-h` }, hint)); }
+  return { row: h("div.check", ...kids), input: inp };
+}
 
 // ---------- pets ----------
 
-/** Builds the add/edit pet form into `box`. Calls onSaved(pet) after saving. */
-export function petForm(box, existing, onSaved) {
+/**
+ * The add/edit pet form, built into `box`. Calls onSaved(pet) after saving.
+ * Adding asks only for the name and species; everything else folds away ("add details later").
+ * Editing adds the profile: vet and insurance, microchip, and health notes.
+ */
+export function petForm(box, existing, onSaved, { openProfile = false } = {}) {
   const p = existing || {};
   let photo = p.photo || null;
   const form = h("form.form", { novalidate: true });
-  const name = textIn({ name: "name", maxlength: "40", required: true, value: p.name || "", autocomplete: "off", placeholder: "e.g. Nova" });
+  const name = textIn({ name: "name", maxlength: "40", required: true, value: p.name || "", placeholder: "e.g. Nova", autocomplete: "off" });
   const speciesBox = h("div.species.pick");
   SPECIES.forEach((s) => {
     const id = fid();
@@ -70,8 +112,8 @@ export function petForm(box, existing, onSaved) {
   });
   const birthday = h("input", { type: "date", name: "birthday", max: isoDate(), value: p.birthday || "" });
   const preview = h("img.photo-preview", { alt: "", hidden: !photo, src: photo || undefined, width: "72", height: "72" });
+  const file = h("input", { type: "file", accept: "image/*", name: "photo", id: fid() });
   const removePhoto = h("button.linkish", { type: "button", hidden: !photo, onclick: () => { photo = null; preview.hidden = true; removePhoto.hidden = true; file.value = ""; } }, "Remove photo");
-  const file = h("input", { type: "file", accept: "image/*", name: "photo" });
   const photoMsg = h("p.hint", { role: "status" });
   file.addEventListener("change", async () => {
     const f = file.files && file.files[0];
@@ -84,31 +126,44 @@ export function petForm(box, existing, onSaved) {
   });
   const weight = h("input", { type: "number", name: "weight", inputmode: "decimal", min: "0", max: "2000", step: "0.1" });
   const err = errorLine();
-
-  put(form, 
-    field("Name", name),
-    h("fieldset.fs", h("legend", "Species"), speciesBox),
+  const basics = [
     field(h("span", "Birthday", opt()), birthday, "A guess is fine."),
     h("div.field",
-      h("label", { for: file.id || (file.id = fid()) }, "Photo", opt()),
+      h("label", { for: file.id }, "Photo", opt()),
       h("div.photo-row", preview, h("div", file, removePhoto)),
       h("p.hint", "Stays on this device. We shrink it and strip location data."),
       photoMsg),
     existing ? null : field(h("span", `Weight in ${units()}`, opt()), weight),
-    err,
-    h("button.btn.btn-blue.wide", { type: "submit" }, existing ? "Save changes" : "Add pet"),
-  );
+  ];
+
+  put(form,
+    field("Name", name),
+    h("fieldset.fs", h("legend", "Species"), speciesBox),
+    existing ? basics : h("details.fold", h("summary", "Add details (optional)"), h("div.fold-body", h("p.hint", "Birthday, photo and weight. Skip them now and add them later if you like."), basics)));
+
+  let profile = null;
+  if (existing) {
+    profile = profileFields(p, openProfile, () => radioVal(form, "species"));
+    put(form, profile.el);
+    speciesBox.addEventListener("change", profile.sync);
+  }
+  put(form, err,
+    h("div.row-btns",
+      existing ? h("button.btn.btn-line", { type: "button", onclick: () => deletePetFlow(p) }, p.sample ? "Delete sample" : "Delete") : null,
+      h("button.btn.btn-blue", { type: "submit" }, existing ? "Save changes" : "Add pet")));
+
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const nm = name.value.trim();
     if (!nm) { err.textContent = "Please add a name."; name.setAttribute("aria-invalid", "true"); name.focus(); return; }
+    name.removeAttribute("aria-invalid");
     const row = {
       ...p, id: p.id || uid(), name: nm.slice(0, 40), species: radioVal(form, "species") || "dog",
       birthday: birthday.value || undefined, photo: photo || undefined, createdAt: p.createdAt || Date.now(),
       training: p.training || {},
+      ...(profile ? profile.read() : {}),
     };
-    if (!row.birthday) delete row.birthday;
-    if (!row.photo) delete row.photo;
+    for (const k of Object.keys(row)) if (row[k] === undefined) delete row[k];
     try {
       const first = !S.pets.some((x) => !x.sample);
       await save("pets", row, { quiet: true });
@@ -118,61 +173,183 @@ export function petForm(box, existing, onSaved) {
       if (first && !S.settings.firstUse) await setSetting("firstUse", Date.now());
       if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
       onSaved(row);
-    } catch {
-      err.textContent = "Couldn't save on this device. If you're in private browsing, open the app in a normal tab.";
+    } catch (ex) {
+      err.textContent = saveError(ex);
     }
   });
   box.append(form);
   return form;
 }
-export function openPetSheet(existing) {
+
+/** Profile and contacts (pet fields in the shared contract). Returns { el, read(), sync() }. */
+function profileFields(p, open, species) {
+  const v = p.vet || {}, ins = p.insurer || {}, chip = p.microchip || {}, neu = p.neutered || {};
+  const tel = (value) => h("input", { type: "tel", inputmode: "tel", autocomplete: "off", maxlength: "40", value: value || "" });
+  const vetName = textIn({ maxlength: "120", value: v.name || "", placeholder: "e.g. Riverside Vets" });
+  const vetPhone = tel(v.phone), emPhone = tel(v.emergencyPhone);
+  const insName = textIn({ maxlength: "120", value: ins.name || "" });
+  const policy = textIn({ maxlength: "80", value: ins.policy || "" });
+  const renewal = h("input", { type: "date", value: ins.renewal || "" });
+  const chipNo = textIn({ maxlength: "40", value: chip.number || "", inputmode: "text", spellcheck: "false" });
+  const registry = textIn({ maxlength: "120", value: chip.registry || "", placeholder: "The database it's registered on" });
+  const checkedOn = h("input", { type: "date", max: isoDate(), value: chip.checkedOn || "" });
+  const allergies = h("textarea", { rows: "2", maxlength: "1000", value: p.allergies || "", placeholder: "e.g. chicken makes her itchy" });
+  const conditions = h("textarea", { rows: "2", maxlength: "1000", value: p.conditions || "", placeholder: "e.g. arthritis, diabetes" });
+  let neut = neu.yes === true ? "yes" : neu.yes === false ? "no" : "unknown";
+  const neutDate = h("input", { type: "date", max: isoDate(), value: neu.date || "" });
+  const neutDateF = field(h("span", "Date", opt()), neutDate);
+  const season = h("input", { type: "date", max: isoDate(), value: p.lastSeason || "" });
+  const seasonF = field(h("span", "Last season (heat) started", opt()), season, "Only if they're not neutered. Helps your vet with timing.");
+  const sync = () => {
+    neutDateF.hidden = neut !== "yes";
+    seasonF.hidden = neut === "yes" || !["dog", "cat", "rabbit"].includes(species());
+  };
+  const group = (title, ...kids) => h("details.fold", { open }, h("summary", title), h("div.fold-body", kids));
+  const el = h("div.profile-groups",
+    h("p.fold-intro", "Profile and contacts", h("span.opt", " (all optional)")),
+    group("Vet and insurance",
+      field("Vet practice", vetName), field("Vet phone", vetPhone), field("Emergency vet phone", emPhone, "The out-of-hours number, if your vet uses a different one."),
+      field("Insurer", insName), h("div.two", field("Policy number", policy), field("Renewal date", renewal))),
+    group("Microchip",
+      field("Microchip number", chipNo), field("Registry", registry),
+      field("Details checked on", checkedOn, "Moved house or changed number? Update the registry, then the date here.")),
+    group("Health notes",
+      field("Allergies and don't-feed list", allergies), field("Conditions", conditions, "Long-term conditions mean Nova flags some things sooner."),
+      segmented(`neut-${fid()}`, "Neutered or spayed?", [["yes", "Yes"], ["no", "No"], ["unknown", "Not sure"]], neut, (x) => { neut = x; sync(); }),
+      neutDateF, seasonF));
+  sync();
+  const t = (x) => x.value.trim() || undefined;
+  const read = () => ({
+    vet: dropEmpty({ name: t(vetName), phone: t(vetPhone), emergencyPhone: t(emPhone) }),
+    insurer: dropEmpty({ name: t(insName), policy: t(policy), renewal: renewal.value || undefined }),
+    microchip: dropEmpty({ number: t(chipNo), registry: t(registry), checkedOn: checkedOn.value || undefined }),
+    allergies: t(allergies),
+    conditions: t(conditions),
+    neutered: neut === "unknown" ? undefined : dropEmpty({ yes: neut === "yes", date: neut === "yes" ? neutDate.value || undefined : undefined }),
+    lastSeason: neut !== "yes" && !seasonF.hidden ? season.value || undefined : undefined,
+  });
+  return { el, read, sync };
+}
+
+export function openPetSheet(existing, { openProfile = false } = {}) {
   sheet(existing ? `Edit ${existing.name}` : "Add a pet", (body, close) => {
+    if (!existing) body.append(h("p.sheet-intro", "Only the name is needed. Free. No account to lose."));
     petForm(body, existing, (row) => {
       close();
-      toast(existing ? "Saved." : `${row.name} added.`);
+      toast(existing ? "Saved." : `${row.name} added. Welcome to the pack.`);
       if (!existing && location.hash !== "#/today") location.hash = "#/today"; else refresh();
-    });
+    }, { openProfile });
   });
 }
 
-// ---------- quick logs ----------
+/** Delete one pet (or, for the sample, every sample pet), after asking. */
+export async function deletePetFlow(p) {
+  const samples = p.sample ? S.pets.filter((x) => x.sample) : [p];
+  const ok = p.sample
+    ? await confirmBox("Delete the sample?", "Nova's example diary and everything in it will be removed from this device.", "Delete sample", true)
+    : await confirmBox(`Delete ${p.name}?`, `${p.name} and everything logged for them will be removed from this device. Export a backup first if you might want it back.`, "Delete", true);
+  if (!ok) return;
+  document.querySelectorAll("dialog[open]").forEach((d) => d.close());
+  for (const x of samples) await removePet(x.id);
+  toast(p.sample ? "Sample deleted." : `${p.name} deleted.`);
+  if (!S.pets.length) location.hash = "#/welcome";
+  refresh();
+}
 
-/** Log something in one tap, with Undo and Details in the toast. */
-export async function quickLog(type, fields = {}) {
-  const p = pet();
-  if (!p) return;
-  const ev = { id: uid(), petId: p.id, type, at: Date.now(), ...fields };
-  if (p.sample) ev.sample = true;
-  try { await save("events", ev); } catch { toast("Couldn't save. Is storage blocked?"); return; }
-  const t = TYPES[type];
-  toast(`${t.label} logged at ${fmtTime(ev.at)}.`, [
+// ---------- one-tap logs ----------
+
+/** The little bounce on the tile that was tapped, plus a tap of haptics. */
+function celebrate(type) {
+  buzz(10);
+  if (!motionOK()) return;
+  const tile = document.querySelector(`.ql[data-k="ql-${type}"]`);
+  if (!tile) return;
+  tile.classList.remove("bounce");
+  void tile.offsetWidth;
+  tile.classList.add("bounce");
+  tile.addEventListener("animationend", () => tile.classList.remove("bounce"), { once: true });
+}
+
+/** After any one-tap log: bounce, then "Logged. I supervised." with Undo and Add details. */
+function afterLog(ev, label, weekBefore) {
+  celebrate(ev.type);
+  let msg = label ? `Logged: ${label}. I supervised.` : "Logged. I supervised.";
+  if (weekBefore && !weekBefore.thisWeek) {
+    const st = weeklyStreak(eventsOf("training", ev.petId).map((e) => e.at));
+    if (st.thisWeek) { UI.weekPulse = isoWeek(ev.at); msg = `Week ${st.weeks}. Acceptable.`; }
+  }
+  toast(msg, [
     ["Undo", () => remove("events", ev.id).then(() => toast("Undone."))],
-    ["Details", () => eventSheet(type, ev)],
+    ["Add details", () => eventSheet(ev.type, ev, { details: true })],
   ]);
 }
 
+/** Log something in one tap with sensible defaults. */
+export async function quickLog(type, fields = {}, label = "") {
+  const p = pet();
+  if (!p) return null;
+  const ev = { id: uid(), petId: p.id, type, at: Date.now(), ...fields };
+  if (p.sample) ev.sample = true;
+  for (const k of Object.keys(ev)) if (ev[k] === undefined) delete ev[k];
+  const weekBefore = type === "training" ? weeklyStreak(eventsOf("training", p.id).map((e) => e.at)) : null;
+  try { await save("events", ev); } catch (e) { toast(saveError(e)); return null; }
+  afterLog(ev, label, weekBefore);
+  return ev;
+}
+
+export function currentFood(petId) {
+  return forPet("foods", petId).filter((f) => f.kind === "food" && !f.until).sort((a, b) => (b.since || "").localeCompare(a.since || ""))[0] || null;
+}
+export const foodName = (f) => [f.brand, f.product].filter(Boolean).join(" ");
+const treatsInUse = () => forPet("foods").filter((f) => f.kind === "treat" && f.inUse !== false);
+
+export function logPoop() { return quickLog("poop", { score: 3 }, "a typical poop"); }
 export function logMeal() {
-  const cur = forPet("foods").find((f) => f.kind === "food" && !f.until);
-  quickLog("meal", cur ? { name: [cur.brand, cur.product].filter(Boolean).join(" ") } : {});
+  const cur = currentFood();
+  const last = lastOf("meal");
+  if (cur) return quickLog("meal", { name: foodName(cur) || undefined }, foodName(cur));
+  if (last && last.name) return quickLog("meal", { name: last.name, amount: last.amount }, last.name);
+  return quickLog("meal");
 }
 export function logTreat() {
-  const inUse = forPet("foods").filter((f) => f.kind === "treat" && f.inUse !== false);
-  if (inUse.length <= 1) { quickLog("treat", inUse[0] ? { name: inUse[0].name } : {}); return; }
-  sheet("Which treat?", (body, close) => {
-    put(body, h("div.choice-grid", inUse.map((t) =>
-      h("button.choice", { type: "button", onclick: () => { close(); quickLog("treat", { name: t.name }); } }, em("🦴"), t.name)),
-    h("button.choice", { type: "button", onclick: () => { close(); quickLog("treat"); } }, em("➕"), "Something else")));
-  });
+  const inUse = treatsInUse(), last = lastOf("treat");
+  let name = "";
+  if (inUse.length === 1) name = inUse[0].name;
+  else if (last && last.name && (!inUse.length || inUse.some((t) => t.name === last.name))) name = last.name;
+  else if (inUse.length) name = inUse[0].name;
+  return quickLog("treat", { name: name || undefined }, name);
 }
-export function logWalk() { quickLog("walk"); }
+export function logWalk() { return quickLog("walk"); }
+export function logTraining() { return quickLog("training"); }
+/** Medicine: one tap when there's exactly one active medicine, otherwise the sheet. */
+export function logMed() {
+  const meds = forPet("meds").filter((m) => medIsActive(m));
+  if (meds.length === 1) return markGiven(meds[0]);
+  medGivenSheet();
+  return null;
+}
 
-/** The form for any diary entry, new or existing. */
-export function eventSheet(type, existing) {
+/** Move to the "Call your vet" card (on this screen, or Today's) and read it out. */
+export function focusAlert() {
+  const go = () => {
+    const a = document.getElementById("vet-alert");
+    if (!a) return;
+    a.scrollIntoView({ block: "center", behavior: motionOK() ? "smooth" : "auto" });
+    a.focus({ preventScroll: true });
+  };
+  if (!document.getElementById("vet-alert") && location.hash !== "#/today" && location.hash !== "#/poop") { location.hash = "#/today"; setTimeout(go, 160); }
+  else setTimeout(go, 90);
+}
+
+/** The form for any diary entry, new or existing. details: opened from a toast's "Add details". */
+export function eventSheet(type, existing, { details = false } = {}) {
+  if (type === "symptom") { unwellSheet(existing); return; }
   const p = pet();
   if (!p) return;
   const ev = existing || {};
   const t = TYPES[type];
-  sheet(existing ? `Edit ${t.label.toLowerCase()}` : `Log ${type === "poop" ? "a poop" : t.label.toLowerCase()}`, (body, close) => {
+  const title = details ? `${t.label}: add details` : existing ? `Edit ${t.label.toLowerCase()}` : `Log ${type === "poop" ? "a poop" : t.label.toLowerCase()}`;
+  sheet(title, (body, close) => {
     const form = h("form.form", { novalidate: true });
     const err = errorLine();
     const when = h("input", { type: "datetime-local", value: toLocalInput(ev.at || Date.now()), max: toLocalInput(Date.now() + 3600000), required: true });
@@ -185,21 +362,19 @@ export function eventSheet(type, existing) {
       const hint = h("p.hint.scale-hint", { "aria-live": "polite" });
       S.content.POOP_SCALE.forEach((s) => {
         const id = fid();
-        const inp = h("input", { type: "radio", name: "score", id, value: String(s.score), checked: ev.score === s.score,
-          onchange: () => { hint.textContent = s.hint; } });
+        const inp = h("input", { type: "radio", name: "score", id, value: String(s.score), checked: ev.score === s.score, onchange: () => { hint.textContent = s.hint; } });
         scaleBox.append(inp, h("label", { for: id }, h("span.em", { "aria-hidden": "true" }, s.emoji), h("span.sc-n", String(s.score)), h("span.sc-l", s.label)));
       });
       if (ev.score) hint.textContent = (scaleFor(ev.score) || {}).hint || "";
+      const spHint = (care.POOP_HINTS || {})[p.species];
       const flags = new Set(ev.flags || []);
-      const checks = (list) => h("div.checks", list.map((f) => {
-        const id = fid();
-        return h("div.check", h("input", { type: "checkbox", id, value: f.id, checked: flags.has(f.id) }), h("label", { for: id }, f.label));
-      }));
+      const checks = (list) => h("div.checks", list.map((f) => check(f.label, { value: f.id, checked: flags.has(f.id) }).row));
       parts.push(
-        h("fieldset.fs", h("legend", "How did it look?"), scaleBox, hint),
+        h("fieldset.fs", h("legend", "How did it look?"),
+          care.POOP_SCALE_NAME ? h("p.hint.scale-name", care.POOP_SCALE_NAME) : null,
+          spHint ? h("p.hint.sp-hint", spHint) : null, scaleBox, hint),
         h("fieldset.fs", h("legend", "Anything unusual?", opt()), checks(S.content.POOP_FLAGS)),
-        h("fieldset.fs", h("legend", "Also noticed today", opt()), checks(ALSO_NOTICED)),
-      );
+        h("fieldset.fs", h("legend", "Also noticed today", opt()), checks(ALSO_NOTICED)));
       collect = () => {
         const sc = radioVal(form, "score");
         if (!sc) return { error: "Pick how it looked (1 to 5)." };
@@ -210,12 +385,15 @@ export function eventSheet(type, existing) {
     if (type === "meal" || type === "treat") {
       const nameIn = textIn({ maxlength: "120", value: ev.name || "", placeholder: type === "meal" ? "e.g. breakfast, kibble" : "e.g. dental chew" });
       const amount = textIn({ maxlength: "120", value: ev.amount || "", placeholder: "e.g. 1 cup, 150 g" });
+      const fill = (nm, am) => { nameIn.value = nm || ""; amount.value = am || ""; nameIn.focus(); };
+      const last = eventsOf(type).find((x) => x.id !== ev.id && x.name);
+      const chips = [];
+      if (last) chips.push(h("button.chip", { type: "button", onclick: () => fill(last.name, last.amount) }, "Same as last time: ", h("b", [last.name, last.amount].filter(Boolean).join(", "))));
+      const cur = type === "meal" ? currentFood() : null;
+      if (cur && foodName(cur) && (!last || last.name !== foodName(cur))) chips.push(h("button.chip", { type: "button", onclick: () => fill(foodName(cur), "") }, foodName(cur)));
+      if (type === "treat") treatsInUse().filter((f) => !last || f.name !== last.name).forEach((f) => chips.push(h("button.chip", { type: "button", onclick: () => fill(f.name, "") }, f.name)));
+      if (chips.length) parts.push(h("div.chips-row", { role: "group", "aria-label": "Quick fill" }, chips));
       parts.push(field(h("span", type === "meal" ? "What" : "Which treat", opt()), nameIn), field(h("span", "How much", opt()), amount));
-      const inUse = forPet("foods").filter((f) => f.kind === "treat" && f.inUse !== false);
-      if (type === "treat" && inUse.length) {
-        parts.push(h("div.chips-row", { role: "group", "aria-label": "Treats in use" }, inUse.map((f) =>
-          h("button.chip", { type: "button", onclick: () => { nameIn.value = f.name; } }, f.name))));
-      }
       collect = () => ({ name: nameIn.value.trim() || undefined, amount: amount.value.trim() || undefined });
     }
 
@@ -253,7 +431,7 @@ export function eventSheet(type, existing) {
       collect = () => ({ clinic: clinic.value.trim() || undefined });
     }
 
-    put(form, 
+    put(form,
       ...parts,
       field("When", when),
       field(h("span", type === "vet" ? "What the vet said" : "Note", opt()), note),
@@ -263,8 +441,7 @@ export function eventSheet(type, existing) {
           close(); await remove("events", ev.id);
           toast(`${t.label} deleted.`, [["Undo", () => save("events", ev)]]);
         } }, "Delete") : null,
-        h("button.btn.btn-blue", { type: "submit" }, "Save")),
-    );
+        h("button.btn.btn-blue", { type: "submit" }, "Save")));
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const extra = collect();
@@ -272,15 +449,61 @@ export function eventSheet(type, existing) {
       const row = { ...ev, ...extra, id: ev.id || uid(), petId: ev.petId || p.id, type, at: fromLocalInput(when.value), note: note.value.trim() || undefined };
       for (const k of Object.keys(row)) if (row[k] === undefined) delete row[k];
       if (p.sample && !existing) row.sample = true;
-      try { await save("events", row); } catch { err.textContent = "Couldn't save on this device."; return; }
+      try { await save("events", row); } catch (ex) { err.textContent = saveError(ex); return; }
       close();
-      if (type === "poop" && poopAlerts(p).length) {
-        toast("Poop logged. Please read Nova's note about calling your vet.");
-        // After the sheet's own close handler has returned focus, move it to the vet note.
-        setTimeout(() => { const a = document.getElementById("vet-alert"); if (a) { a.scrollIntoView({ block: "center" }); a.focus({ preventScroll: true }); } }, 80);
+      if (type === "poop" && healthAlerts(p, Date.now()).length) {
+        toast("Saved. Please read Nova's note about calling your vet.");
+        focusAlert();
       } else if (!existing) {
-        toast(`${t.label} logged.`, [["Undo", () => remove("events", row.id)]]);
+        toast("Logged. I supervised.", [["Undo", () => remove("events", row.id)]]);
       } else toast("Saved.");
+    });
+    put(body, form);
+  });
+}
+
+/** The Unwell checklist. Saves a `symptom` event, then shows the "Call your vet" card at once if a rule fires. */
+export function unwellSheet(existing) {
+  const p = pet();
+  if (!p) return;
+  const ev = existing || {};
+  const picked = new Set(ev.symptoms || []);
+  sheet(existing ? "Edit unwell note" : `Is ${p.name} unwell?`, (body, close) => {
+    const form = h("form.form", { novalidate: true });
+    const err = errorLine();
+    const toxins = Array.isArray(care.TOXINS) ? care.TOXINS : [];
+    const list = SYMPTOMS.filter((s) => !s.only || s.only.includes(p.species) || picked.has(s.id));
+    const boxes = list.map((s) => check(s.label, { value: s.id, checked: picked.has(s.id) },
+      s.id === "toxin" && toxins.length ? `Common ones: ${toxins.join(", ")}.` : null));
+    const when = h("input", { type: "datetime-local", value: toLocalInput(ev.at || Date.now()), max: toLocalInput(Date.now() + 3600000), required: true });
+    const note = h("textarea", { rows: "2", maxlength: "1000", value: ev.note || "", placeholder: "e.g. sick twice since lunch, still drinking" });
+    put(form,
+      h("p.sheet-intro", "Tick what you've noticed. If any of it needs a vet, I'll say so straight away. I don't diagnose: your vet does."),
+      h("fieldset.fs", h("legend", "What have you noticed?"), h("div.checks.sym-checks", boxes.map((b) => b.row))),
+      field("When did you notice?", when),
+      field(h("span", "Note", opt()), note),
+      err,
+      h("div.row-btns",
+        existing ? h("button.btn.btn-line", { type: "button", onclick: async () => {
+          close(); await remove("events", ev.id); toast("Unwell note deleted.", [["Undo", () => save("events", ev)]]);
+        } }, "Delete") : null,
+        h("button.btn.btn-blue", { type: "submit" }, "Save")));
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const symptoms = boxes.filter((b) => b.input.checked).map((b) => b.input.value);
+      if (!symptoms.length) { err.textContent = "Tick at least one thing you've noticed."; boxes[0].input.focus(); return; }
+      const row = { ...ev, id: ev.id || uid(), petId: ev.petId || p.id, type: "symptom", at: fromLocalInput(when.value), symptoms, note: note.value.trim() || undefined };
+      if (!row.note) delete row.note;
+      if (p.sample && !existing) row.sample = true;
+      try { await save("events", row); } catch (ex) { err.textContent = saveError(ex); return; }
+      close();
+      celebrate("symptom");
+      if (healthAlerts(p, Date.now()).length) {
+        toast("Saved. Please read my note about calling your vet.");
+        focusAlert();
+      } else {
+        toast(`Noted. Keep an eye on ${p.name}, and call your vet if you're worried.`, existing ? [] : [["Undo", () => remove("events", row.id)]]);
+      }
     });
     put(body, form);
   });
@@ -298,26 +521,27 @@ export function medGivenSheet() {
       list.append(h("li.med-row",
         h("div", h("b", m.name), h("p.small.muted", m.dose ? `Dose: ${m.dose}` : "Dose as your vet wrote it"),
           h("p.small", st.daily ? `${st.given} of ${st.need} given today` : st.due ? "Due now" : "Not due yet")),
-        h("button.btn.btn-gold.sm", { type: "button", onclick: () => { close(); markGiven(m); } }, "Mark given")));
+        h("button.btn.btn-blue.sm", { type: "button", onclick: () => { close(); markGiven(m); } }, "Given", h("span.vh", `: ${m.name}`))));
     });
     const other = textIn({ maxlength: "120", placeholder: "e.g. one-off ear cleaner" });
     const err = errorLine();
     put(body, list,
-      h("details.mini",
+      h("details.fold",
         h("summary", "Something else"),
-        h("form.form", { novalidate: true, onsubmit: (e) => {
+        h("form.form.fold-body", { novalidate: true, onsubmit: (e) => {
           e.preventDefault();
           if (!other.value.trim()) { err.textContent = "Add the medicine's name."; return; }
-          close(); quickLog("med", { name: other.value.trim() });
+          close(); quickLog("med", { name: other.value.trim() }, other.value.trim());
         } }, field("Medicine", other), err, h("button.btn.btn-line", { type: "submit" }, "Log it"))),
-      h("button.btn.btn-blue.wide", { type: "button", onclick: () => { close(); medSheet(); } }, "Set up a medicine"));
+      h("button.btn.btn-line.wide", { type: "button", onclick: () => { close(); medSheet(); } }, "Set up a medicine"));
   });
 }
 export async function markGiven(m) {
   const ev = { id: uid(), petId: m.petId, type: "med", at: Date.now(), medId: m.id, name: m.name };
   if (m.sample) ev.sample = true;
-  await save("events", ev);
-  toast(`${m.name}: given at ${fmtTime(ev.at)}.`, [["Undo", () => remove("events", ev.id)]]);
+  try { await save("events", ev); } catch (e) { toast(saveError(e)); return null; }
+  afterLog(ev, m.name);
+  return ev;
 }
 
 export function medSheet(existing) {
@@ -344,7 +568,7 @@ export function medSheet(existing) {
       t1F.querySelector("label").textContent = freq.value === "twice" ? "First time" : "Time";
     };
     freq.addEventListener("change", sync);
-    put(form, 
+    put(form,
       field("Medicine name", name),
       field("Dose, exactly as your vet wrote it", dose, "Nova's Pack never suggests a dose. If you're unsure, ask your vet."),
       field("How often", freq), everyF, h("div.two", t1F, t2F),
@@ -352,12 +576,8 @@ export function medSheet(existing) {
       field(h("span", "Note", opt()), note),
       err,
       h("div.row-btns",
-        existing ? h("button.btn.btn-line", { type: "button", onclick: async () => {
-          if (!(await confirmBox(`Delete ${m.name}?`, "Its 'given' history stays in the diary.", "Delete", true))) return;
-          close(); await remove("meds", m.id); toast("Medicine deleted.", [["Undo", () => save("meds", m)]]);
-        } }, "Delete") : null,
-        h("button.btn.btn-blue", { type: "submit" }, "Save")),
-    );
+        existing ? h("button.btn.btn-line", { type: "button", onclick: () => { close(); deleteMed(m); } }, "Delete") : null,
+        h("button.btn.btn-blue", { type: "submit" }, "Save")));
     sync();
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -369,17 +589,56 @@ export function medSheet(existing) {
         everyDays: freq.value === "custom" ? Math.max(1, parseInt(every.value, 10) || 1) : undefined,
         start: start.value || isoDate(), end: end.value || undefined, note: note.value.trim() || undefined,
       };
+      if (p.sample && !existing) row.sample = true;
       for (const k of Object.keys(row)) if (row[k] === undefined) delete row[k];
-      await save("meds", row);
+      try { await save("meds", row); } catch (ex) { err.textContent = saveError(ex); return; }
       close();
       toast(existing ? "Saved." : `${row.name} added. It shows on Today when it's due.`);
     });
     put(body, form);
   });
 }
+export async function deleteMed(m) {
+  if (!(await confirmBox(`Delete ${m.name}?`, "Its 'given' history stays in the diary.", "Delete", true))) return;
+  await remove("meds", m.id);
+  toast("Medicine deleted.", [["Undo", () => save("meds", m)]]);
+}
+
+// ---------- calendar (.ics): your phone reminds you, we never message you ----------
+export const CAL_NOTE = "Your phone reminds you. We never message you.";
+export function calRecord(p, r) {
+  if (!r.nextDue) { toast("Add a next due date first."); return; }
+  ics.download(`${slug(p.name)}-${slug(r.name)}.ics`, ics.dueEvent({ uid: r.id, title: `${p.name}: ${r.name} due`, due: r.nextDue, note: r.note }));
+  toast("Calendar file saved. Open it to add the reminder (alarm the day before).");
+}
+export function calMed(p, m) {
+  ics.download(`${slug(p.name)}-${slug(m.name)}.ics`, ics.medEvents({ uid: m.id, title: `${p.name}: ${m.name}`, start: m.start || isoDate(), end: m.end, freq: m.freq, times: m.times, everyDays: m.everyDays, dose: m.dose }));
+  toast("Calendar file saved. Open it to add repeating reminders.");
+}
+/** One .ics with every upcoming due date (vaccines, preventives, care routine). */
+export function calAllDue(p) {
+  const today = isoDate();
+  const recs = currentRecords(p.id).filter((r) => r.nextDue && r.nextDue >= today);
+  if (!recs.length) { toast("Nothing with an upcoming due date yet."); return; }
+  const parts = recs.map((r) => ics.dueEvent({ uid: r.id, title: `${p.name}: ${r.name} due`, due: r.nextDue, note: r.note }).split("\r\n"));
+  const head = parts[0].slice(0, parts[0].indexOf("BEGIN:VEVENT"));
+  const events = parts.flatMap((ls) => ls.slice(ls.indexOf("BEGIN:VEVENT"), ls.lastIndexOf("END:VEVENT") + 1));
+  ics.download(`${slug(p.name)}-due-dates.ics`, [...head, ...events, "END:VCALENDAR", ""].join("\r\n"));
+  toast(`${recs.length} due date${recs.length === 1 ? "" : "s"} in one calendar file. Open it to add them all.`);
+}
+/** "Remind me in my calendar": ticked by itself once there's a (new) next-due date. */
+function calendarTick(next, original) {
+  let touched = false;
+  const c = check("Remind me in my calendar", { onchange: () => { touched = true; } }, CAL_NOTE);
+  const sync = () => {
+    c.row.hidden = !next.value;
+    if (!touched) c.input.checked = !!next.value && next.value !== (original || "");
+  };
+  return { row: c.row, input: c.input, sync };
+}
 
 // ---------- vaccines and preventives ----------
-/** prefill: { kind, name, given, nextDue } for "mark done". */
+/** prefill: { kind, name, given, nextDue, late } for "Mark done". */
 export function recordSheet(existing, prefill) {
   const p = pet();
   const r = existing || prefill || {};
@@ -405,23 +664,26 @@ export function recordSheet(existing, prefill) {
     name.addEventListener("input", showWhat);
     const given = h("input", { type: "date", value: r.given || isoDate(), max: isoDate() });
     const next = h("input", { type: "date", value: r.nextDue || "" });
-    const plus = (label, fn) => h("button.chip", { type: "button", onclick: () => { next.value = fn(given.value || isoDate()); } }, label);
-    put(form, 
-      segmented("kind", "Type", [["vaccine", "💉 Vaccine"], ["preventive", "🛡️ Preventive"]], kind, (v) => { kind = v; fillSug(); }),
+    const cal = calendarTick(next, existing ? r.nextDue : "");
+    next.addEventListener("input", cal.sync);
+    next.addEventListener("change", cal.sync);
+    const plus = (label, fn) => h("button.chip", { type: "button", onclick: () => { next.value = fn(given.value || isoDate()); cal.sync(); } }, label);
+    put(form,
+      prefill && prefill.late ? h("p.note-line.course-note", em("🩺"), " Late, or part of a puppy/kitten course? Ask your vet whether to restart the course.") : null,
+      segmented("kind", "Type", [["vaccine", "Vaccine"], ["preventive", "Preventive"]], kind, (v) => { kind = v; fillSug(); }),
       field("Name", name), what,
       h("div.sug", h("p.hint", "Suggestions only. Your vet decides your pet's schedule."), sugBox),
       h("div.two", field("Date given", given), field(h("span", "Next due", opt()), next)),
       h("div.chips-row", { role: "group", "aria-label": "Set next due from the date given" },
         plus("+1 month", (d) => addMonths(d, 1)), plus("+3 months", (d) => addMonths(d, 3)), plus("+1 year", (d) => addMonths(d, 12))),
+      cal.row,
       field(h("span", "Note", opt()), h("textarea", { rows: "2", maxlength: "1000", value: r.note || "", name: "note" })),
       err,
       h("div.row-btns",
-        existing ? h("button.btn.btn-line", { type: "button", onclick: async () => {
-          close(); await remove("records", r.id); toast("Deleted.", [["Undo", () => save("records", r)]]);
-        } }, "Delete") : null,
-        h("button.btn.btn-blue", { type: "submit" }, "Save")),
-    );
+        existing ? h("button.btn.btn-line", { type: "button", onclick: () => { close(); deleteRecord(r); } }, "Delete") : null,
+        h("button.btn.btn-blue", { type: "submit" }, "Save")));
     fillSug();
+    cal.sync();
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       if (!name.value.trim()) { err.textContent = "Add a name, or tap a suggestion."; name.focus(); return; }
@@ -432,14 +694,22 @@ export function recordSheet(existing, prefill) {
       };
       if (p.sample) row.sample = true;
       for (const k of Object.keys(row)) if (row[k] === undefined) delete row[k];
-      await save("records", row);
+      try { await save("records", row); } catch (ex) { err.textContent = saveError(ex); return; }
       close();
-      toast(existing ? "Saved." : `${row.name} saved.`, existing ? [] : [["Undo", () => remove("records", row.id)]]);
+      if (cal.input.checked && row.nextDue) calRecord(p, row);
+      else toast(existing ? "Saved." : `${row.name} saved.`, existing ? [] : [["Undo", () => remove("records", row.id)]]);
     });
     put(body, form);
   });
 }
-/** Mark a due vaccine/preventive as done: same name, given today, next due after the same gap as last time. */
+export function deleteRecord(r) {
+  remove("records", r.id).then(() => toast("Deleted.", [["Undo", () => save("records", r)]]));
+}
+/**
+ * Mark a due vaccine/preventive as done: same name, given today, next due after the same gap as last time.
+ * If it was overdue, or it's a vaccine for a pet under a year (a puppy or kitten course), the sheet asks
+ * the owner to check with their vet whether the course needs restarting.
+ */
 export function markRecordDone(rec) {
   const today = isoDate();
   let nextDue = "";
@@ -447,7 +717,88 @@ export function markRecordDone(rec) {
     const gap = daysBetween(rec.given, rec.nextDue);
     if (gap > 0) nextDue = gap % 365 === 0 ? addMonths(today, 12 * (gap / 365)) : addDays(today, gap);
   }
-  recordSheet(null, { kind: rec.kind, name: rec.name, given: today, nextDue });
+  const p = S.pets.find((x) => x.id === rec.petId) || pet();
+  const young = p && p.birthday && daysBetween(p.birthday, today) < 365;
+  const late = recordStatus(rec, today).state === "overdue" || (rec.kind === "vaccine" && young && (p.species === "dog" || p.species === "cat"));
+  recordSheet(null, { kind: rec.kind, name: rec.name, given: today, nextDue, late });
+}
+
+// ---------- care routine (suggestions from CARE_TASKS, stored as preventive records so backups keep them) ----------
+export function careTasksFor(p) {
+  const T = care.CARE_TASKS || {};
+  return (p && T[["dog", "cat", "rabbit"].includes(p.species) ? p.species : "other"]) || [];
+}
+const sameName = (a, b) => a.trim().toLowerCase() === b.trim().toLowerCase();
+export function careTaskOf(p, r) {
+  return r && r.kind === "preventive" ? careTasksFor(p).find((t) => sameName(t.name, r.name)) || null : null;
+}
+export function careRecordOf(p, task) {
+  return currentRecords(p.id).find((r) => r.kind === "preventive" && sameName(r.name, task.name)) || null;
+}
+/** Start tracking, or edit, a care task: last done + every N weeks. */
+export function careSheet(task, rec) {
+  const p = pet();
+  sheet(rec ? `Edit: ${task.name}` : `Track: ${task.name}`, (body, close) => {
+    const form = h("form.form", { novalidate: true });
+    const err = errorLine();
+    const gapWeeks = rec && rec.given && rec.nextDue ? Math.max(1, Math.round(daysBetween(rec.given, rec.nextDue) / 7)) : task.everyWeeks;
+    const last = h("input", { type: "date", max: isoDate(), value: (rec && rec.given) || isoDate() });
+    const every = h("input", { type: "number", inputmode: "numeric", min: "1", max: "104", value: String(gapWeeks) });
+    const next = h("input", { type: "hidden" });
+    const calc = () => { const w = Math.max(1, parseInt(every.value, 10) || task.everyWeeks); next.value = addDays(last.value || isoDate(), w * 7); };
+    calc();
+    const cal = calendarTick(next, rec ? rec.nextDue : "");
+    const resync = () => { calc(); cal.sync(); };
+    last.addEventListener("change", resync); every.addEventListener("input", resync);
+    put(form,
+      h("p.hint.what", task.what),
+      h("div.two", field("Last done", last), field("Every how many weeks?", every)),
+      h("p.hint", "Suggestions only. Your vet or groomer knows your pet best."),
+      cal.row,
+      err,
+      h("div.row-btns",
+        rec ? h("button.btn.btn-line", { type: "button", onclick: () => { close(); stopCare(p, task); } }, "Stop tracking") : null,
+        h("button.btn.btn-blue", { type: "submit" }, rec ? "Save" : "Start tracking")));
+    cal.sync();
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      calc();
+      const row = { id: rec ? rec.id : uid(), petId: p.id, kind: "preventive", name: task.name, given: last.value || isoDate(), nextDue: next.value };
+      if (p.sample) row.sample = true;
+      try { await save("records", row); } catch (ex) { err.textContent = saveError(ex); return; }
+      close();
+      if (cal.input.checked) calRecord(p, row);
+      else toast(`${task.name}: next one ${fmtDate(row.nextDue, { day: "numeric", month: "short" })}. It shows in Due when it's close.`);
+    });
+    put(body, form);
+  });
+}
+/** One tap: done today, next one after the same gap. */
+export async function markCareDone(p, task, rec) {
+  const today = isoDate();
+  const gap = rec && rec.given && rec.nextDue ? Math.max(1, daysBetween(rec.given, rec.nextDue)) : task.everyWeeks * 7;
+  const row = { id: uid(), petId: p.id, kind: "preventive", name: task.name, given: today, nextDue: addDays(today, gap) };
+  if (p.sample) row.sample = true;
+  try { await save("records", row); } catch (e) { toast(saveError(e)); return; }
+  buzz(10);
+  toast(`${task.name}: done. Next one ${fmtDate(row.nextDue, { day: "numeric", month: "short" })}. I supervised.`, [["Undo", () => remove("records", row.id)]]);
+}
+async function stopCare(p, task) {
+  const rows = forPet("records", p.id).filter((r) => r.kind === "preventive" && sameName(r.name, task.name));
+  for (const r of rows) await remove("records", r.id, { quiet: true });
+  refresh();
+  toast(`Stopped tracking ${task.name}.`, [["Undo", async () => { for (const r of rows) await save("records", r, { quiet: true }); refresh(); }]]);
+}
+/** "Mark done" and "Edit" for any record, care task or not. */
+export function doneRecord(r) {
+  const p = S.pets.find((x) => x.id === r.petId) || pet();
+  const task = careTaskOf(p, r);
+  if (task) markCareDone(p, task, r); else markRecordDone(r);
+}
+export function editRecord(r) {
+  const p = S.pets.find((x) => x.id === r.petId) || pet();
+  const task = careTaskOf(p, r);
+  if (task) careSheet(task, r); else recordSheet(r);
 }
 
 // ---------- food and treats ----------
@@ -462,14 +813,13 @@ export function foodSheet(existing) {
     const amount = textIn({ maxlength: "120", value: f.amount || "", placeholder: "e.g. 300 g, split in 2 meals" });
     const since = h("input", { type: "date", value: f.since || isoDate(), max: isoDate() });
     const note = h("textarea", { rows: "2", maxlength: "1000", value: f.note || "" });
-    put(form, 
+    put(form,
       field("Brand", brand), field("Product", product), field(h("span", "Amount per day", opt()), amount),
       field("Since", since), field(h("span", "Note", opt()), note, "Changing food? Most vets suggest mixing it in gradually over about a week."),
       err,
       h("div.row-btns",
         existing ? h("button.btn.btn-line", { type: "button", onclick: async () => { close(); await remove("foods", f.id); toast("Deleted.", [["Undo", () => save("foods", f)]]); } }, "Delete") : null,
-        h("button.btn.btn-blue", { type: "submit" }, "Save")),
-    );
+        h("button.btn.btn-blue", { type: "submit" }, "Save")));
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       if (!brand.value.trim() && !product.value.trim()) { err.textContent = "Add a brand or product."; brand.focus(); return; }
@@ -477,11 +827,13 @@ export function foodSheet(existing) {
         amount: amount.value.trim() || undefined, since: since.value || isoDate(), note: note.value.trim() || undefined };
       if (p.sample && !existing) row.sample = true;
       for (const k of Object.keys(row)) if (row[k] === undefined) delete row[k];
-      if (!existing) {
-        // The old food ends where the new one starts.
-        for (const old of forPet("foods").filter((x) => x.kind === "food" && !x.until)) await save("foods", { ...old, until: row.since }, { quiet: true });
-      }
-      await save("foods", row);
+      try {
+        if (!existing) {
+          // The old food ends where the new one starts.
+          for (const old of forPet("foods").filter((x) => x.kind === "food" && !x.until)) await save("foods", { ...old, until: row.since }, { quiet: true });
+        }
+        await save("foods", row);
+      } catch (ex) { err.textContent = saveError(ex); return; }
       close();
       toast(existing ? "Saved." : "Food updated. The old one is in the history.");
     });
@@ -506,7 +858,7 @@ export function treatSheet(existing) {
       const row = { ...t, id: t.id || uid(), petId: t.petId || p.id, kind: "treat", name: name.value.trim(), inUse: t.inUse !== false, note: note.value.trim() || undefined };
       if (p.sample && !existing) row.sample = true;
       if (!row.note) delete row.note;
-      await save("foods", row);
+      try { await save("foods", row); } catch (ex) { err.textContent = saveError(ex); return; }
       close();
       toast("Saved.");
     });

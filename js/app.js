@@ -2,15 +2,18 @@
 // current #/route, and redraws after every change. No framework, no build step, no network calls
 // except loading the app's own files.
 
+// install.js first: it sets up the install prompt listener and the update-hook queue before any view module runs.
+import { isStandalone } from "./install.js";
 import { S, load, onChange, pet, setSetting } from "./state.js";
-import { h, ago } from "./util.js";
+import { h, ago, toast } from "./util.js";
+import { onQuotaError, QUOTA_MESSAGE, persist } from "./db.js";
 import { today, poopLog, welcome } from "./views/today.js";
 import { health, summary } from "./views/health.js";
 import { food } from "./views/food.js";
 import { training } from "./views/training.js";
 import { more } from "./views/more.js";
 import { avatar } from "./views/parts.js";
-import { openPetSheet } from "./forms.js";
+import { openPetSheet, eventSheet, medGivenSheet } from "./forms.js";
 
 const ROUTES = { today, poop: poopLog, health, summary, food, training, more, welcome };
 const TAB_OF = { today: "today", poop: "today", health: "health", summary: "health", food: "food", training: "training", more: "more" };
@@ -22,13 +25,28 @@ const tabbar = document.getElementById("tabbar");
 
 function route() {
   const [name, arg] = location.hash.replace(/^#\/?/, "").split("/").map((x) => { try { return decodeURIComponent(x || ""); } catch { return ""; } });
-  return { name: ROUTES[name] ? name : "today", arg: arg || "" };
+  return { name: ROUTES[name] ? name : "today", arg: arg || "", raw: name || "" };
+}
+
+// #/quick/<type> (Home Screen shortcuts): show Today, then open that quick log once.
+const QUICK = ["poop", "meal", "treat", "med", "walk", "training", "weight", "vet", "symptom"];
+let pendingQuick = "";
+function openQuick(type) {
+  if (!pet()) return;
+  if (typeof window.NP_openQuickLog === "function") { window.NP_openQuickLog(type); return; }
+  if (type === "med") medGivenSheet();
+  else if (type !== "symptom") eventSheet(type);
 }
 
 let lastRoute = "";
 function draw() {
-  let { name, arg } = route();
-  if (!S.pets.length && name !== "welcome") { name = "welcome"; arg = ""; if (location.hash !== "#/welcome") history.replaceState(null, "", "#/welcome"); }
+  let { name, arg, raw } = route();
+  if (raw === "quick") {
+    pendingQuick = QUICK.includes(arg) ? arg : "";
+    name = "today"; arg = "";
+    history.replaceState(null, "", "#/today");
+  }
+  if (!S.pets.length && name !== "welcome") { pendingQuick = ""; name = "welcome"; arg = ""; if (location.hash !== "#/welcome") history.replaceState(null, "", "#/welcome"); }
   if (S.pets.length && name === "welcome") { name = "today"; arg = ""; history.replaceState(null, "", "#/today"); }
   const key = `${name}/${arg}`;
   const navigated = key !== lastRoute;
@@ -58,6 +76,11 @@ function draw() {
     window.scrollTo(0, y);
     const el = focusKey && main.querySelector(focusKey);
     if (el) el.focus({ preventScroll: true });
+  }
+  if (pendingQuick) {
+    const t = pendingQuick;
+    pendingQuick = "";
+    setTimeout(() => { try { openQuick(t); } catch (err) { console.warn(err); } }, 0);
   }
 }
 
@@ -101,8 +124,11 @@ document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "visible" && !document.querySelector("dialog[open]")) draw();
 });
 
-window.addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); S.installPrompt = e; if (route().name === "more") draw(); });
-window.addEventListener("appinstalled", () => { S.installPrompt = null; });
+// The install prompt (beforeinstallprompt, appinstalled) is handled in install.js, which redraws the current view.
+
+// "Phone storage is full": explain it whoever made the save (after any generic "Couldn't save" message).
+let quotaTimer = 0;
+onQuotaError(() => { clearTimeout(quotaTimer); quotaTimer = setTimeout(() => toast(QUOTA_MESSAGE), 60); });
 
 async function loadContent() {
   const [care, skills] = await Promise.all([
@@ -114,10 +140,14 @@ async function loadContent() {
   c.VACCINES = care.VACCINES || {};
   c.PREVENTIVES = care.PREVENTIVES || {};
   c.POOP_SCALE = Array.isArray(care.POOP_SCALE) && care.POOP_SCALE.length ? care.POOP_SCALE : [1, 2, 3, 4, 5].map((n) => ({ score: n, emoji: "", label: ["Very hard", "Firm", "Ideal", "Soft", "Watery"][n - 1], hint: "" }));
+  c.POOP_SCALE_NAME = typeof care.POOP_SCALE_NAME === "string" ? care.POOP_SCALE_NAME : "";
+  c.POOP_HINTS = care.POOP_HINTS && typeof care.POOP_HINTS === "object" ? care.POOP_HINTS : {};
   c.POOP_FLAGS = Array.isArray(care.POOP_FLAGS) ? care.POOP_FLAGS : [];
   c.RED_FLAGS = Array.isArray(care.RED_FLAGS) ? care.RED_FLAGS : [];
   c.VET_FIRST = typeof care.VET_FIRST === "string" ? care.VET_FIRST : "";
   c.SOURCES = Array.isArray(care.SOURCES) ? care.SOURCES : [];
+  c.TOXINS = Array.isArray(care.TOXINS) ? care.TOXINS : [];
+  c.CARE_TASKS = care.CARE_TASKS && typeof care.CARE_TASKS === "object" ? care.CARE_TASKS : {};
 }
 
 let started = false;
@@ -137,9 +167,69 @@ async function start() {
   draw();
   started = true;
   document.body.classList.add("ready");
+  if (isStandalone()) persist();
 }
 start();
 
+// ---------- updates ----------
+// A new version installs in the background and waits. B's toast (or the fallback below) offers "Update", which
+// tells the waiting service worker to take over; the page reloads when it does.
+let waitingWorker = null, applying = false;
+const updateFns = [];
+function applyUpdate() {
+  if (!waitingWorker) { location.reload(); return; }
+  applying = true;
+  waitingWorker.postMessage({ type: "SKIP_WAITING" });
+}
+const callUpdate = (fn) => { try { fn(applyUpdate); } catch (err) { console.warn(err); } };
+function updateReady(w) {
+  if (waitingWorker === w) return;
+  waitingWorker = w;
+  if (updateFns.length) updateFns.forEach(callUpdate);
+  else toast("A new version of Nova's Pack is ready.", [["Update", applyUpdate]]);
+}
+const queuedUpdateFns = (window.NP_onUpdateReady && window.NP_onUpdateReady.queue) || [];
+/** Shared contract: window.NP_onUpdateReady(fn) calls fn(apply) when an update is ready; apply() installs it and reloads. */
+window.NP_onUpdateReady = (fn) => {
+  if (typeof fn !== "function" || updateFns.includes(fn)) return;
+  updateFns.push(fn);
+  if (waitingWorker) callUpdate(fn);
+};
+queuedUpdateFns.forEach((fn) => window.NP_onUpdateReady(fn));
+
 if ("serviceWorker" in navigator && location.protocol !== "file:") {
-  window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+  const sw = navigator.serviceWorker;
+  const hadController = !!sw.controller; // the very first install takes control without a reload
+  let reloading = false;
+  sw.addEventListener("controllerchange", () => {
+    if (reloading || !(hadController || applying)) return;
+    // Updated from another tab: don't throw away a half-filled form here, reload when the page is next hidden.
+    if (!applying && document.querySelector("dialog[open]")) {
+      document.addEventListener("visibilitychange", () => { if (!reloading) { reloading = true; location.reload(); } }, { once: true });
+      return;
+    }
+    reloading = true;
+    location.reload();
+  });
+  window.addEventListener("load", () => {
+    sw.register("sw.js").then((reg) => {
+      const watch = (w) => {
+        if (!w) return;
+        const check = () => {
+          if (w.state === "installed" && sw.controller) updateReady(w);
+          else if (w.state === "redundant" && waitingWorker === w) waitingWorker = null;
+        };
+        check();
+        w.addEventListener("statechange", check);
+      };
+      watch(reg.waiting);
+      watch(reg.installing);
+      reg.addEventListener("updatefound", () => watch(reg.installing));
+      // An installed app can stay open for days: look for a new version when it comes back to the front (at most hourly).
+      let checked = Date.now();
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible" && Date.now() - checked > 3600000) { checked = Date.now(); reg.update().catch(() => {}); }
+      });
+    }).catch(() => {});
+  });
 }
