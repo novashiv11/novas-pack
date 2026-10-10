@@ -11,14 +11,14 @@ Handoff summary for Claude Code. Read this first, then `docs/00-master-brief.md`
 ## Repo map
 | Path | What |
 |---|---|
-| `index.html` + `app.css` + `js/` | **The pet care diary app** (PWA). `js/app.js` router, `js/db.js` IndexedDB + backup, `js/logic.js` due/red-flag logic, `js/views/*` screens (today, health, food, training, more), `js/ics.js` calendar files, `js/sample.js` labelled sample data. |
-| `data/skills.js`, `data/care.js` | Content: 10 training skills; vaccines/preventives/poop scale/red flags with sources. Vet-first; no doses. |
+| `index.html` + `app.css` + `js/` | **The app: "Level up together"** (PWA). `js/app.js` router, `js/db.js` IndexedDB + backup (schema v2), `js/game.js` pure XP/level/rank/badge logic (derived, never stored), `js/logic.js` due/red-flag logic, `js/views/*` screens (welcome, home, training, adventures, trainer, journal, health, food, more, gameui), `js/sharecard.js` partner share image, `js/ics.js` calendar files, `js/sample.js` labelled sample data. |
+| `data/` | Content: `skills.js` (13 reward-based skills), `care.js` (vaccines/preventives/poop scale/red flags, sourced), `adventures.js` (Adventure Book stamps), `academy.js` (Trainer Academy lessons), `quotes.js` (Nova's daily lines + a few attributed quotes). Vet-first; no doses. |
 | `clips/` | Drop training clips here as `<skill-id>.mp4` (muted, <3 MB). Missing clip → "Clip coming soon". |
 | `manifest.webmanifest`, `sw.js`, `img/icons/` | PWA install + offline. **Bump `VERSION` in sw.js on every app change.** |
 | `card.html` + `card.js` | Pack Card maker (fun share; `?name=&species=` pre-fill). |
 | `privacy.html` | GDPR notice incl. on-device app data. Needs Shiv's full name + email when available. |
 | `site.css` / `site.js` | Shared brand styles; site.js used by card.html (challenge rotation, streak). |
-| `docs/build-prompt-v4-app.md`, `docs/spec-v1.1.md` | **App spec** v1 (draft → review → final) and v1.1 (4-role review → 2 builders). |
+| `docs/spec-v2-levelup.md` | **Current app spec** (v2 "Level up together" + the "1% better every day" addendum). Older: `docs/build-prompt-v4-app.md` (v1), `docs/spec-v1.1.md`. |
 | `js/install.js`, `img/screenshots/` | One-click install (Android prompt, iOS steps, in-app browser banner); manifest screenshots. |
 | `docs/learn-with-nova.md` | Training clip episode plans (shot lists). |
 | `docs/global-plan.md` | Growth/money plan (community parts now secondary). |
@@ -63,11 +63,13 @@ Handoff summary for Claude Code. Read this first, then `docs/00-master-brief.md`
   7. Photo quality, share image (needs an absolute URL), no favicon, the "Alpha Walker" title.
 - **Inconsistencies to resolve:** hashtags (use **#NewToThePack, #OffDuty, #GoldenHour**), Shout-out pick categories (use newcomer / most helpful / challenge favourite), the Founding Pack badge (should be the first 100 only), and phase numbering between docs.
 
-## Product (10 Oct 2026, latest): the pet care diary app
-- **The app is the product** (`index.html` = installable PWA): quick logs, vaccines/preventives/medicines with due lists and .ics reminders, food and treats, poop log with vet-first red flags, weight, vet summary, training library (`data/skills.js`, clips in `/clips/<id>.mp4`).
+## Product (10 Oct 2026, latest): "Level up together"
+- **The app is the product** (`index.html` = installable PWA): a real-life dog and human growth game. Your dog is your **partner** (stage, level 1–50, 5 stats); 13 skills level 0–5 at harder distraction levels with an honest self-check; badges at skill level 3; Adventure Book stamps; daily and weekly quests; **Trainer ranks** (Rookie → Handler → Coach → Mentor) from Academy lessons; shareable partner card.
+- **1% better every day:** "1% today" card (one step for your dog, one for you), daily Nova line (`data/quotes.js`), private Growth Journal, "1% a day adds up" chart, Samaritans link in More. No therapy language, no guilt.
+- **Health tab kept small:** vaccines/preventives/medicines with due lists and .ics reminders, food and treats, poop log with vet-first red flags, Unwell checklist, weight, vet summary.
+- **XP rules:** derived from logs, never stored; capped (3 sessions/skill/day, 2 walks/day, stamps and lessons once). Never XP for opens, likes or shares. No Pokémon names or art.
 - Data on the device (IndexedDB), no accounts, backup/export/delete. Never dosing advice or diagnosis.
-- Spec: `docs/build-prompt-v4-app.md`. Community, Discord and the Pack Card are secondary.
-- Usage: Shiv OK'd 2–3 agents for this build; otherwise build directly.
+- Spec: `docs/spec-v2-levelup.md`. Community, Discord and the Pack Card are secondary.
 
 ## Strategy (10 Oct 2026): worldwide, online-only
 - Reach: Instagram Reels (main), TikTok, YouTube Shorts, Facebook Reels: one video, four places. Home: **Discord** (18+). Hub: website + Pack Card.
