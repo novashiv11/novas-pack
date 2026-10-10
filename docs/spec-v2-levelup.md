@@ -120,3 +120,24 @@ Merge the existing Health, Food and poop log into one Health tab with segments: 
 - Export/import round-trip works, including the new stores; works offline.
 - No console errors or overflow at 320/375/390 in light and dark.
 - Independent QA: no Critical or Major issues.
+
+---
+
+## D. Addendum (Shiv, 10 Oct 2026): "1% better every day"
+
+The whole app is a journey: **small daily steps that make you better for your dog, and better yourself.** Calm, kind and motivating, never preachy or guilt-tripping.
+
+1. **The "1% today" card on Home** (top, above quests): one tiny action **for your dog** (from the daily quest) plus one tiny action **for you**, e.g. "Walk without your phone for 5 minutes", "Notice 3 things your dog did well", "Take 5 slow breaths before training", "Drink a glass of water before the walk", "Thank yourself for showing up". Tick both, and Nova says something warm. It's optional, with no penalty for skipping.
+2. **Daily line from Nova:** a rotating motivational line (one per day, the same for everyone that day) from a new `data/quotes.js`.
+   - **About 60 original lines in Nova's voice**, e.g. "1% better today is still better. I checked.", "Progress is a walk, not a sprint. Mostly a sniff.", "You showed up. That's the hardest trick."
+   - **At most 8 well-known quotes** with **correct, verifiable attribution** only (avoid common misattributions, e.g. the "We are what we repeatedly do" line is Will Durant, not Aristotle). If unsure, use an original line.
+   - Tap to share the line as a small image card.
+3. **Growth Journal** (private, on the device): an optional one-line evening prompt: "What went 1% better today, for you or your dog?" Weekly view: "This week you…" with the user's own words plus their logs.
+4. **The 1% curve:** on the Trainer screen, a simple chart of weeks showing how small daily steps compound: total sessions, skills levelled, adventures. Copy: "1% a day adds up." Real data only.
+5. **Wellbeing, gently and responsibly:**
+   - A "Why dogs are good for us" mini-lesson in the Academy: activity, routine, connection, with reputable sources only and **no medical claims**.
+   - A small "If things feel heavy" link in More: "Talking helps. In Ireland: Samaritans 116 123 (free, 24/7). Elsewhere: your local helpline or GP."
+   - No therapy language and no promises to "heal". The wording is "feel better", "build good days".
+6. **Tone everywhere:** celebrate effort, not perfection. Never shame missed days ("Welcome back. Today counts.").
+
+**Data:** `journal` store (`date`, `text`), `daily` store (`date`, `dogDone`, `youDone`); both included in export/import. Bump the sw.js VERSION and precache `data/quotes.js`.
