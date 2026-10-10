@@ -1,116 +1,171 @@
-// More: pets, units, backup and restore, install help, delete everything, links.
+// More: settings-style rows (Pets, Profile and contacts, Units, Backup, Install, Pack Card, Privacy, Delete all)
+// and their sub-pages (#/more/<page>).
 
-import { S, pet, setSetting, removePet, wipe, load, refresh, units } from "../state.js";
-import { h, put, em, toast, confirmBox, fmtDate, isoDate, ageText } from "../util.js";
+import { S, pet, setSetting, wipe, load, refresh, units, UI } from "../state.js";
+import { h, put, toast, confirmBox, fmtDate, isoDate, ageText, telHref, shareOrSave } from "../util.js";
 import { exportData, validateBackup, importData } from "../db.js";
-import { download } from "../ics.js";
-import { openPetSheet, speciesOf } from "../forms.js";
-import { pageHead, avatar, deleteSample } from "./parts.js";
+import { installCard, isStandalone } from "../install.js";
+import { openPetSheet, speciesOf, segmented, deletePetFlow } from "../forms.js";
+import { pageHead, subBar, avatar, chevron } from "./parts.js";
 
-export const APP_VERSION = "1.0";
+export const APP_VERSION = "1.1";
 const CARD_SPECIES = { dog: "dog", cat: "cat", rabbit: "small", bird: "bird", other: "other" };
 
-export function isStandalone() {
-  return matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
-}
 export function cardLink(p) {
   return `card.html?name=${encodeURIComponent(p.name.slice(0, 20))}&species=${CARD_SPECIES[p.species] || "other"}`;
 }
 
+/** "Back up now": the share sheet where the phone can take a file (Save to Files, email, Drive), else a download. */
 export async function exportBackup() {
   try {
     const data = await exportData();
-    download(`novas-pack-backup-${isoDate()}.json`, JSON.stringify(data, null, 1), "application/json");
+    const how = await shareOrSave(`novas-pack-backup-${isoDate()}.json`, JSON.stringify(data, null, 1), "application/json", "Nova's Pack backup");
+    if (how === "cancelled") return;
     await setSetting("lastBackup", Date.now(), { quiet: false });
-    toast("Backup saved to your downloads. Keep it somewhere safe, like your cloud drive or email.");
+    toast(how === "shared" ? "Backup shared. Keep it somewhere safe, like your email or cloud drive." : "Backup saved to your downloads. Keep a copy in your email or cloud drive.");
   } catch { toast("Couldn't make the backup file."); }
 }
 
+const PAGES = { pets, profile, units: unitsPage, backup, install, sources };
+
 export function more(main, arg) {
+  if (PAGES[arg]) { PAGES[arg](main); return; }
+  const p = pet();
   const u = units();
-  const persisted = h("span", "Checking…");
-  if (navigator.storage && navigator.storage.persisted) {
-    navigator.storage.persisted().then((v) => { persisted.textContent = v ? "Protected: your browser won't clear it to free up space." : "Not protected yet. Install the app (below) and back up now and then."; }).catch(() => { persisted.textContent = "Unknown."; });
-  } else persisted.textContent = "Unknown on this browser. Back up now and then.";
-
-  const impForm = importForm("merge");
-
-  const installBtn = S.installPrompt ? h("button.btn.btn-blue", { type: "button", onclick: async () => {
-    const ev = S.installPrompt; S.installPrompt = null;
-    ev.prompt();
-    try { await ev.userChoice; } catch { /* ignore */ }
-    refresh();
-  } }, "Install Nova's Pack") : null;
-
-  put(main, 
+  const row = (icon, label, value, href, k) => h("li", h("a.set-row", { href, "data-k": k },
+    h("span.set-ico", { "aria-hidden": "true" }, icon), h("span.set-label", label), value ? h("span.set-value", value) : null, chevron()));
+  const sample = S.pets.find((x) => x.sample);
+  put(main,
     pageHead("More"),
-    h("section.sec", { "aria-labelledby": "h-pets" },
-      h("div.sec-row", h("h2.sec-title", { id: "h-pets" }, "Pets"),
-        h("button.btn.btn-blue.sm", { type: "button", "data-k": "add-pet", onclick: () => openPetSheet() }, "Add a pet")),
-      h("ul.pet-list", S.pets.map((p) => h("li.card.pet-row",
-        h("div.pet-row-top", avatar(p, 48), h("div",
-          h("h3", p.name, p.sample ? h("span.sample-tag", "SAMPLE") : null),
-          h("p.small.muted", [speciesOf(p.species).label, ageText(p.birthday)].filter(Boolean).join(" · ")))),
-        h("div.row-btns.left",
-          h("button.btn.btn-line.sm", { type: "button", "data-k": `edit-pet-${p.id}`, onclick: () => openPetSheet(p) }, "Edit", h("span.vh", ` ${p.name}`)),
-          h("a.btn.btn-line.sm", { href: cardLink(p) }, "Make a Pack Card", h("span.vh", ` for ${p.name}`)),
-          h("button.btn.btn-line.sm", { type: "button", onclick: () => (p.sample ? deleteSample() : deletePet(p)) }, "Delete", h("span.vh", ` ${p.name}`))))))),
-    h("section.sec", { "aria-labelledby": "h-units" },
-      h("h2.sec-title", { id: "h-units" }, "Units"),
-      h("div.seg-btns", { role: "group", "aria-label": "Weight units" }, [["kg", "Kilograms (kg)"], ["lb", "Pounds (lb)"]].map(([x, l]) =>
-        h("button", { type: "button", "aria-pressed": String(x === u), "data-k": `units-${x}`, onclick: () => setSetting("units", x, { quiet: false }) }, l)))),
-    h("section.sec", { id: "backup", "aria-labelledby": "h-backup" },
-      h("h2.sec-title", { id: "h-backup" }, em("💾"), " Backup"),
-      h("p", "Your diary lives only on this device. A backup is one file you can keep in your email or cloud drive, and import on a new phone."),
-      h("p.small.muted", S.settings.lastBackup ? `Last backup: ${fmtDate(S.settings.lastBackup)}.` : "No backup yet."),
-      h("p.small.muted", h("b", "Storage: "), persisted),
-      h("button.btn.btn-blue", { type: "button", "data-k": "export", onclick: exportBackup }, "Export backup"),
-      h("details.more-box", h("summary", "Import a backup"), impForm)),
-    h("section.sec", { id: "install", "aria-labelledby": "h-install" },
-      h("h2.sec-title", { id: "h-install" }, em("📲"), " Install the app"),
-      isStandalone() ? h("p", "Installed. Nice.") : h("p", "Free, no app store. Installed, it opens like an app, works offline and your phone is less likely to clear it."),
-      installBtn,
-      isStandalone() ? null : h("ul.install-steps",
-        h("li", h("b", "iPhone or iPad (Safari): "), "tap Share, then ", h("b", "Add to Home Screen"), "."),
-        h("li", h("b", "Android (Chrome): "), "tap the ⋮ menu, then ", h("b", "Install app"), " or ", h("b", "Add to Home screen"), "."))),
-    h("section.sec", { "aria-labelledby": "h-pack" },
-      h("h2.sec-title", { id: "h-pack" }, "Nova's Pack"),
-      h("ul.link-list",
-        pet() ? h("li", h("a", { href: cardLink(pet()) }, em("🪪"), ` Make a Pack Card for ${pet().name}`)) : null,
-        h("li", h("a", { href: "https://www.instagram.com/novathehumanhandler/", rel: "noopener" }, em("📸"), " Follow Nova on Instagram")),
-        h("li", h("a", { href: "privacy.html" }, em("🔒"), " Privacy notice"))),
-      S.content.SOURCES.length ? h("details.more-box",
-        h("summary", "Where the care info comes from"),
-        h("ul.src-list", S.content.SOURCES.map((s) => h("li", h("a", { href: s.url, rel: "noopener" }, s.title))))) : null),
-    h("section.sec.danger-zone", { "aria-labelledby": "h-del" },
-      h("h2.sec-title", { id: "h-del" }, "Delete everything"),
-      h("p", "Removes every pet and every entry from this device. It can't be undone, so export a backup first if you might want it back."),
-      h("button.btn.btn-danger", { type: "button", "data-k": "wipe", onclick: deleteAll }, "Delete all data")),
-    h("p.small.muted.version", `Nova's Pack ${APP_VERSION} · No account, no tracking, no data leaves this device.`),
+    UI.applyUpdate ? h("aside.nudge", h("p", h("b", "Update ready."), " Same diary, fresh paint."),
+      h("div.row-btns.left", h("button.btn.btn-blue.sm", { type: "button", onclick: () => UI.applyUpdate() }, "Update now"))) : null,
+    h("section.set-group", { "aria-labelledby": "g-pets" },
+      h("h2.set-h", { id: "g-pets" }, "Your pets"),
+      h("ul.set-list",
+        row("🐾", "Pets", String(S.pets.length), "#/more/pets", "m-pets"),
+        row("📇", "Profile and contacts", p ? p.name : "", "#/more/profile", "m-profile"))),
+    h("section.set-group", { "aria-labelledby": "g-app" },
+      h("h2.set-h", { id: "g-app" }, "App"),
+      h("ul.set-list",
+        row("⚖️", "Units", u, "#/more/units", "m-units"),
+        row("💾", "Backup", S.settings.lastBackup ? fmtDate(S.settings.lastBackup, { day: "numeric", month: "short" }) : "Never", "#/more/backup", "m-backup"),
+        row("📲", "Install", isStandalone() ? "Installed" : "", "#/more/install", "m-install"))),
+    h("section.set-group", { "aria-labelledby": "g-pack" },
+      h("h2.set-h", { id: "g-pack" }, "Nova's Pack"),
+      h("ul.set-list",
+        p ? row("🪪", "Pack Card", p.name, cardLink(p), "m-card") : null,
+        row("🔒", "Privacy", "", "privacy.html", "m-privacy"),
+        S.content.SOURCES.length ? row("📚", "Where the care info comes from", "", "#/more/sources", "m-sources") : null,
+        h("li", h("a.set-row", { href: "https://www.instagram.com/novathehumanhandler/", rel: "noopener" },
+          h("span.set-ico", { "aria-hidden": "true" }, "📸"), h("span.set-label", "Follow Nova on Instagram"), chevron())))),
+    h("section.set-group", { "aria-labelledby": "g-del" },
+      h("h2.set-h", { id: "g-del" }, "Delete"),
+      h("ul.set-list",
+        sample ? h("li", h("button.set-row", { type: "button", "data-k": "m-del-sample", onclick: () => deletePetFlow(sample) },
+          h("span.set-ico", { "aria-hidden": "true" }, "🧹"), h("span.set-label", "Delete the sample diary"), chevron())) : null,
+        h("li", h("button.set-row.danger", { type: "button", "data-k": "wipe", onclick: deleteAll },
+          h("span.set-ico", { "aria-hidden": "true" }, "🗑️"), h("span.set-label", "Delete all data"), chevron())))),
+    h("p.small.muted.version", `Nova's Pack ${APP_VERSION} · No account, no tracking. Your diary never leaves this device.`),
   );
-  if (arg === "install" || arg === "backup") requestAnimationFrame(() => { const el = document.getElementById(arg); if (el) el.scrollIntoView({ block: "start" }); });
 }
 
-/** The import form (More, and "Restore a backup" on the first-run screen). */
+// ---------- sub-pages ----------
+function pets(main) {
+  put(main,
+    subBar("Pets", "#/more", "Back to More"),
+    h("ul.set-list.pet-rows", S.pets.map((p) => h("li",
+      h("button.set-row.pet-row", { type: "button", "data-k": `edit-pet-${p.id}`, onclick: () => openPetSheet(p) },
+        avatar(p, 40),
+        h("span.set-label", h("b", p.name), h("span.small.muted.block", [p.sample ? "Sample" : "", speciesOf(p.species).label, ageText(p.birthday)].filter(Boolean).join(" · "))),
+        h("span.vh", ", edit"), chevron())))),
+    h("div.top-actions", h("button.btn.btn-blue", { type: "button", "data-k": "add-pet", onclick: () => openPetSheet() }, "Add a pet")),
+    h("p.small.muted", "Tap a pet to edit, add a photo, or delete."));
+}
+
+function profile(main) {
+  const p = pet();
+  const v = p.vet || {}, ins = p.insurer || {}, chip = p.microchip || {};
+  const call = (num) => (telHref(num) ? h("a.call-link", { href: telHref(num) }, num) : num);
+  const item = (k, ...val) => {
+    const has = val.some((x) => x);
+    return h("div.pf-row", h("dt", k), h("dd", has ? val.filter(Boolean).flatMap((x, i) => (i ? [" · ", x] : [x])) : h("span.muted", "Not added")));
+  };
+  const neu = p.neutered;
+  put(main,
+    subBar("Profile and contacts", "#/more", "Back to More"),
+    h("p.pf-for", avatar(p, 32), h("span", "For ", h("b", p.name))),
+    h("section.sec", { "aria-labelledby": "pf-vet" }, h("h2.sec-title", { id: "pf-vet" }, "Vet and insurance"),
+      h("dl.pf-list",
+        item("Vet", v.name, v.phone ? call(v.phone) : ""),
+        item("Emergency vet", v.emergencyPhone ? call(v.emergencyPhone) : ""),
+        item("Insurer", ins.name, ins.policy ? `policy ${ins.policy}` : "", ins.renewal ? `renews ${fmtDate(ins.renewal)}` : ""))),
+    h("section.sec", { "aria-labelledby": "pf-chip" }, h("h2.sec-title", { id: "pf-chip" }, "Microchip"),
+      h("dl.pf-list",
+        item("Number", chip.number), item("Registry", chip.registry),
+        item("Details checked", chip.checkedOn ? fmtDate(chip.checkedOn) : ""))),
+    h("section.sec", { "aria-labelledby": "pf-health" }, h("h2.sec-title", { id: "pf-health" }, "Health notes"),
+      h("dl.pf-list",
+        item("Sex", p.sex === "male" ? "Male" : p.sex === "female" ? "Female" : ""),
+        item("Neutered", neu ? (neu.yes ? `Yes${neu.date ? `, ${fmtDate(neu.date)}` : ""}` : "No") : ""),
+        ["dog", "cat", "rabbit"].includes(p.species) && !(neu && neu.yes) && p.sex !== "male" ? item("Last season", p.lastSeason ? fmtDate(p.lastSeason) : "") : null,
+        item("Allergies", p.allergies), item("Conditions", p.conditions))),
+    h("div.top-actions", h("button.btn.btn-blue", { type: "button", "data-k": "edit-profile", onclick: () => openPetSheet(p, { openProfile: true }) }, "Edit profile")),
+    h("p.small.muted", "It's on the vet summary, and the vet's numbers show as call buttons if Nova ever says to call. Stays on this device."));
+}
+
+function unitsPage(main) {
+  put(main,
+    subBar("Units", "#/more", "Back to More"),
+    h("div.sec", segmented("units", "Weight units", [["kg", "Kilograms (kg)"], ["lb", "Pounds (lb)"]], units(), (x) => setSetting("units", x, { quiet: false }))));
+}
+
+function backup(main) {
+  const persisted = h("span", "Checking…");
+  if (navigator.storage && navigator.storage.persisted) {
+    navigator.storage.persisted().then((v) => { persisted.textContent = v ? "Protected: your browser won't clear it to free up space." : "Not protected yet. Install the app and back up now and then."; }).catch(() => { persisted.textContent = "Unknown."; });
+  } else persisted.textContent = "Unknown on this browser. Back up now and then.";
+  put(main,
+    subBar("Backup", "#/more", "Back to More"),
+    h("section.sec",
+      h("p", "Your diary lives only on this device. A backup is one file you keep in your email or cloud drive, and import on a new phone."),
+      h("p.small.muted", S.settings.lastBackup ? `Last backup: ${fmtDate(S.settings.lastBackup)}.` : "No backup yet."),
+      h("p.small.muted", h("b", "Storage: "), persisted),
+      h("button.btn.btn-blue", { type: "button", "data-k": "export", onclick: exportBackup }, "Back up now")),
+    h("details.more-box", h("summary", "Import a backup"), importForm("merge")));
+}
+
+function install(main) {
+  let card = null;
+  try { card = installCard(); } catch { card = null; }
+  put(main,
+    subBar("Install the app", "#/more", "Back to More"),
+    h("section.sec",
+      isStandalone() ? h("p", "Installed. Nice. Your diary opens like an app and works offline.")
+        : h("p", "Free, no app store. Installed, it opens like an app, works offline, and your phone is less likely to clear it."),
+      card,
+      isStandalone() ? null : h("ul.install-steps",
+        h("li", h("b", "iPhone or iPad (Safari): "), "tap Share, then ", h("b", "Add to Home Screen"), "."),
+        h("li", h("b", "Android (Chrome): "), "tap the ⋮ menu, then ", h("b", "Install app"), " or ", h("b", "Add to Home screen"), "."))));
+}
+
+function sources(main) {
+  put(main,
+    subBar("Sources", "#/more", "Back to More"),
+    h("p.small.muted", "Where the care info comes from. General information only: your vet decides your pet's care."),
+    h("ul.src-list", S.content.SOURCES.map((s) => h("li", h("a", { href: s.url, rel: "noopener" }, s.title)))));
+}
+
+/** The import form (More → Backup, and "Restore a backup" on the first-run screen). */
 export function importForm(defaultMode) {
   const file = h("input", { type: "file", id: "imp-file", accept: "application/json,.json" });
   const msg = h("p.form-error", { role: "alert" });
-  const radio = (v, label) => h("div.check",
-    h("input", { type: "radio", name: "mode", id: `mode-${v}`, value: v, checked: v === defaultMode }), h("label", { for: `mode-${v}` }, label));
   const form = h("form.form", { novalidate: true, onsubmit: (e) => { e.preventDefault(); importFile(file, form, msg); } },
     h("div.field", h("label", { for: "imp-file" }, "Backup file (.json)"), file),
-    S.pets.length ? h("fieldset.fs", h("legend", "When importing"),
-      h("div.checks", radio("merge", "Merge: add it to what's here"), radio("replace", "Replace: wipe this device first"))) : null,
+    S.pets.length ? segmented("mode", "When importing", [["merge", "Merge"], ["replace", "Replace"]], defaultMode) : null,
+    S.pets.length ? h("p.hint", "Merge adds it to what's here. Replace wipes this device first.") : null,
     msg,
     h("button.btn.btn-line", { type: "submit", "data-k": "imp-go" }, "Import backup"));
   return form;
-}
-
-async function deletePet(p) {
-  if (!(await confirmBox(`Delete ${p.name}?`, `${p.name} and everything logged for them will be removed from this device.`, "Delete", true))) return;
-  await removePet(p.id);
-  toast(`${p.name} deleted.`);
-  if (!S.pets.length) location.hash = "#/welcome"; else refresh();
 }
 
 async function deleteAll() {

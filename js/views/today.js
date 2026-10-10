@@ -4,9 +4,9 @@
 
 import { S, pet, eventsOf, setSetting, logsOf, refresh, UI } from "../state.js";
 import { h, put, em, fmtDate, isoDate, startOfDay, nextDayStart, DAY, toast, motionOK } from "../util.js";
-import { dueItems, dueText, poopWeek, scaleFor, freqText, medIsActive, healthAlerts } from "../logic.js";
+import { dueItems, dueText, poopWeek, scaleFor, freqText, healthAlerts, backupDue } from "../logic.js";
 import { eventSheet, unwellSheet, logPoop, logMeal, logTreat, logWalk, logTraining, logMed, markGiven, medSheet, deleteMed, calMed,
-  calRecord, doneRecord, editRecord, deleteRecord, careTaskOf, petForm } from "../forms.js";
+  calRecord, calCare, doneRecord, editRecord, deleteRecord, careDue, careSheet, markCareDone, everyText, petForm } from "../forms.js";
 import { pageHead, subBar, sampleStrip, alertCard, emptyState, eventList, agoSpan, vetFirst, moreBtn, cardTitle, chevron, NOVA } from "./parts.js";
 import { addSample } from "../sample.js";
 import { exportBackup, importForm, cardLink } from "./more.js";
@@ -25,7 +25,8 @@ const TILES = [
 export function today(main) {
   const p = pet();
   const now = Date.now();
-  const items = dueItems(p.id);
+  const late = (it) => (it.kind === "med" ? it.st.overdue : it.st.state === "overdue");
+  const items = [...dueItems(p.id), ...careDue(p)].map((it, i) => [it, i]).sort((a, b) => late(b[0]) - late(a[0]) || a[1] - b[1]).map(([it]) => it);
   const logs = logsOf(p.id);
   const coachFirst = !p.sample && !logs.length;
   const todays = S.events.filter((e) => e.petId === p.id && e.at >= startOfDay(now) && e.at < nextDayStart(now)).sort((a, b) => b.at - a.at);
@@ -54,7 +55,7 @@ function novaSays(p, items, logs) {
   if (!p.sample && !logs.length) return line(`Log ${p.name}'s last meal. One tap.`);
   const hasRecords = S.records.some((r) => r.petId === p.id);
   if (!p.sample && !hasRecords && logs.length <= 5) return line("Nice. Add vaccines next? ", h("a", { href: "#/health/vaccines" }, "Go to Health"));
-  if (items.some((it) => (it.kind === "record" ? it.st.state === "overdue" : it.st.overdue))) return line("Something's late. I'm not judging. Much.");
+  if (items.some((it) => (it.kind === "med" ? it.st.overdue : it.st.state === "overdue"))) return line("Something's late. I'm not judging. Much.");
   if (items.length) return line(`${items.length === 1 ? "One thing" : `${items.length} things`} due soon. I'm keeping count.`);
   return line("Nothing due. I checked twice.");
 }
@@ -84,12 +85,23 @@ function dueSection(p, items) {
 }
 
 function dueCard(p, it) {
-  if (it.kind === "record") {
-    const r = it.rec;
-    const task = careTaskOf(p, r);
+  if (it.kind === "care") {
+    const t = it.task;
     return h(`li.card.due-card.${it.st.state}`,
       h("div.due-top",
-        h("span.due-em", { "aria-hidden": "true" }, task ? "✨" : r.kind === "vaccine" ? "💉" : "🛡️"),
+        h("span.due-em", { "aria-hidden": "true" }, "✨"),
+        h("div.due-body",
+          cardTitle(t.name, () => careSheet(t), `due-care-${t.id}`),
+          h("p.due-when", h("b", dueText(it.st)), ` · ${everyText(t).toLowerCase()}`))),
+      h("div.card-actions",
+        h("button.btn.btn-blue.sm", { type: "button", "data-k": `cdone-${t.id}`, onclick: () => markCareDone(p, t) }, "Mark done", h("span.vh", `: ${t.name}`)),
+        moreBtn(t.name, [["Change last done", () => careSheet(t)], ["Add to calendar", () => calCare(p, t, it.nextDue)]])));
+  }
+  if (it.kind === "record") {
+    const r = it.rec;
+    return h(`li.card.due-card.${it.st.state}`,
+      h("div.due-top",
+        h("span.due-em", { "aria-hidden": "true" }, r.kind === "vaccine" ? "💉" : "🛡️"),
         h("div.due-body",
           cardTitle(r.name, () => editRecord(r), `due-edit-${r.id}`),
           h("p.due-when", h("b", dueText(it.st)), ` · ${fmtDate(r.nextDue, { day: "numeric", month: "short" })}`))),
@@ -121,8 +133,7 @@ function nudge(p) {
   try { card = installCard(); } catch { card = null; }
   if (card) return h("div.nudge-slot", card);
   const now = Date.now();
-  const since = Math.max(S.settings.lastBackup || 0, S.settings.backupSnooze || 0);
-  if (logs.length >= 3 && now - since > 14 * DAY) {
+  if (backupDue(now)) {
     return h("aside.nudge", { "aria-labelledby": "nudge-h" },
       h("h2.nudge-h", { id: "nudge-h" }, "Back up the diary?"),
       h("p", S.settings.lastBackup ? `Last backup ${fmtDate(S.settings.lastBackup, { day: "numeric", month: "short" })}. ` : "It lives only on this phone. ",
@@ -211,7 +222,8 @@ export function welcome(main, arg) {
 // ---------- app-shell hooks ----------
 
 /** #/quick/<type> (home-screen shortcuts) lands here, after app.js has drawn Today. */
-const QUICK = { poop: logPoop, meal: logMeal, treat: logTreat, walk: logWalk, training: logTraining, med: logMed, medicine: logMed, unwell: () => unwellSheet(), symptom: () => unwellSheet() };
+const QUICK = { poop: logPoop, meal: logMeal, treat: logTreat, walk: logWalk, training: logTraining, med: logMed, medicine: logMed,
+  unwell: () => unwellSheet(), symptom: () => unwellSheet(), weight: () => eventSheet("weight"), vet: () => eventSheet("vet") };
 export function openQuickLog(type) {
   if (!pet()) return;
   const fn = QUICK[String(type || "").toLowerCase()];
@@ -223,12 +235,6 @@ function showUpdateReady(apply) {
   UI.applyUpdate = apply;
   toast("Update ready. Same diary, fresh paint.", [["Update now", () => apply()]], { ms: 20000 });
   if (/^#\/more/.test(location.hash) && !document.querySelector("dialog[open]")) refresh();
-}
-let updateHooked = false;
-function hookUpdates() {
-  if (updateHooked || typeof window.NP_onUpdateReady !== "function") return;
-  updateHooked = true;
-  window.NP_onUpdateReady(showUpdateReady);
 }
 
 function mountInAppBanner() {
@@ -254,8 +260,7 @@ function crossFade(e) {
   }));
 }
 
-hookUpdates();
-document.addEventListener("DOMContentLoaded", () => { hookUpdates(); mountInAppBanner(); });
-addEventListener("load", hookUpdates);
-if (document.readyState !== "loading") mountInAppBanner();
+// install.js (loaded first) queues early callers until app.js takes over the hook, so one call is enough.
+if (typeof window.NP_onUpdateReady === "function") window.NP_onUpdateReady(showUpdateReady);
+if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", mountInAppBanner); else mountInAppBanner();
 document.addEventListener("click", crossFade);

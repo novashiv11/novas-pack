@@ -1,60 +1,89 @@
-// Health: vaccines and preventives, medicines, weight (with a chart), vet visits, and the printable vet summary.
+// Health: vaccines, preventives and the care routine, medicines, weight (with a chart), vet visits,
+// and the printable vet summary.
 
-import { pet, eventsOf, forPet, units, setSetting, save } from "../state.js";
-import { h, put, em, fmtDate, fmtTime, isoDate, uid, toast, ageText, DAY } from "../util.js";
+import { S, pet, eventsOf, forPet, units, setSetting, save } from "../state.js";
+import { h, put, em, fmtDate, fmtTime, isoDate, uid, toast, ageText, DAY, telHref } from "../util.js";
 import { currentRecords, historyOf, recordStatus, dueText, medStatus, medIsActive, freqText, dosesOf, fmtWeight, toUnit, fromUnit, flagLabel, scaleFor } from "../logic.js";
-import { recordSheet, markRecordDone, medSheet, markGiven, eventSheet, speciesOf, slug } from "../forms.js";
-import { pageHead, sampleBanner, emptyState, vetFirst, eventList, avatar } from "./parts.js";
-import { calRecord } from "./today.js";
-import * as ics from "../ics.js";
+import { recordSheet, medSheet, markGiven, eventSheet, speciesOf, doneRecord, deleteRecord, deleteMed, calRecord, calMed, calAllDue, CAL_NOTE,
+  careTasksFor, careStatus, careSheet, markCareDone, calCare, everyText, segmented, symptomLabel } from "../forms.js";
+import { pageHead, subBar, sampleStrip, emptyState, vetFirst, eventList, avatar, moreBtn, cardTitle } from "./parts.js";
 
-const TABS = [["vaccines", "Vaccines"], ["meds", "Medicines"], ["weight", "Weight"], ["vet", "Vet"]];
+const TABS = [["vaccines", "Vaccines"], ["meds", "Meds"], ["weight", "Weight"], ["vet", "Vet"]];
 
 export function health(main, arg) {
   const p = pet();
   const tab = TABS.some(([k]) => k === arg) ? arg : "vaccines";
-  put(main, 
-    sampleBanner(p),
-    pageHead("Health", p.name),
-    h("nav.tabs", { "aria-label": "Health sections" }, TABS.map(([k, label]) =>
-      h("a", { href: `#/health/${k}`, "aria-current": k === tab ? "page" : null }, label))),
-  );
+  put(main,
+    sampleStrip(p),
+    pageHead("Health"),
+    h("nav.seg.seg-nav", { "aria-label": "Health sections" }, TABS.map(([k, label]) =>
+      h("a", { href: `#/health/${k}`, "aria-current": k === tab ? "page" : null }, label))));
   ({ vaccines, meds, weight, vet })[tab](main, p);
   put(main, vetFirst());
 }
 
-// ---------- vaccines and preventives ----------
+const pillFor = (st) => (st.state === "overdue" ? ["overdue", dueText(st)] : st.state === "today" ? ["today", "Due today"] : st.state === "soon" ? ["soon", dueText(st)] : st.state === "later" ? ["ok", "Up to date"] : ["none", "No next date"]);
+const isDueish = (st) => st.state === "overdue" || st.state === "today" || st.state === "soon";
+/** The bottom row of a card: its one primary button (if any) and ⋯. Without a primary, the meta line sits beside ⋯. */
+const actionsRow = (primary, more, meta) => (primary
+  ? [meta, h("div.card-actions", primary, more)]
+  : h("div.card-actions", meta ? h("div.card-meta", meta) : null, more));
+
+// ---------- vaccines, preventives and the care routine ----------
 function vaccines(main, p) {
   const cur = currentRecords(p.id);
-  put(main, h("div.row-btns.left.top-actions",
+  put(main, h("div.top-actions",
     h("button.btn.btn-blue", { type: "button", "data-k": "add-rec", onclick: () => recordSheet() }, em("➕"), " Add vaccine or preventive")));
   for (const [kind, title] of [["vaccine", "Vaccines"], ["preventive", "Flea, worm and other preventives"]]) {
     const list = cur.filter((r) => r.kind === kind);
     put(main, h("section.sec", { "aria-labelledby": `h-${kind}` },
-      h("h2.sec-title", { id: `h-${kind}` }, em(kind === "vaccine" ? "💉" : "🛡️"), " ", title),
+      h("h2.sec-title", { id: `h-${kind}` }, title),
       list.length ? h("ul.cards", list.map((r) => recCard(p, r))) : emptyState(kind === "vaccine"
         ? "Nothing yet. Copy the last ones from the vaccination card or pet passport."
         : "Nothing yet. Add flea, tick or worm treatments to see when they're due.")));
   }
+  put(main, careRoutine(p),
+    h("section.sec.cal-sec", { "aria-labelledby": "h-cal" },
+      h("h2.sec-title", { id: "h-cal" }, "Reminders"),
+      h("p", CAL_NOTE, " One calendar file adds every upcoming due date, with an alarm the day before."),
+      h("button.btn.btn-line", { type: "button", "data-k": "cal-all", onclick: () => calAllDue(p) }, em("📅"), " Add all due dates to my calendar")));
 }
+
 function recCard(p, r) {
   const st = recordStatus(r);
   const hist = historyOf(r);
-  const pill = st.state === "overdue" ? ["overdue", dueText(st)] : st.state === "today" ? ["today", "Due today"] : st.state === "soon" ? ["soon", dueText(st)] : st.state === "later" ? ["ok", "Up to date"] : ["none", "No next date"];
+  const pill = pillFor(st);
   return h("li.card",
-    h("div.card-top", h("h3", r.name), h(`span.pill.${pill[0]}`, pill[1])),
-    h("p.small", `Given ${r.given ? fmtDate(r.given) : "date unknown"}`, r.nextDue ? ` · Next due ${fmtDate(r.nextDue)}` : ""),
+    h("div.card-top", cardTitle(r.name, () => recordSheet(r), `edit-${r.id}`), h(`span.pill.${pill[0]}`, pill[1])),
     r.note ? h("p.small.muted", r.note) : null,
-    h("div.row-btns.left",
-      st.state === "overdue" || st.state === "today" || st.state === "soon"
-        ? h("button.btn.btn-gold.sm", { type: "button", "data-k": `done-${r.id}`, onclick: () => markRecordDone(r) }, "Mark done", h("span.vh", `: ${r.name}`)) : null,
-      r.nextDue ? h("button.btn.btn-line.sm", { type: "button", onclick: () => calRecord(p, r) }, "Add to calendar", h("span.vh", `: ${r.name}`)) : null,
-      h("button.btn.btn-line.sm", { type: "button", "data-k": `edit-${r.id}`, onclick: () => recordSheet(r) }, "Edit", h("span.vh", `: ${r.name}`))),
+    actionsRow(
+      isDueish(st) ? h("button.btn.btn-blue.sm", { type: "button", "data-k": `done-${r.id}`, onclick: () => doneRecord(r) }, "Mark done", h("span.vh", `: ${r.name}`)) : null,
+      moreBtn(r.name, [["Edit", () => recordSheet(r)], r.nextDue ? ["Add to calendar", () => calRecord(p, r)] : null, ["Delete", () => deleteRecord(r), { danger: true }]]),
+      h("p.small", `Given ${r.given ? fmtDate(r.given) : "date unknown"}`, r.nextDue ? ` · Next due ${fmtDate(r.nextDue)}` : "")),
     hist.length > 1 ? h("details.mini",
       h("summary", `History (${hist.length})`),
       h("ul.hist", hist.map((x) => h("li",
-        `${x.given ? fmtDate(x.given) : "?"}${x.nextDue ? ` → next ${fmtDate(x.nextDue)}` : ""} `,
-        h("button.mini-btn", { type: "button", onclick: () => recordSheet(x) }, "Edit", h("span.vh", ` ${x.name} given ${x.given || ""}`)))))) : null);
+        h("button.hist-row", { type: "button", onclick: () => recordSheet(x) },
+          `${x.given ? fmtDate(x.given) : "?"}${x.nextDue ? ` → next ${fmtDate(x.nextDue)}` : ""}`, h("span.vh", ", edit")))))) : null);
+}
+
+function careRoutine(p) {
+  const tasks = careTasksFor(p);
+  if (!tasks.length) return null;
+  return h("section.sec", { id: "care", "aria-labelledby": "h-care" },
+    h("h2.sec-title", { id: "h-care" }, "Care routine"),
+    h("p.small.muted", "Suggestions only. Track the ones you do, and they show in Due when they come round."),
+    h("ul.cards", tasks.map((t) => {
+      const cs = careStatus(p, t);
+      const pill = cs ? pillFor(cs.st) : ["none", "Not tracked"];
+      return h("li.card.care-card",
+        h("div.card-top", cardTitle(t.name, () => careSheet(t), `care-${t.id}`), h(`span.pill.${pill[0]}`, pill[1])),
+        actionsRow(
+          !cs ? h("button.btn.btn-line.sm", { type: "button", "data-k": `track-${t.id}`, onclick: () => careSheet(t) }, "Track it", h("span.vh", `: ${t.name}`))
+            : isDueish(cs.st) ? h("button.btn.btn-blue.sm", { type: "button", "data-k": `cdone-${t.id}`, onclick: () => markCareDone(p, t) }, "Mark done", h("span.vh", `: ${t.name}`)) : null,
+          cs ? moreBtn(t.name, [["Change last done", () => careSheet(t)], ["Add to calendar", () => calCare(p, t, cs.nextDue)]]) : null,
+          h("p.small.muted", everyText(t), cs ? ` · last done ${fmtDate(cs.last, { day: "numeric", month: "short" })}` : "")));
+    })));
 }
 
 // ---------- medicines ----------
@@ -62,12 +91,12 @@ function meds(main, p) {
   const all = forPet("meds");
   const active = all.filter((m) => medIsActive(m) || (m.start && m.start > isoDate()));
   const past = all.filter((m) => !active.includes(m));
-  put(main, 
-    h("div.row-btns.left.top-actions",
+  put(main,
+    h("div.top-actions",
       h("button.btn.btn-blue", { type: "button", "data-k": "add-med", onclick: () => medSheet() }, em("➕"), " Add a medicine")),
     h("p.note-line", em("✍️"), " Type the dose exactly as your vet wrote it. Nova's Pack never suggests a dose."),
     h("section.sec", { "aria-labelledby": "h-meds" },
-      h("h2.sec-title", { id: "h-meds" }, em("💊"), " Current medicines"),
+      h("h2.sec-title", { id: "h-meds" }, "Current medicines"),
       active.length ? h("ul.cards", active.map((m) => medCard(p, m))) : emptyState("No current medicines.")),
     past.length ? h("details.more-box",
       h("summary", `Finished medicines (${past.length})`),
@@ -77,23 +106,18 @@ function medCard(p, m) {
   const st = medStatus(m);
   const last = dosesOf(m)[0];
   let status = "Finished";
-  if (st.active) status = st.daily ? `${st.given} of ${st.need} given today` : st.due ? (st.overdue ? "Overdue" : "Due today") : st.dueDate ? `Next ${fmtDate(st.dueDate, { day: "numeric", month: "short" })}` : "Done";
-  else if (m.start && m.start > isoDate()) status = `Starts ${fmtDate(m.start)}`;
+  if (st.active) status = st.daily ? `${st.given} of ${st.need} today` : st.due ? (st.overdue ? "Overdue" : "Due today") : st.dueDate ? `Next ${fmtDate(st.dueDate, { day: "numeric", month: "short" })}` : "Done";
+  else if (m.start && m.start > isoDate()) status = `Starts ${fmtDate(m.start, { day: "numeric", month: "short" })}`;
+  const upcoming = st.active || (m.start && m.start > isoDate());
   return h("li.card",
-    h("div.card-top", h("h3", m.name), h(`span.pill.${st.due ? (st.overdue ? "overdue" : "today") : "ok"}`, status)),
+    h("div.card-top", cardTitle(m.name, () => medSheet(m), `edit-${m.id}`), h(`span.pill.${st.due ? (st.overdue ? "overdue" : "today") : "ok"}`, status)),
     h("p.small", h("b", "Dose: "), m.dose || "not written down"),
     h("p.small.muted", `${freqText(m)}${m.times && m.times.length && m.freq !== "weekly" && m.freq !== "monthly" ? ` at ${m.times.slice(0, m.freq === "twice" ? 2 : 1).join(" and ")}` : ""} · from ${m.start ? fmtDate(m.start) : "?"}${m.end ? ` to ${fmtDate(m.end)}` : ""}`),
-    last ? h("p.small.muted", `Last given ${fmtDate(last.at, { day: "numeric", month: "short" })} at ${fmtTime(last.at)}`) : null,
     m.note ? h("p.small.muted", m.note) : null,
-    h("div.row-btns.left",
-      st.active ? h("button.btn.btn-gold.sm", { type: "button", "data-k": `give-${m.id}`, onclick: () => markGiven(m) }, "Mark given", h("span.vh", `: ${m.name}`)) : null,
-      st.active || (m.start && m.start > isoDate()) ? h("button.btn.btn-line.sm", { type: "button", onclick: () => calMed(p, m) }, "Add to calendar", h("span.vh", `: ${m.name}`)) : null,
-      h("button.btn.btn-line.sm", { type: "button", "data-k": `edit-${m.id}`, onclick: () => medSheet(m) }, "Edit", h("span.vh", `: ${m.name}`))));
-}
-function calMed(p, m) {
-  const text = ics.medEvents({ uid: m.id, title: `${p.name}: ${m.name}`, start: m.start || isoDate(), end: m.end, freq: m.freq, times: m.times, everyDays: m.everyDays, dose: m.dose });
-  ics.download(`${slug(p.name)}-${slug(m.name)}.ics`, text);
-  toast("Calendar file saved. Open it to add repeating reminders.");
+    actionsRow(
+      st.active ? h("button.btn.btn-blue.sm", { type: "button", "data-k": `give-${m.id}`, onclick: () => markGiven(m) }, "Mark given", h("span.vh", `: ${m.name}`)) : null,
+      moreBtn(m.name, [["Edit", () => medSheet(m)], upcoming ? ["Add to calendar", () => calMed(p, m)] : null, ["Delete", () => deleteMed(m), { danger: true }]]),
+      last ? h("p.small.muted", `Last given ${fmtDate(last.at, { day: "numeric", month: "short" })} at ${fmtTime(last.at)}`) : null));
 }
 
 // ---------- weight ----------
@@ -110,12 +134,9 @@ function weight(main, p) {
     const ev = { id: uid(), petId: p.id, type: "weight", at: Date.now(), kg: fromUnit(v, u) };
     if (p.sample) ev.sample = true;
     await save("events", ev);
-    toast(`Weight saved: ${fmtWeight(ev.kg, u)}.`);
+    toast(`Weight saved: ${fmtWeight(ev.kg, u)}. I supervised.`);
   } },
   h("div.field", h("label", { for: "w-in" }, `Today's weight in ${u}`), h("div.input-row", input, h("button.btn.btn-blue", { type: "submit", "data-k": "w-save" }, "Save"))), err);
-
-  const unitSwitch = h("div.seg-btns.small-seg", { role: "group", "aria-label": "Weight units" }, ["kg", "lb"].map((x) =>
-    h("button", { type: "button", "aria-pressed": String(x === u), "data-k": `unit-${x}`, onclick: () => setSetting("units", x, { quiet: false }) }, x)));
 
   let change = null;
   if (list.length > 1) {
@@ -124,17 +145,18 @@ function weight(main, p) {
     change = `${d >= 0 ? "+" : "−"}${Math.abs(Math.round(d * 10) / 10)} ${u} since ${fmtDate(prev.at, { day: "numeric", month: "short" })}`;
   }
   const chart = h("div.chart", { id: "weight-chart" });
-  put(main, 
+  put(main,
     h("section.sec", { "aria-labelledby": "h-w" },
-      h("div.sec-row", h("h2.sec-title", { id: "h-w" }, em("⚖️"), " Weight"), unitSwitch),
+      h("div.sec-row", h("h2.sec-title", { id: "h-w" }, "Weight"),
+        segmented("units", "Weight units", [["kg", "kg"], ["lb", "lb"]], u, (x) => setSetting("units", x, { quiet: false }), { hideLegend: true })),
       latest ? h("p.big-num", fmtWeight(latest.kg, u), change ? h("span.small.muted", ` ${change}`) : null) : null,
       list.length ? chart : emptyState("No weights yet. Weigh your pet once a month: it's one of the easiest ways to spot changes early."),
       form),
     list.length ? h("section.sec", { "aria-labelledby": "h-wl" },
       h("h2.sec-title", { id: "h-wl" }, "All weights"),
-      h("ul.w-list", list.map((e) => h("li",
-        h("span", fmtDate(e.at)), h("b", fmtWeight(e.kg, u)),
-        h("button.mini-btn", { type: "button", "data-k": `ev-${e.id}`, onclick: () => eventSheet("weight", e) }, "Edit", h("span.vh", ` weight on ${fmtDate(e.at)}`)))))) : null);
+      h("ul.tl", list.map((e) => h("li.tl-item",
+        h("button.tl-row.w-row", { type: "button", "data-k": `ev-${e.id}`, onclick: () => eventSheet("weight", e) },
+          h("span.tl-body", h("span.tl-time", fmtDate(e.at))), h("b", fmtWeight(e.kg, u)), h("span.vh", ", edit")))))) : null);
   if (list.length) requestAnimationFrame(() => drawWeight(chart, list.slice(0, 24).reverse(), u));
 }
 
@@ -201,21 +223,22 @@ export function drawWeight(box, pts, u) {
 // ---------- vet visits ----------
 function vet(main, p) {
   const visits = eventsOf("vet");
-  put(main, 
-    h("div.row-btns.left.top-actions",
+  put(main,
+    h("div.top-actions.row-btns.left",
       h("a.btn.btn-blue", { href: "#/summary" }, em("📋"), " Vet summary"),
       h("button.btn.btn-line", { type: "button", "data-k": "add-vet", onclick: () => eventSheet("vet") }, em("➕"), " Add a vet visit")),
-    h("p.note-line", "The vet summary is one page with food, medicines, vaccines, weight and recent poop notes. Show it or print it at your next visit."),
+    h("p.note-line", "The vet summary is one page: contacts, food, medicines, vaccines, weight, and recent poop and unwell notes. Show it or print it at your next visit."),
     h("section.sec", { "aria-labelledby": "h-vet" },
-      h("h2.sec-title", { id: "h-vet" }, em("🩺"), " Vet visits"),
-      visits.length ? eventList(visits, (e) => eventSheet("vet", e), { showDay: true }) : emptyState("No vet visits logged yet.")),
-    h("p", h("a", { href: "#/poop" }, "Open the poop log")));
+      h("h2.sec-title", { id: "h-vet" }, "Vet visits"),
+      visits.length ? eventList(visits, (e) => eventSheet("vet", e), { showDay: true, single: true }) : emptyState("No vet visits logged yet.")),
+    h("p", h("a.text-link", { href: "#/poop" }, "Open the poop log")));
 }
 
 // ---------- printable vet summary ----------
 export function summary(main) {
   const p = pet();
   const u = units();
+  if (!p.sample && !S.settings.summaryViewed) setSetting("summaryViewed", Date.now()).catch(() => {});
   const food = forPet("foods").find((f) => f.kind === "food" && !f.until);
   const treats = forPet("foods").filter((f) => f.kind === "treat" && f.inUse !== false);
   const medsNow = forPet("meds").filter((m) => medIsActive(m));
@@ -223,38 +246,57 @@ export function summary(main) {
   const weights = eventsOf("weight").slice(0, 5);
   const since = Date.now() - 14 * DAY;
   const flagged = eventsOf("poop").filter((e) => e.at >= since && ((e.flags && e.flags.length) || (typeof e.score === "number" && e.score >= 4)));
+  const unwell = eventsOf("symptom").filter((e) => e.at >= since);
   const visits = eventsOf("vet").slice(0, 3);
-  const row = (k, v) => h("tr", h("th", { scope: "row" }, k), h("td", v));
+  const row = (k, v) => (v ? h("tr", h("th", { scope: "row" }, k), h("td", v)) : null);
+  const tel = (n) => (telHref(n) ? h("a", { href: telHref(n) }, n) : n);
+  const join = (...xs) => { const out = xs.filter(Boolean); return out.length ? out.flatMap((x, i) => (i ? [" · ", x] : [x])) : null; };
+  const v = p.vet || {}, ins = p.insurer || {}, chip = p.microchip || {}, neu = p.neutered;
+  const sexText = p.sex === "male" ? "Male" : p.sex === "female" ? "Female" : "";
+  const neutText = neu ? (neu.yes ? `Yes${neu.date ? ` (${fmtDate(neu.date)})` : ""}` : "No") : "";
   const chart = h("div.chart.print-chart");
-  put(main, 
-    h("div.no-print.row-btns.left",
-      h("a.back", { href: "#/health/vet" }, "← Health"),
-      h("button.btn.btn-blue.sm", { type: "button", onclick: () => window.print() }, "Print or save as PDF")),
-    h("article.summary",
+  put(main,
+    subBar("Vet summary", "#/health/vet", "Back to Health"),
+    h("div.no-print.top-actions",
+      h("button.btn.btn-blue", { type: "button", "data-k": "print", onclick: () => window.print() }, "Print or save as PDF")),
+    h("article.summary", { "aria-labelledby": "sum-h" },
       h("div.sum-head", avatar(p, 56), h("div",
-        h("h1", { tabindex: "-1", id: "page-title" }, `${p.name}: vet summary`),
-        h("p.small.muted", `Made with Nova's Pack on ${fmtDate(isoDate())}${p.sample ? " · SAMPLE DATA" : ""}`))),
+        h("h2.sum-title", { id: "sum-h" }, `${p.name}: vet summary`),
+        h("p.small.muted", `From the owner's diary, ${fmtDate(isoDate())}${p.sample ? " · SAMPLE DATA" : ""}`))),
       h("table.sum-table", h("tbody",
-        row("Species", speciesOf(p.species).label),
+        row("Species", join(speciesOf(p.species).label, sexText)),
         row("Birthday", p.birthday ? `${fmtDate(p.birthday)} (${ageText(p.birthday)})` : "Not recorded"),
+        row("Neutered", neutText),
+        row("Last season", p.lastSeason ? fmtDate(p.lastSeason) : ""),
         row("Latest weight", weights[0] ? `${fmtWeight(weights[0].kg, u)} on ${fmtDate(weights[0].at)}` : "Not recorded"),
         row("Current food", food ? [[food.brand, food.product].filter(Boolean).join(" "), food.amount, food.since ? `since ${fmtDate(food.since)}` : ""].filter(Boolean).join(" · ") : "Not recorded"),
         row("Treats in use", treats.length ? treats.map((t) => t.name).join(", ") : "None recorded"),
-        row("Allergies / don't feed", p.allergies || "None recorded"))),
-      h("h2", "Current medicines"),
+        row("Allergies / don't feed", p.allergies || "None recorded"),
+        row("Conditions", p.conditions || "None recorded"))),
+      v.name || v.phone || v.emergencyPhone || ins.name || chip.number ? [
+        h("h3", "Contacts and IDs"),
+        h("table.sum-table", h("tbody",
+          row("Vet", join(v.name, v.phone ? tel(v.phone) : "")),
+          row("Emergency vet", v.emergencyPhone ? tel(v.emergencyPhone) : ""),
+          row("Insurance", join(ins.name, ins.policy ? `policy ${ins.policy}` : "", ins.renewal ? `renews ${fmtDate(ins.renewal)}` : "")),
+          row("Microchip", join(chip.number, chip.registry, chip.checkedOn ? `details checked ${fmtDate(chip.checkedOn)}` : ""))))] : null,
+      h("h3", "Current medicines"),
       medsNow.length ? h("ul", medsNow.map((m) => h("li", h("b", m.name), ` · dose as written by the vet: ${m.dose || "not written down"} · ${freqText(m)}${m.end ? ` until ${fmtDate(m.end)}` : ""}`))) : h("p", "None recorded."),
-      h("h2", "Last 5 vaccines and preventives"),
+      h("h3", "Last 5 vaccines and preventives"),
       recs.length ? h("ul", recs.map((r) => h("li", h("b", r.name), ` · given ${r.given ? fmtDate(r.given) : "?"}${r.nextDue ? ` · next due ${fmtDate(r.nextDue)}` : ""}`))) : h("p", "None recorded."),
-      h("h2", "Weight trend"),
+      h("h3", "Weight trend"),
       weights.length ? h("ul", weights.map((e) => h("li", `${fmtDate(e.at)}: ${fmtWeight(e.kg, u)}`))) : h("p", "None recorded."),
       weights.length > 1 ? chart : null,
-      h("h2", "Poop notes, last 14 days"),
+      h("h3", "Unwell notes, last 14 days"),
+      unwell.length ? h("ul", unwell.map((e) => h("li", `${fmtDate(e.at, { day: "numeric", month: "short" })} ${fmtTime(e.at)}: ${(e.symptoms || []).map(symptomLabel).join("; ")}${e.note ? ` · "${e.note}"` : ""}`))) : h("p", "Nothing logged."),
+      h("h3", "Poop notes, last 14 days"),
       flagged.length ? h("ul", flagged.map((e) => {
         const s = scaleFor(e.score);
-        return h("li", `${fmtDate(e.at, { day: "numeric", month: "short" })} ${fmtTime(e.at)}: ${s ? s.label : ""}${e.flags && e.flags.length ? ` · ${e.flags.map(flagLabel).join(", ")}` : ""}${e.note ? ` · "${e.note}"` : ""}`);
+        return h("li", `${fmtDate(e.at, { day: "numeric", month: "short" })} ${fmtTime(e.at)}: ${s ? `Type ${e.score}, ${s.label}` : ""}${e.flags && e.flags.length ? ` · ${e.flags.map(flagLabel).join(", ")}` : ""}${e.note ? ` · "${e.note}"` : ""}`);
       })) : h("p", `Nothing unusual logged (${eventsOf("poop").filter((e) => e.at >= since).length} poops logged).`),
-      h("h2", "Recent vet visits"),
+      h("h3", "Recent vet visits"),
       visits.length ? h("ul", visits.map((e) => h("li", `${fmtDate(e.at)}${e.clinic ? ` · ${e.clinic}` : ""}${e.note ? `: ${e.note}` : ""}`))) : h("p", "None recorded."),
-      h("p.small.muted.sum-foot", "Written by the owner in Nova's Pack, a diary app. Not a medical record. Doses are as the owner typed them from the vet's instructions.")));
+      h("p.small.muted.sum-note", "Written by the owner in a diary app. Not a medical record. Doses are as the owner typed them from the vet's instructions."),
+      h("p.sum-foot", h("img", { src: "img/brand/nova-head.svg", alt: "", width: "20", height: "20" }), "Made with Nova's Pack · novashiv11.github.io/novas-pack")));
   if (weights.length > 1) requestAnimationFrame(() => drawWeight(chart, eventsOf("weight").slice(0, 24).reverse(), u));
 }

@@ -69,7 +69,7 @@ export async function wipe() {
 
 // ---------- v1.1 helpers ----------
 /** Diary entries that count as "a log" for onboarding and nudges (not weights or vet visits). */
-export const LOG_TYPES = ["poop", "meal", "treat", "med", "walk", "training", "symptom"];
+export const LOG_TYPES = ["poop", "meal", "treat", "med", "walk", "training", "symptom", "care"];
 export function realPets() { return S.pets.filter((p) => !p.sample); }
 /** Logs for one pet, or for every real (non-sample) pet when petId is omitted. */
 export function logsOf(petId) {

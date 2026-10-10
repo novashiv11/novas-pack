@@ -8,7 +8,14 @@ export async function addSample() {
   const now = Date.now(), today = isoDate();
   const at = (daysAgo, hh, mm = 0) => startOfDay(now - daysAgo * DAY) + (hh * 60 + mm) * 60000;
   const petId = uid();
-  const pet = { id: petId, name: "Nova", species: "dog", birthday: addDays(today, -380), sample: true, createdAt: now, allergies: "Example: no grapes, raisins, onions or chocolate.", training: {} };
+  const pet = {
+    id: petId, name: "Nova", species: "dog", sex: "female", birthday: addDays(today, -380), sample: true, createdAt: now,
+    allergies: "Example: no grapes, raisins, onions or chocolate.", training: {},
+    // Example profile: names only, no phone or microchip numbers that could belong to someone real.
+    vet: { name: "Example Vet Clinic" },
+    insurer: { name: "Example Insurer", policy: "EXAMPLE-0000", renewal: addDays(today, 120) },
+    microchip: { registry: "Example registry", checkedOn: addDays(today, -90) },
+  };
   const skills = S.content.SKILLS.filter((s) => s.species.includes("dog"));
   if (skills[0]) pet.training[skills[0].id] = "got";
   if (skills[1]) pet.training[skills[1].id] = "practising";
@@ -28,6 +35,8 @@ export async function addSample() {
     // vet visit and weights
     ev("vet", at(40, 10, 30), { clinic: "Example Vet Clinic", note: "Example: annual check. All good. Booster due in October." }),
     ...[[180, 21.5], [140, 25.2], [100, 28.0], [70, 29.6], [40, 30.8], [10, 31.4]].map(([d, kg]) => ev("weight", at(d, 9), { kg })),
+    // care routine: brushing and a nail trim
+    ev("care", at(5, 19), { task: "brush" }), ev("care", at(20, 19), { task: "nails" }),
   ];
   // training practice on 6 of the last 7 weeks, so the streak has something to show
   for (const w of [1, 2, 3, 5, 6, 7]) events.push(ev("training", at(w * 7 - 2, 17), { skillId: skills[(w % 3)] && skills[w % 3].id, minutes: 5 }));

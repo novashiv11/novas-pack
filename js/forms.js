@@ -3,9 +3,9 @@
 // first-run pet form, which sits on the page.
 
 import { S, pet, save, remove, removePet, setSetting, eventsOf, forPet, units, refresh, UI } from "./state.js";
-import { h, put, em, uid, sheet, toast, confirmBox, isoDate, addDays, addMonths, daysBetween, toLocalInput, fromLocalInput, resizePhoto, fmtTime, fmtDate, weeklyStreak, isoWeek, motionOK, buzz } from "./util.js";
-import { ALSO_NOTICED, scaleFor, skillsFor, medStatus, fromUnit, toUnit, medIsActive, recordStatus, currentRecords, healthAlerts } from "./logic.js";
-import * as care from "../data/care.js";
+import { h, put, em, uid, sheet, toast, confirmBox, isoDate, addDays, addMonths, daysBetween, toLocalInput, fromLocalInput, resizePhoto, fmtDate, weeklyStreak, isoWeek, motionOK, buzz } from "./util.js";
+import { ALSO_NOTICED, scaleFor, skillsFor, medStatus, fromUnit, toUnit, medIsActive, recordStatus, currentRecords, healthAlerts, recordDoneCheck } from "./logic.js";
+import { saveErrorText } from "./db.js";
 import * as ics from "./ics.js";
 
 export const SPECIES = [
@@ -25,6 +25,7 @@ export const TYPES = {
   walk: { emoji: "🚶", label: "Walk" },
   training: { emoji: "🎓", label: "Training" },
   symptom: { emoji: "😟", label: "Unwell" },
+  care: { emoji: "✨", label: "Care" },
   weight: { emoji: "⚖️", label: "Weight" },
   vet: { emoji: "🩺", label: "Vet visit" },
 };
@@ -78,11 +79,7 @@ function dropEmpty(o) {
   for (const k of Object.keys(o)) if (o[k] === undefined || o[k] === "") delete o[k];
   return Object.keys(o).length ? o : undefined;
 }
-export function saveError(e) {
-  return e && e.name === "QuotaExceededError"
-    ? "Phone storage is full. Try a smaller photo or free some space."
-    : "Couldn't save on this device. If you're in private browsing, open the app in a normal tab.";
-}
+export const saveError = (e) => saveErrorText(e, "Couldn't save on this device. If you're in private browsing, open the app in a normal tab.");
 function check(label, props = {}, hint) {
   const id = fid();
   const inp = h("input", { type: "checkbox", id, ...props });
@@ -126,7 +123,10 @@ export function petForm(box, existing, onSaved, { openProfile = false } = {}) {
   });
   const weight = h("input", { type: "number", name: "weight", inputmode: "decimal", min: "0", max: "2000", step: "0.1" });
   const err = errorLine();
+  let sex = p.sex === "male" || p.sex === "female" ? p.sex : "unknown";
+  let profile = null;
   const basics = [
+    segmented(`sex-${fid()}`, "Sex", [["female", "Female"], ["male", "Male"], ["unknown", "Not sure"]], sex, (v) => { sex = v; if (profile) profile.sync(); }),
     field(h("span", "Birthday", opt()), birthday, "A guess is fine."),
     h("div.field",
       h("label", { for: file.id }, "Photo", opt()),
@@ -141,9 +141,8 @@ export function petForm(box, existing, onSaved, { openProfile = false } = {}) {
     h("fieldset.fs", h("legend", "Species"), speciesBox),
     existing ? basics : h("details.fold", h("summary", "Add details (optional)"), h("div.fold-body", h("p.hint", "Birthday, photo and weight. Skip them now and add them later if you like."), basics)));
 
-  let profile = null;
   if (existing) {
-    profile = profileFields(p, openProfile, () => radioVal(form, "species"));
+    profile = profileFields(p, openProfile, () => radioVal(form, "species"), () => sex);
     put(form, profile.el);
     speciesBox.addEventListener("change", profile.sync);
   }
@@ -160,7 +159,7 @@ export function petForm(box, existing, onSaved, { openProfile = false } = {}) {
     const row = {
       ...p, id: p.id || uid(), name: nm.slice(0, 40), species: radioVal(form, "species") || "dog",
       birthday: birthday.value || undefined, photo: photo || undefined, createdAt: p.createdAt || Date.now(),
-      training: p.training || {},
+      training: p.training || {}, sex: sex === "unknown" ? undefined : sex,
       ...(profile ? profile.read() : {}),
     };
     for (const k of Object.keys(row)) if (row[k] === undefined) delete row[k];
@@ -182,7 +181,7 @@ export function petForm(box, existing, onSaved, { openProfile = false } = {}) {
 }
 
 /** Profile and contacts (pet fields in the shared contract). Returns { el, read(), sync() }. */
-function profileFields(p, open, species) {
+function profileFields(p, open, species, sex) {
   const v = p.vet || {}, ins = p.insurer || {}, chip = p.microchip || {}, neu = p.neutered || {};
   const tel = (value) => h("input", { type: "tel", inputmode: "tel", autocomplete: "off", maxlength: "40", value: value || "" });
   const vetName = textIn({ maxlength: "120", value: v.name || "", placeholder: "e.g. Riverside Vets" });
@@ -202,7 +201,7 @@ function profileFields(p, open, species) {
   const seasonF = field(h("span", "Last season (heat) started", opt()), season, "Only if they're not neutered. Helps your vet with timing.");
   const sync = () => {
     neutDateF.hidden = neut !== "yes";
-    seasonF.hidden = neut === "yes" || !["dog", "cat", "rabbit"].includes(species());
+    seasonF.hidden = neut === "yes" || sex() === "male" || !["dog", "cat", "rabbit"].includes(species());
   };
   const group = (title, ...kids) => h("details.fold", { open }, h("summary", title), h("div.fold-body", kids));
   const el = h("div.profile-groups",
@@ -366,12 +365,12 @@ export function eventSheet(type, existing, { details = false } = {}) {
         scaleBox.append(inp, h("label", { for: id }, h("span.em", { "aria-hidden": "true" }, s.emoji), h("span.sc-n", String(s.score)), h("span.sc-l", s.label)));
       });
       if (ev.score) hint.textContent = (scaleFor(ev.score) || {}).hint || "";
-      const spHint = (care.POOP_HINTS || {})[p.species];
+      const spHint = (S.content.POOP_HINTS || {})[p.species];
       const flags = new Set(ev.flags || []);
       const checks = (list) => h("div.checks", list.map((f) => check(f.label, { value: f.id, checked: flags.has(f.id) }).row));
       parts.push(
         h("fieldset.fs", h("legend", "How did it look?"),
-          care.POOP_SCALE_NAME ? h("p.hint.scale-name", care.POOP_SCALE_NAME) : null,
+          S.content.POOP_SCALE_NAME ? h("p.hint.scale-name", S.content.POOP_SCALE_NAME) : null,
           spHint ? h("p.hint.sp-hint", spHint) : null, scaleBox, hint),
         h("fieldset.fs", h("legend", "Anything unusual?", opt()), checks(S.content.POOP_FLAGS)),
         h("fieldset.fs", h("legend", "Also noticed today", opt()), checks(ALSO_NOTICED)));
@@ -425,6 +424,11 @@ export function eventSheet(type, existing, { details = false } = {}) {
       collect = () => { const v = parseFloat(w.value); return v > 0 ? { kg: fromUnit(v, u) } : { error: "Enter a weight above 0." }; };
     }
 
+    if (type === "care") {
+      const task = careTask(p, ev.task);
+      parts.push(h("p.care-name", h("b", task ? task.name : "Care task")));
+    }
+
     if (type === "vet") {
       const clinic = textIn({ maxlength: "120", value: ev.clinic || "" });
       parts.push(field(h("span", "Clinic", opt()), clinic));
@@ -471,7 +475,7 @@ export function unwellSheet(existing) {
   sheet(existing ? "Edit unwell note" : `Is ${p.name} unwell?`, (body, close) => {
     const form = h("form.form", { novalidate: true });
     const err = errorLine();
-    const toxins = Array.isArray(care.TOXINS) ? care.TOXINS : [];
+    const toxins = Array.isArray(S.content.TOXINS) ? S.content.TOXINS : [];
     const list = SYMPTOMS.filter((s) => !s.only || s.only.includes(p.species) || picked.has(s.id));
     const boxes = list.map((s) => check(s.label, { value: s.id, checked: picked.has(s.id) },
       s.id === "toxin" && toxins.length ? `Common ones: ${toxins.join(", ")}.` : null));
@@ -618,9 +622,15 @@ export function calMed(p, m) {
 /** One .ics with every upcoming due date (vaccines, preventives, care routine). */
 export function calAllDue(p) {
   const today = isoDate();
-  const recs = currentRecords(p.id).filter((r) => r.nextDue && r.nextDue >= today);
-  if (!recs.length) { toast("Nothing with an upcoming due date yet."); return; }
-  const parts = recs.map((r) => ics.dueEvent({ uid: r.id, title: `${p.name}: ${r.name} due`, due: r.nextDue, note: r.note }).split("\r\n"));
+  const items = currentRecords(p.id).filter((r) => r.nextDue && r.nextDue >= today)
+    .map((r) => ({ uid: r.id, title: `${p.name}: ${r.name} due`, due: r.nextDue, note: r.note }));
+  for (const task of careTasksFor(p)) {
+    const cs = careStatus(p, task, today);
+    if (cs && cs.nextDue >= today) items.push({ uid: `care-${p.id}-${task.id}`, title: `${p.name}: ${task.name}`, due: cs.nextDue, note: task.what });
+  }
+  if (!items.length) { toast("Nothing with an upcoming due date yet."); return; }
+  const recs = items;
+  const parts = items.map((x) => ics.dueEvent(x).split("\r\n"));
   const head = parts[0].slice(0, parts[0].indexOf("BEGIN:VEVENT"));
   const events = parts.flatMap((ls) => ls.slice(ls.indexOf("BEGIN:VEVENT"), ls.lastIndexOf("END:VEVENT") + 1));
   ics.download(`${slug(p.name)}-due-dates.ics`, [...head, ...events, "END:VCALENDAR", ""].join("\r\n"));
@@ -638,7 +648,7 @@ function calendarTick(next, original) {
 }
 
 // ---------- vaccines and preventives ----------
-/** prefill: { kind, name, given, nextDue, late } for "Mark done". */
+/** prefill: { kind, name, given, nextDue, note } for "Mark done". */
 export function recordSheet(existing, prefill) {
   const p = pet();
   const r = existing || prefill || {};
@@ -669,7 +679,7 @@ export function recordSheet(existing, prefill) {
     next.addEventListener("change", cal.sync);
     const plus = (label, fn) => h("button.chip", { type: "button", onclick: () => { next.value = fn(given.value || isoDate()); cal.sync(); } }, label);
     put(form,
-      prefill && prefill.late ? h("p.note-line.course-note", em("🩺"), " Late, or part of a puppy/kitten course? Ask your vet whether to restart the course.") : null,
+      prefill && prefill.note ? h("p.note-line.course-note", { role: "note" }, em("🩺"), " ", prefill.note) : null,
       segmented("kind", "Type", [["vaccine", "Vaccine"], ["preventive", "Preventive"]], kind, (v) => { kind = v; fillSug(); }),
       field("Name", name), what,
       h("div.sug", h("p.hint", "Suggestions only. Your vet decides your pet's schedule."), sugBox),
@@ -707,8 +717,7 @@ export function deleteRecord(r) {
 }
 /**
  * Mark a due vaccine/preventive as done: same name, given today, next due after the same gap as last time.
- * If it was overdue, or it's a vaccine for a pet under a year (a puppy or kitten course), the sheet asks
- * the owner to check with their vet whether the course needs restarting.
+ * If it was late or is part of a puppy or kitten course (recordDoneCheck), the sheet asks the owner to check with their vet.
  */
 export function markRecordDone(rec) {
   const today = isoDate();
@@ -718,88 +727,94 @@ export function markRecordDone(rec) {
     if (gap > 0) nextDue = gap % 365 === 0 ? addMonths(today, 12 * (gap / 365)) : addDays(today, gap);
   }
   const p = S.pets.find((x) => x.id === rec.petId) || pet();
-  const young = p && p.birthday && daysBetween(p.birthday, today) < 365;
-  const late = recordStatus(rec, today).state === "overdue" || (rec.kind === "vaccine" && young && (p.species === "dog" || p.species === "cat"));
-  recordSheet(null, { kind: rec.kind, name: rec.name, given: today, nextDue, late });
+  const chk = recordDoneCheck(rec, p, today);
+  recordSheet(null, { kind: rec.kind, name: rec.name, given: today, nextDue, note: chk.ask ? chk.note : "" });
 }
 
-// ---------- care routine (suggestions from CARE_TASKS, stored as preventive records so backups keep them) ----------
+// ---------- care routine (suggestions from CARE_TASKS; each "done" is a { type: "care", task } diary entry) ----------
 export function careTasksFor(p) {
-  const T = care.CARE_TASKS || {};
+  const T = S.content.CARE_TASKS || {};
   return (p && T[["dog", "cat", "rabbit"].includes(p.species) ? p.species : "other"]) || [];
 }
-const sameName = (a, b) => a.trim().toLowerCase() === b.trim().toLowerCase();
-export function careTaskOf(p, r) {
-  return r && r.kind === "preventive" ? careTasksFor(p).find((t) => sameName(t.name, r.name)) || null : null;
+export const careTask = (p, id) => careTasksFor(p).find((t) => t.id === id) || null;
+/** Last done (ms) or null. A logged weight counts as a weigh-in. */
+export function careLastDone(p, task) {
+  const ev = eventsOf("care", p.id).find((e) => e.task === task.id);
+  let at = ev ? ev.at : 0;
+  if (task.id === "weigh") { const w = eventsOf("weight", p.id)[0]; if (w && w.at > at) at = w.at; }
+  return at || null;
 }
-export function careRecordOf(p, task) {
-  return currentRecords(p.id).find((r) => r.kind === "preventive" && sameName(r.name, task.name)) || null;
+/** { last, nextDue, st } for a task that has been done at least once, else null. */
+export function careStatus(p, task, today = isoDate()) {
+  const last = careLastDone(p, task);
+  if (!last) return null;
+  const nextDue = addDays(isoDate(new Date(last)), Math.max(1, task.everyWeeks || 1) * 7);
+  return { last, nextDue, st: recordStatus({ nextDue }, today) };
 }
-/** Start tracking, or edit, a care task: last done + every N weeks. */
-export function careSheet(task, rec) {
+/** Care tasks due today or late, for Today's Due list. */
+export function careDue(p) {
+  return careTasksFor(p).map((task) => ({ task, cs: careStatus(p, task) }))
+    .filter((x) => x.cs && (x.cs.st.state === "overdue" || x.cs.st.state === "today"))
+    .map((x) => ({ kind: "care", task: x.task, st: x.cs.st, nextDue: x.cs.nextDue }));
+}
+export const everyText = (task) => (task.everyWeeks === 1 ? "Every week" : `Every ${task.everyWeeks} weeks`);
+
+/** One tap: done now. A weigh-in opens the weight form instead (the weight is the point). */
+export function markCareDone(p, task) {
+  if (task.id === "weigh") { eventSheet("weight"); return null; }
+  return quickLog("care", { task: task.id }, task.name);
+}
+/** Start tracking a task (when was it last done?), or change its last-done date. */
+export function careSheet(task) {
   const p = pet();
-  sheet(rec ? `Edit: ${task.name}` : `Track: ${task.name}`, (body, close) => {
+  const lastEv = eventsOf("care", p.id).find((e) => e.task === task.id);
+  sheet(lastEv ? `Edit: ${task.name}` : `Track: ${task.name}`, (body, close) => {
     const form = h("form.form", { novalidate: true });
     const err = errorLine();
-    const gapWeeks = rec && rec.given && rec.nextDue ? Math.max(1, Math.round(daysBetween(rec.given, rec.nextDue) / 7)) : task.everyWeeks;
-    const last = h("input", { type: "date", max: isoDate(), value: (rec && rec.given) || isoDate() });
-    const every = h("input", { type: "number", inputmode: "numeric", min: "1", max: "104", value: String(gapWeeks) });
+    const last = h("input", { type: "date", max: isoDate(), value: lastEv ? isoDate(new Date(lastEv.at)) : isoDate() });
     const next = h("input", { type: "hidden" });
-    const calc = () => { const w = Math.max(1, parseInt(every.value, 10) || task.everyWeeks); next.value = addDays(last.value || isoDate(), w * 7); };
+    const calc = () => { next.value = addDays(last.value || isoDate(), Math.max(1, task.everyWeeks || 1) * 7); };
     calc();
-    const cal = calendarTick(next, rec ? rec.nextDue : "");
-    const resync = () => { calc(); cal.sync(); };
-    last.addEventListener("change", resync); every.addEventListener("input", resync);
+    const cal = calendarTick(next, "");
+    last.addEventListener("change", () => { calc(); cal.sync(); });
     put(form,
       h("p.hint.what", task.what),
-      h("div.two", field("Last done", last), field("Every how many weeks?", every)),
-      h("p.hint", "Suggestions only. Your vet or groomer knows your pet best."),
+      field("Last done", last, `${everyText(task)} is a common rhythm. Suggestions only: your vet or groomer knows your pet best.`),
       cal.row,
       err,
       h("div.row-btns",
-        rec ? h("button.btn.btn-line", { type: "button", onclick: () => { close(); stopCare(p, task); } }, "Stop tracking") : null,
-        h("button.btn.btn-blue", { type: "submit" }, rec ? "Save" : "Start tracking")));
+        lastEv ? h("button.btn.btn-line", { type: "button", onclick: () => { close(); stopCare(p, task); } }, "Stop tracking") : null,
+        h("button.btn.btn-blue", { type: "submit" }, lastEv ? "Save" : "Start tracking")));
     cal.sync();
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       calc();
-      const row = { id: rec ? rec.id : uid(), petId: p.id, kind: "preventive", name: task.name, given: last.value || isoDate(), nextDue: next.value };
+      const day = last.value || isoDate();
+      const at = day === isoDate() ? Date.now() : new Date(`${day}T12:00`).getTime();
+      const row = { ...(lastEv || {}), id: lastEv ? lastEv.id : uid(), petId: p.id, type: "care", task: task.id, at };
       if (p.sample) row.sample = true;
-      try { await save("records", row); } catch (ex) { err.textContent = saveError(ex); return; }
+      try { await save("events", row); } catch (ex) { err.textContent = saveError(ex); return; }
       close();
-      if (cal.input.checked) calRecord(p, row);
-      else toast(`${task.name}: next one ${fmtDate(row.nextDue, { day: "numeric", month: "short" })}. It shows in Due when it's close.`);
+      if (cal.input.checked) calCare(p, task, next.value);
+      else toast(`${task.name}: next one ${fmtDate(next.value, { day: "numeric", month: "short" })}. It shows in Due when it's time.`);
     });
     put(body, form);
   });
 }
-/** One tap: done today, next one after the same gap. */
-export async function markCareDone(p, task, rec) {
-  const today = isoDate();
-  const gap = rec && rec.given && rec.nextDue ? Math.max(1, daysBetween(rec.given, rec.nextDue)) : task.everyWeeks * 7;
-  const row = { id: uid(), petId: p.id, kind: "preventive", name: task.name, given: today, nextDue: addDays(today, gap) };
-  if (p.sample) row.sample = true;
-  try { await save("records", row); } catch (e) { toast(saveError(e)); return; }
-  buzz(10);
-  toast(`${task.name}: done. Next one ${fmtDate(row.nextDue, { day: "numeric", month: "short" })}. I supervised.`, [["Undo", () => remove("records", row.id)]]);
-}
 async function stopCare(p, task) {
-  const rows = forPet("records", p.id).filter((r) => r.kind === "preventive" && sameName(r.name, task.name));
-  for (const r of rows) await remove("records", r.id, { quiet: true });
+  const rows = eventsOf("care", p.id).filter((e) => e.task === task.id);
+  if (!(await confirmBox(`Stop tracking ${task.name}?`, `This removes its ${rows.length} diary entr${rows.length === 1 ? "y" : "ies"}.`, "Stop tracking", true))) return;
+  for (const r of rows) await remove("events", r.id, { quiet: true });
   refresh();
-  toast(`Stopped tracking ${task.name}.`, [["Undo", async () => { for (const r of rows) await save("records", r, { quiet: true }); refresh(); }]]);
+  toast(`Stopped tracking ${task.name}.`, [["Undo", async () => { for (const r of rows) await save("events", r, { quiet: true }); refresh(); }]]);
 }
-/** "Mark done" and "Edit" for any record, care task or not. */
-export function doneRecord(r) {
-  const p = S.pets.find((x) => x.id === r.petId) || pet();
-  const task = careTaskOf(p, r);
-  if (task) markCareDone(p, task, r); else markRecordDone(r);
+export function calCare(p, task, nextDue) {
+  ics.download(`${slug(p.name)}-${slug(task.name)}.ics`, ics.dueEvent({ uid: `care-${p.id}-${task.id}`, title: `${p.name}: ${task.name}`, due: nextDue, note: task.what }));
+  toast("Calendar file saved. Open it to add the reminder (alarm the day before).");
 }
-export function editRecord(r) {
-  const p = S.pets.find((x) => x.id === r.petId) || pet();
-  const task = careTaskOf(p, r);
-  if (task) careSheet(task, r); else recordSheet(r);
-}
+/** "Mark done" and "Edit" for vaccine and preventive records. */
+export const doneRecord = (r) => markRecordDone(r);
+export const editRecord = (r) => recordSheet(r);
 
 // ---------- food and treats ----------
 export function foodSheet(existing) {
