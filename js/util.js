@@ -56,6 +56,9 @@ export function addMonths(s, n) {
 }
 export function daysBetween(a, b) { return Math.round((parseDate(b) - parseDate(a)) / DAY); }
 export function startOfDay(ms = Date.now()) { const d = new Date(ms); d.setHours(0, 0, 0, 0); return d.getTime(); }
+/** Midnight at the start of the day `offset` days from ms (calendar maths, safe across clock changes). */
+export function dayStart(ms = Date.now(), offset = 0) { const d = new Date(ms); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() + offset); return d.getTime(); }
+export function nextDayStart(ms = Date.now()) { return dayStart(ms, 1); }
 export function fmtTime(ms) { return new Date(ms).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" }); }
 export function fmtDate(s, opts = { day: "numeric", month: "short", year: "numeric" }) {
   return (typeof s === "number" ? new Date(s) : parseDate(s)).toLocaleDateString(undefined, opts);
@@ -63,7 +66,7 @@ export function fmtDate(s, opts = { day: "numeric", month: "short", year: "numer
 export function fmtDay(ms) {
   const d0 = startOfDay(ms), t0 = startOfDay();
   if (d0 === t0) return "Today";
-  if (t0 - d0 === DAY) return "Yesterday";
+  if (dayStart(t0, -1) === d0) return "Yesterday";
   return new Date(ms).toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" });
 }
 export function ago(ms, now = Date.now()) {
@@ -126,7 +129,8 @@ export function weeklyStreak(times, now = Date.now()) {
   const last8 = [];
   for (let i = 7; i >= 0; i--) {
     const w = isoWeek(back(i));
-    last8.push({ id: w, done: done.has(w), current: i === 0 });
+    const mon = new Date(back(i)); mon.setDate(mon.getDate() - ((mon.getDay() + 6) % 7));
+    last8.push({ id: w, label: `Week of ${mon.toLocaleDateString(undefined, { day: "numeric", month: "short" })}`, done: done.has(w), current: i === 0 });
   }
   return { weeks: count, graces, thisWeek: done.has(thisWeek), last8 };
 }

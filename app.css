@@ -316,3 +316,7 @@ details.mini summary{font-size:.92rem}
   main{max-width:none;padding:0}
   .summary{border:0;padding:0}
 }
+
+/* QA fixes */
+legend{max-width:100%;overflow-wrap:anywhere}
+.welcome-features{font-size:.9rem;color:var(--muted);line-height:1.6;margin-top:4px}

@@ -57,7 +57,7 @@ function streakCard(p) {
         h("p.streak-n", em("🔥"), " ", h("b", String(st.weeks)), ` week${st.weeks === 1 ? "" : "s"}`)),
       h("button.btn.btn-gold", { type: "button", "data-k": "log-practice", onclick: () => logPractice(p) }, "Log practice")),
     h("ol.week-dots", { "aria-label": "Last 8 weeks" }, st.last8.map((w) =>
-      h(`li${w.done ? ".done" : ""}${w.current ? ".current" : ""}`, h("span.vh", `${w.current ? "This week" : w.id}: ${w.done ? "practised" : "no practice logged"}`), h("span", { "aria-hidden": "true" }, w.done ? "✓" : "")))),
+      h(`li${w.done ? ".done" : ""}${w.current ? ".current" : ""}`, h("span.vh", `${w.current ? "This week" : (w.label || w.id)}: ${w.done ? "practised" : "no practice logged"}`), h("span", { "aria-hidden": "true" }, w.done ? "✓" : "")))),
     h("p.small.muted", st.thisWeek ? "This week counts. " : "Practise once this week to keep it going. ",
       st.graces ? `Grace weeks saved: ${st.graces}. ` : "", "Every 4 weeks of practice earns a grace week (up to 2), so one busy week won't break it."));
 }

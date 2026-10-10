@@ -7,3 +7,4 @@ exclude:
   - finance/
   - README.md
   - CLAUDE.md
+  - clips/README.md

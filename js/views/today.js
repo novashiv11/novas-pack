@@ -1,7 +1,7 @@
 // Today (due list, quick log, timeline), the poop log, and the first-run welcome.
 
 import { S, pet, eventsOf, setSetting } from "../state.js";
-import { h, put, em, fmtTime, fmtDay, fmtDate, startOfDay, DAY, toast } from "../util.js";
+import { h, put, em, fmtTime, fmtDay, fmtDate, startOfDay, nextDayStart, DAY, toast } from "../util.js";
 import { dueItems, dueText, poopAlerts, poopWeek, scaleFor, freqText } from "../logic.js";
 import { eventSheet, logMeal, logTreat, logWalk, medGivenSheet, markGiven, markRecordDone, petForm, slug } from "../forms.js";
 import { pageHead, sampleBanner, alertCard, emptyState, eventList, agoSpan, vetFirst, NOVA } from "./parts.js";
@@ -12,7 +12,7 @@ import { exportBackup, isStandalone, importForm } from "./more.js";
 export function today(main) {
   const p = pet();
   const now = Date.now();
-  const todays = S.events.filter((e) => e.petId === p.id && e.at >= startOfDay(now) && e.at < startOfDay(now) + DAY).sort((a, b) => b.at - a.at);
+  const todays = S.events.filter((e) => e.petId === p.id && e.at >= startOfDay(now) && e.at < nextDayStart(now)).sort((a, b) => b.at - a.at);
   const lastPoop = eventsOf("poop")[0], lastMeal = eventsOf("meal")[0], lastWalk = eventsOf("walk")[0];
 
   put(main, 
@@ -104,7 +104,9 @@ function nudge() {
         h("button.btn.btn-blue.sm", { type: "button", onclick: exportBackup }, "Back up now"),
         h("button.btn.btn-line.sm", { type: "button", onclick: () => setSetting("backupSnooze", now, { quiet: false }) }, "Not now")));
   }
-  if (!isStandalone() && !S.settings.installDismissed) {
+  const realIds = new Set(S.pets.filter((x) => !x.sample).map((x) => x.id));
+  const used = S.events.filter((e) => realIds.has(e.petId)).length;
+  if (!isStandalone() && !S.settings.installDismissed && used >= 5) {
     return h("aside.nudge", { "aria-label": "Install tip" },
       h("p", h("b", "Add Nova's Pack to your Home Screen."), " Phones can clear website data that isn't used for a while. Installed, your diary stays put."),
       h("div.row-btns.left",
@@ -160,21 +162,17 @@ export function welcome(main, arg) {
     return;
   }
   put(main, h("section.welcome",
-    h("img.disc.welcome-nova", { src: NOVA, alt: "", width: "112", height: "112" }),
+    h("img.disc.welcome-nova", { src: NOVA, alt: "", width: "72", height: "72" }),
     h("p.eyebrow", "Nova's Pack · the pet care diary"),
     h("h1", { tabindex: "-1", id: "page-title" }, "Your pet's whole routine, in one place."),
     h("p.lede", "Private on your phone. Free. No account."),
-    h("ul.feature-list",
-      h("li", em("💩"), " Poop, meals and walks in one tap"),
-      h("li", em("💉"), " Vaccines and medicines, with what's due"),
-      h("li", em("⚖️"), " Weight, food and vet notes"),
-      h("li", em("🎓"), " Training, step by step with Nova")),
-    h("p.bubble.welcome-bubble", "I'm Nova, professional human handler. I keep my human's diary in order. Let's do yours."),
     h("div.welcome-ctas",
       h("a.btn.btn-gold.wide", { href: "#/welcome/add" }, "Add your pet"),
       h("button.btn.btn-line.wide", { type: "button", onclick: async () => {
         try { await addSample(); location.hash = "#/today"; } catch { toast("Couldn't save on this device. Private browsing?"); }
       } }, "No pet yet? Explore Nova's sample diary")),
+    h("p.welcome-features", "💩 Poop, meals and walks in one tap · 💉 Vaccines and medicines, with what's due · ⚖️ Weight, food and vet notes · 🎓 Training with Nova"),
+    h("p.bubble.welcome-bubble", "I'm Nova, professional human handler. I keep my human's diary in order. Let's do yours."),
     h("details.more-box.restore", h("summary", "Have a backup? Restore it"), importForm("replace")),
     h("p.small.muted", "Everything stays on this device. ", h("a", { href: "privacy.html" }, "Privacy notice"), " · ", h("a", { href: "card.html" }, "Pack Card maker"))));
 }

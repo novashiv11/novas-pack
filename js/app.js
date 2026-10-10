@@ -21,7 +21,7 @@ const switcher = document.getElementById("switcher");
 const tabbar = document.getElementById("tabbar");
 
 function route() {
-  const [name, arg] = location.hash.replace(/^#\/?/, "").split("/").map((x) => decodeURIComponent(x || ""));
+  const [name, arg] = location.hash.replace(/^#\/?/, "").split("/").map((x) => { try { return decodeURIComponent(x || ""); } catch { return ""; } });
   return { name: ROUTES[name] ? name : "today", arg: arg || "" };
 }
 

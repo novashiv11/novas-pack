@@ -3,7 +3,7 @@
 // When you change any app file, bump VERSION so every phone fetches the new files.
 // Pages and files are served from the cache first (fast, offline) and refreshed in the background,
 // so a normal update shows up the next time the app is opened.
-const VERSION = "2026-10-10-1";
+const VERSION = "2026-10-10-2";
 const CACHE = `novas-pack-${VERSION}`;
 const CLIPS = "novas-pack-clips";
 

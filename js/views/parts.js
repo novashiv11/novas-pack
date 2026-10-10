@@ -42,6 +42,12 @@ export function vetFirst() {
 /** The calm "Call your vet" card. */
 export function alertCard(alerts) {
   if (!alerts.length) return null;
+  const seen = new Set();
+  alerts = alerts.map((a) => {
+    if (!a.guide) return a;
+    if (seen.has(a.guide.when)) return { ...a, guide: null };
+    seen.add(a.guide.when); return a;
+  });
   return h("section.alert", { id: "vet-alert", tabindex: "-1", "aria-labelledby": "vet-alert-h" },
     h("h2", { id: "vet-alert-h" }, em("📞"), " Call your vet"),
     h("ul.alert-list", alerts.map((a) => h("li",

@@ -11,17 +11,18 @@ Handoff summary for Claude Code. Read this first, then `docs/00-master-brief.md`
 ## Repo map
 | Path | What |
 |---|---|
-| `index.html` | One reason, one path: hero "Your pet could be featured by Nova" (boop toy + one CTA) → 3 steps (species chips → card · this week's tag + copy · Saturday countdown) → Nova's note → "Good to know" folds. Keep it ~200 words and one primary CTA. |
-| `card.html` + `card.js` | **Pack Card maker**: client-side canvas card (1080×1350), share/download, weekly streak (localStorage). Photo never uploaded. |
-| `privacy.html` | GDPR Art. 13 notice (Discord, Instagram, card maker, localStorage). Needs Shiv's full name + email when available. |
-| `site.css` / `site.js` | Shared styles. `site.js`: `COMMUNITY_URL` (Discord invite; empty = chat "Opening soon"), challenge rotation (8 themes, week 0 = Mon 12 Oct 2026), streak logic. |
-| `img/` | `card.jpg` (hero), `face.jpg`, `og-image.jpg`, `brand/` (Nova SVG, QR). Indoor photos only until muzzled outdoor shots exist. |
-| `docs/global-plan.md` | **The plan**: where, how, when, how much, Discord setup, rules, launch content. |
-| `docs/build-prompt-v2.md`, `docs/build-prompt-v3-visual.md` | Build prompts (v3 = visual, interactive, habit-forming redesign). |
-| `docs/decisions.md` | Decision log + open items. Update on every task. |
-| `docs/00-master-brief.md`, `docs/01-audit-and-build-prompt.md` | History (Limerick era). |
-| `_archive/` | Old prototype, old docs (`docs-v1/`), unused photos. Never published. |
-| `_config.yml` | Keeps `docs/`, `finance/`, README, CLAUDE.md off the published site. The repo is public. |
+| `index.html` + `app.css` + `js/` | **The pet care diary app** (PWA). `js/app.js` router, `js/db.js` IndexedDB + backup, `js/logic.js` due/red-flag logic, `js/views/*` screens (today, health, food, training, more), `js/ics.js` calendar files, `js/sample.js` labelled sample data. |
+| `data/skills.js`, `data/care.js` | Content: 10 training skills; vaccines/preventives/poop scale/red flags with sources. Vet-first; no doses. |
+| `clips/` | Drop training clips here as `<skill-id>.mp4` (muted, <3 MB). Missing clip → "Clip coming soon". |
+| `manifest.webmanifest`, `sw.js`, `img/icons/` | PWA install + offline. **Bump `VERSION` in sw.js on every app change.** |
+| `card.html` + `card.js` | Pack Card maker (fun share; `?name=&species=` pre-fill). |
+| `privacy.html` | GDPR notice incl. on-device app data. Needs Shiv's full name + email when available. |
+| `site.css` / `site.js` | Shared brand styles; site.js used by card.html (challenge rotation, streak). |
+| `docs/build-prompt-v4-app.md` | **App spec** (draft → review → final). |
+| `docs/learn-with-nova.md` | Training clip episode plans (shot lists). |
+| `docs/global-plan.md` | Growth/money plan (community parts now secondary). |
+| `docs/decisions.md` | Decision log + open items. |
+| `_archive/` | Old landing pages, prototype, old docs. Never published. |
 
 ## Design tokens
 - **Light mode:** Shannon blue `#1F4E6E` (primary; the CSS variable is named `--spruce` in app.html), oat background `#F3F2EB`, ink `#1E1B17`, muted `#5C544B`, Nova tan `#C27A3A` (`#8E5019` for small text), sunset gold `#F2B544` (XP/rewards).

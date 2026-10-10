@@ -1,7 +1,7 @@
 // What's due, medicine schedules and the poop "Call your vet" rules. No DOM here.
 
 import { S, eventsOf, forPet } from "./state.js";
-import { isoDate, addDays, addMonths, daysBetween, startOfDay, DAY } from "./util.js";
+import { isoDate, addDays, addMonths, daysBetween, startOfDay, dayStart, DAY } from "./util.js";
 
 // Extra things owners can tick with a poop. The spec's red flags include vomiting and tiredness,
 // which aren't poop properties, so they live here rather than in the content file.
@@ -129,7 +129,8 @@ export function poopAlerts(p, now = Date.now()) {
   if (has(recent, "black-tarry")) add("Black or tarry poop logged in the last 24 hours.", /black|tarry/i);
   if (has(recent, "blood")) {
     if (unwell.length) add(`Blood in the poop, plus ${unwell.join(" and ")}.`, /blood.*(vomit|tired|not eating)/i);
-    else add("Blood in the poop logged in the last 24 hours.", /lot of blood/i);
+    else if (has(recent, "black-tarry")) add("Blood in the poop logged in the last 24 hours.", null);
+    else add("Blood in the poop logged in the last 24 hours. A small streak once can happen, but call your vet for advice, sooner if there's a lot, it keeps happening, or your pet seems unwell.", null);
   }
   if (has(recent, "straining")) add("Straining logged in the last 24 hours.", /strain/i);
   if (has(recent, "worms")) add("Worms or rice-like bits logged.", /worm/i);
@@ -169,7 +170,7 @@ export function poopWeek(petId, now = Date.now()) {
   const poops = eventsOf("poop", petId);
   const out = [];
   for (let i = 6; i >= 0; i--) {
-    const d0 = startOfDay(now - i * DAY), d1 = d0 + DAY;
+    const d0 = dayStart(now, -i), d1 = dayStart(now, -i + 1);
     const day = poops.filter((e) => e.at >= d0 && e.at < d1);
     const worst = day.reduce((w, e) => (typeof e.score === "number" && Math.abs(e.score - 3) > Math.abs(w - 3) ? e.score : w), day.length ? 3 : 0);
     out.push({ day: d0, count: day.length, worst, flagged: day.some((e) => (e.flags || []).length) });

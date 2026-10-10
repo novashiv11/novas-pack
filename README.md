@@ -1,6 +1,6 @@
 # Nova's Pack
 
-**Everyone's welcome in the pack.** A free, friendly online community for everyone who loves animals: first-time and experienced owners; dogs, cats, hens, rabbits, horses and more; rescuers and fosters; and people with no pet yet. Hosted by Nova, a young German Shepherd and professional human handler ([@novathehumanhandler](https://www.instagram.com/novathehumanhandler/)). Worldwide, online.
+**Nova's Pack: the pet care diary.** A free, private app (installable from the website) to track vaccines, medicines, poop, food, treats, weight and training, hosted by Nova. Everyone's welcome in the pack: for everyone who loves animals: first-time and experienced owners; dogs, cats, hens, rabbits, horses and more; rescuers and fosters; and people with no pet yet. Hosted by Nova, a young German Shepherd and professional human handler ([@novathehumanhandler](https://www.instagram.com/novathehumanhandler/)). Worldwide, online.
 
 Live site (once GitHub Pages is on): https://novashiv11.github.io/novas-pack/
 
@@ -8,7 +8,8 @@ Live site (once GitHub Pages is on): https://novashiv11.github.io/novas-pack/
 
 | Path | What it is |
 |---|---|
-| `index.html` | Public welcome page. Static, no cookies or trackers. |
+| `index.html`, `app.css`, `js/`, `data/` | The pet care diary app (PWA, data on the device). |
+| `clips/` | Training clips: add `<skill-id>.mp4` (e.g. `recall.mp4`) and they appear in the app. |
 | `privacy.html` | Full privacy notice. |
 | `site.css`, `site.js` | Shared styles; `site.js` holds the Discord invite link (the only setting), the challenge rotation and the streak logic. |
 | `img/` | Nova's photos in use, the share image (`og-image.jpg`), the Nova illustration and the QR code (`brand/`). |
