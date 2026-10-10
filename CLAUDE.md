@@ -61,6 +61,12 @@ Handoff summary for Claude Code. Read this first, then `docs/00-master-brief.md`
   7. Photo quality, share image (needs an absolute URL), no favicon, the "Alpha Walker" title.
 - **Inconsistencies to resolve:** hashtags (use **#NewToThePack, #OffDuty, #GoldenHour**), Shout-out pick categories (use newcomer / most helpful / challenge favourite), the Founding Pack badge (should be the first 100 only), and phase numbering between docs.
 
+## Product (10 Oct 2026, latest): the pet care diary app
+- **The app is the product** (`index.html` = installable PWA): quick logs, vaccines/preventives/medicines with due lists and .ics reminders, food and treats, poop log with vet-first red flags, weight, vet summary, training library (`data/skills.js`, clips in `/clips/<id>.mp4`).
+- Data on the device (IndexedDB), no accounts, backup/export/delete. Never dosing advice or diagnosis.
+- Spec: `docs/build-prompt-v4-app.md`. Community, Discord and the Pack Card are secondary.
+- Usage: Shiv OK'd 2–3 agents for this build; otherwise build directly.
+
 ## Strategy (10 Oct 2026): worldwide, online-only
 - Reach: Instagram Reels (main), TikTok, YouTube Shorts, Facebook Reels: one video, four places. Home: **Discord** (18+). Hub: website + Pack Card.
 - Weekly rhythm: Mon challenge · Wed Ask the Pack · Sat Shout-out Saturday · Sun #PackWalk (real life).
