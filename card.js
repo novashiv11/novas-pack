@@ -28,7 +28,11 @@
   const raw = NP.store.get(STATE_KEY, {});
   const saved = raw && typeof raw === "object" && !Array.isArray(raw) ? raw : {};
   const state = {
-    species: SPECIES.some((s) => s.id === saved.species) ? saved.species : "dog",
+    species: (() => {
+      const q = new URLSearchParams(location.search).get("species");
+      if (SPECIES.some((s) => s.id === q)) return q;
+      return SPECIES.some((s) => s.id === saved.species) ? saved.species : "dog";
+    })(),
     name: typeof saved.name === "string" ? saved.name.slice(0, 20) : "",
     title: typeof saved.title === "string" ? saved.title : "",
     custom: typeof saved.custom === "string" ? saved.custom.slice(0, 32) : "",
@@ -240,7 +244,7 @@
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
       try {
         await navigator.share({ files: [file], title: "My Pack Card", text: caption() });
-        say("Shared! Tag @novathehumanhandler so Nova sees it.");
+        say("Shared! Tag @novathehumanhandler so Nova sees it."); NP.confetti($("shareBtn"));
       } catch (err) {
         if (err && err.name !== "AbortError") { download(blob); say("Sharing didn't work here, so we downloaded it instead."); }
       }
@@ -251,7 +255,7 @@
   });
   $("downloadBtn").addEventListener("click", async () => {
     const blob = await toBlob();
-    if (blob) { download(blob); say("Downloaded. Post it and tag @novathehumanhandler."); }
+    if (blob) { download(blob); say("Downloaded. Post it and tag @novathehumanhandler."); NP.confetti($("downloadBtn")); }
   });
   $("captionBtn").addEventListener("click", async () => {
     const text = caption();
@@ -268,11 +272,28 @@
     const btn = $("tickBtn");
     btn.setAttribute("aria-disabled", String(st.doneThisWeek));
     btn.textContent = st.doneThisWeek ? "Done for this week ✓" : "I took part this week";
+    const dots = $("weekDots");
+    if (dots) dots.replaceChildren(...NP.lastWeeks(8).map((w) => {
+      const li = document.createElement("li");
+      li.className = (w.done ? "done" : "") + (w.current ? " current" : "");
+      li.textContent = w.done ? "✓" : "";
+      li.setAttribute("aria-label", `${w.current ? "This week" : w.id}: ${w.done ? "took part" : "not yet"}`);
+      return li;
+    }));
   }
+  $("diceBtn").addEventListener("click", () => {
+    const t = sp().titles;
+    let pick; do { pick = t[(Math.random() * t.length) | 0]; } while (t.length > 1 && pick === state.title);
+    state.title = pick; state.custom = ""; customInput.value = ""; titleSel.value = pick;
+    state.stats = state.stats.map(() => 40 + ((Math.random() * 61) | 0));
+    if (Math.random() < 0.1) state.stats[(Math.random() * 3) | 0] = 100;
+    buildStats(); update();
+    say(state.stats.includes(100) ? "Ooh, a perfect 100. Rare." : "Rolled. Not happy? Roll again.");
+  });
   $("tickBtn").addEventListener("click", () => {
     if (NP.streak().doneThisWeek) { say("Already counted this week. See you next week."); return; }
     if (!NP.tickThisWeek()) { say("Couldn't save on this device (private browsing?). Your card still works."); return; }
-    showStreak(); render();
+    showStreak(); render(); NP.confetti($("tickBtn"));
     say("Nice. See you next week.");
   });
   $("resetBtn").addEventListener("click", () => {

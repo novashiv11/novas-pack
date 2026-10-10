@@ -41,7 +41,7 @@
     <div class="maker-intro">
       <p class="eyebrow">Pack Card maker</p>
       <h1>Make your pet's Pack Card</h1>
-      <p class="lede">Any species, or for you if you've no pet yet. Share it to your Story and tag <b>@novathehumanhandler</b>. Your photo stays on your phone: nothing is uploaded. Ages 16+.</p>
+      <p class="lede">Any species. Share it, tag <b>@novathehumanhandler</b>. Your photo never leaves your phone. 16+.</p>
     </div>
 
     <div class="maker-grid">
@@ -78,6 +78,7 @@
       <div class="maker-preview">
         <canvas id="card" width="1080" height="1350" role="img" aria-label="Preview of your Pack Card"></canvas>
         <div class="join-ctas">
+          <button class="btn btn-line" type="button" id="diceBtn"><span aria-hidden="true">🎲</span> Surprise me</button>
           <button class="btn btn-gold" type="button" id="shareBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 8l5-5 5 5M5 14v5h14v-5"/></svg>Share my Pack Card</button>
           <button class="btn btn-line" type="button" id="downloadBtn">Download image</button>
           <button class="btn btn-line" type="button" id="captionBtn">Copy a caption</button>
@@ -86,10 +87,11 @@
 
         <section class="streak" aria-labelledby="streak-h">
           <h2 id="streak-h">Your Pack streak</h2>
-          <p class="streak-num"><b id="streakWeeks">0</b> <span id="streakUnit">weeks</span></p>
+          <p class="streak-num"><span class="flame" aria-hidden="true">🔥</span> <b id="streakWeeks">0</b> <span id="streakUnit">weeks</span></p>
+          <ul class="week-dots" id="weekDots" aria-label="Your last 8 weeks"></ul>
           <p class="small muted" id="streakGrace"></p>
           <button class="btn btn-blue" type="button" id="tickBtn">I took part this week</button>
-          <p class="small muted">What counts: entering this week's challenge (<span data-challenge-tag>a new theme every Monday</span>), a Sunday #PackWalk, or helping someone in the pack. Honour system. Miss a week? You get a grace week for every 4 you take part (up to 2 saved). Saved on this device only.</p>
+          <p class="small muted">Counts: this week's challenge (<span data-challenge-tag>a new theme every Monday</span>), a Sunday #PackWalk, or helping someone. Honour system. Every 4 weeks earns a grace week (max 2). Saved on this device only.</p>
           <button class="linkish" type="button" id="resetBtn">Delete my streak and card choices from this device</button>
         </section>
       </div>

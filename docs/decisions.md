@@ -4,6 +4,7 @@ Newest first. **Who** = who made the call. Shiv decides strategy, money, anythin
 
 | # | Date | Decision | Why | Who |
 |---|---|---|---|---|
+| 32 | 10 Oct 2026 | **Visual, interactive redesign** (prompt: `docs/build-prompt-v3-visual.md`): Boop Nova (random replies, rare golden boop), "Who's in your family?" picker that pre-fills the card, challenge ticket with countdown ring, week timeline, swipe deck with Nova's real Pack Card, icon rules, folded help/privacy. Card maker: "Surprise me" die, confetti, streak flame and 8-week dots. Home page went from about 8,300 px to about 3,200 px. | Shiv: "too much text, need graphics, interactive, addictive". Habit-forming without dark patterns: all counters personal and on the device. | **Shiv** (direction); Builder (design) |
 | 31 | 10 Oct 2026 | Old Limerick-era docs (community kit, launch kit, money plan, launch plan) moved to `_archive/docs-v1/`. `docs/global-plan.md` is now the single plan. | One source of truth; less to maintain. | Builder |
 | 30 | 10 Oct 2026 | Usage: no new research agents; build directly; one small QA pass per deliverable. | Shiv asked to save Claude usage. | **Shiv** |
 | 29 | 10 Oct 2026 | Engagement system: weekly rhythm (Mon challenge, Wed Ask, Sat Shout-out, Sun #PackWalk), Pack Card, weekly streak with grace weeks, badges for real actions. **No** XP-per-message bots, guilt notifications, infinite feeds or points for likes. | Shiv asked for Reels/TikTok-level engagement; this is the humane version that keeps his rule 4 and fits upcoming EU addictive-design rules. | Builder |

@@ -11,13 +11,13 @@ Handoff summary for Claude Code. Read this first, then `docs/00-master-brief.md`
 ## Repo map
 | Path | What |
 |---|---|
-| `index.html` | Hub: hero, this week's challenge (auto), weekly rhythm, what you get (live/soon), rules, lost-pet guidance, join, ages/privacy. |
+| `index.html` | Interactive hub: Boop Nova, species picker → card, challenge ticket + countdown ring, week timeline, swipe deck, icon rules, folded lost-pet/privacy. Keep visible text short (<~300 words). |
 | `card.html` + `card.js` | **Pack Card maker**: client-side canvas card (1080×1350), share/download, weekly streak (localStorage). Photo never uploaded. |
 | `privacy.html` | GDPR Art. 13 notice (Discord, Instagram, card maker, localStorage). Needs Shiv's full name + email when available. |
 | `site.css` / `site.js` | Shared styles. `site.js`: `COMMUNITY_URL` (Discord invite; empty = chat "Opening soon"), challenge rotation (8 themes, week 0 = Mon 12 Oct 2026), streak logic. |
 | `img/` | `card.jpg` (hero), `face.jpg`, `og-image.jpg`, `brand/` (Nova SVG, QR). Indoor photos only until muzzled outdoor shots exist. |
 | `docs/global-plan.md` | **The plan**: where, how, when, how much, Discord setup, rules, launch content. |
-| `docs/build-prompt-v2.md` | The build prompt for the site. |
+| `docs/build-prompt-v2.md`, `docs/build-prompt-v3-visual.md` | Build prompts (v3 = visual, interactive, habit-forming redesign). |
 | `docs/decisions.md` | Decision log + open items. Update on every task. |
 | `docs/00-master-brief.md`, `docs/01-audit-and-build-prompt.md` | History (Limerick era). |
 | `_archive/` | Old prototype, old docs (`docs-v1/`), unused photos. Never published. |

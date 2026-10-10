@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Nova's Pack · Everyone's welcome in the pack</title>
-<meta name="description" content="A free, friendly online community for everyone who loves animals, hosted by Nova the German Shepherd. Make your pet's Pack Card and join the pack.">
+<meta name="description" content="A free, friendly online pack for everyone who loves animals, hosted by Nova the German Shepherd. Boop Nova, make your pet's Pack Card, join the weekly challenge.">
 <link rel="canonical" href="https://novashiv11.github.io/novas-pack/">
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#F3F2EB" media="(prefers-color-scheme: light)">
@@ -15,7 +15,7 @@
 <meta property="og:locale" content="en_IE">
 <meta property="og:url" content="https://novashiv11.github.io/novas-pack/">
 <meta property="og:title" content="Everyone's welcome in Nova's Pack">
-<meta property="og:description" content="A free, friendly online community for anyone who loves animals, anywhere. Make your pet's Pack Card and join the pack.">
+<meta property="og:description" content="A free, friendly online pack for anyone who loves animals, anywhere. Make your pet's Pack Card.">
 <meta property="og:image" content="https://novashiv11.github.io/novas-pack/img/og-image.jpg">
 <meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
@@ -23,7 +23,7 @@
 <meta property="og:image:alt" content="Nova, a black-and-tan German Shepherd in a knitted scarf, next to the words: Everyone's welcome in the pack.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Everyone's welcome in Nova's Pack">
-<meta name="twitter:description" content="A free, friendly online community for anyone who loves animals, anywhere.">
+<meta name="twitter:description" content="A free, friendly online pack for anyone who loves animals, anywhere.">
 <meta name="twitter:image" content="https://novashiv11.github.io/novas-pack/img/og-image.jpg">
 <meta name="twitter:image:alt" content="Nova, a black-and-tan German Shepherd in a knitted scarf, next to the words: Everyone's welcome in the pack.">
 
@@ -34,7 +34,7 @@
 <link rel="preload" href="fonts/plus-jakarta-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="site.css">
 </head>
-<body>
+<body class="home">
 <a class="skip" href="#main">Skip to content</a>
 
 <header class="bar">
@@ -45,182 +45,161 @@
 </header>
 
 <main id="main">
-  <section class="hero" aria-labelledby="hero-h">
-    <div class="wrap hero-grid">
-      <div class="hero-text">
-        <p class="host-row"><img src="img/face.jpg" width="240" height="240" alt="">Hosted by Nova, professional human handler</p>
+
+  <!-- HERO: boop Nova -->
+  <section class="v-hero" aria-labelledby="hero-h">
+    <div class="wrap v-hero-grid">
+      <div class="boop-wrap">
+        <button class="boop" id="boop" type="button" aria-describedby="boopSay">
+          <img src="img/card.jpg" width="560" height="560" alt="Nova, a young black-and-tan German Shepherd in a knitted scarf. Tap to boop her nose." fetchpriority="high">
+          <span class="boop-hint" aria-hidden="true">👆 Boop me</span>
+        </button>
+        <p class="bubble" id="boopSay" aria-live="polite">Go on. Boop the nose.</p>
+        <p class="boop-count" id="boopCount"></p>
+      </div>
+      <div class="v-hero-text">
         <h1 id="hero-h">Everyone's welcome in the pack.</h1>
-        <p class="lede">A free, friendly online community for everyone who loves animals, wherever you are. First pet or fifth, paws, hooves, feathers or scales, or no pet yet.</p>
+        <p class="lede">A free online pack for animal lovers. Any species. Anywhere.</p>
         <div class="join-ctas">
-          <a class="btn btn-gold" href="card.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="M8 15h8M8 18h5"/><circle cx="12" cy="9" r="3"/></svg>Make your pet's Pack Card</a>
-          <a class="btn btn-blue" data-community hidden href="#how-to-join"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg>Join the pack chat</a>
-          <p class="cta-note">Free. Or <a class="text-link" href="https://ig.me/m/novathehumanhandler">DM “PACK” to Nova on Instagram</a>.</p>
+          <a class="btn btn-gold" href="card.html"><span aria-hidden="true">🪪</span> Make your Pack Card</a>
+          <a class="btn btn-blue" data-community hidden href="#join">Join the pack chat</a>
+          <p class="cta-note">Free · 16+ · or <a class="text-link" href="https://ig.me/m/novathehumanhandler">DM “PACK” on Instagram</a></p>
         </div>
       </div>
-      <figure class="hero-photo">
-        <div class="frame"><img src="img/card.jpg" width="560" height="560" alt="Nova, a young black-and-tan German Shepherd, in a knitted scarf, tongue out, looking straight at the camera" fetchpriority="high"></div>
-      </figure>
     </div>
   </section>
 
   <div class="wrap">
     <div class="col sections">
 
-      <section class="week" aria-labelledby="week-h">
-        <p class="eyebrow" id="week-h">This week's challenge</p>
-        <p class="tag" data-challenge-tag>A new theme every Monday</p>
-        <p data-challenge-text>Post a photo of your animal to the weekly theme.</p>
-        <p class="small muted">Post it on Instagram or TikTok with the hashtag and tag @novathehumanhandler<span data-if-community hidden>, or share it in the pack chat</span>. <span class="when" data-shoutout-when></span></p>
+      <!-- WHO'S IN YOUR FAMILY -->
+      <section class="family" aria-labelledby="fam-h">
+        <h2 id="fam-h">Who's in your family?</h2>
+        <div class="fam-chips" id="family">
+          <button type="button" data-sp="dog" aria-pressed="false"><span aria-hidden="true">🐶</span> Dog</button>
+          <button type="button" data-sp="cat" aria-pressed="false"><span aria-hidden="true">🐱</span> Cat</button>
+          <button type="button" data-sp="bird" aria-pressed="false"><span aria-hidden="true">🐦</span> Bird</button>
+          <button type="button" data-sp="small" aria-pressed="false"><span aria-hidden="true">🐰</span> Small pet</button>
+          <button type="button" data-sp="horse" aria-pressed="false"><span aria-hidden="true">🐴</span> Horse</button>
+          <button type="button" data-sp="scaly" aria-pressed="false"><span aria-hidden="true">🦎</span> Scaly</button>
+          <button type="button" data-sp="other" aria-pressed="false"><span aria-hidden="true">🐔</span> Other</button>
+          <button type="button" data-sp="none" aria-pressed="false"><span aria-hidden="true">💛</span> No pet yet</button>
+        </div>
+        <div class="fam-reply">
+          <img class="disc" src="img/brand/nova-head.svg" alt="" width="44" height="44">
+          <p class="bubble small-bubble" id="familySay" aria-live="polite">Tap one. I'm curious.</p>
+        </div>
+        <a class="btn btn-line" id="familyCta" href="card.html">Make their Pack Card →</a>
       </section>
 
-      <section aria-labelledby="note-h">
+      <!-- THIS WEEK -->
+      <section class="ticket" aria-labelledby="week-h">
+        <div class="ticket-main">
+          <p class="eyebrow" id="week-h">This week's challenge</p>
+          <p class="tag" data-challenge-tag>#NewToThePack</p>
+          <p class="ticket-line" data-challenge-text>Introduce your animal, or yourself.</p>
+          <div class="ticket-actions">
+            <button class="btn btn-gold" type="button" id="copyTag">Copy hashtag</button>
+            <a class="btn btn-line" href="card.html">Make a card for it</a>
+          </div>
+        </div>
+        <div class="ring" role="img" aria-labelledby="ringText">
+          <svg viewBox="0 0 80 80" aria-hidden="true"><circle class="ring-bg" cx="40" cy="40" r="34"/><circle class="ring-fill" id="ringFill" cx="40" cy="40" r="34"/></svg>
+          <div class="ring-text" id="ringText"><b id="ringNum">–</b><span id="ringLab">days</span><small>to Shout-out Saturday</small></div>
+        </div>
+      </section>
+
+      <!-- THE PACK'S WEEK -->
+      <section aria-labelledby="rhythm-h">
+        <h2 id="rhythm-h" class="sec-h">The pack's week</h2>
+        <ol class="timeline">
+          <li data-day="1"><span class="dot" aria-hidden="true">📸</span><b>Mon</b><span>New challenge</span></li>
+          <li data-day="3"><span class="dot" aria-hidden="true">💬</span><b>Wed</b><span>Ask the Pack</span></li>
+          <li data-day="6"><span class="dot" aria-hidden="true">🏆</span><b>Sat</b><span>Shout-outs</span></li>
+          <li data-day="0"><span class="dot" aria-hidden="true">🌿</span><b>Sun</b><span>#PackWalk</span></li>
+        </ol>
+      </section>
+
+      <!-- WHAT YOU GET: swipe deck -->
+      <section aria-labelledby="get-h">
+        <div class="deck-head">
+          <h2 id="get-h" class="sec-h">What you get</h2>
+          <span class="swipe-hint" aria-hidden="true">swipe →</span>
+        </div>
+        <ul class="deck" tabindex="0" aria-label="What you get (scrolls sideways)">
+          <li class="deck-card feature">
+            <img src="img/nova-card.jpg" width="600" height="750" alt="Nova's own Pack Card: Professional Human Handler, Zoomies 94, Snack radar 100, Sofa claim 88." loading="lazy">
+            <div><p class="status" data-status="live">Open now</p><h3><a href="card.html">Pack Card</a></h3><p>Your pet, as a card. Share it.</p></div>
+          </li>
+          <li class="deck-card"><span class="big-emoji" aria-hidden="true">🏆</span><p class="status" data-status="live">Open now</p><h3>Shout-out Saturday</h3><p>Up to 3 members' animals, featured by Nova. Never picked by likes.</p></li>
+          <li class="deck-card"><span class="big-emoji" aria-hidden="true">🔥</span><p class="status" data-status="live">Open now</p><h3>Weekly streak</h3><p>Show up weekly. Grace weeks included.</p></li>
+          <li class="deck-card"><span class="big-emoji" aria-hidden="true">🌿</span><p class="status" data-status="live">Open now</p><h3>Sunday #PackWalk</h3><p>Phone down. Real life with your animal.</p></li>
+          <li class="deck-card"><span class="big-emoji" aria-hidden="true">💬</span><p class="status" data-status="soon" data-needs-community>Opening soon</p><h3>The pack chat</h3><p>Discord, 18+. Usernames only.</p></li>
+          <li class="deck-card"><span class="big-emoji" aria-hidden="true">🏅</span><p class="status" data-status="soon">Coming soon</p><h3>Badges</h3><p>For showing up, helping, learning. Never likes.</p></li>
+          <li class="deck-card"><span class="big-emoji" aria-hidden="true">🎓</span><p class="status" data-status="soon">Coming soon</p><h3>Learn with Nova</h3><p>Our training journey. Kind methods only.</p></li>
+        </ul>
+      </section>
+
+      <!-- NOTE FROM NOVA (short) -->
+      <section class="note" aria-labelledby="note-h">
         <h2 id="note-h" class="vh">A note from Nova</h2>
-        <article class="memo">
-          <dl>
-            <dt>From</dt><dd>Nova, professional human handler</dd>
-            <dt>To</dt><dd>Anyone who loves animals, anywhere</dd>
-            <dt>Re</dt><dd>Come on in</dd>
-          </dl>
-          <p>Hi, I'm Nova. German Shepherd, about a year old, and full-time handler of one questionable adult human. I have asked for a raise. I am still waiting.</p>
-          <p>I started this pack because everyone deserves somewhere kind to ask the questions they're afraid are daft, show off whoever they share their sofa with, and find their people, wherever they are. Thirty years of dogs or your first rabbit last Tuesday: there's a spot for you.</p>
-          <p>No silly questions. No judgement. Pull up a blanket. Not the grey one; that's mine.</p>
-          <p class="sig"><img class="disc" src="img/brand/nova-head.svg" alt="" width="44" height="44"><span>Nova<small>Typed by my human, under close supervision</small></span></p>
-        </article>
+        <img class="disc" src="img/brand/nova-head.svg" alt="" width="64" height="64">
+        <p class="bubble">I'm Nova. I handle one questionable human and I'm still waiting on my raise. This pack is for anyone who loves animals. No silly questions. Pull up a blanket. Not the grey one.</p>
       </section>
 
-      <section class="sec" aria-labelledby="rhythm-h">
-        <p class="eyebrow">Every week</p>
-        <h2 id="rhythm-h">The pack's week</h2>
-        <ul class="rhythm">
-          <li><span class="day">Monday</span><b>New challenge</b><span>A photo theme for every species.</span></li>
-          <li><span class="day">Wednesday</span><b>Ask the Pack</b><span>Questions answered kindly in the pack chat. Vet first on health.<span data-if-no-community> Starts when the chat opens.</span></span></li>
-          <li><span class="day">Saturday</span><b>Shout-out Saturday</b><span>Nova features members' animals.</span></li>
-          <li><span class="day">Sunday</span><b>#PackWalk</b><span>Real life with your animal. Post one photo.</span></li>
+      <!-- HOUSE RULES: icon grid -->
+      <section aria-labelledby="rules-h">
+        <h2 id="rules-h" class="sec-h">House rules</h2>
+        <ul class="rules-grid">
+          <li><span aria-hidden="true">🙋</span>No silly questions</li>
+          <li><span aria-hidden="true">🤝</span>No judgement</li>
+          <li><span aria-hidden="true">🚫</span>No selling or rehoming</li>
+          <li><span aria-hidden="true">🩺</span>Vet first on health</li>
+          <li><span aria-hidden="true">🍖</span>Kind methods only</li>
+          <li><span aria-hidden="true">🔒</span>Keep it private</li>
+          <li><span aria-hidden="true">✋</span>No uninvited DMs</li>
+          <li><span aria-hidden="true">💛</span>Be kind, or be gone</li>
         </ul>
+        <details class="more-box">
+          <summary>What the rules mean</summary>
+          <ul class="rules">
+            <li><b>No selling or rehoming:</b> no selling, giving away or rehoming animals here, even for free. No breeding or stud offers. A registered rescue will help.</li>
+            <li><b>Vet first:</b> worried your animal is unwell? Call your vet before you post. We share experience; we never diagnose.</li>
+            <li><b>Kind methods:</b> no advice to hit, shock, prong or choke-chain an animal.</li>
+            <li><b>Private:</b> no home addresses, live locations or anyone else's details.</li>
+            <li><b>Be kind:</b> no shaming, pile-ons or spam. Mods remove posts that break the rules, and repeat offenders.</li>
+          </ul>
+        </details>
       </section>
 
-      <section class="sec" aria-labelledby="get-h">
-        <p class="eyebrow">What you get</p>
-        <h2 id="get-h">What's open now, and what's coming</h2>
-        <p class="muted">Nova has a strict no-fibbing policy: "Open now" means today; "Coming soon" means her human is on it.</p>
-        <div class="offer">
-
-          <article class="item" aria-labelledby="card-h">
-            <h3 id="card-h"><a href="card.html">Your Pack Card</a></h3>
-            <p class="status" data-status="live">Open now</p>
-            <p>A shareable card for your pet, with a job title and (honest) stats. Your photo never leaves your phone. It also tracks your weekly Pack streak, with grace weeks, because life happens.</p>
-          </article>
-
-          <article class="item" aria-labelledby="chat-h">
-            <h3 id="chat-h">The pack chat</h3>
-            <p class="status" data-status="soon" data-needs-community>Opening soon</p>
-            <p>Our Discord server: ask anything, swap tips, share photos, enter challenges and earn badges. Usernames only, so your phone number stays private. Adults (18+).</p>
-          </article>
-
-          <article class="item wide shout" id="shout-out" aria-labelledby="shout-h">
-            <h3 id="shout-h">Shout-out Saturday</h3>
-            <p class="status" data-status="live">Open now</p>
-            <p>Brilliant pet accounts go quiet because nobody sees them. Nova finds this unacceptable. Every Saturday she shares up to three members' animals with her followers:</p>
-            <ul class="trio">
-              <li><b>1</b>A newcomer<span>in the order you joined</span></li>
-              <li><b>2</b>Most helpful<span>nominated by members</span></li>
-              <li><b>3</b>Challenge favourite<span>picked by Nova's human, never by likes</span></li>
-            </ul>
-            <p>Any species, anywhere. Each pet is featured at most once every 8 weeks, and we rotate so lots of pets get a turn. We always ask first, and you can opt out any time. Ages 16+.</p>
-          </article>
-
-          <article class="item" aria-labelledby="walk-h">
-            <h3 id="walk-h">Sunday #PackWalk</h3>
-            <p class="status" data-status="live">Open now</p>
-            <p>Once a week, put the phone down and do something real with your animal: a walk, the garden, a window seat with your cat. Then post one photo. Follow your local rules (leads, and muzzles where the law asks for them; Nova wears hers with dignity).</p>
-          </article>
-
-          <article class="item" aria-labelledby="badges-h">
-            <h3 id="badges-h">Badges for real things</h3>
-            <p class="status" data-status="soon">Coming soon</p>
-            <p>Challenger, Walker, Helper, Learner and Founding 100, in the pack chat. Earned by showing up, helping and learning. Never for likes or chatter.</p>
-          </article>
-
-          <article class="item" aria-labelledby="learn-h">
-            <h3 id="learn-h">Learn with Nova</h3>
-            <p class="status" data-status="soon">Coming soon</p>
-            <p>Short clips of Nova and her human learning the basics: recall, loose-lead walking, settling down. Our journey, not expert instruction; checked by a reward-based trainer. Kind methods only.</p>
-          </article>
-
-        </div>
-      </section>
-
-      <section class="sec" aria-labelledby="who-h">
-        <p class="eyebrow">Who it's for</p>
-        <h2 id="who-h">Newbies, old hands, and everyone in between</h2>
-        <ul class="chips">
-          <li>First-time owners</li><li>Lifelong animal people</li><li>Dog people</li>
-          <li>Cat people</li><li>Hen keepers</li><li>Rabbit and small-pet folk</li>
-          <li>Horse and pony people</li><li>Budgies, lizards, fish: yes, you too</li><li>Rescuers and fosters</li>
-          <li>Older pets and their people</li><li>No pet yet? Still in.</li>
-        </ul>
-        <p class="aside">Our host is a dog, so expect a little dog bias. Want a corner for your hens, horse or cat? Tell Nova and we'll make one.</p>
-      </section>
-
-      <section class="sec" aria-labelledby="rules-h">
-        <p class="eyebrow">House rules</p>
-        <h2 id="rules-h">Kind by default</h2>
-        <ul class="house">
-          <li><b>No silly questions</b><span>Everyone started somewhere. Newbies get help, not lectures.</span></li>
-          <li><b>No judgement</b><span>Any species, any breed, any experience. All welcome.</span></li>
-          <li><b>No selling or rehoming animals</b><span>No selling, giving away or rehoming animals here, even for free. No breeding or stud offers. A registered rescue will help.</span></li>
-          <li><b>Vet first</b><span>Worried your animal is unwell? Call your vet before you post. We share experience; we never diagnose.</span></li>
-          <li><b>Kind methods only</b><span>No advice to hit, shock, prong or choke-chain an animal.</span></li>
-          <li><b>Keep it private</b><span>No home addresses, live locations, or anyone else's details.</span></li>
-          <li><b>No uninvited DMs</b><span>Ask first. Report anyone who doesn't, and they're removed.</span></li>
-          <li><b>Be kind, or be gone</b><span>No shaming, pile-ons or spam.</span></li>
-        </ul>
-      </section>
-
-      <section class="lost" aria-labelledby="lost-h">
-        <h2 id="lost-h">Lost or found a pet?</h2>
-        <p>Act fast, and go local first. We're an online pack, so we can't run searches, but we'll share your post.</p>
-        <ol>
-          <li>Call local animal shelters, vets and animal control (in Ireland, your council's dog warden).</li>
-          <li>Check the microchip: a vet or shelter can scan a found pet. Owners: make sure your details are up to date. In Europe, <a href="https://www.europetnet.com/">Europetnet</a> shows which database holds a chip.</li>
-          <li>Post on your area's lost and found pages (in Ireland, the <a href="https://ispca.ie/lost-and-found-info">ISPCA register</a>).</li>
-          <li>Then tag @novathehumanhandler<span data-if-community hidden> or share it in the pack chat</span>, and we'll help spread the word.</li>
+      <!-- JOIN -->
+      <section id="join" aria-labelledby="join-h">
+        <h2 id="join-h" class="sec-h">Join in 3 taps</h2>
+        <ol class="taps">
+          <li><span aria-hidden="true">🪪</span><a href="card.html">Make your card</a></li>
+          <li><span aria-hidden="true">💬</span><span><a data-community hidden href="#join">Join the chat</a><span data-if-no-community><a href="https://ig.me/m/novathehumanhandler">DM “PACK”</a></span></span></li>
+          <li><span aria-hidden="true">👋</span><span>Post #NewToThePack</span></li>
         </ol>
-        <p class="small muted">Never pay a "finder" before you've seen your pet in person. See an animal in danger? Contact your local animal welfare charity or the police (in Ireland: ISPCA <a href="tel:+353818515515">0818 515 515</a>).</p>
       </section>
 
-      <section class="sec" id="how-to-join" aria-labelledby="join-h">
-        <p class="eyebrow">How to join</p>
-        <h2 id="join-h">Three easy steps</h2>
-        <ol class="steps">
-          <li><div><b>Make your Pack Card</b><span>Optional, but it's the fun bit. <a href="card.html">Make it here</a> and share it with #NovasPack.</span></div></li>
-          <li><div><b>Join the pack chat</b><span><span data-if-no-community>The chat opens soon on Discord, a free chat app. DM “PACK” to <a href="https://www.instagram.com/novathehumanhandler/">@novathehumanhandler</a> and we'll send you the link when it opens.</span><span data-if-community hidden>On Discord, a free chat app. You pick a username, so your phone number stays private. Answer two quick questions and you're in (18+). Not on Discord? DM “PACK” to @novathehumanhandler.</span></span></div></li>
-          <li><div><b>Say hello with #NewToThePack</b><span>On Instagram or TikTok<span data-if-community hidden>, or in the pack chat</span>. The pack will say hi.</span></div></li>
-        </ol>
-        <div class="join-ctas">
-          <a class="btn btn-blue" data-community hidden href="#how-to-join"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg>Join the pack chat</a>
-          <a class="btn btn-gold" href="https://ig.me/m/novathehumanhandler">DM “PACK” to Nova</a>
-        </div>
-        <p class="small muted">The Instagram button opens the app on your phone. On a computer, open Instagram and message @novathehumanhandler.</p>
-      </section>
-
-      <section class="privacy" id="privacy" aria-labelledby="privacy-h">
-        <h2 id="privacy-h">Ages and privacy</h2>
-        <ul class="ages">
-          <li><b>16+</b><span>Following Nova, challenges, Shout-out Saturday and the Pack Card.</span></li>
-          <li><b>18+</b><span>The pack chat on Discord.</span></li>
-        </ul>
-        <p><b>Your privacy, in short:</b> Nova's Pack is run by Shiv (Nova's human). We keep the minimum (your username or handle, and your animals' names), never sell it, and you can see, correct or delete it any time. The Pack Card is made on your device; nothing is uploaded. This website has no cookies, analytics or trackers.</p>
-        <p><a class="more" href="privacy.html">Read the full privacy notice</a></p>
-      </section>
-
-      <section class="final" aria-labelledby="final-h">
-        <img class="disc" src="img/brand/nova-head.svg" alt="" width="96" height="96">
-        <h2 id="final-h">Come say hi. There's room for everyone.</h2>
-        <div class="join-ctas center">
-          <a class="btn btn-gold" href="card.html">Make your Pack Card</a>
-          <a class="btn btn-blue" href="https://www.instagram.com/novathehumanhandler/">Follow Nova</a>
-        </div>
+      <!-- LOST PET + PRIVACY: collapsed -->
+      <section class="folds" aria-label="Help and privacy">
+        <details class="more-box">
+          <summary><span aria-hidden="true">🆘</span> Lost or found a pet?</summary>
+          <ol class="rules">
+            <li>Call local shelters, vets and animal control (in Ireland, your council's dog warden).</li>
+            <li>Check the microchip: a vet can scan a found pet. In Europe, <a href="https://www.europetnet.com/">Europetnet</a> shows which database holds a chip.</li>
+            <li>Post on local lost and found pages (in Ireland, the <a href="https://ispca.ie/lost-and-found-info">ISPCA register</a>).</li>
+            <li>Tag @novathehumanhandler<span data-if-community hidden> or post in the pack chat</span> and we'll help share.</li>
+          </ol>
+          <p class="small muted">Never pay a "finder" before you've seen your pet. Animal in danger? Contact your local welfare charity or police (Ireland: ISPCA <a href="tel:+353818515515">0818 515 515</a>).</p>
+        </details>
+        <details class="more-box" id="privacy">
+          <summary><span aria-hidden="true">🔒</span> Ages and privacy</summary>
+          <p><b>16+</b> for Instagram features and the Pack Card. <b>18+</b> for the Discord chat.</p>
+          <p>Nova's Pack is run by Shiv (Nova's human). We keep the minimum and never sell it. The Pack Card is made on your device. No cookies, analytics or trackers here.</p>
+          <p><a class="more" href="privacy.html">Full privacy notice</a></p>
+        </details>
       </section>
 
     </div>
@@ -237,7 +216,6 @@
         <li><a href="privacy.html">Privacy</a></li>
       </ul>
     </nav>
-    <p>Photos of Nova by her human.</p>
   </div>
 </footer>
 

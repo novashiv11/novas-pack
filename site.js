@@ -112,7 +112,40 @@ const NP = (() => {
   }
   function resetStreak() { store.remove(STREAK_KEY); }
 
-  return { CHALLENGES, challenge, daysToSaturday, isoWeek, store, streak, tickThisWeek, resetStreak };
+  // Last n weeks, oldest first, for the streak dots.
+  function lastWeeks(n = 8, now = new Date()) {
+    const ticked = new Set(weeksList());
+    const out = [];
+    for (let i = n - 1; i >= 0; i--) {
+      const d = new Date(now.getTime() - i * WEEK);
+      const id = isoWeek(d);
+      out.push({ id, done: ticked.has(id), current: i === 0 });
+    }
+    return out;
+  }
+
+  // Small confetti burst. Skipped when the visitor prefers reduced motion.
+  function confetti(originEl) {
+    if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const r = originEl ? originEl.getBoundingClientRect() : { left: innerWidth / 2, top: innerHeight / 2, width: 0, height: 0 };
+    const c = document.createElement("canvas");
+    c.className = "confetti"; c.width = innerWidth; c.height = innerHeight; c.setAttribute("aria-hidden", "true");
+    document.body.append(c);
+    const g = c.getContext("2d"), cols = ["#F2B544", "#1F4E6E", "#C27A3A", "#E0566E", "#8EC1E0"];
+    const bits = Array.from({ length: 70 }, () => ({
+      x: r.left + r.width / 2, y: r.top + r.height / 2,
+      vx: (Math.random() - 0.5) * 12, vy: -Math.random() * 12 - 4,
+      s: 5 + Math.random() * 6, a: Math.random() * 6, c: cols[(Math.random() * cols.length) | 0],
+    }));
+    let t = 0;
+    (function frame() {
+      g.clearRect(0, 0, c.width, c.height);
+      bits.forEach((p) => { p.vy += 0.45; p.x += p.vx; p.y += p.vy; p.a += 0.2; g.save(); g.translate(p.x, p.y); g.rotate(p.a); g.fillStyle = p.c; g.fillRect(-p.s / 2, -p.s / 4, p.s, p.s / 2); g.restore(); });
+      if (++t < 75) requestAnimationFrame(frame); else c.remove();
+    })();
+  }
+
+  return { CHALLENGES, challenge, daysToSaturday, isoWeek, store, streak, tickThisWeek, resetStreak, lastWeeks, confetti };
 })();
 
 // Wire up shared page bits.
@@ -134,5 +167,93 @@ const NP = (() => {
   const d = NP.daysToSaturday();
   document.querySelectorAll("[data-shoutout-when]").forEach((el) => {
     el.textContent = d === 0 ? "Shout-out Saturday is today." : `Shout-out Saturday in ${d} day${d === 1 ? "" : "s"}.`;
+  });
+})();
+
+// ---------- Home page interactions (only run where the elements exist) ----------
+(() => {
+  const $ = (sel) => document.querySelector(sel);
+
+  // Boop Nova: random replies, a rare golden one, a personal counter.
+  const boop = $("#boop");
+  if (boop) {
+    const LINES = [
+      "Boop received. Filing it under 'acceptable'.",
+      "That's my nose. I'll allow it once.",
+      "Snacks first, boops second. You've got it backwards.",
+      "My human boops me 40 times a day. I'm still waiting on that raise.",
+      "Boop logged. Have you made your Pack Card yet?",
+      "Excuse me, I'm working. Professionally.",
+      "Fine. One more. Then you join the pack.",
+      "Every species welcome. Even people who boop without asking.",
+    ];
+    const GOLDEN = "🌟 Golden boop! Rare. Screenshot this and tag @novathehumanhandler.";
+    const bubble = $("#boopSay"), count = $("#boopCount");
+    let n = NP.store.get("np-boops", 0);
+    if (typeof n !== "number" || n < 0) n = 0;
+    const show = () => { if (count) count.textContent = n ? `Your boops: ${n}` : ""; };
+    show();
+    let last = -1;
+    boop.addEventListener("click", () => {
+      n += 1; NP.store.set("np-boops", n); show();
+      let line;
+      if (Math.random() < 0.05) { line = GOLDEN; NP.confetti(boop); }
+      else { let i; do { i = (Math.random() * LINES.length) | 0; } while (i === last); last = i; line = LINES[i]; }
+      bubble.textContent = line;
+      boop.classList.remove("bounce"); void boop.offsetWidth; boop.classList.add("bounce");
+    });
+  }
+
+  // Who's in your family? Nova replies and the CTA personalises.
+  const fam = $("#family");
+  if (fam) {
+    const say = $("#familySay"), cta = $("#familyCta");
+    const REPLIES = {
+      dog: ["Dogs", "A fellow professional. Respect."],
+      cat: ["Cats", "Cats! I respect cats. From a distance."],
+      bird: ["Birds", "Birds are welcome. Please keep the singing to daytime."],
+      small: ["Small pets", "Small but mighty. Rabbits run this place, honestly."],
+      horse: ["Horses", "A horse? You win. You win everything."],
+      scaly: ["Scaly friends", "Lizards and fish: calm, mysterious, very welcome."],
+      other: ["Pets", "Chickens, goats, a tortoise called Kevin? All pack."],
+      none: ["You", "No pet yet? Still pack. You can borrow my human."],
+    };
+    fam.addEventListener("click", (e) => {
+      const b = e.target.closest("button[data-sp]");
+      if (!b) return;
+      fam.querySelectorAll("button[data-sp]").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+      const [who, line] = REPLIES[b.dataset.sp] || REPLIES.other;
+      say.textContent = line;
+      cta.href = `card.html?species=${b.dataset.sp}`;
+      cta.textContent = b.dataset.sp === "none" ? "Make your supporter card →" : `Make a card for your ${who.toLowerCase().replace(/s$/, "")} →`;
+    });
+  }
+
+  // Countdown ring to Shout-out Saturday + copy the hashtag.
+  const ring = $("#ringFill");
+  if (ring) {
+    const d = NP.daysToSaturday();
+    const frac = (7 - d) / 7; // fuller as Saturday nears
+    const C = 2 * Math.PI * 34;
+    ring.style.strokeDasharray = `${C}`;
+    ring.style.strokeDashoffset = `${C * (1 - frac)}`;
+    const num = $("#ringNum"), lab = $("#ringLab");
+    if (num) num.textContent = d === 0 ? "🎉" : String(d);
+    if (lab) lab.textContent = d === 0 ? "today" : d === 1 ? "day" : "days";
+  }
+  const copy = $("#copyTag");
+  if (copy) {
+    copy.addEventListener("click", async () => {
+      const tag = `${NP.challenge().tag} #NovasPack @novathehumanhandler`;
+      try { await navigator.clipboard.writeText(tag); copy.textContent = "Copied ✓"; }
+      catch { copy.textContent = tag; }
+      setTimeout(() => { copy.textContent = "Copy hashtag"; }, 2500);
+    });
+  }
+
+  // Highlight today in the weekly timeline.
+  const day = new Date().getDay(); // 0 Sun … 6 Sat
+  document.querySelectorAll("[data-day]").forEach((el) => {
+    if (Number(el.dataset.day) === day) { el.classList.add("today"); el.setAttribute("aria-current", "date"); }
   });
 })();
