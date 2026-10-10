@@ -728,7 +728,7 @@ export function markRecordDone(rec) {
   }
   const p = S.pets.find((x) => x.id === rec.petId) || pet();
   const chk = recordDoneCheck(rec, p, today);
-  recordSheet(null, { kind: rec.kind, name: rec.name, given: today, nextDue, note: chk.ask ? chk.note : "" });
+  recordSheet(null, { kind: rec.kind, name: rec.name, given: today, nextDue, note: "" });
 }
 
 // ---------- care routine (suggestions from CARE_TASKS; each "done" is a { type: "care", task } diary entry) ----------

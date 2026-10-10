@@ -18,7 +18,8 @@ Handoff summary for Claude Code. Read this first, then `docs/00-master-brief.md`
 | `card.html` + `card.js` | Pack Card maker (fun share; `?name=&species=` pre-fill). |
 | `privacy.html` | GDPR notice incl. on-device app data. Needs Shiv's full name + email when available. |
 | `site.css` / `site.js` | Shared brand styles; site.js used by card.html (challenge rotation, streak). |
-| `docs/build-prompt-v4-app.md` | **App spec** (draft → review → final). |
+| `docs/build-prompt-v4-app.md`, `docs/spec-v1.1.md` | **App spec** v1 (draft → review → final) and v1.1 (4-role review → 2 builders). |
+| `js/install.js`, `img/screenshots/` | One-click install (Android prompt, iOS steps, in-app browser banner); manifest screenshots. |
 | `docs/learn-with-nova.md` | Training clip episode plans (shot lists). |
 | `docs/global-plan.md` | Growth/money plan (community parts now secondary). |
 | `docs/decisions.md` | Decision log + open items. |

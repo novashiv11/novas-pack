@@ -231,12 +231,12 @@ function symptomRules(p, now, events) {
   const sp = p.species;
   const small = sp === "bird" || sp === "other";
 
-  // "Unresolved": logged within 72 hours and nothing since that shows it's better (a meal for not eating, a poop for no droppings).
+  // "Unresolved": logged within the last 14 days and nothing since that shows it's better (a meal for not eating, a poop for no droppings).
   const since = (id, isFix, alsoFlag) => {
     const fixed = Math.max(0, ...mine.filter((e) => isFix(e) && !(alsoFlag && (e.flags || []).includes(alsoFlag))).map((e) => e.at));
     const hits = logs.filter((e) => e.symptoms.includes(id))
       .concat(alsoFlag ? mine.filter((e) => e.type === "poop" && (e.flags || []).includes(alsoFlag)) : [])
-      .filter((e) => e.at > fixed && now - e.at < 3 * DAY);
+      .filter((e) => e.at > fixed && now - e.at < 14 * DAY);
     return hits.length ? Math.min(...hits.map((e) => e.at)) : null;
   };
 

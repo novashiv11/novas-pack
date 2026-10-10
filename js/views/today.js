@@ -52,6 +52,7 @@ export function today(main) {
 /** Nova's one line under the title: what she'd say about today. */
 function novaSays(p, items, logs) {
   const line = (...kids) => h("p.nova-line", h("img.disc.nova-face", { src: NOVA, alt: "", width: "28", height: "28" }), h("span", h("span.vh", "Nova says: "), ...kids));
+  if (healthAlerts(p, Date.now()).length) return line("First things first: see the vet card below.");
   if (!p.sample && !logs.length) return line(`Log ${p.name}'s last meal. One tap.`);
   const hasRecords = S.records.some((r) => r.petId === p.id);
   if (!p.sample && !hasRecords && logs.length <= 5) return line("Nice. Add vaccines next? ", h("a", { href: "#/health/vaccines" }, "Go to Health"));

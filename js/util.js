@@ -230,7 +230,7 @@ export function motionOK() {
 }
 /** A tiny tap of haptic feedback where the phone supports it (Android). */
 export function buzz(ms = 10) {
-  try { if (navigator.vibrate) navigator.vibrate(ms); } catch { /* not allowed */ }
+  try { if (navigator.vibrate && (!navigator.userActivation || navigator.userActivation.hasBeenActive)) navigator.vibrate(ms); } catch { /* not allowed */ }
 }
 
 /** Save text as a file through the browser's download. */
