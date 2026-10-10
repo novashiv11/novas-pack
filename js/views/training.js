@@ -56,7 +56,7 @@ export function training(main, arg, sub) {
   const other = skills.filter((s) => !GROUPS.includes(s.level));
   if (other.length) put(main, h("ul.skill-list", other.map((s) => skillRow(s, a.progress[s.id]))));
   put(main,
-    h("p.note-line", em("💛"), ` Levels: ${LEVEL_REQ.slice(1).join(", ")} sessions, each with a self-check at a harder place: home, garden, street, park. Up to ${CAPS.sessions} sessions per skill count each day.`),
+    h("p.note-line", em("💛"), ` Levels: ${LEVEL_REQ.slice(1).join(", ")} sessions, each with a self-check at a harder place: home, garden, street, park. Up to ${CAPS.sessions} sessions per skill, and ${CAPS.sessionsPerDay} in total, count each day.`),
     h("p.note-line", em("💛"), " Kind methods only: treats, toys and praise. No shouting, no shock, prong or choke collars."));
 }
 

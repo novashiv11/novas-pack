@@ -156,7 +156,7 @@ body.first-run .appbar{display:none}
 .alert-list{padding:0;margin:0;list-style:none;display:flex;flex-direction:column;gap:10px}
 .alert-list b{display:block}
 .alert-list p{font-size:var(--t14)}
-.alert .small a{font-weight:800}
+.alert .small a{font-weight:800;display:inline-flex;align-items:center;min-height:44px}
 .lv-tag{display:inline-block;font-size:var(--t12);font-weight:800;letter-spacing:.04em;text-transform:uppercase;border-radius:12px;padding:1px 8px;margin-bottom:2px}
 .lv-tag.lv-emergency{background:var(--danger);color:var(--on-danger)}
 .lv-tag.lv-today{background:var(--tan);color:#1E1B17}
@@ -410,7 +410,7 @@ details.mini summary{font-size:var(--t14)}
 .pf-row dd{margin:0;overflow-wrap:anywhere}
 .call-link{display:inline-flex;align-items:center;min-height:44px;margin-block:-12px;font-weight:800}
 .src-list{padding-left:1.2em;display:flex;flex-direction:column;gap:6px;font-size:var(--t14);margin-top:12px}
-.src-list a{overflow-wrap:anywhere;display:inline-block;min-height:24px;padding-block:10px}
+.src-list a{overflow-wrap:anywhere;display:inline-block;min-height:44px;padding-block:11px}
 .install-steps{padding-left:1.2em;display:flex;flex-direction:column;gap:6px;font-size:var(--t14)}
 
 /* ---------- first run ---------- */

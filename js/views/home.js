@@ -21,7 +21,7 @@ export function home(main) {
     alertCard(healthAlerts(p, Date.now()), p),
     partnerCard(p, a, tr),
     onePercent(p, a),
-    trainerStrip(tr),
+    trainerStrip(tr, p),
     weekly(p, a),
     quickLog(p),
     badgeRow(a),
@@ -126,11 +126,11 @@ export function journalPrompt(date, existing = "") {
 }
 
 // ---------- trainer, quests, quick log, badges ----------
-function trainerStrip(tr) {
+function trainerStrip(tr, p) {
   return h("a.trainer-strip", { href: "#/trainer", "data-k": "trainer-strip" },
     h("span.ts-ico", { "aria-hidden": "true" }, "🏅"),
     h("span.ts-body",
-      h("span.ts-top", h("b", trainerName()), ` · Trainer rank: ${tr.rank.name}`),
+      h("span.ts-top", h("b", p && p.sample ? "Sample trainer" : trainerName()), ` · Trainer rank: ${tr.rank.name}`),
       bar(tr.next ? tr.into : 1, tr.next ? tr.need : 1),
       h("span.ts-meta", tr.next ? `${tr.xp} XP · ${tr.next.xp - tr.xp} to ${tr.next.name}` : `${tr.xp} XP · top rank`)),
     chevron());

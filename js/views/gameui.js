@@ -46,6 +46,7 @@ export const skillName = (sk) => G.SHORT[sk.id] || sk.title;
 /** "+10 XP" for a toast, from two snapshots. */
 export function xpText(before, after, ev) {
   const pd = after.xp - before.xp, td = after.trainerXp - before.trainerXp;
+  if (pd > 0 && td > pd) return ` +${pd} XP, +${td} trainer XP.`;
   if (pd > 0) return ` +${pd} XP.`;
   if (td > 0) return ` +${td} trainer XP.`;
   if (ev && ev.type === "walk") return " (Up to 2 walks a day count for XP.)";
@@ -187,7 +188,9 @@ export async function logSession(p, sk, { minutes, mood } = {}) {
   const name = sk ? skillName(sk) : "General practice";
   const msg = counted
     ? `Session logged: ${name}.${xpText(before, after, ev)} ${MOOD_LINE[mood] || "I supervised."}`
-    : `Logged: ${name}. Only ${G.CAPS.sessions} sessions per skill count each day, so this one's just for fun. Give that skill a rest.`;
+    : S.events.filter((e) => e.petId === p.id && e.type === "training" && (e.skillId || "general") === (ev.skillId || "general") && G.dayKey(e.at) === G.dayKey(ev.at)).length > G.CAPS.sessions
+      ? `Logged: ${name}. Only ${G.CAPS.sessions} sessions per skill count each day, so this one's just for fun. Give that skill a rest.`
+      : `Logged: ${name}. Only ${G.CAPS.sessionsPerDay} sessions a day count, so this one's just for fun. Rest is training too.`;
   toast(msg, [["Undo", () => remove("events", ev.id).then(() => toast("Undone."))]]);
   celebrateDiff(p, before, after);
   return ev;

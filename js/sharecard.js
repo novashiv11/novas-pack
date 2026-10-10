@@ -212,11 +212,11 @@ function cardSheet(title, alt, filename, draw) {
 export function openPartnerCard(p, a, trainer) {
   const data = {
     name: p.name, sample: !!p.sample, photo: p.photo || null, level: a.level.level,
-    stage: [a.stage ? a.stage.label : "", a.stage ? `${a.stage.months} months` : "", `Level ${a.level.level}`].filter(Boolean).join(" · "),
+    stage: [a.stage ? a.stage.label : "", a.stage ? `${a.stage.months} months` : ""].filter(Boolean).join(" · "),
     stats: a.stats, rank: trainer.rank.name,
     badges: a.badges.filter((b) => b.earned).sort((x, y) => (y.at || 0) - (x.at || 0)).slice(0, 3),
   };
-  if (a.stage && a.stage.months >= 24) data.stage = `${a.stage.label} · ${Math.floor(a.stage.months / 12)} years · Level ${a.level.level}`;
+  if (a.stage && a.stage.months >= 24) data.stage = `${a.stage.label} · ${Math.floor(a.stage.months / 12)} years`;
   const alt = `${p.name}'s partner card: level ${data.level}. ${data.stats.filter((s) => !s.na).map((s) => `${s.label} ${s.value}`).join(", ")}. Trainer rank ${data.rank}.`;
   cardSheet(`${p.name}'s partner card`, alt, `${slug(p.name)}-partner-card.png`, (c) => drawPartner(c, data));
 }

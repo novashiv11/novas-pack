@@ -17,7 +17,7 @@ export const NOVA_LINES = [
   "Missed a few days? Welcome back. Today counts.",
   "End on a win. Then have a biscuit. Both of you.",
   "Good habits are just good days, repeated.",
-  "Your dog doesn't need perfect. Your dog needs you, a bit more often.",
+  "Your dog doesn't need perfect. Just you, showing up as you are.",
   "Patience is a treat you give yourself.",
   "Every 'nearly' is practice for 'nailed it'.",
   "Slow is smooth. Smooth is fewer zoomies. Usually.",
@@ -75,8 +75,7 @@ export const FAMOUS = [
   { text: "We are what we repeatedly do. Excellence, then, is not an act, but a habit.", by: "Will Durant", source: "The Story of Philosophy (1926), summarising Aristotle" },
   { text: "A journey of a thousand miles begins with a single step.", by: "Laozi", source: "Tao Te Ching, chapter 64 (a common translation)" },
   { text: "Not all those who wander are lost.", by: "J.R.R. Tolkien", source: "The Fellowship of the Ring (1954)" },
-  { text: "Happiness is a warm puppy.", by: "Charles M. Schulz", source: "Peanuts" },
-  { text: "Little by little, one goes far.", by: "Spanish proverb", source: "\"Poco a poco se va lejos\"" },
+  { text: "Happiness is a warm puppy.", by: "Charles M. Schulz", source: "Happiness Is a Warm Puppy (1962)" },
 ];
 
 export const YOU_ACTIONS = [

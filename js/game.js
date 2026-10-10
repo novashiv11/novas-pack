@@ -4,7 +4,7 @@
 // is already in the diary: training sessions, walks, care tasks, adventure stamps, skill self-checks and Academy
 // lessons. Nothing is stored, so there's nothing to farm or get out of sync, and deleting a log takes its XP with it.
 //
-// Caps (spec v2, part B): max 3 counted sessions per skill per day, max 2 counted walks a day, each stamp once ever,
+// Caps (spec v2, part B): max 3 counted sessions per skill per day (and 10 a day in total), max 2 counted walks a day, each stamp once ever,
 // each lesson once, one care task of each kind a day (max 5 a day). Never XP for opening the app, likes or shares.
 
 export const LEVEL_REQ = [0, 3, 8, 15, 25, 40]; // sessions needed for skill level 1..5
@@ -21,7 +21,7 @@ export const LEVEL_PLACE = [
 export const QUEST_PLACE = ["at home", "at home", "at home", "in the garden", "on the street", "in the park"];
 
 export const XP = { session: 10, levelUp: 50, walk: 5, stamp: 20, care: 5, lesson: 15, quest: 30, weekBonus: 50 };
-export const CAPS = { sessions: 3, walks: 2, carePerDay: 5 };
+export const CAPS = { sessions: 3, sessionsPerDay: 10, walks: 2, carePerDay: 5 };
 export const MAX_LEVEL = 50;
 export const RANKS = [
   { id: "rookie", name: "Rookie", xp: 0 },
@@ -86,11 +86,11 @@ export function capped(rows, keyOf, cap) {
   }
   return out;
 }
-export const countedSessions = (events) => capped(events.filter((e) => e.type === "training"), (e) => `${dayKey(e.at)}|${e.skillId || "general"}`, CAPS.sessions);
+export const countedSessions = (events) => capped(capped(events.filter((e) => e.type === "training"), (e) => `${dayKey(e.at)}|${e.skillId || "general"}`, CAPS.sessions), (e) => dayKey(e.at), CAPS.sessionsPerDay);
 export const countedWalks = (events) => capped(events.filter((e) => e.type === "walk"), (e) => dayKey(e.at), CAPS.walks);
 export const countedCare = (events) => capped(capped(events.filter((e) => e.type === "care"), (e) => `${dayKey(e.at)}|${e.task}`, 1), (e) => dayKey(e.at), CAPS.carePerDay);
 
-/** Is this new session within today's cap for its skill? (for the "only 3 count" message) */
+/** Is this new session within today's caps (per skill and per day)? (for the "only 3 count" message) */
 export function sessionCounts(events, ev) {
   return countedSessions(events).some((e) => e.id === ev.id);
 }
