@@ -27,13 +27,16 @@
   const form = $("cardForm"), status = $("status");
   const raw = NP.store.get(STATE_KEY, {});
   const saved = raw && typeof raw === "object" && !Array.isArray(raw) ? raw : {};
+  // ?species=dog&name=Nova pre-fills the card (the pet diary's "Make a Pack Card" link uses this).
+  const params = new URLSearchParams(location.search);
+  const qName = (params.get("name") || "").trim().slice(0, 20);
   const state = {
     species: (() => {
-      const q = new URLSearchParams(location.search).get("species");
+      const q = params.get("species");
       if (SPECIES.some((s) => s.id === q)) return q;
       return SPECIES.some((s) => s.id === saved.species) ? saved.species : "dog";
     })(),
-    name: typeof saved.name === "string" ? saved.name.slice(0, 20) : "",
+    name: qName || (typeof saved.name === "string" ? saved.name.slice(0, 20) : ""),
     title: typeof saved.title === "string" ? saved.title : "",
     custom: typeof saved.custom === "string" ? saved.custom.slice(0, 32) : "",
     stats: Array.isArray(saved.stats) && saved.stats.length === 3 ? saved.stats.map((n) => clamp(+n || 0)) : DEFAULT_STATS.slice(),

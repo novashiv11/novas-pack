@@ -1,0 +1,19 @@
+{
+  "id": "./",
+  "name": "Nova's Pack",
+  "short_name": "Nova's Pack",
+  "description": "The pet care diary: what's due, the last poop, meals, medicines, weight and training. Private on your phone.",
+  "lang": "en-IE",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F3F2EB",
+  "theme_color": "#1F4E6E",
+  "categories": ["lifestyle", "health"],
+  "icons": [
+    { "src": "img/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "img/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "img/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
