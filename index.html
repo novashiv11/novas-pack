@@ -70,7 +70,7 @@
         <p class="eyebrow" id="week-h">This week's challenge</p>
         <p class="tag" data-challenge-tag>A new theme every Monday</p>
         <p data-challenge-text>Post a photo of your animal to the weekly theme.</p>
-        <p class="small muted">Post it on Instagram or TikTok with the hashtag and tag @novathehumanhandler, or share it in the pack chat. <span class="when" data-shoutout-when></span></p>
+        <p class="small muted">Post it on Instagram or TikTok with the hashtag and tag @novathehumanhandler<span data-if-community hidden>, or share it in the pack chat</span>. <span class="when" data-shoutout-when></span></p>
       </section>
 
       <section aria-labelledby="note-h">
@@ -93,7 +93,7 @@
         <h2 id="rhythm-h">The pack's week</h2>
         <ul class="rhythm">
           <li><span class="day">Monday</span><b>New challenge</b><span>A photo theme for every species.</span></li>
-          <li><span class="day">Wednesday</span><b>Ask the Pack</b><span>Questions answered kindly. Vet first on health.</span></li>
+          <li><span class="day">Wednesday</span><b>Ask the Pack</b><span>Questions answered kindly in the pack chat. Vet first on health.<span data-if-no-community> Starts when the chat opens.</span></span></li>
           <li><span class="day">Saturday</span><b>Shout-out Saturday</b><span>Nova features members' animals.</span></li>
           <li><span class="day">Sunday</span><b>#PackWalk</b><span>Real life with your animal. Post one photo.</span></li>
         </ul>
@@ -137,7 +137,7 @@
 
           <article class="item" aria-labelledby="badges-h">
             <h3 id="badges-h">Badges for real things</h3>
-            <p class="status" data-status="soon" data-needs-community>Opening soon</p>
+            <p class="status" data-status="soon">Coming soon</p>
             <p>Challenger, Walker, Helper, Learner and Founding 100, in the pack chat. Earned by showing up, helping and learning. Never for likes or chatter.</p>
           </article>
 
@@ -159,7 +159,7 @@
           <li>Horse and pony people</li><li>Budgies, lizards, fish: yes, you too</li><li>Rescuers and fosters</li>
           <li>Older pets and their people</li><li>No pet yet? Still in.</li>
         </ul>
-        <p class="aside">Our host is a dog, so expect a little dog bias. Want a corner for your hens, horse or cat? Ask in the chat and we'll make one.</p>
+        <p class="aside">Our host is a dog, so expect a little dog bias. Want a corner for your hens, horse or cat? Tell Nova and we'll make one.</p>
       </section>
 
       <section class="sec" aria-labelledby="rules-h">
@@ -184,7 +184,7 @@
           <li>Call local animal shelters, vets and animal control (in Ireland, your council's dog warden).</li>
           <li>Check the microchip: a vet or shelter can scan a found pet. Owners: make sure your details are up to date. In Europe, <a href="https://www.europetnet.com/">Europetnet</a> shows which database holds a chip.</li>
           <li>Post on your area's lost and found pages (in Ireland, the <a href="https://ispca.ie/lost-and-found-info">ISPCA register</a>).</li>
-          <li>Then share that post in the pack chat so we can spread the word.</li>
+          <li>Then tag @novathehumanhandler<span data-if-community hidden> or share it in the pack chat</span>, and we'll help spread the word.</li>
         </ol>
         <p class="small muted">Never pay a "finder" before you've seen your pet in person. See an animal in danger? Contact your local animal welfare charity or the police (in Ireland: ISPCA <a href="tel:+353818515515">0818 515 515</a>).</p>
       </section>
@@ -194,8 +194,8 @@
         <h2 id="join-h">Three easy steps</h2>
         <ol class="steps">
           <li><div><b>Make your Pack Card</b><span>Optional, but it's the fun bit. <a href="card.html">Make it here</a> and share it with #NovasPack.</span></div></li>
-          <li><div><b>Join the pack chat</b><span>On Discord, a free chat app. You'll pick a username, so your phone number stays private. Answer two quick questions and you're in (18+). Not on Discord? DM “PACK” to <a href="https://www.instagram.com/novathehumanhandler/">@novathehumanhandler</a>.</span></div></li>
-          <li><div><b>Say hello with #NewToThePack</b><span>In the chat, or on Instagram or TikTok. The pack will say hi.</span></div></li>
+          <li><div><b>Join the pack chat</b><span><span data-if-no-community>The chat opens soon on Discord, a free chat app. DM “PACK” to <a href="https://www.instagram.com/novathehumanhandler/">@novathehumanhandler</a> and we'll send you the link when it opens.</span><span data-if-community hidden>On Discord, a free chat app. You pick a username, so your phone number stays private. Answer two quick questions and you're in (18+). Not on Discord? DM “PACK” to @novathehumanhandler.</span></span></div></li>
+          <li><div><b>Say hello with #NewToThePack</b><span>On Instagram or TikTok<span data-if-community hidden>, or in the pack chat</span>. The pack will say hi.</span></div></li>
         </ol>
         <div class="join-ctas">
           <a class="btn btn-blue" data-community hidden href="#how-to-join"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg>Join the pack chat</a>

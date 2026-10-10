@@ -13,11 +13,11 @@ const NP = (() => {
     { tag: "#NewToThePack", text: "Introduce your animal, or yourself if you're pet-less for now." },
     { tag: "#OffDuty", text: "The most relaxed nap pose you've ever seen. Any species." },
     { tag: "#GoldenHour", text: "Your animal in the evening light: walk, garden or windowsill." },
-    { tag: "#PackWalk", text: "Your favourite walk, garden or window seat, together." },
+    { tag: "#SideBySide", text: "You and your animal, side by side. Faces optional." },
     { tag: "#SnackFace", text: "The face they make when snacks appear." },
     { tag: "#ThrowbackPet", text: "Then and now: their baby photo next to today." },
     { tag: "#MyPetsJob", text: "Their job title, based on their worst habit." },
-    { tag: "#LearnWithNova", text: "Something you're learning together. Kind methods only." },
+    { tag: "#NewTrick", text: "A trick or skill you're learning together. Treats and praise only." },
   ];
 
   function weekIndex(now = Date.now()) {
@@ -28,13 +28,13 @@ const NP = (() => {
     return CHALLENGES[i];
   }
   function daysToSaturday(now = new Date()) {
-    // Days until Saturday (UTC). 0 means today is Saturday.
-    return (6 - now.getUTCDay() + 7) % 7;
+    // Days until Saturday in the visitor's own time zone. 0 means today.
+    return (6 - now.getDay() + 7) % 7;
   }
 
-  // ISO week id like "2026-W41" (UTC).
+  // ISO week id like "2026-W41", based on the visitor's local date.
   function isoWeek(d = new Date()) {
-    const t = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+    const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
     const day = t.getUTCDay() || 7;
     t.setUTCDate(t.getUTCDate() + 4 - day);
     const yearStart = new Date(Date.UTC(t.getUTCFullYear(), 0, 1));
@@ -42,7 +42,7 @@ const NP = (() => {
     return `${t.getUTCFullYear()}-W${String(week).padStart(2, "0")}`;
   }
   function mondayOf(d) {
-    const t = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+    const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
     t.setUTCDate(t.getUTCDate() - ((t.getUTCDay() + 6) % 7));
     return t;
   }
@@ -64,15 +64,16 @@ const NP = (() => {
   // Rule: 1 grace week for every 4 weeks you take part (max 2 saved). The current week never breaks a streak.
   const STREAK_KEY = "np-streak-v1";
   function streak(now = new Date()) {
-    const ticked = new Set(store.get(STREAK_KEY, []));
+    const ticked = new Set(weeksList());
     const thisWeek = isoWeek(now);
     if (ticked.size === 0) return { weeks: 0, graces: 0, doneThisWeek: false };
     const first = [...ticked].sort()[0];
     // Walk week by week from the first ticked week to now.
-    let cursor = mondayOf(now);
+    let cursor = mondayOf(now); // a UTC-midnight date; isoWeek reads it as a plain date
+    const id0 = (c) => isoWeekPlain(c);
     const weeks = [];
     for (let i = 0; i < 520; i++) {
-      const id = isoWeek(cursor);
+      const id = id0(cursor);
       weeks.unshift(id);
       if (id <= first) break;
       cursor = new Date(cursor.getTime() - WEEK);
@@ -89,12 +90,25 @@ const NP = (() => {
     }
     return { weeks: count, graces, doneThisWeek: ticked.has(thisWeek) };
   }
+  function weeksList() {
+    const raw = store.get(STREAK_KEY, []);
+    return Array.isArray(raw) ? raw.filter((x) => typeof x === "string" && /^\d{4}-W\d{2}$/.test(x)) : [];
+  }
+  // Same as isoWeek, for dates that are already UTC midnights.
+  function isoWeekPlain(t0) {
+    const t = new Date(t0.getTime());
+    const day = t.getUTCDay() || 7;
+    t.setUTCDate(t.getUTCDate() + 4 - day);
+    const yearStart = new Date(Date.UTC(t.getUTCFullYear(), 0, 1));
+    const week = Math.ceil(((t - yearStart) / 86400000 + 1) / 7);
+    return `${t.getUTCFullYear()}-W${String(week).padStart(2, "0")}`;
+  }
+  // Returns true if it was saved.
   function tickThisWeek(now = new Date()) {
-    const list = store.get(STREAK_KEY, []);
+    const list = weeksList();
     const id = isoWeek(now);
     if (!list.includes(id)) list.push(id);
-    store.set(STREAK_KEY, list.slice(-260));
-    return streak(now);
+    return store.set(STREAK_KEY, list.slice(-260));
   }
   function resetStreak() { store.remove(STREAK_KEY); }
 
@@ -107,6 +121,8 @@ const NP = (() => {
   document.querySelectorAll("[data-community]").forEach((a) => {
     if (hasCommunity) { a.href = COMMUNITY_URL; a.hidden = false; }
   });
+  document.querySelectorAll("[data-if-community]").forEach((el) => { el.hidden = !hasCommunity; });
+  document.querySelectorAll("[data-if-no-community]").forEach((el) => { el.hidden = hasCommunity; });
   document.querySelectorAll("[data-needs-community]").forEach((el) => {
     el.dataset.status = hasCommunity ? "live" : "soon";
     el.textContent = hasCommunity ? "Open now" : "Opening soon";

@@ -54,7 +54,7 @@ Built on what makes Instagram, TikTok, Duolingo, Strava and BeReal habit-forming
 | **Saturday** | **Shout-out Saturday** | — | Nova features up to 3 members' animals: a newcomer, the most helpful, and a challenge favourite |
 | **Sunday** | **#PackWalk** | Get outside with your pet, or do something real together (garden, window seat, a shelter visit). Post one photo. | A "Walker" stamp; real life over screens |
 
-**Challenge themes (8-week rotation):** #NewToThePack · #OffDuty · #GoldenHour · #PackWalk · #SnackFace · #ThrowbackPet · #MyPetsJob · #LearnWithNova. The website shows the current one automatically.
+**Challenge themes (8-week rotation):** #NewToThePack · #OffDuty · #GoldenHour · #SideBySide · #SnackFace · #ThrowbackPet · #MyPetsJob · #NewTrick. The website shows the current one automatically.
 
 ### The 8 mechanics we use
 

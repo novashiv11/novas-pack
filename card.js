@@ -25,7 +25,8 @@
   const $ = (id) => document.getElementById(id);
   const canvas = $("card"), ctx = canvas.getContext("2d");
   const form = $("cardForm"), status = $("status");
-  const saved = NP.store.get(STATE_KEY, {});
+  const raw = NP.store.get(STATE_KEY, {});
+  const saved = raw && typeof raw === "object" && !Array.isArray(raw) ? raw : {};
   const state = {
     species: SPECIES.some((s) => s.id === saved.species) ? saved.species : "dog",
     name: typeof saved.name === "string" ? saved.name.slice(0, 20) : "",
@@ -199,12 +200,19 @@
     canvas.setAttribute("aria-label", `Preview of the Pack Card for ${name}, ${title}. Stats: ${s.stats.map((l, i) => `${l} ${state.stats[i]}`).join(", ")}.`);
   }
 
-  let queued = false;
+  // Keep a ready-made image so Share can run straight from the tap (iOS needs that).
+  let queued = false, readyBlob = null, blobTimer = 0;
+  function render() {
+    draw();
+    readyBlob = null;
+    clearTimeout(blobTimer);
+    blobTimer = setTimeout(() => canvas.toBlob((b) => { readyBlob = b; }, "image/png"), 400);
+  }
   function update() {
     save();
     if (queued) return;
     queued = true;
-    requestAnimationFrame(() => { queued = false; draw(); });
+    requestAnimationFrame(() => { queued = false; render(); });
   }
 
   // ---------- share / download / caption ----------
@@ -226,7 +234,7 @@
     setTimeout(() => URL.revokeObjectURL(url), 2000);
   }
   $("shareBtn").addEventListener("click", async () => {
-    const blob = await toBlob();
+    const blob = readyBlob || await toBlob();
     if (!blob) { say("Sorry, your browser couldn't make the image."); return; }
     const file = new File([blob], fileName(), { type: "image/png" });
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -258,11 +266,13 @@
     $("streakUnit").textContent = st.weeks === 1 ? "week" : "weeks";
     $("streakGrace").textContent = st.graces ? `Grace weeks saved: ${st.graces}` : "No grace weeks saved yet.";
     const btn = $("tickBtn");
-    btn.disabled = st.doneThisWeek;
+    btn.setAttribute("aria-disabled", String(st.doneThisWeek));
     btn.textContent = st.doneThisWeek ? "Done for this week ✓" : "I took part this week";
   }
   $("tickBtn").addEventListener("click", () => {
-    NP.tickThisWeek(); showStreak(); update();
+    if (NP.streak().doneThisWeek) { say("Already counted this week. See you next week."); return; }
+    if (!NP.tickThisWeek()) { say("Couldn't save on this device (private browsing?). Your card still works."); return; }
+    showStreak(); render();
     say("Nice. See you next week.");
   });
   $("resetBtn").addEventListener("click", () => {
@@ -270,15 +280,15 @@
     NP.resetStreak(); NP.store.remove(STATE_KEY);
     state.name = ""; state.custom = ""; state.stats = DEFAULT_STATS.slice(); state.photo = null;
     nameInput.value = ""; customInput.value = ""; $("photo").value = "";
-    buildTitles(); buildStats(); showStreak(); update();
+    buildTitles(); buildStats(); showStreak(); render();
     say("Deleted from this device.");
   });
 
   // ---------- start ----------
-  buildTitles(); buildStats(); showStreak(); draw();
+  buildTitles(); buildStats(); showStreak(); render();
   Promise.all([
     document.fonts ? document.fonts.load('800 96px "Bricolage Grotesque"') : null,
     document.fonts ? document.fonts.load('700 32px "Plus Jakarta Sans"') : null,
     head.decode ? head.decode().catch(() => {}) : null,
-  ]).then(draw, draw);
+  ]).then(render, render);
 })();
