@@ -45,6 +45,14 @@ export const SYMPTOMS = [
 ];
 export const symptomLabel = (id) => (SYMPTOMS.find((s) => s.id === id) || { label: id }).label;
 
+// ---------- log hooks (v2): the game layer adds "+10 XP" to the toast and celebrates level-ups ----------
+// before() runs just before a new diary entry is saved and returns a token; after(ev, token) runs once it's saved and
+// returns extra toast text (or ""). Set by js/views/gameui.js; forms.js never imports the game.
+let hooks = {};
+export function setLogHooks(h) { hooks = h || {}; }
+function hookBefore() { try { return hooks.before ? hooks.before() : null; } catch (e) { console.warn(e); return null; } }
+function hookAfter(ev, token) { try { return (hooks.after && hooks.after(ev, token)) || ""; } catch (e) { console.warn(e); return ""; } }
+
 // ---------- small form helpers ----------
 let n = 0;
 const fid = () => `f${++n}`;
@@ -95,7 +103,7 @@ function check(label, props = {}, hint) {
  * Adding asks only for the name and species; everything else folds away ("add details later").
  * Editing adds the profile: vet and insurance, microchip, and health notes.
  */
-export function petForm(box, existing, onSaved, { openProfile = false } = {}) {
+export function petForm(box, existing, onSaved, { openProfile = false, extra = null, submitLabel = "" } = {}) {
   const p = existing || {};
   let photo = p.photo || null;
   const form = h("form.form", { novalidate: true });
@@ -146,10 +154,10 @@ export function petForm(box, existing, onSaved, { openProfile = false } = {}) {
     put(form, profile.el);
     speciesBox.addEventListener("change", profile.sync);
   }
-  put(form, err,
+  put(form, extra, err,
     h("div.row-btns",
       existing ? h("button.btn.btn-line", { type: "button", onclick: () => deletePetFlow(p) }, p.sample ? "Delete sample" : "Delete") : null,
-      h("button.btn.btn-blue", { type: "submit" }, existing ? "Save changes" : "Add pet")));
+      h("button.btn.btn-blue", { type: "submit" }, existing ? "Save changes" : submitLabel || "Add pet")));
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -236,7 +244,7 @@ export function openPetSheet(existing, { openProfile = false } = {}) {
     petForm(body, existing, (row) => {
       close();
       toast(existing ? "Saved." : `${row.name} added. Welcome to the pack.`);
-      if (!existing && location.hash !== "#/today") location.hash = "#/today"; else refresh();
+      if (!existing && location.hash !== "#/home") location.hash = "#/home"; else refresh();
     }, { openProfile });
   });
 }
@@ -270,12 +278,12 @@ function celebrate(type) {
 }
 
 /** After any one-tap log: bounce, then "Logged. I supervised." with Undo and Add details. */
-function afterLog(ev, label, weekBefore) {
+function afterLog(ev, label, weekBefore, extra = "") {
   celebrate(ev.type);
-  let msg = label ? `Logged: ${label}. I supervised.` : "Logged. I supervised.";
+  let msg = (label ? `Logged: ${label}. I supervised.` : "Logged. I supervised.") + extra;
   if (weekBefore && !weekBefore.thisWeek) {
     const st = weeklyStreak(eventsOf("training", ev.petId).map((e) => e.at));
-    if (st.thisWeek) { UI.weekPulse = isoWeek(ev.at); msg = `Week ${st.weeks}. Acceptable.`; }
+    if (st.thisWeek) { UI.weekPulse = isoWeek(ev.at); msg = `Week ${st.weeks}. Acceptable.${extra}`; }
   }
   toast(msg, [
     ["Undo", () => remove("events", ev.id).then(() => toast("Undone."))],
@@ -291,8 +299,9 @@ export async function quickLog(type, fields = {}, label = "") {
   if (p.sample) ev.sample = true;
   for (const k of Object.keys(ev)) if (ev[k] === undefined) delete ev[k];
   const weekBefore = type === "training" ? weeklyStreak(eventsOf("training", p.id).map((e) => e.at)) : null;
+  const token = hookBefore();
   try { await save("events", ev); } catch (e) { toast(saveError(e)); return null; }
-  afterLog(ev, label, weekBefore);
+  afterLog(ev, label, weekBefore, hookAfter(ev, token));
   return ev;
 }
 
@@ -328,7 +337,7 @@ export function logMed() {
   return null;
 }
 
-/** Move to the "Call your vet" card (on this screen, or Today's) and read it out. */
+/** Move to the "Call your vet" card (on this screen, or Health's) and read it out. */
 export function focusAlert() {
   const go = () => {
     const a = document.getElementById("vet-alert");
@@ -336,7 +345,7 @@ export function focusAlert() {
     a.scrollIntoView({ block: "center", behavior: motionOK() ? "smooth" : "auto" });
     a.focus({ preventScroll: true });
   };
-  if (!document.getElementById("vet-alert") && location.hash !== "#/today" && location.hash !== "#/poop") { location.hash = "#/today"; setTimeout(go, 160); }
+  if (!document.getElementById("vet-alert")) { location.hash = "#/health"; setTimeout(go, 160); }
   else setTimeout(go, 90);
 }
 
@@ -453,13 +462,14 @@ export function eventSheet(type, existing, { details = false } = {}) {
       const row = { ...ev, ...extra, id: ev.id || uid(), petId: ev.petId || p.id, type, at: fromLocalInput(when.value), note: note.value.trim() || undefined };
       for (const k of Object.keys(row)) if (row[k] === undefined) delete row[k];
       if (p.sample && !existing) row.sample = true;
+      const token = existing ? null : hookBefore();
       try { await save("events", row); } catch (ex) { err.textContent = saveError(ex); return; }
       close();
       if (type === "poop" && healthAlerts(p, Date.now()).length) {
         toast("Saved. Please read Nova's note about calling your vet.");
         focusAlert();
       } else if (!existing) {
-        toast("Logged. I supervised.", [["Undo", () => remove("events", row.id)]]);
+        toast(`Logged. I supervised.${hookAfter(row, token)}`, [["Undo", () => remove("events", row.id)]]);
       } else toast("Saved.");
     });
     put(body, form);

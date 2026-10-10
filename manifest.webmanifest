@@ -2,7 +2,7 @@
   "id": "/novas-pack/",
   "name": "Nova's Pack",
   "short_name": "Nova's Pack",
-  "description": "The pet care diary: what's due, the last poop, meals, medicines, weight and training. Private on your phone.",
+  "description": "Level up together: real-life training, walks and adventures with your dog, plus the pet care diary. Private on your phone.",
   "lang": "en-IE",
   "start_url": "./",
   "scope": "./",
@@ -38,10 +38,10 @@
   ],
   "shortcuts": [
     {
-      "name": "Log poop",
-      "short_name": "Poop",
-      "description": "Log a poop for your pet",
-      "url": "./#/quick/poop",
+      "name": "Log a walk",
+      "short_name": "Walk",
+      "description": "Log a walk in one tap",
+      "url": "./#/quick/walk",
       "icons": [
         {
           "src": "img/icons/icon-192.png",
@@ -51,10 +51,23 @@
       ]
     },
     {
-      "name": "Log meal",
-      "short_name": "Meal",
-      "description": "Log a meal for your pet",
-      "url": "./#/quick/meal",
+      "name": "Start training",
+      "short_name": "Train",
+      "description": "Pick a skill and start a 5-minute session",
+      "url": "./#/quick/training",
+      "icons": [
+        {
+          "src": "img/icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Log poop",
+      "short_name": "Poop",
+      "description": "Log a poop for your pet",
+      "url": "./#/quick/poop",
       "icons": [
         {
           "src": "img/icons/icon-192.png",

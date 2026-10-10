@@ -4,15 +4,17 @@
 // A new version downloads every file in ASSETS in the background, all or nothing, then waits. The app shows
 // "Update ready"; tapping it sends SKIP_WAITING, this worker takes over and the page reloads. Until then the app keeps
 // running the version it started with, so old and new files are never mixed. ASSETS must list only files that exist.
-const VERSION = "2026-10-10-5";
+const VERSION = "2026-10-10-v2-1";
 const CACHE = `novas-pack-${VERSION}`;
 const CLIPS = "novas-pack-clips";
 
 const ASSETS = [
   "./", "index.html", "app.css", "site.css", "manifest.webmanifest",
   "js/app.js", "js/install.js", "js/db.js", "js/ics.js", "js/util.js", "js/state.js", "js/logic.js", "js/forms.js", "js/sample.js",
-  "js/views/parts.js", "js/views/today.js", "js/views/health.js", "js/views/food.js", "js/views/training.js", "js/views/more.js",
-  "data/skills.js", "data/care.js",
+  "js/game.js", "js/sharecard.js",
+  "js/views/parts.js", "js/views/welcome.js", "js/views/home.js", "js/views/gameui.js", "js/views/training.js", "js/views/adventures.js",
+  "js/views/trainer.js", "js/views/journal.js", "js/views/health.js", "js/views/food.js", "js/views/more.js",
+  "data/skills.js", "data/care.js", "data/adventures.js", "data/academy.js", "data/quotes.js",
   "fonts/bricolage-grotesque-latin.woff2", "fonts/plus-jakarta-sans-latin.woff2",
   "img/brand/nova-head.svg", "img/icons/icon-192.png", "img/icons/icon-512.png", "img/icons/icon-maskable-512.png",
   "favicon.svg", "favicon.ico", "apple-touch-icon.png",

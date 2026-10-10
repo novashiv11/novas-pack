@@ -8,13 +8,21 @@
 //   records   { id, petId, kind: vaccine|preventive, name, given, nextDue?, note? }
 //   meds      { id, petId, name, dose, freq, times, everyDays?, start, end?, note? }
 //   foods     { id, petId, kind: food|treat, brand?, product?, name?, amount?, since?, until?, inUse?, note? }
-//   settings  { key, value }
+//   settings  { key, value }   (v2 adds settings.trainerName: what Nova calls you)
+// v2 "Level up together" (game XP is derived from the stores above and below, never stored):
+//   adventures  { id: "<petId>:<stampId>", petId, stampId, date, at, photo?, note? }   one row per stamp per partner
+//   skillChecks { id: "<petId>:<skillId>:<level>", petId, skillId, level 1-5, at }     an honest "yes" self-check
+//   academy     { id: lessonId, lessonId, doneAt }                                      a lesson passed (once)
+//   journal     { id: date, date, text, at }                                            Growth Journal, one line a day
+//   daily       { id: date, date, dogDone, youDone }                                    the "1% today" ticks
 //
 // SCHEMA is the shape of the data; bump it (and add a migration in `upgrade`) if the shape changes.
 
 export const DB_NAME = "novas-pack";
-export const SCHEMA = 1;
-export const STORES = ["pets", "events", "records", "meds", "foods", "settings"];
+export const SCHEMA = 2;
+export const STORES = ["pets", "events", "records", "meds", "foods", "settings", "adventures", "skillChecks", "academy", "journal", "daily"];
+/** Stores whose rows belong to one pet (they have a petId index and go when the pet is deleted). */
+const PET_STORES = ["events", "records", "meds", "foods", "adventures", "skillChecks"];
 const EVENT_TYPES = ["poop", "meal", "treat", "med", "walk", "training", "weight", "vet", "symptom", "care"];
 
 // ---------- storage health ----------
@@ -63,7 +71,7 @@ export function open() {
       if (!("indexedDB" in self) || !self.indexedDB) throw new Error("no-indexeddb");
       req = indexedDB.open(DB_NAME, SCHEMA);
     } catch (err) { Promise.resolve().then(() => fail(err)); return; } // after `dbp = p` below
-    req.onupgradeneeded = () => upgrade(req.result, req.transaction);
+    req.onupgradeneeded = (e) => upgrade(req.result, e.oldVersion || 0);
     req.onsuccess = () => {
       const db = req.result;
       // Another tab is upgrading, or the browser closed the database: open a fresh connection next time.
@@ -79,14 +87,21 @@ export function open() {
   return p;
 }
 
-function upgrade(db) {
-  // Version 1: create everything. Later versions add steps below `if (old < N)`.
-  for (const name of STORES) {
-    if (db.objectStoreNames.contains(name)) continue;
+/**
+ * Migrations. Existing stores and rows are never touched, so a v1.1 diary keeps everything:
+ *   v1 (from nothing): pets, events, records, meds, foods, settings
+ *   v2 (Level up together): adds adventures, skillChecks, academy, journal, daily
+ */
+function upgrade(db, old) {
+  const make = (name) => {
+    if (db.objectStoreNames.contains(name)) return;
     const s = db.createObjectStore(name, { keyPath: name === "settings" ? "key" : "id" });
-    if (name !== "settings" && name !== "pets") s.createIndex("petId", "petId");
+    if (PET_STORES.includes(name)) s.createIndex("petId", "petId");
     if (name === "events") s.createIndex("at", "at");
-  }
+  };
+  if (old < 1) ["pets", "events", "records", "meds", "foods", "settings"].forEach(make);
+  if (old < 2) ["adventures", "skillChecks", "academy", "journal", "daily"].forEach(make);
+  STORES.forEach(make); // belt and braces: anything still missing
 }
 
 /** db.transaction(), but a closed connection (Safari can drop it) resets so the next call reopens. */
@@ -122,7 +137,7 @@ export async function del(store, id) {
   await done(tx);
 }
 
-/** Read everything into plain arrays: { pets, events, records, meds, foods, settings }. */
+/** Read everything into plain arrays: { pets, events, …, journal, daily }. */
 export async function loadAll() {
   const db = await open();
   const tx = txn(db, STORES);
@@ -134,7 +149,7 @@ export async function loadAll() {
 /** Delete one pet and everything that belongs to it, in one transaction. */
 export async function deletePet(petId) {
   const db = await open();
-  const names = ["events", "records", "meds", "foods"];
+  const names = PET_STORES;
   const tx = txn(db, ["pets", ...names], "readwrite");
   tx.objectStore("pets").delete(petId);
   for (const n of names) {
@@ -206,6 +221,7 @@ const CLEAN = {
       note: str(r.note, 1000), name: str(r.name, 120), amount: str(r.amount, 120), medId: id(r.medId),
       skillId: id(r.skillId), minutes: num(r.minutes), kg: num(r.kg), clinic: str(r.clinic, 120),
       symptoms: Array.isArray(r.symptoms) ? r.symptoms.filter((f) => id(f)).slice(0, 20) : undefined, task: id(r.task),
+      mood: [1, 2, 3].includes(r.mood) ? r.mood : undefined,
       sample: r.sample === true || undefined,
     });
   },
@@ -234,6 +250,32 @@ const CLEAN = {
       since: date(r.since), until: date(r.until), inUse: typeof r.inUse === "boolean" ? r.inUse : undefined,
       note: str(r.note, 1000), sample: r.sample === true || undefined,
     });
+  },
+  adventures(r) {
+    if (!id(r.id) || !id(r.petId) || !id(r.stampId)) return null;
+    const d = date(r.date);
+    const at = num(r.at) ?? (d ? new Date(`${d}T12:00`).getTime() : undefined);
+    if (at === undefined) return null;
+    return clean({ id: r.id, petId: r.petId, stampId: r.stampId, date: d, at, photo: photo(r.photo), note: str(r.note, 280), sample: r.sample === true || undefined });
+  },
+  skillChecks(r) {
+    if (!id(r.id) || !id(r.petId) || !id(r.skillId) || ![1, 2, 3, 4, 5].includes(r.level) || num(r.at) === undefined) return null;
+    return clean({ id: r.id, petId: r.petId, skillId: r.skillId, level: r.level, at: r.at, sample: r.sample === true || undefined });
+  },
+  academy(r) {
+    if (!id(r.id) || !id(r.lessonId)) return null;
+    return clean({ id: r.id, lessonId: r.lessonId, doneAt: num(r.doneAt) });
+  },
+  journal(r) {
+    const d = date(r.date);
+    const text = str(r.text, 280);
+    if (!d || !text || !text.trim()) return null;
+    return clean({ id: d, date: d, text, at: num(r.at) });
+  },
+  daily(r) {
+    const d = date(r.date);
+    if (!d) return null;
+    return { id: d, date: d, dogDone: r.dogDone === true, youDone: r.youDone === true };
   },
   settings(r) {
     if (!id(r.key)) return null;

@@ -1,5 +1,5 @@
-// Nova's Pack: the pet care diary. Entry point: loads content and data, draws the screen for the
-// current #/route, and redraws after every change. No framework, no build step, no network calls
+// Nova's Pack: Level up together (with the pet care diary inside). Entry point: loads content and data, draws the
+// screen for the current #/route, and redraws after every change. No framework, no build step, no network calls
 // except loading the app's own files.
 
 // install.js first: it sets up the install prompt listener and the update-hook queue before any view module runs.
@@ -7,25 +7,32 @@ import { isStandalone } from "./install.js";
 import { S, load, onChange, pet, setSetting } from "./state.js";
 import { h, ago, toast } from "./util.js";
 import { onQuotaError, QUOTA_MESSAGE, persist } from "./db.js";
-import { today, poopLog, welcome } from "./views/today.js";
+import { welcome } from "./views/welcome.js";
+import { home } from "./views/home.js";
 import { health, summary } from "./views/health.js";
-import { food } from "./views/food.js";
 import { training } from "./views/training.js";
+import { adventures } from "./views/adventures.js";
+import { trainer } from "./views/trainer.js";
+import { journal } from "./views/journal.js";
 import { more } from "./views/more.js";
 import { avatar } from "./views/parts.js";
 import { openPetSheet, eventSheet, medGivenSheet } from "./forms.js";
 
-const ROUTES = { today, poop: poopLog, health, summary, food, training, more, welcome };
-const TAB_OF = { today: "today", poop: "today", health: "health", summary: "health", food: "food", training: "training", more: "more" };
-const TITLES = { today: "Today", poop: "Poop log", health: "Health", summary: "Vet summary", food: "Food", training: "Training", more: "More" };
+const ROUTES = { home, train: training, adventures, health, summary, more, trainer, journal, welcome };
+// Old v1 addresses (bookmarks, shortcuts) still land somewhere sensible.
+const ALIASES = { today: ["home"], training: ["train"], poop: ["health", "poop"], food: ["health", "food"] };
+const TAB_OF = { home: "home", trainer: "home", journal: "home", train: "train", adventures: "adventures", health: "health", summary: "health", more: "more" };
+const TITLES = { home: "Home", train: "Train", adventures: "Adventures", health: "Health", summary: "Vet summary", more: "More", trainer: "Trainer", journal: "Growth Journal" };
+const HEALTH_QUICK = ["poop", "meal", "treat", "med", "weight", "vet", "symptom"];
 
 const main = document.getElementById("main");
 const switcher = document.getElementById("switcher");
 const tabbar = document.getElementById("tabbar");
 
 function route() {
-  const [name, arg] = location.hash.replace(/^#\/?/, "").split("/").map((x) => { try { return decodeURIComponent(x || ""); } catch { return ""; } });
-  return { name: ROUTES[name] ? name : "today", arg: arg || "", raw: name || "" };
+  let [name, arg, sub] = location.hash.replace(/^#\/?/, "").split("/").map((x) => { try { return decodeURIComponent(x || ""); } catch { return ""; } });
+  if (ALIASES[name]) [name, arg] = [ALIASES[name][0], ALIASES[name][1] || arg];
+  return { name: ROUTES[name] ? name : "home", arg: arg || "", sub: sub || "", raw: name || "" };
 }
 
 // #/quick/<type> (Home Screen shortcuts): show Today, then open that quick log once.
@@ -40,15 +47,15 @@ function openQuick(type) {
 
 let lastRoute = "";
 function draw() {
-  let { name, arg, raw } = route();
+  let { name, arg, sub, raw } = route();
   if (raw === "quick") {
     pendingQuick = QUICK.includes(arg) ? arg : "";
-    name = "today"; arg = "";
-    history.replaceState(null, "", "#/today");
+    name = HEALTH_QUICK.includes(arg) ? "health" : "home"; arg = "";
+    history.replaceState(null, "", `#/${name}`);
   }
   if (!S.pets.length && name !== "welcome") { pendingQuick = ""; name = "welcome"; arg = ""; if (location.hash !== "#/welcome") history.replaceState(null, "", "#/welcome"); }
-  if (S.pets.length && name === "welcome") { name = "today"; arg = ""; history.replaceState(null, "", "#/today"); }
-  const key = `${name}/${arg}`;
+  if (S.pets.length && name === "welcome") { name = "home"; arg = ""; history.replaceState(null, "", "#/home"); }
+  const key = `${name}/${arg}/${sub}`;
   const navigated = key !== lastRoute;
   lastRoute = key;
 
@@ -61,12 +68,12 @@ function draw() {
   drawChrome(name);
   main.replaceChildren();
   try {
-    ROUTES[name](main, arg);
+    ROUTES[name](main, arg, sub);
   } catch (err) {
     console.warn(err);
-    main.replaceChildren(h("div.empty", h("h1", { tabindex: "-1", id: "page-title" }, "Something went wrong"), h("p", "Your data is safe on this device. Try going back to Today."), h("a.btn.btn-blue", { href: "#/today" }, "Today")));
+    main.replaceChildren(h("div.empty", h("h1", { tabindex: "-1", id: "page-title" }, "Something went wrong"), h("p", "Your data is safe on this device. Try going back to Home."), h("a.btn.btn-blue", { href: "#/home" }, "Home")));
   }
-  if (name !== "welcome") document.title = `${TITLES[name] || "Today"}${pet() ? ` · ${pet().name}` : ""} · Nova's Pack`;
+  if (name !== "welcome") document.title = `${TITLES[name] || "Home"}${pet() ? ` · ${pet().name}` : ""} · Nova's Pack`;
 
   if (navigated) {
     window.scrollTo(0, 0);
@@ -109,7 +116,7 @@ async function switchTo(id) {
   await setSetting("currentPet", id);
   const { name } = route();
   // Skill pages and the summary are per pet, so go back to the list view of the same tab.
-  if (name === "training" || name === "summary") location.hash = name === "summary" ? "#/health/vet" : "#/training";
+  if (name === "train" || name === "summary") history.replaceState(null, "", name === "summary" ? "#/health/vet" : "#/train");
   draw();
   const btn = [...switcher.querySelectorAll(".pet-chip")].find((b) => b.getAttribute("aria-pressed") === "true");
   if (btn) btn.focus();
@@ -131,12 +138,18 @@ let quotaTimer = 0;
 onQuotaError(() => { clearTimeout(quotaTimer); quotaTimer = setTimeout(() => toast(QUOTA_MESSAGE), 60); });
 
 async function loadContent() {
-  const [care, skills] = await Promise.all([
+  const [care, skills, adv, academy] = await Promise.all([
     import("../data/care.js").catch(() => ({})),
     import("../data/skills.js").catch(() => ({})),
+    import("../data/adventures.js").catch(() => ({})),
+    import("../data/academy.js").catch(() => ({})),
   ]);
   const c = S.content;
   c.SKILLS = Array.isArray(skills.SKILLS) ? skills.SKILLS : [];
+  c.STAMPS = Array.isArray(adv.STAMPS) ? adv.STAMPS : [];
+  c.STAMP_SETS = Array.isArray(adv.SETS) ? adv.SETS : [];
+  c.LESSONS = Array.isArray(academy.LESSONS) ? academy.LESSONS : [];
+  c.GO_PRO = Array.isArray(academy.GO_PRO) ? academy.GO_PRO : [];
   c.VACCINES = care.VACCINES || {};
   c.PREVENTIVES = care.PREVENTIVES || {};
   c.POOP_SCALE = Array.isArray(care.POOP_SCALE) && care.POOP_SCALE.length ? care.POOP_SCALE : [1, 2, 3, 4, 5].map((n) => ({ score: n, emoji: "", label: ["Very hard", "Firm", "Ideal", "Soft", "Watery"][n - 1], hint: "" }));

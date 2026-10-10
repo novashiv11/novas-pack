@@ -1,25 +1,172 @@
-// Health: vaccines, preventives and the care routine, medicines, weight (with a chart), vet visits,
-// and the printable vet summary.
+// Health (kept small): one tab with segments. Health (quick logs, what's due, then vaccines and the care routine,
+// medicines, weight with a chart, vet visits), Food, Poop and Unwell, plus the printable vet summary.
+// Vet-first throughout: no doses suggested, no diagnosis.
 
-import { S, pet, eventsOf, forPet, units, setSetting, save } from "../state.js";
-import { h, put, em, fmtDate, fmtTime, isoDate, uid, toast, ageText, DAY, telHref } from "../util.js";
-import { currentRecords, historyOf, recordStatus, dueText, medStatus, medIsActive, freqText, dosesOf, fmtWeight, toUnit, fromUnit, flagLabel, scaleFor } from "../logic.js";
+import { S, pet, eventsOf, forPet, units, setSetting, save, logsOf } from "../state.js";
+import { h, put, em, fmtDate, fmtTime, isoDate, uid, toast, ageText, DAY, telHref, startOfDay, nextDayStart } from "../util.js";
+import { currentRecords, historyOf, recordStatus, dueText, medStatus, medIsActive, freqText, dosesOf, fmtWeight, toUnit, fromUnit, flagLabel, scaleFor,
+  dueItems, poopWeek, healthAlerts } from "../logic.js";
 import { recordSheet, medSheet, markGiven, eventSheet, speciesOf, doneRecord, deleteRecord, deleteMed, calRecord, calMed, calAllDue, CAL_NOTE,
-  careTasksFor, careStatus, careSheet, markCareDone, calCare, everyText, segmented, symptomLabel } from "../forms.js";
-import { pageHead, subBar, sampleStrip, emptyState, vetFirst, eventList, avatar, moreBtn, cardTitle } from "./parts.js";
+  careTasksFor, careStatus, careSheet, markCareDone, calCare, everyText, segmented, symptomLabel, unwellSheet, logPoop, logMeal, logTreat, logMed,
+  editRecord, careDue } from "../forms.js";
+import { pageHead, subBar, sampleStrip, emptyState, vetFirst, eventList, avatar, moreBtn, cardTitle, alertCard, agoSpan, chevron, NOVA } from "./parts.js";
+import { foodSection } from "./food.js";
 
-const TABS = [["vaccines", "Vaccines"], ["meds", "Meds"], ["weight", "Weight"], ["vet", "Vet"]];
+const SEGS = [["care", "Health"], ["food", "Food"], ["poop", "Poop"], ["unwell", "Unwell"]];
+const SUBS = [["vaccines", "Vaccines"], ["meds", "Meds"], ["weight", "Weight"], ["vet", "Vet"]];
 
 export function health(main, arg) {
   const p = pet();
-  const tab = TABS.some(([k]) => k === arg) ? arg : "vaccines";
+  const now = Date.now();
+  const seg = SEGS.some(([k]) => k === arg && k !== "care") ? arg : "care";
+  const sub = SUBS.some(([k]) => k === arg) ? arg : "vaccines";
+  const late = (it) => (it.kind === "med" ? it.st.overdue : it.st.state === "overdue");
+  const items = [...dueItems(p.id), ...careDue(p)].map((it, i) => [it, i]).sort((a, b) => late(b[0]) - late(a[0]) || a[1] - b[1]).map(([it]) => it);
   put(main,
     sampleStrip(p),
-    pageHead("Health"),
-    h("nav.seg.seg-nav", { "aria-label": "Health sections" }, TABS.map(([k, label]) =>
-      h("a", { href: `#/health/${k}`, "aria-current": k === tab ? "page" : null }, label))));
-  ({ vaccines, meds, weight, vet })[tab](main, p);
+    pageHead("Health", novaSays(p, items, logsOf(p.id))),
+    alertCard(healthAlerts(p, now), p),
+    h("nav.seg.seg-nav", { "aria-label": "Health sections" }, SEGS.map(([k, label]) =>
+      h("a", { href: k === "care" ? "#/health" : `#/health/${k}`, "aria-current": k === seg ? "page" : null, "data-k": `seg-${k}` }, label))));
+  if (seg === "care") {
+    put(main,
+      h("section.sec.ql-sec", { "aria-labelledby": "ql-h" },
+        h("h2.sec-title.vh", { id: "ql-h" }, "Quick log"),
+        h("div.ql-grid", TILES.map(([type, label, fn]) => tile(p, type, label, fn)))),
+      dueSection(p, items),
+      h("nav.subnav", { "aria-label": "Health records" }, SUBS.map(([k, label]) =>
+        h("a", { href: `#/health/${k}`, "aria-current": k === sub && (arg === k || (!arg && k === "vaccines")) ? "page" : null }, label))));
+    ({ vaccines, meds, weight, vet })[sub](main, p);
+    put(main, todayDiary(p, now));
+  } else if (seg === "food") foodSection(main, p);
+  else if (seg === "poop") poopSection(main, p);
+  else unwellSection(main, p);
   put(main, vetFirst());
+}
+
+// ---------- quick logs, Nova's line and what's due (moved from v1's Today) ----------
+const TILES = [
+  ["poop", "Poop", logPoop],
+  ["meal", "Meal", logMeal],
+  ["treat", "Treat", logTreat],
+  ["med", "Medicine", logMed],
+];
+
+function novaSays(p, items, logs) {
+  const line = (...kids) => h("p.nova-line", h("img.disc.nova-face", { src: NOVA, alt: "", width: "28", height: "28" }), h("span", h("span.vh", "Nova says: "), ...kids));
+  if (healthAlerts(p, Date.now()).length) return line("First things first: see the vet card below.");
+  if (!p.sample && !logs.length) return line(`Log ${p.name}'s last meal. One tap.`);
+  const hasRecords = S.records.some((r) => r.petId === p.id);
+  if (!p.sample && !hasRecords && logs.length <= 5) return line("Add vaccines next? It's how I know what's due.");
+  if (items.some((it) => (it.kind === "med" ? it.st.overdue : it.st.state === "overdue"))) return line("Something's late. I'm not judging. Much.");
+  if (items.length) return line(`${items.length === 1 ? "One thing" : `${items.length} things`} due soon. I'm keeping count.`);
+  return line("Nothing due. I checked twice.");
+}
+
+function tile(p, type, label, fn) {
+  const last = eventsOf(type, p.id)[0];
+  return h(`button.ql.ql-${type}`, { type: "button", "data-k": `ql-${type}`, onclick: fn },
+    h("span.ql-em", { "aria-hidden": "true" }, { poop: "💩", meal: "🍽️", treat: "🦴", med: "💊" }[type]),
+    h("span.ql-l", label),
+    h("span.ql-ago", last ? agoSpan(last.at) : "Not yet"));
+}
+
+function dueSection(p, items) {
+  if (!items.length) return null;
+  return h("section.sec", { "aria-labelledby": "due-h" },
+    h("h2.sec-title", { id: "due-h" }, "Due"),
+    h("ul.due-list", items.map((it) => dueCard(p, it))));
+}
+
+function dueCard(p, it) {
+  if (it.kind === "care") {
+    const t = it.task;
+    return h(`li.card.due-card.${it.st.state}`,
+      h("div.due-top",
+        h("span.due-em", { "aria-hidden": "true" }, "✨"),
+        h("div.due-body",
+          cardTitle(t.name, () => careSheet(t), `due-care-${t.id}`),
+          h("p.due-when", h("b", dueText(it.st)), ` · ${everyText(t).toLowerCase()}`))),
+      h("div.card-actions",
+        h("button.btn.btn-blue.sm", { type: "button", "data-k": `cdone-${t.id}`, onclick: () => markCareDone(p, t) }, "Mark done", h("span.vh", `: ${t.name}`)),
+        moreBtn(t.name, [["Change last done", () => careSheet(t)], ["Add to calendar", () => calCare(p, t, it.nextDue)]])));
+  }
+  if (it.kind === "record") {
+    const r = it.rec;
+    return h(`li.card.due-card.${it.st.state}`,
+      h("div.due-top",
+        h("span.due-em", { "aria-hidden": "true" }, r.kind === "vaccine" ? "💉" : "🛡️"),
+        h("div.due-body",
+          cardTitle(r.name, () => editRecord(r), `due-edit-${r.id}`),
+          h("p.due-when", h("b", dueText(it.st)), ` · ${fmtDate(r.nextDue, { day: "numeric", month: "short" })}`))),
+      h("div.card-actions",
+        h("button.btn.btn-blue.sm", { type: "button", "data-k": `due-done-${r.id}`, onclick: () => doneRecord(r) }, "Mark done", h("span.vh", `: ${r.name}`)),
+        moreBtn(r.name, [["Edit", () => editRecord(r)], ["Add to calendar", () => calRecord(p, r)], ["Delete", () => deleteRecord(r), { danger: true }]])));
+  }
+  const m = it.med, st = it.st;
+  return h(`li.card.due-card.${st.overdue ? "overdue" : "today"}`,
+    h("div.due-top",
+      h("span.due-em", { "aria-hidden": "true" }, "💊"),
+      h("div.due-body",
+        cardTitle(m.name, () => medSheet(m), `due-edit-${m.id}`),
+        h("p.due-when", h("b", st.daily ? `${st.given} of ${st.need} given today` : dueText({ state: st.overdue ? "overdue" : "today", days: -st.days })),
+          st.daily && st.next ? ` · next ${st.next}` : "", ` · ${freqText(m)}`),
+        m.dose ? h("p.due-dose", "Dose (from your vet): ", m.dose) : null)),
+    h("div.card-actions",
+      h("button.btn.btn-blue.sm", { type: "button", "data-k": `due-give-${m.id}`, onclick: () => markGiven(m) }, "Mark given", h("span.vh", `: ${m.name}`)),
+      moreBtn(m.name, [["Edit", () => medSheet(m)], ["Add to calendar", () => calMed(p, m)], ["Delete", () => deleteMed(m), { danger: true }]])));
+}
+
+function todayDiary(p, now) {
+  const todays = S.events.filter((e) => e.petId === p.id && e.at >= startOfDay(now) && e.at < nextDayStart(now)).sort((a, b) => b.at - a.at);
+  return h("details.more-box.today-diary",
+    h("summary", `Today's diary (${todays.length})`),
+    todays.length ? eventList(todays, (e) => eventSheet(e.type, e)) : h("p.small.muted", "Nothing logged yet today."));
+}
+
+// ---------- poop log ----------
+function poopSection(main, p) {
+  const poops = eventsOf("poop");
+  const week = poopWeek(p.id);
+  const strip = h("ol.week-strip", { "aria-label": "Poops in the last 7 days" }, week.map((d) => {
+    const label = new Date(d.day).toLocaleDateString(undefined, { weekday: "short" });
+    const s = scaleFor(d.worst);
+    const desc = `${new Date(d.day).toLocaleDateString(undefined, { weekday: "long" })}: ${d.count} poop${d.count === 1 ? "" : "s"}${d.flagged ? ", something unusual noted" : ""}${d.count && s ? `, least typical: ${s.label}` : ""}`;
+    return h(`li.ws-day${d.flagged ? ".flag" : ""}${d.count && d.worst !== 3 && d.worst !== 2 ? ".off" : ""}${d.count ? ".has" : ""}`,
+      h("span.ws-l", { "aria-hidden": "true" }, label),
+      h("span.ws-n", { "aria-hidden": "true" }, d.count ? String(d.count) : "·"),
+      h("span.vh", desc));
+  }));
+  const recent = poops.filter((e) => Date.now() - e.at < 30 * DAY);
+  put(main,
+    h("section.sec", { "aria-labelledby": "ws-h" },
+      h("h2.sec-title", { id: "ws-h" }, "This week"),
+      strip,
+      h("p.small.muted", "Poops per day. Tan means something wasn't typical (looser, harder or flagged).")),
+    h("div.sticky-cta", h("button.btn.btn-blue.wide", { type: "button", "data-k": "log-poop", onclick: () => eventSheet("poop") }, em("💩"), " Log a poop")),
+    h("section.sec", { "aria-labelledby": "ph-h" },
+      h("h2.sec-title", { id: "ph-h" }, "Last 30 days"),
+      recent.length ? eventList(recent, (e) => eventSheet("poop", e), { showDay: true, single: true }) : emptyState("No poops logged in the last 30 days.")),
+    redFlags());
+}
+
+const redFlags = (open = false) => (S.content.RED_FLAGS.length ? h("details.more-box", { open },
+  h("summary", "When to call your vet"),
+  h("ul.rf-list", S.content.RED_FLAGS.map((r) => h("li", h("b", r.when), h("p", r.advice))))) : null);
+
+// ---------- unwell ----------
+function unwellSection(main, p) {
+  const notes = eventsOf("symptom").filter((e) => Date.now() - e.at < 30 * DAY);
+  put(main,
+    h("section.sec", { "aria-labelledby": "uw-h" },
+      h("h2.sec-title", { id: "uw-h" }, `Is ${p.name} unwell?`),
+      h("p", "Tick what you've noticed. If any of it needs a vet, Nova says so straight away. She doesn't diagnose: your vet does."),
+      h("button.btn.btn-blue.wide", { type: "button", "data-k": "open-unwell", onclick: () => unwellSheet() }, em("😟"), " Open the Unwell checklist")),
+    h("section.sec", { "aria-labelledby": "un-h" },
+      h("h2.sec-title", { id: "un-h" }, "Unwell notes, last 30 days"),
+      notes.length ? eventList(notes, (e) => eventSheet("symptom", e), { showDay: true, single: true }) : emptyState("Nothing logged. Long may it last.")),
+    redFlags(true),
+    p.vet && telHref(p.vet.phone) ? null : h("p.small", h("a", { href: "#/more/profile" }, "Add your vet's number"), " so it's one tap away when you need it."));
 }
 
 const pillFor = (st) => (st.state === "overdue" ? ["overdue", dueText(st)] : st.state === "today" ? ["today", "Due today"] : st.state === "soon" ? ["soon", dueText(st)] : st.state === "later" ? ["ok", "Up to date"] : ["none", "No next date"]);
@@ -231,7 +378,7 @@ function vet(main, p) {
     h("section.sec", { "aria-labelledby": "h-vet" },
       h("h2.sec-title", { id: "h-vet" }, "Vet visits"),
       visits.length ? eventList(visits, (e) => eventSheet("vet", e), { showDay: true, single: true }) : emptyState("No vet visits logged yet.")),
-    h("p", h("a.text-link", { href: "#/poop" }, "Open the poop log")));
+    h("p", h("a.text-link", { href: "#/health/poop" }, "Open the poop log", chevron())));
 }
 
 // ---------- printable vet summary ----------

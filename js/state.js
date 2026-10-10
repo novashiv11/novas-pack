@@ -3,9 +3,15 @@
 
 import * as db from "./db.js";
 
+/** Stores loaded into memory as arrays (settings is a map). */
+const LISTS = ["pets", "events", "records", "meds", "foods", "adventures", "skillChecks", "academy", "journal", "daily"];
+const PET_LISTS = ["events", "records", "meds", "foods", "adventures", "skillChecks"];
+
 export const S = {
   pets: [], events: [], records: [], meds: [], foods: [],
-  settings: {},           // { units: "kg"|"lb", currentPet, lastBackup, firstUse, ... }
+  adventures: [], skillChecks: [], academy: [], journal: [], daily: [], // v2: Level up together
+  rev: 0,                 // bumps on every change, so derived game numbers can be cached between changes
+  settings: {},           // { units: "kg"|"lb", currentPet, lastBackup, firstUse, trainerName, ... }
   content: {              // filled from data/skills.js and data/care.js
     SKILLS: [], VACCINES: {}, PREVENTIVES: {}, POOP_SCALE: [], POOP_FLAGS: [], RED_FLAGS: [], VET_FIRST: "", SOURCES: [],
   },
@@ -17,7 +23,8 @@ export function refresh() { redraw(); }
 
 export async function load() {
   const d = await db.loadAll();
-  for (const k of ["pets", "events", "records", "meds", "foods"]) S[k] = d[k];
+  for (const k of LISTS) S[k] = d[k] || [];
+  S.rev++;
   S.settings = Object.fromEntries(d.settings.map((r) => [r.key, r.value]));
   S.pets.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
 }
@@ -36,6 +43,7 @@ export function units() { return S.settings.units === "lb" ? "lb" : "kg"; }
 
 export async function save(store, row, { quiet } = {}) {
   await db.put(store, row);
+  S.rev++;
   const list = S[store];
   const i = list.findIndex((r) => r.id === row.id);
   if (i >= 0) list[i] = row; else list.push(row);
@@ -45,17 +53,20 @@ export async function save(store, row, { quiet } = {}) {
 }
 export async function remove(store, id, { quiet } = {}) {
   await db.del(store, id);
+  S.rev++;
   S[store] = S[store].filter((r) => r.id !== id);
   if (!quiet) redraw();
 }
 export async function setSetting(key, value, { quiet = true } = {}) {
   S.settings[key] = value;
+  S.rev++;
   await db.put("settings", { key, value });
   if (!quiet) redraw();
 }
 export async function removePet(petId) {
   await db.deletePet(petId);
-  for (const k of ["events", "records", "meds", "foods"]) S[k] = S[k].filter((r) => r.petId !== petId);
+  S.rev++;
+  for (const k of PET_LISTS) S[k] = S[k].filter((r) => r.petId !== petId);
   S.pets = S.pets.filter((p) => p.id !== petId);
   if (S.settings.currentPet === petId) await setSetting("currentPet", S.pets[0] ? S.pets[0].id : null);
 }
@@ -63,7 +74,8 @@ export async function wipe() {
   await db.deleteAll();
   // The Pack Card maker keeps its choices and streak in localStorage ("np-…" keys): clear those too.
   try { Object.keys(localStorage).filter((k) => k.startsWith("np-")).forEach((k) => localStorage.removeItem(k)); } catch { /* blocked */ }
-  for (const k of ["pets", "events", "records", "meds", "foods"]) S[k] = [];
+  for (const k of LISTS) S[k] = [];
+  S.rev++;
   S.settings = {};
 }
 

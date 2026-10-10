@@ -1,12 +1,11 @@
-// Food: current food and its history, treats in use, allergies, and the meal and treat log.
+// Food (a segment of the Health tab): current food and its history, treats in use, allergies, and the meal and treat log.
 
-import { S, pet, forPet, save } from "../state.js";
+import { S, forPet, save } from "../state.js";
 import { h, put, em, fmtDate, daysBetween, isoDate, toast, DAY } from "../util.js";
 import { foodSheet, treatSheet, eventSheet, logMeal, logTreat } from "../forms.js";
-import { pageHead, sampleStrip, emptyState, eventList, cardTitle } from "./parts.js";
+import { emptyState, eventList, cardTitle } from "./parts.js";
 
-export function food(main) {
-  const p = pet();
+export function foodSection(main, p) {
   const foods = forPet("foods");
   const current = foods.filter((f) => f.kind === "food" && !f.until).sort((a, b) => (b.since || "").localeCompare(a.since || ""))[0];
   const past = foods.filter((f) => f.kind === "food" && f !== current).sort((a, b) => (b.since || "").localeCompare(a.since || ""));
@@ -23,9 +22,7 @@ export function food(main) {
   h("button.btn.btn-line.sm", { type: "submit", "data-k": "save-allergy" }, "Save list"));
   const foodTitle = (f) => [f.brand, f.product].filter(Boolean).join(" · ") || "Food";
 
-  put(main, 
-    sampleStrip(p),
-    pageHead("Food"),
+  put(main,
     h("section.sec", { "aria-labelledby": "h-food" },
       h("h2.sec-title", { id: "h-food" }, "Current food"),
       current ? h("div.card.food-card",

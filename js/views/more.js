@@ -1,14 +1,16 @@
-// More: settings-style rows (Pets, Profile and contacts, Units, Backup, Install, Pack Card, Privacy, Delete all)
-// and their sub-pages (#/more/<page>).
+// More: settings-style rows (Level up: badges, trainer, journal; Pets, Profile and contacts, Units, Backup, Install,
+// Pack Card, Privacy, "If things feel heavy", Delete all) and their sub-pages (#/more/<page>).
 
 import { S, pet, setSetting, wipe, load, refresh, units, UI } from "../state.js";
-import { h, put, toast, confirmBox, fmtDate, isoDate, ageText, telHref, shareOrSave } from "../util.js";
+import { h, put, em, sheet, toast, confirmBox, fmtDate, isoDate, ageText, telHref, shareOrSave } from "../util.js";
 import { exportData, validateBackup, importData } from "../db.js";
 import { installCard, isStandalone } from "../install.js";
 import { openPetSheet, speciesOf, segmented, deletePetFlow } from "../forms.js";
-import { pageHead, subBar, avatar, chevron } from "./parts.js";
+import { pageHead, subBar, avatar, chevron, sampleStrip } from "./parts.js";
+import { gameOf, trainerFor, badgeChip } from "./gameui.js";
+import { openPartnerCard } from "../sharecard.js";
 
-export const APP_VERSION = "1.1";
+export const APP_VERSION = "2.0";
 const CARD_SPECIES = { dog: "dog", cat: "cat", rabbit: "small", bird: "bird", other: "other" };
 
 export function cardLink(p) {
@@ -26,7 +28,7 @@ export async function exportBackup() {
   } catch { toast("Couldn't make the backup file."); }
 }
 
-const PAGES = { pets, profile, units: unitsPage, backup, install, sources };
+const PAGES = { pets, profile, units: unitsPage, backup, install, sources, badges };
 
 export function more(main, arg) {
   if (PAGES[arg]) { PAGES[arg](main); return; }
@@ -35,10 +37,20 @@ export function more(main, arg) {
   const row = (icon, label, value, href, k) => h("li", h("a.set-row", { href, "data-k": k },
     h("span.set-ico", { "aria-hidden": "true" }, icon), h("span.set-label", label), value ? h("span.set-value", value) : null, chevron()));
   const sample = S.pets.find((x) => x.sample);
+  const a = p ? gameOf(p) : null;
+  const btnRow = (icon, label, value, onclick, k) => h("li", h("button.set-row", { type: "button", "data-k": k, onclick },
+    h("span.set-ico", { "aria-hidden": "true" }, icon), h("span.set-label", label), value ? h("span.set-value", value) : null, chevron()));
   put(main,
     pageHead("More"),
     UI.applyUpdate ? h("aside.nudge", h("p", h("b", "Update ready."), " Same diary, fresh paint."),
       h("div.row-btns.left", h("button.btn.btn-blue.sm", { type: "button", onclick: () => UI.applyUpdate() }, "Update now"))) : null,
+    p ? h("section.set-group", { "aria-labelledby": "g-lvl" },
+      h("h2.set-h", { id: "g-lvl" }, "Level up"),
+      h("ul.set-list",
+        row("🏅", "Badges", `${a.badges.filter((b) => b.earned).length} of ${a.badges.length}`, "#/more/badges", "m-badges"),
+        row("🎓", "Trainer and Academy", trainerFor(p).rank.name, "#/trainer", "m-trainer"),
+        row("📓", "Growth Journal", S.journal.length ? `${S.journal.length} line${S.journal.length === 1 ? "" : "s"}` : "", "#/journal", "m-journal"),
+        btnRow("📸", "Share the partner card", p.name, () => openPartnerCard(p, gameOf(p), trainerFor(p)), "m-share"))) : null,
     h("section.set-group", { "aria-labelledby": "g-pets" },
       h("h2.set-h", { id: "g-pets" }, "Your pets"),
       h("ul.set-list",
@@ -55,7 +67,8 @@ export function more(main, arg) {
       h("ul.set-list",
         p ? row("🪪", "Pack Card", p.name, cardLink(p), "m-card") : null,
         row("🔒", "Privacy", "", "privacy.html", "m-privacy"),
-        S.content.SOURCES.length ? row("📚", "Where the care info comes from", "", "#/more/sources", "m-sources") : null,
+        btnRow("🌧️", "If things feel heavy", "", heavy, "m-heavy"),
+        S.content.SOURCES.length ? row("📚", "Where the info comes from", "", "#/more/sources", "m-sources") : null,
         h("li", h("a.set-row", { href: "https://www.instagram.com/novathehumanhandler/", rel: "noopener" },
           h("span.set-ico", { "aria-hidden": "true" }, "📸"), h("span.set-label", "Follow Nova on Instagram"), chevron())))),
     h("section.set-group", { "aria-labelledby": "g-del" },
@@ -65,11 +78,45 @@ export function more(main, arg) {
           h("span.set-ico", { "aria-hidden": "true" }, "🧹"), h("span.set-label", "Delete the sample diary"), chevron())) : null,
         h("li", h("button.set-row.danger", { type: "button", "data-k": "wipe", onclick: deleteAll },
           h("span.set-ico", { "aria-hidden": "true" }, "🗑️"), h("span.set-label", "Delete all data"), chevron())))),
-    h("p.small.muted.version", `Nova's Pack ${APP_VERSION} · No account, no tracking. Your diary never leaves this device.`),
+    h("p.small.muted.version", `Nova's Pack ${APP_VERSION} · Level up together · No account, no tracking. Everything stays on this device.`),
   );
 }
 
+/** A small, calm pointer to people who can help. No therapy language, no promises. */
+function heavy() {
+  sheet("If things feel heavy", (body) => {
+    put(body,
+      h("p", "Talking helps. You don't have to be in crisis to reach out."),
+      h("p", h("b", "In Ireland: "), "Samaritans, free, any time, day or night: ", h("a.call-link", { href: "tel:116123" }, "116 123"), "."),
+      h("p", h("b", "Elsewhere: "), "your local helpline, or your GP."),
+      h("p", "If you or someone else is in danger right now, call your local emergency number."),
+      h("p.small.muted", h("a", { href: "https://www.samaritans.org/ireland/", rel: "noopener" }, "samaritans.org/ireland"), ". Nova's Pack isn't connected to any service and never sees what you do here."));
+  });
+}
+
 // ---------- sub-pages ----------
+function badges(main) {
+  const p = pet();
+  const a = gameOf(p);
+  const group = (kind, title) => {
+    const list = a.badges.filter((b) => b.kind === kind);
+    if (!list.length) return null;
+    return h("section.sec", { "aria-labelledby": `bg-${kind}` },
+      h("h2.sec-title", { id: `bg-${kind}` }, title),
+      h("ul.badge-grid", list.map((b) => h(`li${b.earned ? ".earned" : ""}`,
+        badgeChip(b, { showName: false }),
+        h("div.bg-body", h("b", b.name),
+          h("p.small", b.earned ? `Earned ${fmtDate(b.at, { day: "numeric", month: "short", year: "numeric" })}` : b.need),
+          b.earned ? null : h("p.small.muted", b.progress))))));
+  };
+  put(main,
+    subBar("Badges", "#/more", "Back to More"),
+    sampleStrip(p),
+    h("p.small.muted.badge-intro", `${p.name}'s badges are for real milestones only: a skill at level 3 (it works in the garden), 10 and 25 stamps, 100 walks, and 8 weeks of training.`),
+    group("skill", "Skill badges"),
+    group("milestone", "Milestones"));
+}
+
 function pets(main) {
   put(main,
     subBar("Pets", "#/more", "Back to More"),
@@ -149,10 +196,14 @@ function install(main) {
 }
 
 function sources(main) {
+  const seen = new Set();
+  const academy = (S.content.LESSONS || []).flatMap((l) => l.sources).filter((s) => !seen.has(s.url) && seen.add(s.url));
   put(main,
     subBar("Sources", "#/more", "Back to More"),
-    h("p.small.muted", "Where the care info comes from. General information only: your vet decides your pet's care."),
-    h("ul.src-list", S.content.SOURCES.map((s) => h("li", h("a", { href: s.url, rel: "noopener" }, s.title)))));
+    h("p.small.muted", "Where the care and training info comes from. General information only: your vet decides your pet's care."),
+    h("h2.sec-title.src-h", "Care"),
+    h("ul.src-list", S.content.SOURCES.map((s) => h("li", h("a", { href: s.url, rel: "noopener" }, s.title)))),
+    academy.length ? [h("h2.sec-title.src-h", "Academy and training"), h("ul.src-list", academy.map((s) => h("li", h("a", { href: s.url, rel: "noopener" }, s.title))))] : null);
 }
 
 /** The import form (More → Backup, and "Restore a backup" on the first-run screen). */
@@ -169,7 +220,7 @@ export function importForm(defaultMode) {
 }
 
 async function deleteAll() {
-  if (!(await confirmBox("Delete all data?", "Every pet, entry and setting on this device will be deleted, including your Pack Card choices and streak. This can't be undone.", "Delete everything", true))) return;
+  if (!(await confirmBox("Delete all data?", "Every pet, entry, stamp, journal line and setting on this device will be deleted, including your Pack Card choices and streak. This can't be undone.", "Delete everything", true))) return;
   await wipe();
   toast("Everything deleted from this device.");
   location.hash = "#/welcome";
@@ -188,7 +239,7 @@ async function importFile(file, form, msg) {
   const picked = form.querySelector('input[name="mode"]:checked');
   const mode = picked ? picked.value : "replace";
   const c = v.counts;
-  const what = `${c.pets} pet${c.pets === 1 ? "" : "s"}, ${c.events} diary entries, ${c.records} vaccines and preventives, ${c.meds} medicines, ${c.foods} foods and treats.`;
+  const what = `${c.pets} pet${c.pets === 1 ? "" : "s"}, ${c.events} diary entries, ${c.records} vaccines and preventives, ${c.meds} medicines, ${c.foods} foods and treats, ${c.adventures || 0} adventure stamps, ${c.skillChecks || 0} skill checks, ${c.academy || 0} lessons and ${c.journal || 0} journal lines.`;
   const ok = !S.pets.length || await confirmBox(mode === "replace" ? "Replace everything?" : "Merge this backup?",
     `${what}${v.skipped ? ` ${v.skipped} damaged rows will be skipped.` : ""} ${mode === "replace" ? "Everything on this device will be replaced." : "Entries with the same ID are updated from the backup."}`,
     mode === "replace" ? "Replace" : "Merge", mode === "replace");
@@ -198,7 +249,7 @@ async function importFile(file, form, msg) {
     await load();
     if (!S.pets.some((p) => p.id === S.settings.currentPet) && S.pets[0]) await setSetting("currentPet", S.pets[0].id);
     toast(`Backup imported: ${what}`);
-    location.hash = "#/today";
+    location.hash = "#/home";
     refresh();
   } catch { msg.textContent = "Import failed, so nothing was changed."; }
 }
