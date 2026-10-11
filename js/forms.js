@@ -202,7 +202,7 @@ export function petForm(box, existing, onSaved, { openProfile = false, extra = n
   put(form,
     field("Name", name),
     h("fieldset.fs", h("legend", "Species"), speciesBox),
-    h("fieldset.fs", h("legend", "Icon", opt()), iconBox, h("p.hint", "Shown when there's no photo. Scroll for more. Want a cartoon of your pet? Add a photo and pick Cartoon.")),
+    h("fieldset.fs", h("legend", "Icon", opt()), iconBox, h("p.hint", "Shown when there's no photo.")),
     existing ? basics : h("details.fold", h("summary", "Add details (optional)"), h("div.fold-body", h("p.hint", "Birthday, photo and weight. Skip them now and add them later if you like."), basics)));
 
   if (existing) {

@@ -39,7 +39,7 @@ export function placement(main) {
   let i = 0;
   const stage = h("div.lc2");
   const bar = h("div.lc2-bar", { role: "progressbar", "aria-valuemin": "0", "aria-valuemax": String(skills.length) }, h("span"));
-  put(main, subBar("Level check", "#/home", "Skip"), bar, stage);
+  put(main, subBar("Level check", "#/home", "Skip the level check"), bar, stage);
 
   const show = () => {
     bar.setAttribute("aria-valuenow", String(i));
@@ -71,6 +71,8 @@ export function placement(main) {
     // The first win practises the skill that needs it most (lowest level; the first one on a tie).
     const weakest = skills.reduce((m, s) => ((picked[s.id] || 0) < (picked[m.id] || 0) ? s : m), skills[0]).id;
     if (motionOK()) confetti();
+    const bk = main.querySelector(".sub-back .vh");
+    if (bk) bk.textContent = "Back to Home";
     stage.replaceChildren(h(`section.lc2-card.lc2-done${motionOK() ? ".in" : ""}`, { "aria-labelledby": "lc2-done-h" },
       h("div.lc2-emoji", { "aria-hidden": "true" }, "🧭"),
       h("h1.lc2-q", { id: "lc2-done-h", tabindex: "-1" }, `Here's where ${p.name} starts`),

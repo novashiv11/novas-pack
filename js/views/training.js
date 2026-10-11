@@ -45,10 +45,10 @@ export function training(main, arg, sub) {
       howTo(q.skillId, q.text, { k: "quest-howto" }),
       q.done ? h("p.small", em("✅"), " Done today. Nova approves.")
         : h("div.row-btns.left", h("a.btn.btn-blue.sm", { href: `#/train/${encodeURIComponent(q.skillId)}/start` }, "Start the timer")),
-      h("button.linkish", { type: "button", "data-k": "swap-focus", onclick: () => focusPicker(p, skills) }, "Not this one? Pick this week's skill")));
+      h("button.linkish", { type: "button", "data-k": "swap-focus", onclick: () => focusPicker(p, skills) }, "Change this week's skill")));
   }
   if (!p.sample && quizSkills(p).length) {
-    put(main, h("p.lc-link", h("a.text-link", { href: "#/placement", "data-k": "lc-open" }, p.placement ? "Redo the level check" : `Already trained some skills? 1-minute level check for ${p.name}`)));
+    put(main, h("p.lc-link", h("a.text-link", { href: "#/placement", "data-k": "lc-open" }, p.placement ? "Redo the level check" : "Already trained? Take the level check")));
   }
   put(main, streakCard(p));
   for (const g of GROUPS) {
@@ -85,12 +85,12 @@ function streakCard(p) {
     h("div.streak-top",
       h("div", h("h2", { id: "st-h" }, "Practice weeks"),
         h("p.streak-n", h("b", String(st.weeks)), ` week${st.weeks === 1 ? "" : "s"}`)),
-      h("button.btn.btn-blue", { type: "button", "data-k": "log-practice", onclick: () => trainingPicker(p) }, "Train now")),
+      h("button.btn.btn-line", { type: "button", "data-k": "log-practice", onclick: () => trainingPicker(p) }, "Pick a skill")),
     h("ol.week-dots", { "aria-label": st.last8.length === 1 ? "This week" : `Last ${st.last8.length} weeks` }, st.last8.map((w) =>
       h(`li${w.done ? ".done" : ""}${w.current ? ".current" : ""}`,
         h("span.vh", `${w.current ? "This week" : (w.label || w.id)}: ${w.done ? "practised" : "no practice logged"}`),
         h("span", { "aria-hidden": "true" }, w.done ? "✓" : "")))),
-    h("p.small.muted", st.thisWeek ? "This week counts ✓" : "Any practice this week keeps it going.", st.graces ? ` 🛟 ${st.graces} grace week${st.graces === 1 ? "" : "s"} saved.` : ""));
+    h("p.small.muted", st.thisWeek ? "This week counts ✓" : "Any practice counts this week.", st.graces ? ` 🛟 ${st.graces} grace week${st.graces === 1 ? "" : "s"} saved.` : ""));
 }
 
 // ---------- one skill ----------
@@ -126,14 +126,14 @@ function skillPage(main, p, sk) {
       ] : h("p.lv-next", "Top level. Keep it fun and keep it fresh in new places.")),
     h("div.practice-row",
       h("button.btn.btn-blue", { type: "button", "data-k": "start-session", onclick: () => startSession(p, sk) }, em("⏱️"), ` Start ${sk.minutes}-min session`),
-      h("button.btn.btn-line.sm", { type: "button", "data-k": "log-skill", onclick: () => logSession(p, sk, { minutes: sk.minutes }) }, "Already did one? Log it")),
+      h("button.btn.btn-line.sm.wide", { type: "button", "data-k": "log-skill", onclick: () => logSession(p, sk, { minutes: sk.minutes }) }, "Already did one? Log it")),
     h("p.small.muted", `Today: ${today} of ${CAPS.sessions} counted sessions for this skill.`),
     old !== "none" && pr.level === 0 ? h("p.note-line", em("📒"), ` In the old diary you marked this "${old === "got" ? "Got it" : "Practising"}". Levels start fresh: log sessions and do the self-checks.`) : null,
     clipBox,
-    h("section.sec.skill-sec", h("h2", "Why it matters"), h("p", sk.why)),
+    h("details.fold.skill-fold", { "data-k": "why-fold" }, h("summary", "Why it matters"), h("p.skill-why", sk.why)),
     h("section.sec.skill-sec", h("h2", "Steps"), howTo(sk.id, "Simple version (for everyone)", { k: "skill-howto" }), h("ol.steps-list", (sk.steps || []).map((s) => h("li", s))), soon),
-    h("section.sec.skill-sec.mistake", h("h2", "Common mistake"), h("p", sk.mistake)),
-    h("section.sec.skill-sec.pro", h("h2", "When to see a professional"), h("p", sk.pro)),
+    h("details.fold.skill-fold", h("summary", "Common mistake"), h("p.skill-why", sk.mistake)),
+    h("details.fold.skill-fold", h("summary", "When to see a professional"), h("p.skill-why", sk.pro)),
     h("section.sec", { "aria-labelledby": "sh-h" },
       h("h2.sec-title", { id: "sh-h" }, "Sessions"),
       sessions.length ? h("ul.tl", sessions.slice(0, 12).map((e) => h("li.tl-item",

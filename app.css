@@ -4,7 +4,7 @@
 
 :root{
   --danger:#9B2F22; --danger-ledge:#6A1E15; --on-danger:#FFFFFF; --danger-text:#9B2F22; --danger-soft:#F8E1DC;
-  --nav-h:64px; --strip-h:40px; --sub-h:52px;
+  --nav-h:64px; --strip-h:44px; --sub-h:52px;
   --t12:.75rem; --t14:.875rem; --t16:1rem; --t18:1.125rem; --t22:1.375rem; --t30:1.875rem;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){ --danger:#F2A391; --danger-ledge:#B5624F; --on-danger:#1E1B17; --danger-text:#F2A391; --danger-soft:#3A221D; }}
@@ -880,3 +880,73 @@ button.doit-plan{min-height:44px;text-align:left;font-size:var(--t14);font-weigh
 .howto-steps li .step-photo{grid-column:2;width:auto;max-width:300px;margin:4px 0 6px}
 .feed-photo{width:auto;max-width:320px}
 .mc-bonus{margin:-4px 0 0;text-align:center;font-weight:800;font-size:var(--t14);color:var(--tan-text)}
+
+/* ==================== GUI pass v2 (CRQ-043) ====================
+   One look everywhere: cards 16px / 1px line / surface; tiles 16px with a 3px ledge; one button family (blue, line, gold, link);
+   one empty state with Nova; one sheet header. Tap targets 44px or more. Reduced motion respected below. */
+
+/* tap targets: the title button stretches over the whole card, so make it 44px tall without moving the layout */
+.card-title{min-height:44px;padding-block:10px;margin-block:-10px}
+.welcome p.small a{display:inline-flex;align-items:center;min-height:44px;padding:0 6px}
+.welcome-grid li{min-height:72px;justify-content:center}
+
+/* one empty state: Nova plus one line */
+.empty{flex-direction:row;align-items:center;gap:12px}
+.empty-nova{width:40px;height:40px;flex:none;padding:3px;align-self:flex-start}
+.empty-body{display:flex;flex-direction:column;gap:10px;min-width:0;flex:1}
+
+/* one tile style: 16px, 1.5px line, 3px ledge, presses down */
+.ex-tile{min-height:72px;border-radius:16px;border:1.5px solid var(--line);box-shadow:0 3px 0 var(--line)}
+.ex-tile:active{transform:translateY(3px);box-shadow:0 0 0 transparent}
+.lc2-opt{border-radius:16px}
+.top-actions .btn{width:100%}
+
+/* install banner: one line and a button (the long steps live behind "How?") */
+.install-card{gap:8px;padding:12px 14px}
+.install-card p{line-height:1.35}
+
+/* Home: the one big step */
+.doit{box-shadow:0 3px 0 var(--blue-ledge);gap:12px}
+.doit-go{min-height:60px;font-size:var(--t18)}
+.wk-dot{width:28px;height:28px}
+.doit-plan-btn{background:var(--blue-soft);color:var(--live-ink);box-shadow:none}
+.doit-plan b,.plan-after b{display:inline-block}
+.doit-plan b::first-letter,.plan-after b::first-letter{text-transform:uppercase}
+
+/* timer sheet: a dial with a face, a pop when time is up */
+.timer{gap:14px}
+.timer-ring::before{content:"";position:absolute;inset:18px;border-radius:50%;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line),0 3px 0 var(--line)}
+.timer-ring.done::before{background:var(--gold-soft)}
+.timer-ring.done{animation:t-pop .5s cubic-bezier(.2,1.5,.4,1)}
+@keyframes t-pop{0%{transform:scale(.94)}60%{transform:scale(1.04)}100%{transform:none}}
+.timer-status{max-width:26em;min-height:2.7em}
+.timer-btns .btn{min-width:140px;min-height:52px}
+
+/* mission complete: Continue is the one big button; the two extras sit side by side */
+.mc-second{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mc-second:empty{display:none}
+.mc-second:has(> :only-child){grid-template-columns:1fr}
+.mc-second .btn{padding:10px 8px;font-size:var(--t14)}
+@media (max-width:359px){.mc-second{grid-template-columns:1fr}}
+.mc-xp{color:var(--tan-text)}
+
+/* share sheet: the buttons and their message stay on screen together (QA 5) */
+.share-canvas{width:auto;max-width:100%;max-height:44vh;max-height:44dvh}
+.share-actions{position:sticky;bottom:0;z-index:2;display:flex;flex-direction:column;gap:8px;margin:0 -16px calc(-24px - env(safe-area-inset-bottom));padding:10px 16px calc(14px + env(safe-area-inset-bottom));background:var(--bg);border-top:1px solid var(--line)}
+.share-status{font-size:var(--t14);font-weight:700;line-height:1.35}
+.share-status:empty{display:none}
+.share-status:not(:empty){background:var(--blue-soft);color:var(--live-ink);padding:8px 12px;border-radius:12px}
+
+/* skill page: the long text sits in folds, the one big button is Start */
+.skill-fold{margin-top:10px}
+.skill-fold>summary{font-family:var(--f-display);font-weight:800;color:var(--ink)}
+.skill-why{padding:0 0 12px;font-size:var(--t14)}
+.practice-row{flex-direction:column;align-items:stretch;gap:10px}
+.practice-row .btn-blue{width:100%;min-height:56px;font-size:var(--t18)}
+
+/* forms on a page (Add pet): the one button is big and easy to hit */
+main .form > .row-btns:last-child{justify-content:stretch}
+main .form > .row-btns:last-child .btn-blue{flex:1;min-height:56px;font-size:var(--t18)}
+.add-lede{margin:4px 0 12px}
+
+@media (prefers-reduced-motion:reduce){.timer-ring.done{animation:none}.ex-tile{transition:none}}

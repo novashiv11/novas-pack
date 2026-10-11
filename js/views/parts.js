@@ -83,7 +83,8 @@ export function alertCard(alerts, p) {
 }
 
 export function emptyState(text, ...actions) {
-  return h("div.empty", h("p", text), actions.length ? h("div.row-btns.left", actions) : null);
+  return h("div.empty", h("img.disc.empty-nova", { src: NOVA, alt: "", width: "40", height: "40" }),
+    h("div.empty-body", h("p", text), actions.length ? h("div.row-btns.left", actions) : null));
 }
 
 /** The ⋯ button (44 px) that opens an action sheet. items: [[label, fn, { danger }], ...] */

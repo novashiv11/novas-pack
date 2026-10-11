@@ -20,7 +20,7 @@ export function welcome(main, arg) {
   document.title = "Nova's Pack · Level up together";
   if (arg === "add") {
     const name = textIn({ maxlength: "40", value: S.settings.trainerName || "", placeholder: "e.g. Shiv", autocomplete: "given-name" });
-    const extra = S.settings.trainerName ? null : field(h("span", "And you are?", h("span.opt", " (optional)")), name, "So Nova knows who's holding the lead. Stays on this device.");
+    const extra = S.settings.trainerName ? null : field(h("span", "And you are?", h("span.opt", " (optional)")), name, "So Nova can say hi. Stays on this device.");
     put(main,
       subBar("Pick your partner", "#/welcome", "Back"),
       h("p.add-lede", "Who's in your family? Only the name is needed. Free, no account."));
