@@ -21,7 +21,7 @@ Everything buildable in `docs/crq.md` is done. What's left needs Shiv (below).
 | B | 6 new skills: sit, down, check-in, drop it, stay, look at that (013, 014); own level ladders for stay, look at that, alone time, toilet training (012); lesson "Worried dogs: space first"; rabbit poop choices and grams (010); Chickens with an Eggs tile, Horse (009) |
 | C | Archive a pet (007); Care diary only mode (008); "No pet yet? Get ready" checklist (024); faster first load (017) |
 | 003 | A drawn picture for every simple step of all 20 skills (`js/scenes.js`, `data/scenes.js`) |
-| QA | **Next session, first job:** run the final independent QA pass (prompt pattern in `docs/qa-sprint2.md` style) on batches A–C, then fix Critical/Major. Stopped on 12 Oct to save usage at Shiv's request. |
+| QA | **Next session, first job (paste `docs/next-session-prompt.md`):** run the final independent QA pass (prompt pattern in `docs/qa-sprint2.md` style) on batches A–C, then fix Critical/Major. Stopped on 12 Oct to save usage at Shiv's request. |
 
 ## Waiting on Shiv
 - **CRQ-001 (decided 12 Oct):** our "1% better" is an emotional play: **"Do it for them"**. Next session: rename the 1% wording in the app to it.
