@@ -1,9 +1,12 @@
-# Builds the Android app (a Trusted Web Activity that opens the live web app full screen) and publishes
-# novas-pack.apk (install on a phone) and novas-pack.aab (for Google Play) on the "android" release.
+# Builds the Android app (a Trusted Web Activity that opens the live web app full screen) and publishes it on the
+# "android" release: novas-pack.apk (install on a phone) and, with a stable key, novas-pack.aab (for Google Play).
 #
-# One-time setup: add the repository secret ANDROID_KEYSTORE_PASSWORD (Settings → Secrets and variables → Actions),
-# 12+ characters, and keep a copy somewhere safe. The first run creates the signing key, encrypted with it, and
-# commits it with its SHA-256 fingerprint (android/signing-sha256.txt) for the Digital Asset Links file.
+# Signing:
+# - No setup needed: without the secret below, each build is signed with a one-off key. Fine for installing on
+#   phones (to update, uninstall first; the data lives in Chrome, so it stays). The key's SHA-256 is in the release
+#   notes, for the Digital Asset Links file at novashiv11.github.io/.well-known/assetlinks.json.
+# - For Google Play: add the repository secret ANDROID_KEYSTORE_PASSWORD (12+ characters, keep a copy). The next run
+#   creates a stable key, encrypted with it, and commits it with its fingerprint (android/signing-sha256.txt).
 name: Android app
 
 on:
@@ -22,76 +25,75 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      KS_PASS: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
     steps:
       - uses: actions/checkout@v5
-
-      - name: Check the signing password is set
-        run: |
-          if [ -z "$KS_PASS" ]; then
-            echo "::warning::No ANDROID_KEYSTORE_PASSWORD secret yet, so this run only test-builds the app (nothing is published). Add the secret (Settings → Secrets and variables → Actions), then run this workflow again."
-            echo "HAS_KEY=0" >> "$GITHUB_ENV"
-          elif [ "${#KS_PASS}" -lt 12 ]; then
-            echo "::error::ANDROID_KEYSTORE_PASSWORD must be at least 12 characters."
-            exit 1
-          else
-            echo "HAS_KEY=1" >> "$GITHUB_ENV"
-          fi
 
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: "17"
 
-      - name: Test build (no secret yet)
-        if: env.HAS_KEY == '0'
+      - name: Signing key
         working-directory: android
+        env:
+          KS_PASS: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
         run: |
-          chmod +x gradlew
-          ./gradlew --no-daemon assembleDebug
-
-      - name: Signing key (created on the first run only)
-        if: env.HAS_KEY == '1'
-        working-directory: android
-        run: |
-          if [ ! -f android.keystore ]; then
-            keytool -genkeypair -keystore android.keystore -storetype PKCS12 -alias novaspack \
-              -keyalg RSA -keysize 2048 -validity 10000 \
-              -storepass "$KS_PASS" -keypass "$KS_PASS" \
-              -dname "CN=Nova's Pack, O=Nova's Pack, C=IE"
-            echo "NEW_KEY=1" >> "$GITHUB_ENV"
+          if [ -n "$KS_PASS" ]; then
+            if [ "${#KS_PASS}" -lt 12 ]; then echo "::error::ANDROID_KEYSTORE_PASSWORD must be at least 12 characters."; exit 1; fi
+            STORE=android.keystore; PASS="$KS_PASS"; KIND=stable
+          else
+            STORE=oneoff.keystore; PASS=$(openssl rand -hex 24); KIND=oneoff
+            echo "::add-mask::$PASS"
+            echo "::notice::No ANDROID_KEYSTORE_PASSWORD secret, so this APK is signed with a one-off key. Fine for phones; Google Play needs the secret."
           fi
-          keytool -list -v -keystore android.keystore -storetype PKCS12 -storepass "$KS_PASS" -alias novaspack \
-            | grep -m1 "SHA256:" | sed 's/.*SHA256: *//' > signing-sha256.txt
-          echo "Signing certificate SHA-256: $(cat signing-sha256.txt)"
-          test -s signing-sha256.txt
+          NEW=0
+          if [ ! -f "$STORE" ]; then
+            keytool -genkeypair -keystore "$STORE" -storetype PKCS12 -alias novaspack \
+              -keyalg RSA -keysize 2048 -validity 10000 \
+              -storepass "$PASS" -keypass "$PASS" \
+              -dname "CN=Nova's Pack, O=Nova's Pack, C=IE"
+            NEW=1
+          fi
+          FP=$(keytool -list -v -keystore "$STORE" -storetype PKCS12 -storepass "$PASS" -alias novaspack | grep -m1 "SHA256:" | sed 's/.*SHA256: *//')
+          test -n "$FP"
+          echo "Signing certificate SHA-256 ($KIND): $FP"
+          {
+            echo "SIGN_STORE=$PWD/$STORE"
+            echo "SIGN_PASS=$PASS"
+            echo "SIGN_SHA256=$FP"
+            echo "KEY_KIND=$KIND"
+            echo "NEW_STABLE_KEY=$([ "$KIND" = stable ] && [ "$NEW" = 1 ] && echo 1 || echo 0)"
+          } >> "$GITHUB_ENV"
+          if [ "$KIND" = stable ]; then echo "$FP" > signing-sha256.txt; fi
 
-      - name: Build the APK and the App Bundle
-        if: env.HAS_KEY == '1'
+      - name: Build
         working-directory: android
         run: |
           chmod +x gradlew
-          ./gradlew --no-daemon assembleRelease bundleRelease
+          if [ "$KEY_KIND" = stable ]; then ./gradlew --no-daemon assembleRelease bundleRelease; else ./gradlew --no-daemon assembleRelease; fi
 
-      - name: Save the new key and its fingerprint (first run only)
-        if: env.HAS_KEY == '1' && env.NEW_KEY == '1'
+      - name: Save the new stable key and its fingerprint
+        if: env.NEW_STABLE_KEY == '1'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add android/android.keystore android/signing-sha256.txt
-          git commit -m "Android: signing key (encrypted with the repo secret) and its SHA-256 fingerprint"
+          git commit -m "Android: stable signing key (encrypted with the repo secret) and its SHA-256 fingerprint"
           git push
 
       - name: Publish on the "android" release
-        if: env.HAS_KEY == '1'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           cp android/app/build/outputs/apk/release/app-release.apk novas-pack.apk
-          cp android/app/build/outputs/bundle/release/app-release.aab novas-pack.aab
+          FILES="novas-pack.apk"
+          if [ "$KEY_KIND" = stable ]; then cp android/app/build/outputs/bundle/release/app-release.aab novas-pack.aab; FILES="$FILES novas-pack.aab"; fi
           VERSION=$(grep -m1 'versionName' android/app/build.gradle | sed 's/.*"\(.*\)".*/\1/')
+          cat > notes.md <<NOTES
+          **Install on Android:** download novas-pack.apk on your phone and open it. If Android asks, allow your browser to install apps, then tap Install. It opens the same free web app full screen; your data stays on your phone (in Chrome).
+
+          Signing key: $KEY_KIND
+          SHA-256: $SIGN_SHA256
+          NOTES
           gh release delete android --yes --cleanup-tag || true
-          gh release create android novas-pack.apk novas-pack.aab \
-            --title "Nova's Pack for Android ($VERSION)" \
-            --notes "Install on Android: download novas-pack.apk on your phone and open it. If Android asks, allow your browser to install apps, then tap Install. The app opens the same free web app full screen; your data stays on your phone. novas-pack.aab is the file for Google Play."
+          gh release create android $FILES --title "Nova's Pack for Android ($VERSION)" --notes-file notes.md

@@ -150,21 +150,24 @@ android {
 
         
     }
-    // Signed in GitHub Actions (.github/workflows/android.yml). The key lives in android.keystore, encrypted with the
-    // repo secret ANDROID_KEYSTORE_PASSWORD, which the workflow passes in as KS_PASS.
+    // Signed in GitHub Actions (.github/workflows/android.yml), which sets SIGN_STORE and SIGN_PASS: the stable key
+    // (android.keystore, encrypted with the repo secret ANDROID_KEYSTORE_PASSWORD) or, without that secret, a one-off key.
+    def signStore = System.getenv("SIGN_STORE")
     signingConfigs {
         release {
-            storeFile file("../android.keystore")
-            storeType "pkcs12"
-            storePassword System.getenv("KS_PASS")
-            keyAlias "novaspack"
-            keyPassword System.getenv("KS_PASS")
+            if (signStore) {
+                storeFile file(signStore)
+                storeType "pkcs12"
+                storePassword System.getenv("SIGN_PASS")
+                keyAlias "novaspack"
+                keyPassword System.getenv("SIGN_PASS")
+            }
         }
     }
     buildTypes {
         release {
             minifyEnabled true
-            signingConfig signingConfigs.release
+            if (signStore) signingConfig signingConfigs.release
         }
     }
     compileOptions {
