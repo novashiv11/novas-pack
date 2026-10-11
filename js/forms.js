@@ -16,6 +16,7 @@ export const SPECIES = [
   { id: "other", label: "Other", emoji: "🐾" },
 ];
 /** Icons a pet can have when there's no photo. The species' own emoji is the default. */
+const ICON_NAMES = { "🐶": "Dog face", "🐕": "Dog", "🦮": "Guide dog", "🐩": "Poodle", "🐺": "Wolf", "🦊": "Fox", "🐱": "Cat face", "🐈": "Cat", "🐈‍⬛": "Black cat", "🐯": "Tiger", "🐰": "Rabbit face", "🐇": "Rabbit", "🐹": "Hamster", "🐭": "Mouse", "🦔": "Hedgehog", "🐦": "Bird", "🦜": "Parrot", "🐤": "Chick", "🐔": "Hen", "🦆": "Duck", "🐴": "Horse", "🐮": "Cow", "🐷": "Pig", "🐑": "Sheep", "🐐": "Goat", "🐢": "Tortoise", "🦎": "Lizard", "🐍": "Snake", "🐟": "Fish", "🐠": "Tropical fish", "🐸": "Frog", "🐾": "Paw prints" };
 export const PET_ICONS = ["🐶", "🐕", "🦮", "🐩", "🐺", "🦊", "🐱", "🐈", "🐈‍⬛", "🐯", "🐰", "🐇", "🐹", "🐭", "🦔", "🐦", "🦜", "🐤", "🐔", "🦆", "🐴", "🐮", "🐷", "🐑", "🐐", "🐢", "🦎", "🐍", "🐟", "🐠", "🐸", "🐾"];
 
 export const speciesOf = (id) => SPECIES.find((s) => s.id === id) || SPECIES[4];
@@ -40,6 +41,13 @@ export const SYMPTOMS = [
   { id: "diarrhoea", label: "Diarrhoea (runny poop)" },
   { id: "lethargy", label: "Very tired, flat or hiding" },
   { id: "breathing", label: "Breathing fast, noisily or with effort" },
+  { id: "collapse", label: "Collapsed, had a fit (seizure), or can't stand" },
+  { id: "heat", label: "Overheated: heavy panting, drooling or wobbly after heat or exercise" },
+  { id: "bleeding", label: "Bleeding that won't stop, a deep wound, or hit by a car" },
+  { id: "swelling", label: "Sudden swelling of the face, lumps all over (hives), or a sting" },
+  { id: "eye", label: "Eye problem: squinting, red, cloudy or swollen, or an injury" },
+  { id: "limping", label: "Limping, stiff, or seems in pain" },
+  { id: "coughing", label: "Coughing or gagging that keeps going" },
   { id: "bloat", label: "Swollen, hard belly, or retching with nothing coming up" },
   { id: "straining-urine", label: "Straining to pee, little or nothing coming out" },
   { id: "no-droppings", label: "No poop or droppings, or far fewer than usual" },
@@ -127,7 +135,7 @@ export function petForm(box, existing, onSaved, { openProfile = false, extra = n
     const cur = iconFor();
     iconBox.replaceChildren(...PET_ICONS.flatMap((e) => {
       const id = fid();
-      return [h("input", { type: "radio", name: iconName, id, value: e, checked: e === cur, onchange: () => { icon = e; } }), h("label", { for: id, title: e }, e)];
+      return [h("input", { type: "radio", name: iconName, id, value: e, checked: e === cur, onchange: () => { icon = e; } }), h("label", { for: id, title: ICON_NAMES[e] || "", "aria-label": ICON_NAMES[e] || "Icon" }, h("span", { "aria-hidden": "true" }, e))];
     }));
   };
   speciesBox.addEventListener("change", () => { if (!p.icon && !iconTouched()) drawIcons(); });
@@ -157,7 +165,7 @@ export function petForm(box, existing, onSaved, { openProfile = false, extra = n
     } catch { if (run === styleRun) photoMsg.textContent = "Couldn't make a cartoon of that photo. The photo is kept as it is."; }
   };
   const runStyle = () => { pending = applyStyle().finally(() => { pending = null; }); return pending; };
-  const styleSeg = segmented(`style-${fid()}`, "Style", [["photo", "Photo"], ["cartoon", "Cartoon ✨"]], style, (v) => { style = v; runStyle(); });
+  const styleSeg = segmented(`style-${fid()}`, "Style", [["photo", "Photo"], ["cartoon", "Cartoon"]], style, (v) => { style = v; runStyle(); });
   styleSeg.classList.add("photo-style");
   styleSeg.hidden = !photo;
   const removePhoto = h("button.linkish", { type: "button", hidden: !photo, onclick: () => { photo = null; original = null; shown = "photo"; preview.hidden = true; removePhoto.hidden = true; styleSeg.hidden = true; file.value = ""; photoMsg.textContent = ""; } }, "Remove photo");
@@ -171,7 +179,7 @@ export function petForm(box, existing, onSaved, { openProfile = false, extra = n
       if (style === "cartoon") await runStyle();
     } catch { photoMsg.textContent = "Couldn't read that photo. Try a JPG or PNG."; }
   });
-  const weight = h("input", { type: "number", name: "weight", inputmode: "decimal", min: "0", max: "2000", step: "0.1" });
+  const weight = h("input", { type: "number", name: "weight", inputmode: "decimal", min: "0", max: "2000", step: "0.01" });
   const err = errorLine();
   let sex = p.sex === "male" || p.sex === "female" ? p.sex : "unknown";
   let profile = null;
@@ -498,7 +506,7 @@ export function eventSheet(type, existing, { details = false } = {}) {
 
     if (type === "weight") {
       const u = units();
-      const w = h("input", { type: "number", inputmode: "decimal", min: "0", step: "0.1", required: true, value: ev.kg ? String(Math.round(toUnit(ev.kg, u) * 10) / 10) : "" });
+      const w = h("input", { type: "number", inputmode: "decimal", min: "0", step: "0.01", required: true, value: ev.kg ? String(Math.round(toUnit(ev.kg, u) * 100) / 100) : "" });
       parts.push(field(`Weight in ${u}`, w));
       collect = () => { const v = parseFloat(w.value); return v > 0 ? { kg: fromUnit(v, u) } : { error: "Enter a weight above 0." }; };
     }
@@ -557,8 +565,9 @@ export function unwellSheet(existing) {
     const err = errorLine();
     const toxins = Array.isArray(S.content.TOXINS) ? S.content.TOXINS : [];
     const list = SYMPTOMS.filter((s) => !s.only || s.only.includes(p.species) || picked.has(s.id));
+    const mine = toxins.map((t) => (typeof t === "string" ? { name: t } : t)).filter((t) => !t.only || t.only.includes(p.species));
     const boxes = list.map((s) => check(s.label, { value: s.id, checked: picked.has(s.id) },
-      s.id === "toxin" && toxins.length ? `Common ones: ${toxins.join(", ")}.` : null));
+      s.id === "toxin" && mine.length ? `Common ones: ${mine.map((t) => t.name).join("; ")}.` : null));
     const when = h("input", { type: "datetime-local", value: toLocalInput(ev.at || Date.now()), max: toLocalInput(Date.now() + 3600000), required: true });
     const note = h("textarea", { rows: "2", maxlength: "1000", value: ev.note || "", placeholder: "e.g. sick twice since lunch, still drinking" });
     put(form,
@@ -621,6 +630,12 @@ export function medGivenSheet() {
   });
 }
 export async function markGiven(m) {
+  // Dose guard: once today's doses are all logged, an extra one needs a deliberate "yes".
+  const st = medStatus(m);
+  if (st.daily && st.given >= st.need) {
+    const ok = await confirmBox(`${m.name}: already given today`, `${st.given} of ${st.need} logged today. Extra doses can be harmful. Only log another if your vet told you to.`, "Log another dose");
+    if (!ok) return null;
+  }
   const ev = { id: uid(), petId: m.petId, type: "med", at: Date.now(), medId: m.id, name: m.name };
   if (m.sample) ev.sample = true;
   try { await save("events", ev); } catch (e) { toast(saveError(e)); return null; }
@@ -677,7 +692,7 @@ export function medSheet(existing) {
       for (const k of Object.keys(row)) if (row[k] === undefined) delete row[k];
       try { await save("meds", row); } catch (ex) { err.textContent = saveError(ex); return; }
       close();
-      toast(existing ? "Saved." : `${row.name} added. It shows on Today when it's due.`);
+      toast(existing ? "Saved." : `${row.name} added. It shows under Health when it's due.`);
     });
     put(body, form);
   });

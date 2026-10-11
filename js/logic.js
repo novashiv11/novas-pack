@@ -137,7 +137,8 @@ export const isRunny = (p) => typeof p.score === "number" && p.score >= RUNNY_FR
 
 // ---------- "Call your vet" rules ----------
 
-export const SYMPTOM_IDS = ["not-eating", "vomiting", "lethargy", "breathing", "no-droppings", "maggots", "bloat", "toxin", "straining-urine", "diarrhoea"];
+export const SYMPTOM_IDS = ["not-eating", "vomiting", "lethargy", "breathing", "no-droppings", "maggots", "bloat", "toxin", "straining-urine", "diarrhoea",
+  "collapse", "heat", "bleeding", "swelling", "eye", "limping", "coughing"];
 export const LEVELS = ["emergency", "today", "watch"];
 const RANK = { emergency: 0, today: 1, watch: 2 };
 // Used only if data/care.js didn't load: every alert still says what to do.
@@ -246,6 +247,13 @@ function symptomRules(p, now, events) {
   if (in24("toxin").length) add("toxin", "emergency", "May have eaten something poisonous.", "toxin",
     "Call your vet or an animal poison line now. Do not make your pet sick unless a vet tells you to. Keep the packaging.");
   if (in24("maggots").length) add("maggots", "emergency", "Maggots or fly eggs seen.", "maggots", "Call an emergency vet now. Do not wait or treat at home.");
+  if (in24("collapse").length) add("collapse", "emergency", "Collapse, a fit (seizure), or can't stand.", "collapse");
+  if (in24("heat").length) add("heat", "emergency", "Signs of overheating.", "heat");
+  if (in24("bleeding").length) add("bleeding", "emergency", "Bleeding, a deep wound, or an accident.", "bleeding");
+  if (in24("swelling").length) add("swelling", "today", "Sudden swelling, hives or a sting.", "swelling");
+  if (in24("eye").length) add("eye", "today", "An eye problem.", "eye");
+  if (in24("limping").length) add("limping", "today", "Limping, stiffness or pain.", "limping");
+  if (in24("coughing").length) add("coughing", "watch", "Coughing or gagging.", "coughing");
   if (in24("straining-urine").length) {
     if (sp === "cat" && p.sex !== "female" && !p.lastSeason) {
       add("straining-urine", "emergency", p.sex === "male" ? "A male cat straining to pee." : "A cat straining to pee (an emergency in male cats).", "straining-urine-cat");
@@ -311,8 +319,7 @@ function symptomRules(p, now, events) {
     if (sp === "rabbit" || sp === "bird") add("lethargy", "today", sp === "rabbit" ? "Your rabbit seems quiet or tired." : "Your bird seems quiet or fluffed up.", "lethargy");
     else if (other) add("lethargy", "today", "Tired or low energy, plus other signs.", "lethargy");
     else if (vul.any) add("lethargy", "today", `Tired or low energy, in ${vul.who}.`, "lethargy");
-    else add("lethargy", "watch", "Tired or low energy.", null,
-      "Keep an eye on them. Call your vet today if they're very flat, won't get up, have pale gums, or it lasts more than a day.");
+    else add("lethargy", "today", "Very tired or low energy.", "lethargy");
   }
   return out;
 }

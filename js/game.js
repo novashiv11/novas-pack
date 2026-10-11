@@ -20,14 +20,14 @@ export const LEVEL_PLACE = [
 /** The practice place for the NEXT level, for quests ("5 min Recall at home"). */
 export const QUEST_PLACE = ["at home", "at home", "at home", "in the garden", "on the street", "in the park"];
 
-export const XP = { session: 10, levelUp: 50, walk: 5, stamp: 20, care: 5, lesson: 15, quest: 30, weekBonus: 50 };
+export const XP = { session: 10, levelUp: 50, walk: 5, stamp: 20, care: 5, lesson: 40, quest: 30, weekBonus: 50 };
 export const CAPS = { sessions: 3, sessionsPerDay: 10, walks: 2, carePerDay: 5 };
 export const MAX_LEVEL = 50;
 export const RANKS = [
   { id: "rookie", name: "Rookie", xp: 0 },
   { id: "handler", name: "Handler", xp: 300 },
-  { id: "coach", name: "Coach", xp: 1000 },
-  { id: "mentor", name: "Mentor", xp: 2500 },
+  { id: "coach", name: "Coach", xp: 2500 },
+  { id: "mentor", name: "Mentor", xp: 6000 },
 ];
 
 /** The 5 partner stats and the skills that feed them (spec C.2). Confidence also gets a small adventure bonus. */
@@ -104,10 +104,11 @@ export function skillProgress(skillId, sessions, checks, before = Infinity) {
   const s = sessions.filter((e) => e.skillId === skillId && e.at < before).sort(byAt);
   const ch = checks.filter((c) => c.skillId === skillId && c.at < before);
   const n = s.length;
+  const days = new Set(s.map((e) => dayKey(e.at))).size; // a level needs practice on at least 2 different days
   let level = 0;
   const ups = [];
   for (let L = 1; L <= 5; L++) {
-    if (n < LEVEL_REQ[L]) break;
+    if (n < LEVEL_REQ[L] || days < 2) break;
     const c = ch.filter((x) => x.level === L).sort(byAt)[0];
     if (!c) break;
     level = L;
@@ -117,7 +118,7 @@ export function skillProgress(skillId, sessions, checks, before = Infinity) {
   const need = next ? LEVEL_REQ[next] : LEVEL_REQ[5];
   const from = LEVEL_REQ[level];
   const frac = next ? Math.max(0, Math.min(1, (n - from) / (need - from))) : 1;
-  return { skillId, sessions: n, level, next, need, ready: !!next && n >= need, frac, ups, toGo: next ? Math.max(0, need - n) : 0 };
+  return { skillId, sessions: n, level, next, need, ready: !!next && n >= need && days >= 2, needDay: !!next && n >= need && days < 2, frac, ups, toGo: next ? Math.max(0, need - n) : 0 };
 }
 /** Points for stats: the level, plus up to half a level for sessions done towards the next one. */
 const points = (pr) => (pr.level >= 5 ? 5 : pr.level + 0.5 * pr.frac);
@@ -152,7 +153,7 @@ function base(ctx) {
 const skillIds = (ctx) => new Set(ctx.skills.map((s) => s.id));
 function toiletRelevant(ctx, sessions) {
   const st = stageOf(ctx.pet, ctx.now);
-  return !st || st.id === "puppy" || sessions.some((e) => e.skillId === "toilet-training");
+  return (st && st.id === "puppy") || sessions.some((e) => e.skillId === "toilet-training");
 }
 
 /** Stamps earned (manual ones from the Adventure Book store, plus walk milestones), oldest first. */
@@ -191,18 +192,30 @@ export function statsOf(ctx, before = Infinity) {
 }
 
 /**
- * The skill to work on, as things stood at `at`: the weakest stat, then its lowest-level skill.
- * Today's quest uses the start of today, so it doesn't jump about once you've trained.
+ * The skill to work on, as things stood at `at` (the start of the week): the weakest stat, then its lowest-level
+ * skill, skipping skills marked "not for us" (ctx.exclude). A focus chosen for this week (ctx.focus) wins.
+ * Daily and weekly quests share it, so one skill gets a whole week and can level up.
  */
 export function focusSkill(ctx, at) {
   const stats = statsOf(ctx, at).filter((s) => !s.na);
   if (!stats.length) return null;
   const rank = (s) => QUEST_PRIORITY.indexOf(s.id);
-  const weakest = [...stats].sort((a, b) => a.value - b.value || rank(a) - rank(b))[0];
   const sess = base(ctx).sessions;
-  const cands = weakest.skills.map((id, i) => ({ i, p: skillProgress(id, sess, ctx.checks, at) }))
-    .sort((a, b) => a.p.level - b.p.level || a.p.sessions - b.p.sessions || a.i - b.i);
-  const p = cands[0].p;
+  const skip = new Set(ctx.exclude || []);
+  const wk = weekBounds(at)[0];
+  const chosen = ctx.focus && ctx.focus.week === wk && skillIds(ctx).has(ctx.focus.skillId) && !skip.has(ctx.focus.skillId) ? ctx.focus.skillId : null;
+  let p, weakest;
+  if (chosen) {
+    p = skillProgress(chosen, sess, ctx.checks, at);
+    weakest = stats.find((s) => s.skills.includes(chosen)) || stats[0];
+  } else {
+    const usable = stats.map((s) => ({ ...s, skills: s.skills.filter((id) => !skip.has(id)) })).filter((s) => s.skills.length);
+    if (!usable.length) return null;
+    weakest = [...usable].sort((a, b) => a.value - b.value || rank(a) - rank(b))[0];
+    const cands = weakest.skills.map((id, i) => ({ i, p: skillProgress(id, sess, ctx.checks, at) }))
+      .sort((a, b) => a.p.level - b.p.level || a.p.sessions - b.p.sessions || a.i - b.i);
+    p = cands[0].p;
+  }
   const sk = ctx.skills.find((s) => s.id === p.skillId) || { minutes: 5, title: p.skillId };
   const nextLevel = Math.min(5, p.level + 1);
   const minutes = sk.minutes || 5;
@@ -213,7 +226,7 @@ export function focusSkill(ctx, at) {
 /** Today's quest (optional, no streak): done once a counted session on that skill is logged today. */
 export function dailyQuest(ctx) {
   const start = dayStartMs(ctx.now), end = dayStartMs(ctx.now, 1);
-  const f = focusSkill(ctx, start);
+  const f = focusSkill(ctx, weekBounds(ctx.now)[0]);
   if (!f) return null;
   const done = base(ctx).sessions.some((e) => e.skillId === f.skillId && e.at >= start && e.at < end);
   return { ...f, done };

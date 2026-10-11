@@ -302,6 +302,49 @@ export const RED_FLAGS = [
     when: "Straining to poop with little or nothing coming out",
     advice: "Call your vet straight away. In cats, especially male cats, straining in the litter tray can be an emergency, and it can be hard to tell poop from pee.",
   },
+  // Added after the vet-nurse review (11 Oct 2026)
+  {
+    id: "collapse",
+    level: "emergency",
+    when: "Collapse, a fit (seizure), or can't stand",
+    advice: "Go to your vet or an emergency vet now, and call on the way. During a fit, move things away and keep your hands away from their mouth. Note how long it lasts.",
+  },
+  {
+    id: "heat",
+    level: "emergency",
+    when: "Overheating (heatstroke): heavy panting, drooling, wobbliness or collapse after heat or exercise",
+    advice: "Move them to shade, wet them with cool (not ice-cold) water, let air flow over them, and go to a vet now. Call on the way.",
+  },
+  {
+    id: "bleeding",
+    level: "emergency",
+    when: "Bleeding that won't stop, a deep wound, or any road accident",
+    advice: "Press a clean cloth firmly on the wound and go to a vet now, even if they seem fine afterwards. Injured animals can bite, so handle gently.",
+  },
+  {
+    id: "swelling",
+    level: "today",
+    when: "Sudden swelling of the face, hives, or a sting",
+    advice: "Call your vet now for advice: swelling can get worse quickly. Go straight away if breathing is affected or they collapse. Don't give human medicines.",
+  },
+  {
+    id: "eye",
+    level: "today",
+    when: "Eye problem: squinting, redness, cloudiness, swelling or an injury",
+    advice: "Call your vet today: eyes can get worse fast. Don't use human eye drops.",
+  },
+  {
+    id: "limping",
+    level: "today",
+    when: "Limping, stiffness or signs of pain",
+    advice: "Call your vet today for advice. Go now if they can't put any weight on a leg, after a fall or accident, or if they cry out. Never give human painkillers.",
+  },
+  {
+    id: "coughing",
+    level: "watch",
+    when: "Coughing or gagging that keeps going",
+    advice: "Book a vet visit. Call today if it's getting worse or they're tired or off their food, and go now if breathing is hard.",
+  },
   // Book a visit
   {
     id: "worms",
@@ -318,13 +361,20 @@ export const RED_FLAGS = [
 ];
 
 // Common poisons to keep out of reach. Not a complete list: if in doubt, call your vet or an animal poison line.
+// { name, only? } where only lists the species it applies to (shown in the Unwell checklist).
 export const TOXINS = [
-  "Chocolate",
-  "Grapes and raisins",
-  "Xylitol (sugar-free gum, some peanut butters)",
-  "Lilies (cats: every part, even pollen)",
-  "Onions and garlic",
-  "Human painkillers",
+  { name: "Chocolate" },
+  { name: "Grapes, raisins and sultanas" },
+  { name: "Xylitol (sugar-free gum, some peanut butters)" },
+  { name: "Onions and garlic" },
+  { name: "Human painkillers and medicines" },
+  { name: "Rat and mouse poison, and slug pellets" },
+  { name: "Antifreeze (it tastes sweet)" },
+  { name: "Macadamia nuts", only: ["dog"] },
+  { name: "Cooked bones, corn cobs, socks or toy parts (can block the gut)", only: ["dog", "cat"] },
+  { name: "Lilies: every part, even the pollen or the vase water", only: ["cat"] },
+  { name: "Dog flea spot-ons (permethrin): never use dog products on a cat", only: ["cat"] },
+  { name: "Some houseplants and garden plants (check before buying)" },
 ];
 
 // Routine care suggestions: { id, name, everyWeeks, what }. Suggestions only, never a schedule: coats, breeds,

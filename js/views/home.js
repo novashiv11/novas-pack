@@ -4,8 +4,8 @@
 import { doItNowCard } from "./doitnow.js";
 import { S, pet, setSetting, save, logsOf, LOG_TYPES } from "../state.js";
 import { h, put, em, fmtDate, isoDate, ageText, DAY, toast } from "../util.js";
-import { healthAlerts, backupDue } from "../logic.js";
-import { logWalk, speciesOf, openPetSheet, saveError } from "../forms.js";
+import { healthAlerts, backupDue, dueItems, dueText } from "../logic.js";
+import { logWalk, speciesOf, openPetSheet, saveError, markGiven, doneRecord } from "../forms.js";
 import { sampleStrip, alertCard, avatar, chevron } from "./parts.js";
 import { gameOf, trainerFor, trainerName, bar, ring, badgeChip, trainingPicker, howTo } from "./gameui.js";
 import { openPartnerCard, openLineCard } from "../sharecard.js";
@@ -20,6 +20,7 @@ export function home(main) {
   put(main,
     sampleStrip(p),
     alertCard(healthAlerts(p, Date.now()), p),
+    dueToday(p),
     doItNowCard(p),
     partnerCard(p, a, tr),
     onePercent(p, a),
@@ -64,6 +65,32 @@ function partnerCard(p, a, tr) {
 }
 
 // ---------- 1% today ----------
+/** Medicines and records due today or overdue, for every pet (sample world or real), with one tap to mark them. */
+function dueToday(p) {
+  const pets = p.sample ? S.pets.filter((x) => x.sample) : S.pets.filter((x) => !x.sample);
+  const rows = [];
+  for (const x of pets) {
+    for (const it of dueItems(x.id)) {
+      if (it.kind === "record" && it.st.state === "soon") continue;
+      if (it.kind === "med") {
+        const st = it.st;
+        rows.push(h("li.due-row",
+          h("span.due-row-t", h("b", `${it.med.name}`), pets.length > 1 ? ` · ${x.name}` : "", h("span.small.muted.block", st.daily ? `${st.given} of ${st.need} given today${st.next ? ` · next ${st.next}` : ""}` : st.overdue ? "Overdue" : "Due today")),
+          h("button.btn.btn-blue.sm", { type: "button", "data-k": `home-give-${it.med.id}`, onclick: () => markGiven(it.med) }, "Given", h("span.vh", `: ${it.med.name}`))));
+      } else {
+        rows.push(h("li.due-row",
+          h("span.due-row-t", h("b", it.rec.name), pets.length > 1 ? ` · ${x.name}` : "", h("span.small.muted.block", dueText(it.st))),
+          h("button.btn.btn-line.sm", { type: "button", "data-k": `home-done-${it.rec.id}`, onclick: () => doneRecord(it.rec) }, "Done", h("span.vh", `: ${it.rec.name}`))));
+      }
+    }
+  }
+  if (!rows.length) return null;
+  return h("section.due-today", { "aria-labelledby": "dt-h" },
+    h("h2.sec-title", { id: "dt-h" }, "💊 Due today"),
+    h("ul.due-rows", rows.slice(0, 6)),
+    rows.length > 6 ? h("a.text-link", { href: "#/health" }, `${rows.length - 6} more in Health`) : null);
+}
+
 function lastActive(p) {
   const times = logsOf(p.id).map((e) => e.at);
   const ticks = S.daily.filter((d) => d.dogDone || d.youDone).map((d) => new Date(`${d.date}T12:00`).getTime());
@@ -98,7 +125,7 @@ function onePercent(p, a) {
         h("button.linkish.share-line", { type: "button", "data-k": "share-line", onclick: () => openLineCard(line) }, "Share", h("span.vh", " today's line")))),
     h("ul.ticks",
       tick("dogDone", dogDone, dogLabel,
-        q && !q.done ? h("a.btn.btn-blue.sm.tick-go", { href: `#/train/${encodeURIComponent(q.skillId)}/start` }, "Start", h("span.vh", `: ${q.text}`)) : q && q.done ? h("span.pill.done-pill", "Session logged") : null,
+        q && !q.done ? h("a.btn.btn-blue.sm.tick-go", { href: `#/train/${encodeURIComponent(q.skillId)}/start` }, "Start", h("span.vh", ` ${q.text}`)) : q && q.done ? h("span.pill.done-pill", "Session logged") : null,
         q && q.done),
       tick("youDone", !!row.youDone, `For you: ${youActionOfDay()}`)),
     q && !q.done ? howTo(q.skillId, `How to do "${q.text}"`, { k: "home-howto" }) : null,
@@ -120,7 +147,7 @@ export function journalPrompt(date, existing = "") {
     try { await save("journal", { id: date, date, text: text.slice(0, 280), at: Date.now() }); } catch (ex) { err.textContent = saveError(ex); return; }
     toast("Saved in your journal. Private, on this device.");
   } },
-  h("label", { for: input.id }, "What went 1% better today, for you or your dog?"),
+  h("label", { for: input.id }, "What went 1% better today, for you or your pet?"),
   h("div.input-row", input, h("button.btn.btn-blue", { type: "submit", "data-k": "jr-save" }, "Save")),
   err);
 }
@@ -130,7 +157,7 @@ function trainerStrip(tr, p) {
   return h("a.trainer-strip", { href: "#/trainer", "data-k": "trainer-strip" },
     h("span.ts-ico", { "aria-hidden": "true" }, "🏅"),
     h("span.ts-body",
-      h("span.ts-top", h("b", p && p.sample ? "Sample trainer" : trainerName()), ` · Trainer rank: ${tr.rank.name}`),
+      h("span.ts-top", h("b", p && p.sample ? "Sample trainer" : trainerName()), ` · App rank: ${tr.rank.name}`),
       bar(tr.next ? tr.into : 1, tr.next ? tr.need : 1),
       h("span.ts-meta", tr.next ? `${tr.xp} XP · ${tr.next.xp - tr.xp} to ${tr.next.name}` : `${tr.xp} XP · top rank`)),
     chevron());
@@ -160,7 +187,7 @@ function quickLog(p) {
     h("h2.sec-title", { id: "hq-h" }, "Quick log"),
     h("div.ql-grid.home-ql",
       tile("training", "🎓", "Training", { onclick: () => trainingPicker(p) }),
-      tile("walk", "🚶", "Walk", { onclick: logWalk }),
+      p.species === "dog" ? tile("walk", "🚶", "Walk", { onclick: logWalk }) : tile("unwell", "😟", "Unwell?", { href: "#/health" }),
       tile("adventure", "🌟", "Adventure", { href: "#/adventures" }),
       tile("health", "💩", "Poop & food", { href: "#/health" })));
 }
@@ -178,12 +205,14 @@ function badgeRow(a) {
 // every 14 days), and once, the partner card (after a week of logs).
 function nudge(p, a, tr) {
   if (p.sample) return null;
-  let card = null;
-  try { card = installCard(); } catch { card = null; }
-  if (card) return h("div.nudge-slot", card);
   const logs = logsOf();
-  if (!logs.length) return null;
   const now = Date.now();
+  // Backing up matters more than installing once there's something to lose (3+ logs).
+  const backupFirst = logs.length >= 3 && backupDue(now);
+  let card = null;
+  if (!backupFirst) { try { card = installCard(); } catch { card = null; } }
+  if (card) return h("div.nudge-slot", card);
+  if (!logs.length) return null;
   if (backupDue(now)) {
     return h("aside.nudge", { "aria-labelledby": "nudge-h" },
       h("h2.nudge-h", { id: "nudge-h" }, "Back up the diary?"),

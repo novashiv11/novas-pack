@@ -7,6 +7,7 @@ import { subBar } from "./parts.js";
 import { gameOf, worldPets } from "./gameui.js";
 import { weekBounds } from "../game.js";
 import { journalPrompt } from "./home.js";
+import { heavy } from "./more.js";
 
 const dayLabel = (d) => d.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" });
 
@@ -43,15 +44,17 @@ function weekDays(a0, a1, untilToday) {
 }
 
 function dayList(days) {
-  return h("ul.jr-days", days.map((d) => {
+  const shown = days.filter((d) => { const k = isoDate(d); const t = S.daily.find((x) => x.id === k); return S.journal.some((j) => j.id === k) || (t && (t.dogDone || t.youDone)); });
+  if (!shown.length) return h("p.small.muted", "Nothing this week yet. One line is plenty.");
+  return h("ul.jr-days", shown.map((d) => {
     const key = isoDate(d);
     const e = S.journal.find((j) => j.id === key);
     const t = S.daily.find((x) => x.id === key);
     return h(`li${e ? ".has" : ""}`,
       h("span.jr-day", dayLabel(d)),
-      h("span.jr-text", e ? e.text : h("span.muted", "No line. That's fine.")),
+      h("span.jr-text", e ? e.text : h("span.muted", "Ticked 1% today.")),
       t && (t.dogDone || t.youDone) ? h("span.jr-ticks", h("span", { "aria-hidden": "true" }, `${t.dogDone ? "🐾" : ""}${t.youDone ? "💛" : ""}`),
-        h("span.vh", `1% done: ${[t.dogDone ? "for your dog" : "", t.youDone ? "for you" : ""].filter(Boolean).join(" and ")}`)) : null);
+        h("span.vh", `1% done: ${[t.dogDone ? "for your pet" : "", t.youDone ? "for you" : ""].filter(Boolean).join(" and ")}`)) : null);
   }));
 }
 
@@ -90,5 +93,6 @@ export function journal(main) {
         h("summary", `Week of ${new Date(w.b0).toLocaleDateString(undefined, { day: "numeric", month: "short" })}`),
         w.s ? h("p.small", `You ${w.s}.`) : null,
         dayList(w.days)))) : null,
-    h("p.note-line", em("💛"), " Effort, not perfection. A missed day is just a day. Welcome back whenever."));
+    h("p.note-line", em("💛"), " Effort, not perfection. A missed day is just a day. Welcome back whenever."),
+    h("p.small", h("button.linkish", { type: "button", "data-k": "jr-heavy", onclick: heavy }, "If things feel heavy, talking helps →")));
 }

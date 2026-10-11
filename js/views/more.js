@@ -88,12 +88,13 @@ export function more(main, arg) {
 }
 
 /** A small, calm pointer to people who can help. No therapy language, no promises. */
-function heavy() {
+export function heavy() {
   sheet("If things feel heavy", (body) => {
     put(body,
       h("p", "Talking helps. You don't have to be in crisis to reach out."),
-      h("p", h("b", "In Ireland: "), "Samaritans, free, any time, day or night: ", h("a.call-link", { href: "tel:116123" }, "116 123"), "."),
-      h("p", h("b", "Elsewhere: "), "your local helpline, or your GP."),
+      h("p", h("b", "Ireland and the UK: "), "Samaritans, free, any time, day or night: ", h("a.call-link", { href: "tel:116123" }, "116 123"), "."),
+      h("p", h("b", "United States: "), "call or text ", h("a.call-link", { href: "tel:988" }, "988"), " (Suicide & Crisis Lifeline)."),
+      h("p", h("b", "Anywhere else: "), "find a free, confidential helpline in your country at ", h("a", { href: "https://findahelpline.com/", rel: "noopener" }, "findahelpline.com"), ", or talk to your doctor."),
       h("p", "If you or someone else is in danger right now, call your local emergency number."),
       h("p.small.muted", h("a", { href: "https://www.samaritans.org/ireland/", rel: "noopener" }, "samaritans.org/ireland"), ". Nova's Pack isn't connected to any service and never sees what you do here."));
   });
@@ -184,6 +185,7 @@ function backup(main) {
     subBar("Backup", "#/more", "Back to More"),
     h("section.sec",
       h("p", "Your diary lives only on this device. A backup is one file you keep in your email or cloud drive, and import on a new phone."),
+      h("p.small", h("b", "Good to know: "), "the file is plain text and includes your Growth Journal lines. Keep it somewhere private."),
       h("p.small.muted", S.settings.lastBackup ? `Last backup: ${fmtDate(S.settings.lastBackup)}.` : "No backup yet."),
       h("p.small.muted", h("b", "Storage: "), persisted),
       h("button.btn.btn-blue", { type: "button", "data-k": "export", onclick: exportBackup }, "Back up now")),

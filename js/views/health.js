@@ -55,7 +55,7 @@ const TILES = [
 function novaSays(p, items, logs) {
   const line = (...kids) => h("p.nova-line", h("img.disc.nova-face", { src: NOVA, alt: "", width: "28", height: "28" }), h("span", h("span.vh", "Nova says: "), ...kids));
   if (healthAlerts(p, Date.now()).length) return line("First things first: see the vet card below.");
-  if (!p.sample && !logs.length) return line(`Log ${p.name}'s last meal. One tap.`);
+  if (!p.sample && !logs.length) return line(`Log ${p.name}${/s$/i.test(p.name) ? "'" : "'s"} last meal. One tap.`);
   const hasRecords = S.records.some((r) => r.petId === p.id);
   if (!p.sample && !hasRecords && logs.length <= 5) return line("Add vaccines next? It's how I know what's due.");
   if (items.some((it) => (it.kind === "med" ? it.st.overdue : it.st.state === "overdue"))) return line("Something's late. I'm not judging. Much.");

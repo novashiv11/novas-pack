@@ -2,13 +2,13 @@
 // harder place (home → garden → street → park). The skill page has the clip, steps, a 5-minute session timer and
 // the session history. Sessions, XP and levels all come from the diary (js/game.js).
 
-import { S, pet, eventsOf, save, remove } from "../state.js";
-import { h, put, em, weeklyStreak, motionOK, fmtDay, fmtTime, toast, confirmBox } from "../util.js";
+import { S, pet, eventsOf, save, remove, setSetting } from "../state.js";
+import { h, put, em, weeklyStreak, motionOK, fmtDay, fmtTime, toast, confirmBox, sheet } from "../util.js";
 import { skillsFor, progressOf } from "../logic.js";
 import { pageHead, subBar, sampleStrip, NOVA, moreBtn } from "./parts.js";
 import { speciesOf, eventSheet } from "../forms.js";
 import { gameOf, pips, bar, levelText, skillName, startSession, selfCheck, logSession, trainingPicker, howTo } from "./gameui.js";
-import { LEVEL_REQ, LEVEL_PLACE, CAPS, countedSessions, dayKey } from "../game.js";
+import { LEVEL_REQ, LEVEL_PLACE, CAPS, countedSessions, dayKey, weekBounds } from "../game.js";
 
 const GROUPS = ["Foundation", "Next steps", "Fun"];
 
@@ -43,7 +43,8 @@ export function training(main, arg, sub) {
       h("p.eyebrow", { id: "dq-h" }, "Today's quest · optional"),
       howTo(q.skillId, q.text, { k: "quest-howto" }),
       q.done ? h("p.small", em("✅"), " Done today. Nova approves.")
-        : h("div.row-btns.left", h("a.btn.btn-blue.sm", { href: `#/train/${encodeURIComponent(q.skillId)}/start` }, "Start the timer"))));
+        : h("div.row-btns.left", h("a.btn.btn-blue.sm", { href: `#/train/${encodeURIComponent(q.skillId)}/start` }, "Start the timer")),
+      h("button.linkish", { type: "button", "data-k": "swap-focus", onclick: () => focusPicker(p, skills) }, "Not this one? Pick this week's skill")));
   }
   put(main, streakCard(p));
   for (const g of GROUPS) {
@@ -133,8 +134,35 @@ function skillPage(main, p, sk) {
           h("span.tl-body", h("span.tl-time", `${fmtDay(e.at)}, ${fmtTime(e.at)}`),
             h("span.tl-text", [e.minutes ? `${e.minutes} min` : "", { 1: "Tricky", 2: "OK", 3: "Great" }[e.mood] || "", counted.has(e.id) ? "" : "not counted (over 3 that day)"].filter(Boolean).join(" · ") || "Session")),
           h("span.vh", ", edit"))))) : h("p.empty", "No sessions yet. The first one is the hardest. Five minutes.")),
+    notForUsRow(p, sk),
     h("p.note-line", em("💛"), " Short, happy sessions. Stop while it's still fun. Kind methods only."));
   loadClip(clipBox, soon, sk);
+}
+
+/** Pick this week's focus skill (daily and weekly quests follow it). Skills marked "not for us" aren't offered. */
+function focusPicker(p, skills) {
+  const skip = new Set(((S.settings.notForUs || {})[p.id]) || []);
+  sheet("This week's skill", (body, close) => {
+    put(body,
+      h("p.sheet-intro", "Your daily and weekly quests will follow it until Sunday. Pick what helps your real life most."),
+      h("ul.pick-list", skills.filter((s) => !skip.has(s.id)).map((s) => h("li", h("button.pick-row", { type: "button", "data-k": `focus-${s.id}`, onclick: async () => {
+        await setSetting("focus", { ...(S.settings.focus || {}), [p.id]: { skillId: s.id, week: weekBounds(Date.now())[0] } }, { quiet: false });
+        close(); toast(`This week: ${skillName(s)}. Small sessions, big difference.`);
+      } }, h("span.pick-title", skillName(s)), h("span.pick-meta", s.level), h("span.pick-go", { "aria-hidden": "true" }, "→"))))));
+  });
+}
+
+/** "Not for us": leave a skill out of quests (e.g. muzzle work for a dog that doesn't need it, or greetings for a shy dog). */
+function notForUsRow(p, sk) {
+  const all = S.settings.notForUs || {};
+  const list = all[p.id] || [];
+  const on = list.includes(sk.id);
+  const id = `nfu-${sk.id}`;
+  return h("div.check.nfu", h("input", { type: "checkbox", id, "data-k": "not-for-us", checked: on, onchange: async (e) => {
+    const next = e.target.checked ? [...new Set([...list, sk.id])] : list.filter((x) => x !== sk.id);
+    await setSetting("notForUs", { ...all, [p.id]: next }, { quiet: false });
+    toast(e.target.checked ? "Left out of quests. You can still practise it here." : "Back in the quests.");
+  } }), h("label", { for: id }, "Leave this out of quests (not for us right now)"));
 }
 
 async function undoCheck(p, sk, level, row) {

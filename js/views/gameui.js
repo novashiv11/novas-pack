@@ -16,6 +16,7 @@ export function ctxFor(p) {
     pet: p, skills: skillsFor(p).map((s) => ({ id: s.id, title: s.title, minutes: s.minutes, level: s.level })),
     events: S.events.filter((e) => e.petId === p.id), adventures: S.adventures.filter((a) => a.petId === p.id),
     checks: S.skillChecks.filter((c) => c.petId === p.id), stamps: S.content.STAMPS || [], now: Date.now(),
+    exclude: ((S.settings.notForUs || {})[p.id]) || [], focus: (S.settings.focus || {})[p.id] || null,
   };
 }
 let cache = { key: "", map: new Map(), trainer: new Map() };
@@ -71,7 +72,7 @@ function changes(p, a, before, after) {
   if (after.weekAll && !before.weekAll) items.push({ emoji: "🗓️", title: "All 3 weekly quests done", text: `+${G.XP.weekBonus} bonus XP for ${p.name}. That's a good week.` });
   if (after.rank !== before.rank && G.RANKS.findIndex((r) => r.id === after.rank) > G.RANKS.findIndex((r) => r.id === before.rank)) {
     const r = G.RANKS.find((x) => x.id === after.rank);
-    items.push({ emoji: "🏅", title: `Trainer rank: ${r.name}`, text: "A learning milestone in the app, not a qualification. Still: well done, you." });
+    items.push({ emoji: "🏅", title: `App rank: ${r.name}`, text: "A learning milestone in the app, not a qualification. Still: well done, you." });
   }
   return items;
 }
@@ -168,6 +169,7 @@ export function levelText(pr) {
   if (!pr) return "";
   if (pr.level >= 5) return "Level 5: works anywhere. Top marks.";
   if (pr.ready) return `Ready for level ${pr.next}: do the self-check`;
+  if (pr.needDay) return `Level ${pr.next}: practise on one more day, then do the self-check`;
   return `Level ${pr.next}: ${pr.toGo} more session${pr.toGo === 1 ? "" : "s"}, then works ${G.LEVEL_PLACE[pr.next].where}`;
 }
 

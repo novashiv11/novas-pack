@@ -144,7 +144,7 @@ export async function drawPartner(canvas, data) {
   }
   y = 1222;
   g.fillStyle = C.blue; g.font = font(800, 30, false); g.textAlign = "left";
-  g.fillText(fit(g, `Trainer: ${data.rank}`, 900, 30, 800, false), 80, y);
+  g.fillText(fit(g, `App rank: ${data.rank}`, 900, 30, 800, false), 80, y);
   g.fillStyle = C.blue; g.font = font(800, 28, false);
   g.fillText("Nova's Pack · Level up together", 80, 1276);
   g.textAlign = "right"; g.fillStyle = C.muted; g.font = font(600, 22, false);

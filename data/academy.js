@@ -1,7 +1,7 @@
 // Nova's Pack: the Academy (spec v2, parts C.5 and D.5). Short lessons for the human: how dogs learn.
 //
 // Shape: { id, title, emoji, minutes, intro, parts: [{ h, p?, list? }], takeaway, check: [{ q, options, answer, why }], sources }
-//   check    2 questions; answer is the index of the right option. Passing both completes the lesson (+15 trainer XP, once).
+//   check    2 questions; answer is the index of the right option. Passing both completes the lesson (+40 trainer XP, once).
 //   sources  reputable pages for further reading. General education only: not a qualification, no diagnosis, no doses.
 //
 // Reward-based throughout, in line with the AVSAB position statement on humane dog training.
@@ -63,7 +63,7 @@ export const LESSONS = [
     parts: [
       { h: "Build a reward ladder", p: "List what your dog loves, from 'fine' to 'the best thing ever': kibble, then biscuits, then cheese or chicken, then a game of tug. Use better rewards for harder places." },
       { h: "Keep them tiny", p: "Pea-sized treats keep sessions moving. Count training treats as part of the day's food, and check with your vet if your dog is on a special diet or has allergies." },
-      { h: "Not just food", p: "Play, praise, a sniff of that interesting lamp post, or the chance to go and say hello can all be rewards, once your dog has learned them." },
+      { h: "Not just food", p: "Play, praise, a sniff of that interesting lamp post, or the chance to go and say hello (only for dogs who enjoy it) can all be rewards, once your dog has learned them." },
     ],
     takeaway: "Harder place, better pay. Small and often.",
     check: [
@@ -194,7 +194,7 @@ export const LESSONS = [
 
 /** Real routes into professional training (the "Go pro" card at Coach rank). Not affiliated; details change. */
 export const GO_PRO = [
-  { title: "In Ireland: a QQI Level 6 course in dog training or behaviour", text: "Creedons is one provider people mention. Check any course is on the QQI register before you pay.", url: "https://www.qqi.ie/", link: "QQI (Quality and Qualifications Ireland)" },
+  { title: "In Ireland: a QQI Level 6 course in dog training or behaviour", text: "Several colleges and providers run them. Check any course is on the QQI register before you pay. We're not linked to any provider.", url: "https://www.qqi.ie/", link: "QQI (Quality and Qualifications Ireland)" },
   { title: "Karen Pryor Academy", text: "A well-known reward-based trainer programme, studied online with hands-on parts.", url: "https://karenpryoracademy.com/", link: "karenpryoracademy.com" },
   { title: "Registers for trainers and behaviourists", text: "The ABTC sets standards and keeps registers in the UK and Ireland, so you can see what qualified looks like.", url: "https://abtc.org.uk/", link: "abtc.org.uk" },
 ];

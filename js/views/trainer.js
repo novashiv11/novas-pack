@@ -1,6 +1,6 @@
 // Trainer: the human's growth. Rank (Rookie → Handler → Coach → Mentor, in-app learning milestones, not a
 // qualification), where the XP came from, the "1% a day adds up" curve (real data only), the Academy (short lessons
-// with a 2-question check, +15 XP once each), and at Coach, a "Go pro" card with real routes into the job.
+// with a 2-question check, +40 XP once each), and at Coach, a "Go pro" card with real routes into the job.
 
 import { S, pet, save, setSetting } from "../state.js";
 import { h, put, em, fmtDate, toast } from "../util.js";
@@ -46,7 +46,7 @@ export function trainer(main, arg) {
     curveSection(p),
     h("section.sec", { "aria-labelledby": "ac-h" },
       h("div.sec-row", h("h2.sec-title", { id: "ac-h" }, "Academy"), h("span.small.muted", `${done.size} of ${lessons.length} done`)),
-      h("p.small.muted", "1 to 2 minutes each, reward-based, with sources. Pass the 2-question check for +15 XP, once."),
+      h("p.small.muted", `1 to 2 minutes each, reward-based, with sources. Pass the 2-question check for +${XP.lesson} XP, once.`),
       h("ul.lesson-list", lessons.map((l, i) => h("li", h("a.lesson-row", { href: `#/trainer/${encodeURIComponent(l.id)}`, "data-k": `ls-${l.id}` },
         h("span.ls-em", { "aria-hidden": "true" }, done.has(l.id) ? "✅" : l.emoji),
         h("span.ls-body", h("span.ls-title", `${i + 1}. ${l.title}`), h("span.ls-meta", done.has(l.id) ? "Done" : `${l.minutes} min · +${XP.lesson} XP`)),

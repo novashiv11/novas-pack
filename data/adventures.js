@@ -26,8 +26,8 @@ export const STAMPS = [
   { id: "transport", set: "places", emoji: "🚆", title: "Bus or train ride", tip: "Check the operator's rules for dogs first. Go off-peak, with treats and a mat to settle on." },
 
   // Friends
-  { id: "calm-dog", set: "friends", emoji: "🐕", title: "Met a calm dog", tip: "Ask the other owner first. A short sniff on loose leads, then walk on. Calm beats long." },
-  { id: "child", set: "friends", emoji: "🧒", title: "Calm hello with a child", tip: "Only with a parent's OK and an adult right there. Let your dog choose to say hello, and keep it short." },
+  { id: "calm-dog", set: "friends", emoji: "🐕", title: "Met a calm dog", tip: "Optional: skip this one if your dog is worried or reactive around dogs; calmly watching from a distance is a win too. Otherwise ask the other owner first, keep leads loose, a short sniff, then walk on." },
+  { id: "child", set: "friends", emoji: "🧒", title: "Calm hello with a child", tip: "Optional: skip it if your dog is unsure around children. Only with a parent's OK and an adult right there. Let your dog choose to say hello, and keep it short." },
   { id: "cat", set: "friends", emoji: "🐈", title: "Polite with a cat", tip: "From a distance, on lead. Reward your dog for looking away from the cat. No chasing, ever." },
   { id: "hat-hivis", set: "friends", emoji: "🦺", title: "Someone in a hat or hi-vis", tip: "Hats, hoods, beards and hi-vis can look odd to a dog. Treats for calmly noticing, from a comfy distance." },
   { id: "doorbell", set: "friends", emoji: "📦", title: "Calm at the doorbell", tip: "Mat or baby gate first, then treats for staying calm while a parcel arrives." },
