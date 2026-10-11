@@ -38,6 +38,10 @@ export const $ = (sel, root = document) => root.querySelector(sel);
 /** A decorative emoji (hidden from screen readers) followed by its text label. */
 export const em = (e) => h("span.em", { "aria-hidden": "true" }, e);
 
+/** True when the phone is set to Ireland (time zone or language). Used only to show Irish rules to people they apply to. */
+export function inIreland() {
+  try { return Intl.DateTimeFormat().resolvedOptions().timeZone === "Europe/Dublin" || /-IE$/i.test(navigator.language || ""); } catch { return false; }
+}
 export function uid() {
   return (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2));
 }
@@ -90,6 +94,18 @@ export function ageText(birthday) {
   return `${Math.floor(months / 12)} years old`;
 }
 
+/** "8 months" / "2 years" since a date (for "home since"), or "" if it's in the future. */
+export function sinceText(day) {
+  const t = ageText(day);
+  return t.replace(/ old$/, "").replace(/^under 1 month$/, "under a month");
+}
+/** True on the yearly anniversary of a date (not on the day itself). */
+export function isAnniversary(day, now = new Date()) {
+  if (!day) return false;
+  const d = parseDate(day);
+  return d.getMonth() === now.getMonth() && d.getDate() === now.getDate() && d.getFullYear() < now.getFullYear();
+}
+
 // ISO week id like "2026-W41", from the local date.
 export function isoWeek(ms) {
   const d = new Date(ms);
@@ -136,6 +152,15 @@ export function weeklyStreak(times, now = Date.now()) {
 }
 
 // ---------- bottom sheet (a real <dialog>, so focus, Esc and screen readers just work) ----------
+// Phone Back closes the top sheet instead of leaving the screen: each sheet adds a history entry with the same URL,
+// and closing the sheet any other way takes that entry back off.
+const openSheets = [];
+addEventListener("popstate", (e) => {
+  const cur = e.state && e.state.npSheet;
+  const keep = cur ? openSheets.findIndex((x) => x.id === cur) : -1;
+  openSheets.slice(keep + 1).reverse().forEach((x) => x.dlg.open && x.dlg.close());
+});
+
 export function sheet(title, build, { onClose } = {}) {
   const opener = document.activeElement;
   const openerKey = opener && opener.dataset ? opener.dataset.k : null;
@@ -151,7 +176,11 @@ export function sheet(title, build, { onClose } = {}) {
   );
   build(body, close);
   dlg.addEventListener("click", (e) => { if (e.target === dlg) close(); });
+  const sid = `s${uid()}`;
   dlg.addEventListener("close", () => {
+    const i = openSheets.findIndex((x) => x.id === sid);
+    if (i >= 0) openSheets.splice(i, 1);
+    if (history.state && history.state.npSheet === sid) history.back();
     dlg.remove();
     if (onClose) onClose();
     if (opener && opener.isConnected && opener.focus) opener.focus();
@@ -160,6 +189,7 @@ export function sheet(title, build, { onClose } = {}) {
   dlg.dataset.hash = location.hash;
   document.body.append(dlg);
   dlg.showModal();
+  try { history.pushState({ npSheet: sid }, "", location.href); openSheets.push({ id: sid, dlg }); } catch { /* history unavailable: Back leaves the screen as before */ }
   const first = body.querySelector("[autofocus]") || body.querySelector("input:not([type=hidden]),select,textarea,button");
   if (first && first.hasAttribute("autofocus")) first.focus();
   return { dlg, close };

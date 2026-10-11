@@ -141,6 +141,7 @@ export function petForm(box, existing, onSaved, { openProfile = false, extra = n
   speciesBox.addEventListener("change", () => { if (!p.icon && !iconTouched()) drawIcons(); });
   const iconTouched = () => icon !== null && icon !== (p.icon || null);
   const birthday = h("input", { type: "date", name: "birthday", max: isoDate(), value: p.birthday || "" });
+  const homeSince = h("input", { type: "date", name: "homeSince", max: isoDate(), value: p.homeSince || "" });
   const preview = h("img.photo-preview", { alt: "", hidden: !photo, src: photo || undefined, width: "72", height: "72" });
   const file = h("input", { type: "file", accept: "image/*", name: "photo", id: fid() });
   const photoMsg = h("p.hint", { role: "status" });
@@ -186,6 +187,7 @@ export function petForm(box, existing, onSaved, { openProfile = false, extra = n
   const basics = [
     segmented(`sex-${fid()}`, "Sex", [["female", "Female"], ["male", "Male"], ["unknown", "Not sure"]], sex, (v) => { sex = v; if (profile) profile.sync(); }),
     field(h("span", "Birthday", opt()), birthday, "A guess is fine."),
+    field(h("span", "Home since", opt()), homeSince, "Adopted or rescued? Their gotcha day. Nova will remember it."),
     h("div.field",
       h("label", { for: file.id }, "Photo", opt()),
       h("div.photo-row", preview, h("div", file, removePhoto)),
@@ -225,7 +227,7 @@ export function petForm(box, existing, onSaved, { openProfile = false, extra = n
     name.removeAttribute("aria-invalid");
     const row = {
       ...p, id: p.id || uid(), name: nm.slice(0, 40), species: radioVal(form, "species") || "dog",
-      birthday: birthday.value || undefined, photo: photo || undefined, photoStyle: photo && shown === "cartoon" ? "cartoon" : undefined, createdAt: p.createdAt || Date.now(),
+      birthday: birthday.value || undefined, homeSince: homeSince.value || undefined, photo: photo || undefined, photoStyle: photo && shown === "cartoon" ? "cartoon" : undefined, createdAt: p.createdAt || Date.now(),
       training: p.training || {}, sex: sex === "unknown" ? undefined : sex,
       icon: icon && icon !== speciesOf(radioVal(form, "species") || "dog").emoji ? icon : undefined,
       ...(profile ? profile.read() : {}),

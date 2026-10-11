@@ -28,8 +28,8 @@ export const MAX_LEVEL = 50;
 export const RANKS = [
   { id: "rookie", name: "Rookie", xp: 0 },
   { id: "handler", name: "Handler", xp: 300 },
-  { id: "coach", name: "Coach", xp: 2500 },
-  { id: "mentor", name: "Mentor", xp: 6000 },
+  { id: "coach", name: "Coach", xp: 2500, lessons: 5 },
+  { id: "mentor", name: "Mentor", xp: 6000, lessons: 8 },
 ];
 
 /** The 5 partner stats and the skills that feed them (spec C.2). Confidence also gets a small adventure bonus. */
@@ -73,6 +73,9 @@ export const SKILL_BADGES = [
   { id: "b-muzzle", skill: "muzzle", name: "Muzzle", emoji: "🛡️" },
 ];
 export const MILESTONE_BADGES = [
+  { id: "m-first", name: "First step", emoji: "🐣", need: "Log your first training session", sessions: 1 },
+  { id: "m-days3", name: "Three days", emoji: "🌱", need: "Train on 3 different days", days: 3 },
+  { id: "m-stamp1", name: "First stamp", emoji: "📍", need: "Earn your first Adventure stamp", stamps: 1 },
   { id: "m-adventurer", name: "Adventurer", emoji: "🧭", need: "Earn 10 stamps", stamps: 10 },
   { id: "m-explorer", name: "Explorer", emoji: "🗺️", need: "Earn 25 stamps", stamps: 25 },
   { id: "m-walker", name: "Walker", emoji: "👣", need: "Log 100 walks", walks: 100 },
@@ -350,6 +353,11 @@ export function badgesOf(ctx, a) {
   for (const b of MILESTONE_BADGES) {
     if ((b.walks && !dog) || (b.stamps && (ctx.stamps || []).length < b.stamps)) continue; // only badges this pet can earn
     let earned = false, at = null, progress = "";
+    if (b.sessions) { earned = a.sessions.length >= b.sessions; at = earned ? a.sessions[b.sessions - 1].at : null; progress = `${Math.min(a.sessions.length, b.sessions)} of ${b.sessions} sessions`; }
+    if (b.days) {
+      const days = []; for (const e of a.sessions) { const k = dayKey(e.at); if (!days.some((d) => d.k === k)) days.push({ k, at: e.at }); }
+      earned = days.length >= b.days; at = earned ? days[b.days - 1].at : null; progress = `${Math.min(days.length, b.days)} of ${b.days} days`;
+    }
     if (b.stamps) { earned = a.stamps.length >= b.stamps; at = earned ? a.stamps[b.stamps - 1].at : null; progress = `${Math.min(a.stamps.length, b.stamps)} of ${b.stamps} stamps`; }
     if (b.walks) { earned = a.walks.length >= b.walks; at = earned ? a.walks[b.walks - 1].at : null; progress = `${Math.min(a.walks.length, b.walks)} of ${b.walks} walks`; }
     if (b.weeks) { earned = streak.best >= b.weeks; at = earned ? streak.reachedAt[b.weeks] : null; progress = `Best run: ${Math.min(streak.best, b.weeks)} of ${b.weeks} weeks`; }
@@ -396,13 +404,15 @@ export function trainerOf(analyses, academyRows, lessonIds) {
     parts.quests += a.weeks.reduce((s, w) => s + w.doneCount, 0) * XP.quest;
   }
   const xp = Object.values(parts).reduce((s, v) => s + v, 0);
-  return { xp, parts, lessonsDone: lessons, ...rankFor(xp) };
+  return { xp, parts, lessonsDone: lessons, ...rankFor(xp, lessons.size) };
 }
-export function rankFor(xp) {
+/** A rank needs its XP and, from Coach up, a number of Academy lessons (a coach has learnt, not just logged). */
+export function rankFor(xp, lessons = Infinity) {
   let i = 0;
-  while (i + 1 < RANKS.length && xp >= RANKS[i + 1].xp) i++;
+  while (i + 1 < RANKS.length && xp >= RANKS[i + 1].xp && lessons >= (RANKS[i + 1].lessons || 0)) i++;
   const rank = RANKS[i], next = RANKS[i + 1] || null;
-  return { rank, next, into: xp - rank.xp, need: next ? next.xp - rank.xp : 0 };
+  const lessonsToGo = next && next.lessons ? Math.max(0, next.lessons - (Number.isFinite(lessons) ? lessons : next.lessons)) : 0;
+  return { rank, next, into: xp - rank.xp, need: next ? next.xp - rank.xp : 0, lessonsToGo };
 }
 
 /**

@@ -1,7 +1,7 @@
 // Nova's Pack: on-device storage (IndexedDB). Nothing here ever leaves the device.
 //
 // Stores (all keyed by `id`, except settings which is keyed by `key`):
-//   pets      { id, name, species, birthday?, photo?, allergies?, conditions?, sex?, vet?, insurer?, microchip?,
+//   pets      { id, name, species, birthday?, homeSince?, photo?, allergies?, conditions?, sex?, vet?, insurer?, microchip?,
 //               neutered?, lastSeason?, training?, sample?, createdAt }
 //   events    { id, petId, type, at, ... }  type: poop | meal | treat | med | walk | training | weight | vet | symptom | care
 //               symptom: { symptoms: [ids] } (ids in js/logic.js SYMPTOM_IDS); care: { task } (an id from CARE_TASKS)
@@ -209,7 +209,7 @@ const CLEAN = {
     return clean({
       id: r.id, name: str(r.name, 40),
       species: ["dog", "cat", "rabbit", "bird", "other"].includes(r.species) ? r.species : "other",
-      birthday: date(r.birthday), photo: photo(r.photo), allergies: str(r.allergies, 1000), conditions: str(r.conditions, 1000),
+      birthday: date(r.birthday), homeSince: date(r.homeSince), photo: photo(r.photo), allergies: str(r.allergies, 1000), conditions: str(r.conditions, 1000),
       sex: r.sex === "male" || r.sex === "female" ? r.sex : undefined,
       vet: obj(r.vet, { name: (v) => str(v, 120), phone: (v) => str(v, 40), emergencyPhone: (v) => str(v, 40) }),
       insurer: obj(r.insurer, { name: (v) => str(v, 120), policy: (v) => str(v, 80), renewal: date }),

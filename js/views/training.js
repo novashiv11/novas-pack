@@ -4,7 +4,7 @@
 
 import { quizSkills } from "./placement.js";
 import { S, pet, eventsOf, save, remove, setSetting } from "../state.js";
-import { h, put, em, weeklyStreak, motionOK, fmtDay, fmtTime, toast, confirmBox, sheet } from "../util.js";
+import { h, put, em, weeklyStreak, motionOK, fmtDay, fmtTime, toast, confirmBox, sheet, inIreland } from "../util.js";
 import { skillsFor, progressOf } from "../logic.js";
 import { pageHead, subBar, sampleStrip, NOVA, moreBtn } from "./parts.js";
 import { speciesOf, eventSheet } from "../forms.js";
@@ -130,7 +130,8 @@ function skillPage(main, p, sk) {
     h("p.small.muted", `Today: ${today} of ${CAPS.sessions} counted sessions for this skill.`),
     old !== "none" && pr.level === 0 ? h("p.note-line", em("📒"), ` In the old diary you marked this "${old === "got" ? "Got it" : "Practising"}". Levels start fresh: log sessions and do the self-checks.`) : null,
     clipBox,
-    h("details.fold.skill-fold", { "data-k": "why-fold" }, h("summary", "Why it matters"), h("p.skill-why", sk.why)),
+    h("details.fold.skill-fold", { "data-k": "why-fold" }, h("summary", "Why it matters"), h("p.skill-why", sk.why),
+      sk.id === "muzzle" && inIreland() ? h("p.small", "🇮🇪 In Ireland, German Shepherds and some other breeds (Control of Dogs Regulations 1998) must wear a muzzle and be on a short, strong lead in public, held by someone over 16.") : null),
     h("section.sec.skill-sec", h("h2", "Steps"), howTo(sk.id, "Simple version (for everyone)", { k: "skill-howto" }), h("ol.steps-list", (sk.steps || []).map((s) => h("li", s))), soon),
     h("details.fold.skill-fold", h("summary", "Common mistake"), h("p.skill-why", sk.mistake)),
     h("details.fold.skill-fold", h("summary", "When to see a professional"), h("p.skill-why", sk.pro)),

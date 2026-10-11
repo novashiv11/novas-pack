@@ -166,7 +166,7 @@ export const SKILLS = [
     species: ["dog"],
     level: "Next steps",
     minutes: 3,
-    why: "A muzzle your dog likes is a useful safety tool, and the law requires one in public for some breeds in some places, such as German Shepherds in Ireland.",
+    why: "A muzzle your dog likes is a useful safety tool for vet visits and busy places, and some places require one in public for certain breeds. Check your local rules.",
     steps: [
       "Choose a basket muzzle that lets your dog pant, drink and take treats.",
       "Hold the muzzle with a tasty treat inside and let your dog eat from it.",

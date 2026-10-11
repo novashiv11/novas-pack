@@ -124,8 +124,8 @@ function badges(main) {
     subBar("Badges", "#/more", "Back to More"),
     sampleStrip(p),
     h("p.small.muted.badge-intro", p.species === "dog"
-      ? `${p.name}'s badges are for real milestones only: a skill at level 3 (it works in the garden), 10 and 25 stamps, 100 walks, and 8 weeks of training.`
-      : `${p.name}'s badges are for real milestones only, like 8 weeks of training. More ${p.species === "cat" ? "cat" : "pet"} badges are coming soon.`),
+      ? `${p.name}'s badges are for real milestones only: a first session, 3 days of training, a first stamp, a skill at level 3 (it works in the garden), 10 and 25 stamps, 100 walks, and 8 weeks of training.`
+      : `${p.name}'s badges are for real milestones only: a first session, 3 days of training, a first stamp, and 8 weeks of training. More ${p.species === "cat" ? "cat" : "pet"} badges are coming soon.`),
     group("skill", "Skill badges"),
     group("milestone", "Milestones"));
 }
@@ -165,6 +165,7 @@ function profile(main) {
         item("Details checked", chip.checkedOn ? fmtDate(chip.checkedOn) : ""))),
     h("section.sec", { "aria-labelledby": "pf-health" }, h("h2.sec-title", { id: "pf-health" }, "Health notes"),
       h("dl.pf-list",
+        item("Home since", p.homeSince ? fmtDate(p.homeSince) : ""),
         item("Sex", p.sex === "male" ? "Male" : p.sex === "female" ? "Female" : ""),
         item("Neutered", neu ? (neu.yes ? `Yes${neu.date ? `, ${fmtDate(neu.date)}` : ""}` : "No") : ""),
         ["dog", "cat", "rabbit"].includes(p.species) && !(neu && neu.yes) && p.sex !== "male" ? item("Last season", p.lastSeason ? fmtDate(p.lastSeason) : "") : null,

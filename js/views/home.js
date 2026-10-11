@@ -3,7 +3,7 @@
 
 import { doItNowCard } from "./doitnow.js";
 import { S, pet, setSetting, save, logsOf, LOG_TYPES } from "../state.js";
-import { h, put, em, fmtDate, isoDate, ageText, DAY, toast } from "../util.js";
+import { h, put, em, fmtDate, isoDate, ageText, sinceText, isAnniversary, DAY, toast } from "../util.js";
 import { healthAlerts, backupDue, dueItems, dueText } from "../logic.js";
 import { logWalk, logMeal, logTreat, logPoop, speciesOf, openPetSheet, saveError, markGiven, doneRecord } from "../forms.js";
 import { sampleStrip, alertCard, avatar, chevron } from "./parts.js";
@@ -33,9 +33,10 @@ export function home(main) {
 
 function stageText(p, a) {
   const age = ageText(p.birthday);
-  if (a.stage) return `${a.stage.label} · ${age}`;
-  if (p.species === "dog") return null;
-  return [speciesOf(p.species).label, age].filter(Boolean).join(" · ");
+  const home = p.homeSince ? (isAnniversary(p.homeSince) ? "🎉 Gotcha day!" : sinceText(p.homeSince) ? `home ${sinceText(p.homeSince)}` : "") : "";
+  if (a.stage) return [`${a.stage.label} · ${age}`, home].filter(Boolean).join(" · ");
+  if (p.species === "dog") return home ? (home.startsWith("🎉") ? home : `🏡 ${home}`) : null;
+  return [speciesOf(p.species).label, age, home].filter(Boolean).join(" · ");
 }
 
 function partnerCard(p, a, tr) {

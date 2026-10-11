@@ -16,12 +16,12 @@ The CEO (Claude, the main session) owns this list: it adds new requests, sets th
 | CRQ-008 | Care-only mode (hide the game for people who only want the diary) | Persona test | P2 | — | Planned |
 | CRQ-009 | Egg and flock counts; species-aware logs for hens | Persona test | P3 | — | Planned |
 | CRQ-010 | Rabbit poop options (pellets, soft clusters) and gram weights | Persona test | P2 | — | Planned |
-| CRQ-011 | Share: caption and hashtags, a Story (9:16) size, hide empty stats on the card | Persona test | P2 | — | Planned |
+| CRQ-011 | Share: caption and hashtags, a Story (9:16) size, hide empty stats on the card | Persona test | P2 | — | Done (11 Oct: Story size, caption, empty stats hidden) |
 | CRQ-012 | Skill-specific self-check ladders (alone time in minutes, toilet, tricks) | Persona test | P2 | — | Planned |
 | CRQ-013 | Basic skills: sit, down, name/check-in, drop it, stay | Persona test | P2 | — | Planned |
 | CRQ-014 | Reactive and shy dog path: a lesson on space and distance, a "look at that" skill | Persona test | P2 | — | Planned |
-| CRQ-015 | Early badges (first session, first stamp, first lesson, 3 days) | Persona test | P2 | — | Planned |
-| CRQ-016 | Region-aware notes (Irish muzzle law shown only where relevant) | Persona test | P3 | — | Planned |
+| CRQ-015 | Early badges (first session, first stamp, first lesson, 3 days) | Persona test | P2 | — | Done (12 Oct: first step, three days, first stamp) |
+| CRQ-016 | Region-aware notes (Irish muzzle law shown only where relevant) | Persona test | P3 | — | Done (12 Oct: Irish law note only for Irish phones) |
 | CRQ-017 | Faster first load on slow networks (bundle the JS) | Persona test | P3 | — | Planned |
 | CRQ-018 | Google Play listing: account ($25), ID check, 12 testers for 14 days | Shiv | P2 | **Shiv** | Waiting on Shiv |
 | CRQ-019 | Full name and an app email for the privacy page | Shiv | P1 | **Shiv** | Waiting on Shiv |
@@ -30,15 +30,15 @@ The CEO (Claude, the main session) owns this list: it adds new requests, sets th
 | CRQ-022 | Feeding guide with pictures: how much, how often, mixing, bloat care for big dogs, treats, switching, water, games | Shiv | P1 | CEO | Done (Health → Food) |
 | CRQ-023 | Learn with Nova paid content (Shiv's pics, GIFs and clips become a course), then trainer services once qualified. Free core stays free. Milestone-gated per `docs/global-plan.md` | Shiv | P3 | **Shiv** (money) | Planned |
 | CRQ-024 | "No dog yet" mode: a getting-ready path instead of "Make Nova mine" | Persona test | P2 | — | Planned |
-| CRQ-025 | Coach rank needs 5 or more Academy lessons, not only XP | Persona test | P2 | — | Planned |
-| CRQ-026 | "Working on" picker (Calm / Confidence / Recall) and a rescue/adoption date | Persona test | P2 | — | Partly done (Pick this week's skill) |
+| CRQ-025 | Coach rank needs 5 or more Academy lessons, not only XP | Persona test | P2 | — | Done (12 Oct: Coach 5 lessons, Mentor 8) |
+| CRQ-026 | "Working on" picker (Calm / Confidence / Recall) and a rescue/adoption date | Persona test | P2 | — | Done (12 Oct: "Home since" gotcha day; this week's skill picker) |
 
 | CRQ-027 | Learn from Duolingo: flow, GUI, logic, presentation, psychology; take the best, ethically | Shiv | P1 | Co-captain | Done (11 Oct) |
 | CRQ-028 | Never lose work at a usage limit: `docs/STATUS.md` progress file, small commits, agents write to files | Shiv | P1 | Co-captain | Done |
 | CRQ-029 | Welcome page says "Grow with your dog", but people may not have a dog: inclusive copy | Shiv | P1 | Co-captain | Done (11 Oct) |
 | CRQ-030 | Level check is too much text: one question per screen, big cards with pictures, progress bar, fun | Shiv | P1 | Co-captain | Done (11 Oct) |
 | CRQ-031 | Animated celebrations for missions (mission-complete screen, XP count-up) | Shiv | P1 | Co-captain | Done (11 Oct) |
-| CRQ-032 | Navigation and flow: less text per screen, smoother back and forward, fun styles | Shiv | P1 | Co-captain + QA | Planned |
+| CRQ-032 | Navigation and flow: less text per screen, smoother back and forward, fun styles | Shiv | P1 | Co-captain + QA | Done (12 Oct: phone Back closes the top sheet; GUI pass v2) |
 | CRQ-033 | Simpler food logging (one-tap meal, treat and poop on Home) | Shiv | P1 | Co-captain | Done (11 Oct) |
 | CRQ-034 | Fewer tips and spam screens; minimal, appealing, curiosity-led | Shiv | P1 | Co-captain | Done, more in QA |
 | CRQ-035 | Plan feature is unclear: reframe as "When should Nova nudge you?" | Shiv | P1 | Co-captain | Done (11 Oct) |
