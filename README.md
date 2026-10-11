@@ -12,7 +12,7 @@ Live app: https://novashiv11.github.io/novas-pack/ (open in Chrome or Safari, th
 | `clips/` | Training clips: add `<skill-id>.mp4` (e.g. `recall.mp4`) and they appear in the app. |
 | `privacy.html` | Full privacy notice. |
 | `site.css`, `site.js` | Shared styles; `site.js` holds the Discord invite link (the only setting), the challenge rotation and the streak logic. |
-| `img/` | Nova's photos in use, the share image (`og-image.jpg`), the Nova illustration and the QR code (`brand/`). |
+| `img/` | Nova's photos in use, the share image (`og-level-up.jpg`, made from `docs/og-src.html`), the Nova illustration and the QR code (`brand/`). |
 | `fonts/` | Self-hosted Bricolage Grotesque and Plus Jakarta Sans (SIL Open Font License). |
 | `favicon.svg`, `favicon.ico`, `apple-touch-icon.png` | Site icons. |
 | `card.html`, `card.js` | Pack Card maker (runs on the visitor's device). |

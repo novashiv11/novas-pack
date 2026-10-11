@@ -67,7 +67,7 @@ Handoff summary for Claude Code. Read this first, then `docs/00-master-brief.md`
 - **The app is the product** (`index.html` = installable PWA): a real-life dog and human growth game. Your dog is your **partner** (stage, level 1–50, 5 stats); 13 skills level 0–5 at harder distraction levels with an honest self-check; badges at skill level 3; Adventure Book stamps; daily and weekly quests; **Trainer ranks** (Rookie → Handler → Coach → Mentor) from Academy lessons; shareable partner card.
 - **1% better every day:** "1% today" card (one step for your dog, one for you), daily Nova line (`data/quotes.js`), private Growth Journal, "1% a day adds up" chart, Samaritans link in More. No therapy language, no guilt.
 - **Health tab kept small:** vaccines/preventives/medicines with due lists and .ics reminders, food and treats, poop log with vet-first red flags, Unwell checklist, weight, vet summary.
-- **XP rules:** derived from logs, never stored; capped (3 sessions/skill/day, 2 walks/day, stamps and lessons once). Never XP for opens, likes or shares. No Pokémon names or art.
+- **XP rules:** derived from logs, never stored; capped (3 sessions per skill and 10 in total a day, 2 walks a day, stamps and lessons once). Never XP for opens, likes or shares. No Pokémon names or art.
 - Data on the device (IndexedDB), no accounts, backup/export/delete. Never dosing advice or diagnosis.
 - Spec: `docs/spec-v2-levelup.md`. Community, Discord and the Pack Card are secondary.
 
