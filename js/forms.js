@@ -135,15 +135,34 @@ export function petForm(box, existing, onSaved, { openProfile = false, extra = n
   const birthday = h("input", { type: "date", name: "birthday", max: isoDate(), value: p.birthday || "" });
   const preview = h("img.photo-preview", { alt: "", hidden: !photo, src: photo || undefined, width: "72", height: "72" });
   const file = h("input", { type: "file", accept: "image/*", name: "photo", id: fid() });
-  const removePhoto = h("button.linkish", { type: "button", hidden: !photo, onclick: () => { photo = null; preview.hidden = true; removePhoto.hidden = true; file.value = ""; } }, "Remove photo");
   const photoMsg = h("p.hint", { role: "status" });
+  // Style: the photo as it is, or a cartoon of it (made on this phone by js/cartoon.js; nothing is uploaded).
+  let original = photo, style = "photo", styleRun = 0;
+  const applyStyle = async () => {
+    const run = ++styleRun;
+    if (!original) return;
+    if (style === "photo") { photo = original; preview.src = photo; return; }
+    photoMsg.textContent = "Drawing the cartoon…";
+    try {
+      const { cartoonize } = await import("./cartoon.js");
+      const out = await cartoonize(original, { size: 512 });
+      if (run !== styleRun) return;
+      photo = out; preview.src = photo;
+      photoMsg.textContent = "Cartoon ready. Made on your phone.";
+    } catch { if (run === styleRun) photoMsg.textContent = "Couldn't make a cartoon of that photo. The photo is kept as it is."; }
+  };
+  const styleSeg = segmented(`style-${fid()}`, "Style", [["photo", "Photo"], ["cartoon", "Cartoon ✨"]], style, (v) => { style = v; applyStyle(); });
+  styleSeg.classList.add("photo-style");
+  styleSeg.hidden = !photo;
+  const removePhoto = h("button.linkish", { type: "button", hidden: !photo, onclick: () => { photo = null; original = null; preview.hidden = true; removePhoto.hidden = true; styleSeg.hidden = true; file.value = ""; photoMsg.textContent = ""; } }, "Remove photo");
   file.addEventListener("change", async () => {
     const f = file.files && file.files[0];
     if (!f) return;
     try {
-      photo = await resizePhoto(f, 512);
-      preview.src = photo; preview.hidden = false; removePhoto.hidden = false;
+      original = photo = await resizePhoto(f, 512);
+      preview.src = photo; preview.hidden = false; removePhoto.hidden = false; styleSeg.hidden = false;
       photoMsg.textContent = "Photo ready. Resized on your phone, location data removed.";
+      if (style === "cartoon") await applyStyle();
     } catch { photoMsg.textContent = "Couldn't read that photo. Try a JPG or PNG."; }
   });
   const weight = h("input", { type: "number", name: "weight", inputmode: "decimal", min: "0", max: "2000", step: "0.1" });
@@ -157,6 +176,7 @@ export function petForm(box, existing, onSaved, { openProfile = false, extra = n
       h("label", { for: file.id }, "Photo", opt()),
       h("div.photo-row", preview, h("div", file, removePhoto)),
       h("p.hint", "Stays on this device. We shrink it and strip location data."),
+      styleSeg,
       photoMsg),
     existing ? null : field(h("span", `Weight in ${units()}`, opt()), weight),
   ];
@@ -168,7 +188,7 @@ export function petForm(box, existing, onSaved, { openProfile = false, extra = n
   put(form,
     field("Name", name),
     h("fieldset.fs", h("legend", "Species"), speciesBox),
-    h("fieldset.fs", h("legend", "Icon", opt()), iconBox, h("p.hint", "Shown when there's no photo. Scroll for more.")),
+    h("fieldset.fs", h("legend", "Icon", opt()), iconBox, h("p.hint", "Shown when there's no photo. Scroll for more. Want a cartoon of your pet? Add a photo and pick Cartoon.")),
     existing ? basics : h("details.fold", h("summary", "Add details (optional)"), h("div.fold-body", h("p.hint", "Birthday, photo and weight. Skip them now and add them later if you like."), basics)));
 
   if (existing) {
