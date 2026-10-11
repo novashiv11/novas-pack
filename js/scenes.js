@@ -1,4 +1,3 @@
-// WORK IN PROGRESS (CRQ-003): not loaded by the app yet. The builder stopped at a usage limit; finish and wire in later.
 // Nova's Pack: a tiny SVG scene renderer. "A picture is worth 1,000 words": every training step gets one
 // flat, friendly picture (a dog, a cat, a person, a few props and marks) drawn from a small spec.
 //
@@ -6,7 +5,17 @@
 //
 // Returns an <svg viewBox="0 0 160 100" aria-hidden="true">. Colours come from CSS classes (.sc-*) in css/visuals.css,
 // so dark mode works. Parts are drawn in array order. Shared options: x, y (feet, default y 90), s (scale), flip (face left).
-// No network, no libraries. Specs live in data/scenes.js.
+// No network, no libraries. Specs live in data/scenes.js. bg: room (default) | grass | hall | plain.
+// Parts (t, then options):
+//   dog      v stand|walk|run|sit|down|jump|sniff|look-up|nose-in|spin; look up|down, mouth open|yawn, calm, worried, muzzle, strap, coat cream
+//   cat      v sit|stand|carrier; mood calm|happy|upset, swish          carrier  door open|closed, cat, mood
+//   person   v stand|walk|crouch|kneel; arm/arm2 down|out|low|up|point|lead|reach|back or [dx,dy,bend]; hold/hold2 treat|fist|cloth|handle;
+//            shirt blue|pink|gold|green|grey, skin 0-3, hair 0-3, kid, badge cross
+//   hand     (close-up, from the left, tip at x,y) v open|fist|pinch; treat, hold muzzle|cloth, rot
+//   props    door (v closed|ajar|open), mat, toy, treat (n, gap), muzzle (treat), puddle, clock (text), paw (claw false), button (on), bowl, ball, brush,
+//            icon (v sleep|eat|play|vet|garden), lead (v loose|tight; person's hand to dog's collar; p, d pick which)
+//   marks    bubble (text, to [x,y], c gold), label (text), arrow (from, to, bend, both, dash, c blue|gold|pink|green|red), spin (x, y, rx, ry, c),
+//            motion, spark (pts), check, pause, stop, no (r), tally (n, s), ring (r, ry, text), drop
 
 const NS = "http://www.w3.org/2000/svg";
 let uid = 0;
@@ -296,12 +305,28 @@ function paw(o) {
   const s = o.s ?? 1;
   let g = '<ellipse class="sc-cat" cx="0" cy="4" rx="19" ry="14"/>';
   g += '<ellipse class="sc-cat" cx="-13" cy="-7" rx="5.4" ry="6.4"/><ellipse class="sc-cat" cx="-4.5" cy="-12" rx="5.4" ry="6.6"/><ellipse class="sc-cat" cx="4.5" cy="-12" rx="5.4" ry="6.6"/><ellipse class="sc-cat" cx="13" cy="-7" rx="5.4" ry="6.4"/>';
-  g += '<path class="sc-claw" d="M-6.5,-16 C-7,-24 -4,-28 0,-29 C-1,-24 -2,-20 -2.5,-16 Z"/>';
+  if (o.claw !== false) g += '<path class="sc-claw" d="M-6.5,-16 C-7,-24 -4,-28 0,-29 C-1,-24 -2,-20 -2.5,-16 Z"/>';
   g += '<ellipse class="sc-pinkf" cx="-13" cy="-6" rx="2.6" ry="3"/><ellipse class="sc-pinkf" cx="-4.5" cy="-10" rx="2.6" ry="3.2"/><ellipse class="sc-pinkf" cx="4.5" cy="-10" rx="2.6" ry="3.2"/><ellipse class="sc-pinkf" cx="13" cy="-6" rx="2.6" ry="3"/>';
   g += '<path class="sc-pinkf" d="M-8,8 Q-9,0 0,-1 Q9,0 8,8 Q4,13 0,12 Q-4,13 -8,8 Z"/>';
-  g += '<g class="sc-shirt-blue" style="--sc-skin:' + SKIN[o.skin ?? 1] + '"><rect class="sc-skin" x="-6" y="-2" width="12" height="40" rx="6" transform="translate(-32 -26) rotate(-52 0 0)"/></g>';
+  g += '<g class="sc-shirt-blue" style="--sc-skin:' + SKIN[o.skin ?? 1] + '"><g transform="translate(-3 -6) rotate(-52)"><rect class="sc-sleeve" x="-9" y="-62" width="18" height="38" rx="5"/><rect class="sc-skin" x="-5.2" y="-28" width="10.4" height="28" rx="5.2"/></g></g>';
   return `<g transform="translate(${o.x ?? 80} ${o.y ?? 60}) scale(${s})">${g}</g>`;
 }
+function button(o) { // a talking button on the floor; on: true = it was just pressed (sound lines)
+  return `<g transform="${xf(o, o.s ?? 1)}"><path class="sc-shell" d="M-15,-8 V-3 A15,5.5 0 0 0 15,-3 V-8 Z"/><ellipse class="sc-btn-t" cx="0" cy="-8" rx="15" ry="5.5"/><ellipse class="sc-shine" cx="-5" cy="-9.4" rx="5" ry="1.4" opacity=".6"/>` +
+    (o.on ? '<path class="sc-motion" d="M-21,-13 l-5,-3 M0,-17 v-6 M21,-13 l5,-3"/>' : "") + "</g>";
+}
+function bowl(o) { // a snack bowl with treats
+  return `<g transform="${xf(o, o.s ?? 1)}"><path class="sc-bowl" d="M-14,-10 H14 Q13,0 0,0 Q-13,0 -14,-10 Z"/><ellipse class="sc-mat2" cx="0" cy="-10" rx="14" ry="3"/>` +
+    treatShape(-6, -12.5, 3) + treatShape(0, -13.5, 3) + treatShape(6, -12.2, 3) + "</g>";
+}
+function ball(o) {
+  const s = o.s ?? 1;
+  return `<g transform="${xf(o, s)}"><ellipse class="sc-motion" cx="0" cy="0" rx="6" ry="1.5" opacity=".5"/><circle class="sc-ball" cy="-6" r="6"/><path class="sc-ballline" d="M-5.6,-8 Q0,-3 5.6,-8"/></g>`;
+}
+function brush(o) {
+  return `<g transform="${xf(o, o.s ?? 1)}"><rect class="sc-fur" x="-3.5" y="-14" width="7" height="16" rx="3"/><rect class="sc-bowl" x="-9" y="-22" width="18" height="9" rx="3"/><path class="sc-fline" d="M-6,-22 v-4 M-2,-22 v-4 M2,-22 v-4 M6,-22 v-4"/></g>`;
+}
+
 function icon(o) {
   const v = o.v, s = o.s ?? 1;
   let g = '<circle class="sc-chip" r="10.5"/>';
@@ -375,9 +400,9 @@ function no(o) {
   return `<g class="sc-no"><circle cx="${o.x ?? 80}" cy="${o.y ?? 50}" r="${r}"/><path d="M${n2((o.x ?? 80) - r * 0.7)},${n2((o.y ?? 50) - r * 0.7)} L${n2((o.x ?? 80) + r * 0.7)},${n2((o.y ?? 50) + r * 0.7)}"/></g>`;
 }
 function tally(o) {
-  const n = o.n || 5, gap = o.gap ?? 9;
+  const n = o.n || 5, k = o.s ?? 1, gap = (o.gap ?? 9) * k;
   let g = "";
-  for (let i = 0; i < n; i++) g += `<circle class="sc-gold sc-gold-s" cx="${n2((o.x ?? 80) + (i - (n - 1) / 2) * gap)}" cy="${o.y ?? 16}" r="3.6"/>`;
+  for (let i = 0; i < n; i++) g += `<circle class="sc-gold sc-gold-s" cx="${n2((o.x ?? 80) + (i - (n - 1) / 2) * gap)}" cy="${o.y ?? 16}" r="${n2(3.6 * k)}"/>`;
   return g;
 }
 function label(o) {
@@ -408,7 +433,7 @@ function lead(o, A) {
 }
 
 const DRAW = {
-  dog, person, cat, carrier, hand, door, mat, toy, treat, muzzle: muzzleProp, puddle, clock, paw, icon,
+  dog, person, cat, carrier, hand, door, mat, toy, treat, muzzle: muzzleProp, puddle, clock, paw, icon, button, bowl, ball, brush,
   bubble, arrow, spin, motion, spark, check, pause, stop, no, tally, label, ring, drop,
 };
 
