@@ -79,7 +79,7 @@ export async function adoptSample(petId) {
   S.rev++;
   for (const k of PET_LISTS) S[k] = S[k].filter((r) => r.petId !== petId);
   S.pets = S.pets.filter((x) => x.id !== petId);
-  const mine = { id: p.id, name: p.name, species: p.species, sex: p.sex, birthday: p.birthday, photo: p.photo, icon: p.icon, training: {}, createdAt: Date.now() };
+  const mine = { id: p.id, name: p.name, species: p.species, photo: p.photo, icon: p.icon, training: {}, createdAt: Date.now() }; // the sample's birthday and sex were made up
   for (const k of Object.keys(mine)) if (mine[k] === undefined) delete mine[k];
   await save("pets", mine, { quiet: true });
   await setSetting("currentPet", mine.id);

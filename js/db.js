@@ -209,7 +209,8 @@ const CLEAN = {
       insurer: obj(r.insurer, { name: (v) => str(v, 120), policy: (v) => str(v, 80), renewal: date }),
       microchip: obj(r.microchip, { number: (v) => str(v, 40), registry: (v) => str(v, 120), checkedOn: date }),
       neutered: obj(r.neutered, { yes: (v) => (typeof v === "boolean" ? v : undefined), date }),
-      lastSeason: date(r.lastSeason), icon: str(r.icon, 16),
+      lastSeason: date(r.lastSeason), icon: typeof r.icon === "string" && /^[^\x00-\x7F]{1,16}$/u.test(r.icon) ? r.icon : undefined,
+      photoStyle: r.photoStyle === "cartoon" ? "cartoon" : undefined,
       training, sample: r.sample === true || undefined, createdAt: num(r.createdAt),
     });
   },

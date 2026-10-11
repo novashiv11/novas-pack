@@ -137,32 +137,38 @@ export function petForm(box, existing, onSaved, { openProfile = false, extra = n
   const file = h("input", { type: "file", accept: "image/*", name: "photo", id: fid() });
   const photoMsg = h("p.hint", { role: "status" });
   // Style: the photo as it is, or a cartoon of it (made on this phone by js/cartoon.js; nothing is uploaded).
-  let original = photo, style = "photo", styleRun = 0;
+  // A saved cartoon has no original kept, so it starts as "Cartoon" and can't be un-cartooned (choose the photo again).
+  let style = p.photo && p.photoStyle === "cartoon" ? "cartoon" : "photo", shown = style;
+  let original = shown === "cartoon" ? null : photo, styleRun = 0, pending = null;
   const applyStyle = async () => {
     const run = ++styleRun;
-    if (!original) return;
-    if (style === "photo") { photo = original; preview.src = photo; return; }
+    if (!original) {
+      if (style === "photo" && shown === "cartoon") photoMsg.textContent = "To use the plain photo again, choose it again above.";
+      return;
+    }
+    if (style === "photo") { photo = original; shown = "photo"; preview.src = photo; photoMsg.textContent = ""; return; }
     photoMsg.textContent = "Drawing the cartoon…";
     try {
       const { cartoonize } = await import("./cartoon.js");
       const out = await cartoonize(original, { size: 512 });
       if (run !== styleRun) return;
-      photo = out; preview.src = photo;
+      photo = out; shown = "cartoon"; preview.src = photo;
       photoMsg.textContent = "Cartoon ready. Made on your phone.";
     } catch { if (run === styleRun) photoMsg.textContent = "Couldn't make a cartoon of that photo. The photo is kept as it is."; }
   };
-  const styleSeg = segmented(`style-${fid()}`, "Style", [["photo", "Photo"], ["cartoon", "Cartoon ✨"]], style, (v) => { style = v; applyStyle(); });
+  const runStyle = () => { pending = applyStyle().finally(() => { pending = null; }); return pending; };
+  const styleSeg = segmented(`style-${fid()}`, "Style", [["photo", "Photo"], ["cartoon", "Cartoon ✨"]], style, (v) => { style = v; runStyle(); });
   styleSeg.classList.add("photo-style");
   styleSeg.hidden = !photo;
-  const removePhoto = h("button.linkish", { type: "button", hidden: !photo, onclick: () => { photo = null; original = null; preview.hidden = true; removePhoto.hidden = true; styleSeg.hidden = true; file.value = ""; photoMsg.textContent = ""; } }, "Remove photo");
+  const removePhoto = h("button.linkish", { type: "button", hidden: !photo, onclick: () => { photo = null; original = null; shown = "photo"; preview.hidden = true; removePhoto.hidden = true; styleSeg.hidden = true; file.value = ""; photoMsg.textContent = ""; } }, "Remove photo");
   file.addEventListener("change", async () => {
     const f = file.files && file.files[0];
     if (!f) return;
     try {
-      original = photo = await resizePhoto(f, 512);
+      original = photo = await resizePhoto(f, 512); shown = "photo";
       preview.src = photo; preview.hidden = false; removePhoto.hidden = false; styleSeg.hidden = false;
       photoMsg.textContent = "Photo ready. Resized on your phone, location data removed.";
-      if (style === "cartoon") await applyStyle();
+      if (style === "cartoon") await runStyle();
     } catch { photoMsg.textContent = "Couldn't read that photo. Try a JPG or PNG."; }
   });
   const weight = h("input", { type: "number", name: "weight", inputmode: "decimal", min: "0", max: "2000", step: "0.1" });
@@ -205,12 +211,13 @@ export function petForm(box, existing, onSaved, { openProfile = false, extra = n
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
+    if (pending) await pending; // a cartoon that's still drawing
     const nm = name.value.trim();
     if (!nm) { err.textContent = "Please add a name."; name.setAttribute("aria-invalid", "true"); name.focus(); return; }
     name.removeAttribute("aria-invalid");
     const row = {
       ...p, id: p.id || uid(), name: nm.slice(0, 40), species: radioVal(form, "species") || "dog",
-      birthday: birthday.value || undefined, photo: photo || undefined, createdAt: p.createdAt || Date.now(),
+      birthday: birthday.value || undefined, photo: photo || undefined, photoStyle: photo && shown === "cartoon" ? "cartoon" : undefined, createdAt: p.createdAt || Date.now(),
       training: p.training || {}, sex: sex === "unknown" ? undefined : sex,
       icon: icon && icon !== speciesOf(radioVal(form, "species") || "dog").emoji ? icon : undefined,
       ...(profile ? profile.read() : {}),
@@ -289,7 +296,7 @@ export function openPetSheet(existing, { openProfile = false } = {}) {
     if (!existing) body.append(h("p.sheet-intro", "Only the name is needed. Free. No account to lose."));
     const sample = !existing && S.pets.find((x) => x.sample);
     if (sample) body.append(h("p.adopt-line", `Is your pet ${sample.name}? `,
-      h("button.linkish", { type: "button", "data-k": "adopt-from-add", onclick: () => { close(); adoptSampleFlow(sample); } }, `Keep the sample's ${sample.name} and clear the examples`)));
+      h("button.linkish", { type: "button", "data-k": "adopt-from-add", onclick: () => adoptSampleFlow(sample) }, `Keep the sample's ${sample.name} and clear the examples`)));
     petForm(body, existing, (row) => {
       close();
       toast(existing ? "Saved." : `${row.name} added. Welcome to the pack.`);
@@ -301,7 +308,7 @@ export function openPetSheet(existing, { openProfile = false } = {}) {
 /** Keep the sample pet as your own and clear every example, after asking; then open its details to check. */
 export async function adoptSampleFlow(p) {
   const ok = await confirmBox(`Make ${p.name} yours?`,
-    `${p.name}'s name stays. Every example is cleared: logs, vaccines, medicines, food, training, stamps and the example vet and insurer. Check the birthday and details next.`,
+    `${p.name}'s name stays. Every example is cleared: logs, vaccines, medicines, food, training, stamps, the example vet and insurer, and the made-up birthday. Add the real birthday next.`,
     "Clear examples, keep pet");
   if (!ok) return;
   document.querySelectorAll("dialog[open]").forEach((d) => d.close());

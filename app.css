@@ -24,7 +24,7 @@ main:focus,[tabindex="-1"]:focus{outline:none}
 /* ---------- pet bar: switch pets (2+), or one-tap "Add pet" with one pet until hidden ---------- */
 .appbar{display:none;background:var(--bg);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top)}
 .appbar.show{display:block}
-.pet-chip.bar-hide{padding:4px 12px;color:var(--muted);font-size:var(--t18);border-color:transparent;background:transparent}
+.pet-chip.bar-hide{min-width:44px;justify-content:center;padding:4px 12px;color:var(--muted);font-size:var(--t18);border-color:transparent;background:transparent}
 body.first-run .appbar{display:none}
 .appbar-in{max-width:640px;margin:0 auto;display:flex;align-items:center;padding:6px max(16px,env(safe-area-inset-right)) 6px max(16px,env(safe-area-inset-left))}
 .switcher{display:flex;gap:6px;overflow-x:auto;min-width:0;flex:1;padding:3px;scrollbar-width:none;overscroll-behavior-x:contain}

@@ -112,6 +112,7 @@ function drawChrome(name) {
     switcher.append(h("button.pet-chip.bar-hide", { type: "button", "data-k": "bar-hide", onclick: async () => {
       await setSetting("addBarHidden", true);
       drawChrome(name);
+      main.setAttribute("tabindex", "-1"); main.focus({ preventScroll: true });
       toast("Hidden. Add a pet any time in More → Pets.");
     } }, h("span.vh", "Hide this bar"), h("span", { "aria-hidden": "true" }, "×")));
   }
