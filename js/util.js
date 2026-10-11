@@ -157,6 +157,7 @@ export function sheet(title, build, { onClose } = {}) {
     if (opener && opener.isConnected && opener.focus) opener.focus();
     else if (openerKey) { const el = document.querySelector(`[data-k="${CSS.escape(openerKey)}"]`); if (el) el.focus(); }
   });
+  dlg.dataset.hash = location.hash;
   document.body.append(dlg);
   dlg.showModal();
   const first = body.querySelector("[autofocus]") || body.querySelector("input:not([type=hidden]),select,textarea,button");

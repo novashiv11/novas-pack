@@ -27,6 +27,7 @@ const HEALTH_QUICK = ["poop", "meal", "treat", "med", "weight", "vet", "symptom"
 
 const main = document.getElementById("main");
 const switcher = document.getElementById("switcher");
+const appbar = document.querySelector(".appbar");
 const tabbar = document.getElementById("tabbar");
 
 function route() {
@@ -101,9 +102,20 @@ function drawChrome(name) {
       switcher.append(h("button.pet-chip", { type: "button", "aria-pressed": String(on), onclick: () => switchTo(x.id) },
         avatar(x, 32), h("span.pet-chip-name", x.name), x.sample ? h("span.sample-dot", "SAMPLE") : null));
     }
-    switcher.append(h("button.pet-chip.add", { type: "button", onclick: () => openPetSheet() },
+    switcher.append(h("button.pet-chip.add", { type: "button", "data-k": "bar-add-pet", onclick: () => openPetSheet() },
       h("span.avatar.av-add", { "aria-hidden": "true" }, "+"), h("span.pet-chip-name", "Add pet")));
   }
+  // The bar shows with 2+ pets (to switch). With one real pet it shows until "Hide" (Add pet stays in More → Pets).
+  const real = S.pets.filter((x) => !x.sample).length;
+  const show = name !== "welcome" && !!p && (S.pets.length > 1 || (real === 1 && !S.settings.addBarHidden));
+  if (show && S.pets.length === 1) {
+    switcher.append(h("button.pet-chip.bar-hide", { type: "button", "data-k": "bar-hide", onclick: async () => {
+      await setSetting("addBarHidden", true);
+      drawChrome(name);
+      toast("Hidden. Add a pet any time in More → Pets.");
+    } }, h("span.vh", "Hide this bar"), h("span", { "aria-hidden": "true" }, "×")));
+  }
+  appbar.classList.toggle("show", show);
   // bottom nav
   const tab = TAB_OF[name];
   tabbar.hidden = name === "welcome";
@@ -176,7 +188,11 @@ async function start() {
   }
   if (S.settings.currentPet && !S.pets.some((p) => p.id === S.settings.currentPet)) S.settings.currentPet = S.pets[0] ? S.pets[0].id : null;
   onChange(draw);
-  window.addEventListener("hashchange", draw);
+  window.addEventListener("hashchange", () => {
+    // A sheet belongs to the screen it was opened on: Back (or any route change) closes it.
+    document.querySelectorAll("dialog.sheet[open]").forEach((d) => { if (d.dataset.hash !== location.hash) d.close(); });
+    draw();
+  });
   draw();
   started = true;
   document.body.classList.add("ready");

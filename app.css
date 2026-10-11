@@ -21,9 +21,10 @@ main:focus,[tabindex="-1"]:focus{outline:none}
 .block{display:block}
 .boot{display:flex;flex-direction:column;align-items:center;gap:12px;padding:64px 0;color:var(--muted);font-weight:600;text-align:center}
 
-/* ---------- pet switcher: only with 2 or more pets ---------- */
+/* ---------- pet bar: switch pets (2+), or one-tap "Add pet" with one pet until hidden ---------- */
 .appbar{display:none;background:var(--bg);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top)}
-.appbar:has(.pet-chip:nth-child(2):not(.add)){display:block}
+.appbar.show{display:block}
+.pet-chip.bar-hide{padding:4px 12px;color:var(--muted);font-size:var(--t18);border-color:transparent;background:transparent}
 body.first-run .appbar{display:none}
 .appbar-in{max-width:640px;margin:0 auto;display:flex;align-items:center;padding:6px max(16px,env(safe-area-inset-right)) 6px max(16px,env(safe-area-inset-left))}
 .switcher{display:flex;gap:6px;overflow-x:auto;min-width:0;flex:1;padding:3px;scrollbar-width:none;overscroll-behavior-x:contain}
@@ -716,3 +717,10 @@ dialog.cele .sheet-body{align-items:stretch;text-align:center}
 }
 
 legend{max-width:100%;overflow-wrap:anywhere}
+
+/* pet icon picker */
+.icon-pick{display:flex;gap:6px;overflow-x:auto;padding:2px 2px 8px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
+.icon-pick input{position:absolute;opacity:0;width:1px;height:1px}
+.icon-pick label{flex:0 0 auto;display:grid;place-items:center;width:48px;height:48px;border-radius:12px;border:1.5px solid var(--ctl);background:var(--surface);font-size:26px;line-height:1;cursor:pointer;scroll-snap-align:start}
+.icon-pick input:checked + label{border-color:var(--blue);background:var(--blue-soft);box-shadow:inset 0 0 0 2px var(--blue)}
+.icon-pick input:focus-visible + label{outline:3px solid var(--focus);outline-offset:2px}

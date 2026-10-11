@@ -15,6 +15,9 @@ export const SPECIES = [
   { id: "bird", label: "Bird", emoji: "🐦" },
   { id: "other", label: "Other", emoji: "🐾" },
 ];
+/** Icons a pet can have when there's no photo. The species' own emoji is the default. */
+export const PET_ICONS = ["🐶", "🐕", "🦮", "🐩", "🐺", "🦊", "🐱", "🐈", "🐈‍⬛", "🐯", "🐰", "🐇", "🐹", "🐭", "🦔", "🐦", "🦜", "🐤", "🐔", "🦆", "🐴", "🐮", "🐷", "🐑", "🐐", "🐢", "🦎", "🐍", "🐟", "🐠", "🐸", "🐾"];
+
 export const speciesOf = (id) => SPECIES.find((s) => s.id === id) || SPECIES[4];
 
 export const TYPES = {
@@ -115,6 +118,20 @@ export function petForm(box, existing, onSaved, { openProfile = false, extra = n
       h("input", { type: "radio", name: "species", id, value: s.id, checked: (p.species || "dog") === s.id }),
       h("label", { for: id }, em(s.emoji), " ", s.label));
   });
+  // Icon (when there's no photo): follows the species until you pick one yourself.
+  let icon = p.icon || null;
+  const iconBox = h("div.icon-pick", { role: "radiogroup", "aria-label": "Icon" });
+  const iconName = `icon-${fid()}`;
+  const iconFor = () => icon || speciesOf(radioVal(form, "species") || p.species || "dog").emoji;
+  const drawIcons = () => {
+    const cur = iconFor();
+    iconBox.replaceChildren(...PET_ICONS.flatMap((e) => {
+      const id = fid();
+      return [h("input", { type: "radio", name: iconName, id, value: e, checked: e === cur, onchange: () => { icon = e; } }), h("label", { for: id, title: e }, e)];
+    }));
+  };
+  speciesBox.addEventListener("change", () => { if (!p.icon && !iconTouched()) drawIcons(); });
+  const iconTouched = () => icon !== null && icon !== (p.icon || null);
   const birthday = h("input", { type: "date", name: "birthday", max: isoDate(), value: p.birthday || "" });
   const preview = h("img.photo-preview", { alt: "", hidden: !photo, src: photo || undefined, width: "72", height: "72" });
   const file = h("input", { type: "file", accept: "image/*", name: "photo", id: fid() });
@@ -144,9 +161,14 @@ export function petForm(box, existing, onSaved, { openProfile = false, extra = n
     existing ? null : field(h("span", `Weight in ${units()}`, opt()), weight),
   ];
 
+  // Adding a pet while the sample is there: remove the sample too (ticked by default).
+  const sampleNow = !existing && S.pets.some((x) => x.sample);
+  const dropSample = sampleNow ? check("Remove Nova's sample (recommended)", { checked: true }, "The example pet and all its example logs. Your own pet starts clean.") : null;
+
   put(form,
     field("Name", name),
     h("fieldset.fs", h("legend", "Species"), speciesBox),
+    h("fieldset.fs", h("legend", "Icon", opt()), iconBox, h("p.hint", "Shown when there's no photo. Scroll for more.")),
     existing ? basics : h("details.fold", h("summary", "Add details (optional)"), h("div.fold-body", h("p.hint", "Birthday, photo and weight. Skip them now and add them later if you like."), basics)));
 
   if (existing) {
@@ -154,7 +176,8 @@ export function petForm(box, existing, onSaved, { openProfile = false, extra = n
     put(form, profile.el);
     speciesBox.addEventListener("change", profile.sync);
   }
-  put(form, extra, err,
+  drawIcons();
+  put(form, dropSample ? dropSample.row : null, extra, err,
     h("div.row-btns",
       existing ? h("button.btn.btn-line", { type: "button", onclick: () => deletePetFlow(p) }, p.sample ? "Delete sample" : "Delete") : null,
       existing && p.sample ? h("button.btn.btn-line", { type: "button", "data-k": "adopt-sample", onclick: () => adoptSampleFlow(p) }, "Make it mine") : null,
@@ -169,6 +192,7 @@ export function petForm(box, existing, onSaved, { openProfile = false, extra = n
       ...p, id: p.id || uid(), name: nm.slice(0, 40), species: radioVal(form, "species") || "dog",
       birthday: birthday.value || undefined, photo: photo || undefined, createdAt: p.createdAt || Date.now(),
       training: p.training || {}, sex: sex === "unknown" ? undefined : sex,
+      icon: icon && icon !== speciesOf(radioVal(form, "species") || "dog").emoji ? icon : undefined,
       ...(profile ? profile.read() : {}),
     };
     for (const k of Object.keys(row)) if (row[k] === undefined) delete row[k];
@@ -178,6 +202,7 @@ export function petForm(box, existing, onSaved, { openProfile = false, extra = n
       const w = parseFloat(weight.value);
       if (!existing && w > 0) await save("events", { id: uid(), petId: row.id, type: "weight", at: Date.now(), kg: fromUnit(w, units()) }, { quiet: true });
       await setSetting("currentPet", row.id);
+      if (dropSample && dropSample.input.checked) for (const x of S.pets.filter((q) => q.sample)) await removePet(x.id);
       if (first && !S.settings.firstUse) await setSetting("firstUse", Date.now());
       if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
       onSaved(row);

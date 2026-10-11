@@ -85,7 +85,7 @@ export function installCard() {
         h("button.btn.btn-blue.sm", { type: "button", onclick: iosSheet }, "Show me how"));
     }
     if (isAndroid()) {
-      return card("In Chrome, tap ⋮ (top right), scroll down and tap \"Install app\" or \"Install and create shortcut\" (older phones: \"Add to Home screen\"). It then opens like any app.", null);
+      return card("Open your browser menu (⋮ or ☰) and tap \"Install app\". Chrome may call it \"Install and create shortcut\" or \"Add to Home screen\". It then opens like any app.", null);
     }
     return null;
   } catch { return null; }
@@ -158,7 +158,7 @@ export function inAppBanner() {
     const tips = [];
     if (isAndroid()) {
       const target = appUrl().replace(/^https?:\/\//, "");
-      actions.push(h("a.btn.btn-blue.sm", { href: `intent://${target}#Intent;scheme=https;package=com.android.chrome;end` }, "Open in Chrome"));
+      actions.push(h("a.btn.btn-blue.sm", { href: `intent://${target}#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=${encodeURIComponent(appUrl())};end` }, "Open in Chrome"));
     }
     actions.push(h(`button.btn.${actions.length ? "btn-line" : "btn-blue"}.sm`, { type: "button", onclick: () => copyLink(status) }, "Copy link"));
     if (isIOS()) tips.push("Then open it in Safari.");

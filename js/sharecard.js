@@ -97,6 +97,11 @@ export async function drawPartner(canvas, data) {
     g.drawImage(photo, sx, sy, sw, sh, px, py, pw, ph);
   } else if (data.sample && head) {
     g.drawImage(head, px + pw / 2 - 180, py + ph / 2 - 190, 360, 360);
+  } else if (data.icon) {
+    g.textAlign = "center"; g.textBaseline = "middle";
+    g.font = `300px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif`;
+    g.fillText(data.icon, px + pw / 2, py + ph / 2 + 10);
+    g.textBaseline = "alphabetic";
   } else paw(g, px + pw / 2, py + ph / 2, 1.3);
   g.restore();
 
@@ -211,7 +216,7 @@ function cardSheet(title, alt, filename, draw) {
 
 export function openPartnerCard(p, a, trainer) {
   const data = {
-    name: p.name, sample: !!p.sample, photo: p.photo || null, level: a.level.level,
+    name: p.name, sample: !!p.sample, photo: p.photo || null, icon: p.icon || null, level: a.level.level,
     stage: [a.stage ? a.stage.label : "", a.stage ? `${a.stage.months} months` : ""].filter(Boolean).join(" · "),
     stats: a.stats, rank: trainer.rank.name,
     badges: a.badges.filter((b) => b.earned).sort((x, y) => (y.at || 0) - (x.at || 0)).slice(0, 3),

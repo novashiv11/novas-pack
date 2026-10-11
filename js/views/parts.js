@@ -10,8 +10,8 @@ export const NOVA = "img/brand/nova-head.svg";
 
 export function avatar(p, size = 40) {
   if (p && p.photo) return h("img.avatar", { src: p.photo, alt: "", width: String(size), height: String(size) });
-  if (p && p.sample) return h("img.avatar.disc", { src: NOVA, alt: "", width: String(size), height: String(size) });
-  return h("span.avatar.av-emoji", { "aria-hidden": "true", style: { width: `${size}px`, height: `${size}px`, fontSize: `${Math.round(size * 0.55)}px` } }, speciesOf(p && p.species).emoji);
+  if (p && p.sample && !p.icon) return h("img.avatar.disc", { src: NOVA, alt: "", width: String(size), height: String(size) });
+  return h("span.avatar.av-emoji", { "aria-hidden": "true", style: { width: `${size}px`, height: `${size}px`, fontSize: `${Math.round(size * 0.55)}px` } }, (p && p.icon) || speciesOf(p && p.species).emoji);
 }
 
 const svg = (paths, cls = "") => {
