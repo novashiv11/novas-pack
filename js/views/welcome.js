@@ -8,8 +8,12 @@ import { eventSheet, unwellSheet, logPoop, logMeal, logTreat, logWalk, logMed, p
 import { subBar, NOVA } from "./parts.js";
 import { addSample } from "../sample.js";
 import { importForm } from "./more.js";
-import { inAppBanner } from "../install.js";
+import { inAppBanner, installCard } from "../install.js";
 import { trainingPicker } from "./gameui.js";
+
+function welcomeInstall() {
+  try { const c = installCard(); return c ? h("div.welcome-install", c) : null; } catch { return null; }
+}
 
 export function welcome(main, arg) {
   document.title = "Nova's Pack · Level up together";
@@ -36,6 +40,7 @@ export function welcome(main, arg) {
       h("button.btn.btn-line.wide", { type: "button", onclick: async () => {
         try { await addSample(); location.hash = "#/home"; } catch { toast("Couldn't save on this device. Private browsing?"); }
       } }, "No dog yet? Explore Nova's sample")),
+    welcomeInstall(),
     h("ul.welcome-features",
       h("li", em("🎓"), " Skills that level up, from home to the park"),
       h("li", em("🌟"), " An Adventure Book of real-life firsts"),

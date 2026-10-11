@@ -424,6 +424,8 @@ details.mini summary{font-size:var(--t14)}
 .welcome-ctas{display:flex;flex-direction:column;gap:12px;width:100%;max-width:420px}
 .welcome-features{list-style:none;padding:0;margin:0;display:grid;gap:6px;width:100%;max-width:420px;text-align:left;font-size:var(--t14);font-weight:600}
 .welcome-features li{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 12px}
+.welcome-install{width:100%;max-width:420px;text-align:left}
+.welcome-install .nudge{margin:0}
 .restore{width:100%;max-width:420px;text-align:left}
 
 /* ==================== v2: Level up together ==================== */

@@ -174,15 +174,15 @@ function badgeRow(a) {
       : h("p.empty", "First badge: get any skill to level 3, or earn 10 stamps. Real milestones only."));
 }
 
-// One gentle card at a time, for real pets only: install (after the first log), back up (after the 3rd log, then
+// One gentle card at a time, for real pets only: install (from day one, until installed or "Not now"), back up (after the 3rd log, then
 // every 14 days), and once, the partner card (after a week of logs).
 function nudge(p, a, tr) {
   if (p.sample) return null;
-  const logs = logsOf();
-  if (!logs.length) return null;
   let card = null;
   try { card = installCard(); } catch { card = null; }
   if (card) return h("div.nudge-slot", card);
+  const logs = logsOf();
+  if (!logs.length) return null;
   const now = Date.now();
   if (backupDue(now)) {
     return h("aside.nudge", { "aria-labelledby": "nudge-h" },

@@ -85,7 +85,7 @@ export function installCard() {
         h("button.btn.btn-blue.sm", { type: "button", onclick: iosSheet }, "Show me how"));
     }
     if (isAndroid()) {
-      return card("Open your browser menu (⋮) and tap \"Install app\" or \"Add to Home screen\". Your diary then stays put.", null);
+      return card("In Chrome, tap ⋮ (top right), scroll down and tap \"Install app\" or \"Install and create shortcut\" (older phones: \"Add to Home screen\"). It then opens like any app.", null);
     }
     return null;
   } catch { return null; }
