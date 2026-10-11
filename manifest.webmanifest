@@ -2,7 +2,7 @@
   "id": "/novas-pack/",
   "name": "Nova's Pack",
   "short_name": "Nova's Pack",
-  "description": "Level up together: real-life training, walks and adventures with your dog, plus the pet care diary. Private on your phone.",
+  "description": "Tiny daily wins with your pet: one minute a day of training, walks or care, plus the pet care diary. Free, private on your phone.",
   "lang": "en-IE",
   "start_url": "./",
   "scope": "./",
@@ -109,7 +109,7 @@
       "sizes": "1280x720",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "Level up together with your dog, one small step a day"
+      "label": "Tiny daily wins with your pet, one minute a day"
     }
   ]
 }

@@ -1,37 +1,38 @@
 <!doctype html><html><head><meta charset="utf-8">
-<!-- Source for img/og-image.jpg (the link preview, 1200x630). Serve the repo root, open /docs/og-src.html at 1200x630, screenshot, save as JPEG. Not published (docs/ is excluded). -->
+<!-- Source for img/og-tiny-wins.jpg (the link preview, 1200x630). Serve the repo root, open /docs/og-src.html at 1200x630, screenshot, save as JPEG under 300 KB (WhatsApp skips bigger images). Not published. Brief: readable at 400 px wide, one headline, Nova big, one game touch matching the trophy card, any pet. -->
 <style>
 @font-face{font-family:B;src:url(../fonts/bricolage-grotesque-latin.woff2) format("woff2");font-weight:200 800}
 @font-face{font-family:J;src:url(../fonts/plus-jakarta-sans-latin.woff2) format("woff2");font-weight:200 800}
 *{box-sizing:border-box;margin:0}
-body{width:1200px;height:630px;background:#F3F2EB;font-family:J;color:#1E1B17;overflow:hidden;position:relative}
-.l{position:absolute;left:72px;top:64px;width:580px}
-.brand{display:flex;align-items:center;gap:14px;font:800 34px B}
-.brand img{width:62px;height:62px}
-h1{font:800 92px/0.98 B;color:#1F4E6E;letter-spacing:-2px;margin-top:26px}
-h1 span{color:#C27A3A}
-p{font:500 26px/1.38 J;color:#5C544B;margin-top:18px;width:560px}
-.chips{display:flex;gap:12px;margin-top:24px;flex-wrap:wrap}
-.chip{font:800 22px J;padding:12px 20px;border-radius:999px;background:#fff;border:2px solid #E4E0D5;color:#1E1B17;display:flex;align-items:center;gap:10px}
-.dot{width:14px;height:14px;border-radius:50%}
-.free{position:absolute;left:72px;bottom:34px;font:700 22px J;color:#8E5019}
-.ph{position:absolute;right:40px;top:40px;width:480px;height:550px;border-radius:28px;overflow:hidden;background:url(../img/card.jpg) center 30%/cover}
-.lv{position:absolute;right:76px;top:72px;background:#F2B544;box-shadow:0 5px 0 #C98F1F;border-radius:16px;padding:12px 18px;font:800 22px J;color:#1E1B17}
-.host{position:absolute;right:300px;bottom:62px;display:flex;align-items:center;gap:12px;background:#fff;border-radius:999px;padding:8px 24px 8px 8px;font:700 22px J;box-shadow:0 6px 18px rgba(0,0,0,.18)}
-.host img{width:52px;height:52px;border-radius:50%;background:#DCE8F0}
+body{width:1200px;height:630px;overflow:hidden;position:relative;font-family:J;color:#fff;
+  background:repeating-conic-gradient(from 0deg at 76% 50%,#245a7e 0deg 9deg,#1F4E6E 9deg 18deg)}
+body::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 76% 50%,transparent 0 30%,rgba(14,40,58,.55) 75%);pointer-events:none}
+.l{position:absolute;left:64px;top:0;bottom:0;width:640px;display:flex;flex-direction:column;justify-content:center;z-index:2}
+.pill{align-self:flex-start;background:#F2B544;color:#1E1B17;font:800 30px J;letter-spacing:.06em;padding:10px 22px;border-radius:999px;box-shadow:0 5px 0 #A97B1E}
+h1{font:800 118px/.92 B;letter-spacing:-3px;margin-top:22px;color:#fff;text-shadow:0 6px 0 #0f2b3f}
+h2{font:800 68px/1 B;color:#F2B544;margin-top:10px;text-shadow:0 5px 0 #0f2b3f;letter-spacing:-1px}
+.pets{display:flex;gap:12px;margin-top:30px}
+.pets span{width:76px;height:76px;border-radius:50%;background:rgba(255,255,255,.14);display:grid;place-items:center;font-size:44px}
+.ring{position:absolute;right:66px;top:72px;width:486px;height:486px;border-radius:50%;background:#F2B544;padding:16px;box-shadow:0 10px 0 #A97B1E,0 30px 60px rgba(0,0,0,.35);z-index:2}
+.ring i{display:block;width:100%;height:100%;border-radius:50%;border:8px solid #fff;background:url(og-nova.jpg) center 35%/cover}
+.medal{position:absolute;right:52px;top:400px;width:170px;height:170px;border-radius:50%;background:radial-gradient(circle,#ffd77a 0 55%,#F2B544 56% 100%);box-shadow:0 7px 0 #A97B1E;display:grid;place-items:center;z-index:3;font:800 44px/1 B;color:#1E1B17;text-align:center;transform:rotate(-8deg)}
+.medal small{display:block;font:800 22px J;letter-spacing:.06em}
+.tag{position:absolute;right:400px;top:470px;background:#E0566E;color:#fff;font:800 40px B;padding:8px 30px;border-radius:999px;box-shadow:0 6px 0 #a83a50;z-index:3;transform:rotate(-4deg)}
+.c{position:absolute;z-index:1;border-radius:3px}
 </style></head><body>
 <div class="l">
-  <div class="brand"><img src="../img/brand/nova-head.svg" alt=""><span>Nova's Pack</span></div>
-  <h1>Level up<br>together<span>.</span></h1>
-  <p>Train, walk and explore with your dog. Skills level up, badges unlock, and you grow too. 1% a day.</p>
-  <div class="chips">
-    <span class="chip"><i class="dot" style="background:#1F4E6E"></i>Skills</span>
-    <span class="chip"><i class="dot" style="background:#C27A3A"></i>Adventures</span>
-    <span class="chip"><i class="dot" style="background:#F2B544"></i>Trainer ranks</span>
-  </div>
+  <span class="pill">FREE · NO ACCOUNT</span>
+  <h1>Tiny daily<br>wins</h1>
+  <h2>with your pet</h2>
+  <div class="pets"><span>🐶</span><span>🐱</span><span>🐰</span><span>🐔</span><span>🐴</span></div>
 </div>
-<div class="free">Free app · private on your phone · no account</div>
-<div class="ph"></div>
-<div class="lv">1% better today</div>
-<div class="host"><img src="../img/brand/nova-head.svg" alt="">Your host, Nova</div>
+<div class="ring"><i></i></div>
+<div class="tag">Nova</div>
+<div class="medal"><div><small>LEVEL</small>UP!</div></div>
+<i class="c" style="left:690px;top:60px;width:18px;height:30px;background:#F2B544;transform:rotate(30deg)"></i>
+<i class="c" style="left:640px;top:520px;width:16px;height:16px;border-radius:50%;background:#E0566E"></i>
+<i class="c" style="left:1150px;top:40px;width:22px;height:12px;background:#fff;transform:rotate(-20deg)"></i>
+<i class="c" style="left:700px;top:300px;width:12px;height:24px;background:#8EC1E0;transform:rotate(15deg)"></i>
+<i class="c" style="left:1160px;top:330px;width:14px;height:14px;border-radius:50%;background:#F2B544"></i>
+<i class="c" style="left:600px;top:40px;width:14px;height:14px;border-radius:50%;background:#fff"></i>
 </body></html>
