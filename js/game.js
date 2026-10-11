@@ -41,7 +41,7 @@ export const STATS = [
   { id: "confidence", label: "Confidence", skills: ["muzzle", "handling", "cat-carrier", "cat-handling"], adventures: true },
 ];
 /** Puppies (under 6 months) start with the basics that matter most at that age, lowest level first. */
-const PUPPY_FIRST = ["toilet-training", "handling", "settle", "alone-time"];
+const PUPPY_FIRST = ["toilet-training", "handling", "settle", "alone-time", "sit"];
 function puppyPick(ctx, sess, at, skip) {
   const st = stageOf(ctx.pet, at);
   if (!st || st.id !== "puppy") return null;
@@ -60,6 +60,7 @@ export const SHORT = {
   recall: "Recall", "loose-lead": "Loose lead", settle: "Settle", greetings: "Calm greetings", "leave-it": "Leave it",
   "wait-doors": "Wait at doors", handling: "Handling", "trick-spin": "Spin", muzzle: "Muzzle", "toilet-training": "Toilet training",
   "alone-time": "Alone time", "cat-carrier": "Carrier", "cat-handling": "Handling", "talk-buttons": "Talk buttons",
+  sit: "Sit", down: "Down", "check-in": "Check-in", "drop-it": "Drop it", stay: "Stay", "look-at-that": "Look at that",
 };
 
 export const SKILL_BADGES = [
@@ -71,6 +72,10 @@ export const SKILL_BADGES = [
   { id: "b-wait-doors", skill: "wait-doors", name: "Doorway", emoji: "🚪" },
   { id: "b-handling", skill: "handling", name: "Handling", emoji: "🖐️" },
   { id: "b-muzzle", skill: "muzzle", name: "Muzzle", emoji: "🛡️" },
+  { id: "b-check-in", skill: "check-in", name: "Check-in", emoji: "👀" },
+  { id: "b-drop-it", skill: "drop-it", name: "Swap Star", emoji: "🔄" },
+  { id: "b-stay", skill: "stay", name: "Statue", emoji: "🗿" },
+  { id: "b-look", skill: "look-at-that", name: "Brave Looker", emoji: "🦁" },
 ];
 export const MILESTONE_BADGES = [
   { id: "m-first", name: "First step", emoji: "🐣", need: "Log your first training session", sessions: 1 },

@@ -55,6 +55,25 @@ export const LESSONS = [
     sources: [RSPCA_BEH, DT_ADVICE, AVSAB],
   },
   {
+    id: "space",
+    title: "Worried dogs: space first",
+    emoji: "🌿",
+    minutes: 2,
+    intro: "Some dogs bark, lunge or freeze at other dogs, people or bikes. It usually isn't rudeness. It's \"too close, too fast\". Space is the kindest tool you have.",
+    parts: [
+      { h: "Find the comfy distance", p: "Every worried dog has a distance where they can notice the scary thing and still sniff, think and take food. Practise there. Too close, and learning stops." },
+      { h: "Pick your moments", p: "Walk at quieter times and places, cross the road, turn away, or step behind a parked car. Leaving is a skill, not a failure." },
+      { h: "Change the feeling", p: "Pair the scary thing with good things from a safe distance (the \"Look at that\" skill). When your dog feels better, the barking usually fades too." },
+      { h: "Get the right help", p: "If it's frequent, getting worse, or your dog has bitten, see your vet to rule out pain, then a qualified reward-based trainer or behaviourist. Never punish growling: it's an early warning." },
+    ],
+    takeaway: "Distance first. A calm dog can learn; a scared one can't.",
+    check: [
+      { q: "Your dog barks and lunges at a dog across the road. Best move?", options: ["Hold tight and walk past", "Calmly move further away, then reward calm looks", "Tell them off so they learn"], answer: 1, why: "More distance lets your dog calm down and learn. Telling off adds stress." },
+      { q: "Your dog growls when a stranger leans over them. What does the growl mean?", options: ["A warning: they need space", "Bad manners to punish", "Nothing, ignore it"], answer: 0, why: "Growling is communication. Give space, and work on what worries them. Punishing it can remove the warning, not the fear." },
+    ],
+    sources: [RSPCA_BEH, DT_ADVICE, AVSAB],
+  },
+  {
     id: "rewards",
     title: "Choosing rewards",
     emoji: "🧀",

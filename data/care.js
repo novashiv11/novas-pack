@@ -160,9 +160,19 @@ export const POOP_SCALE = [
   },
 ];
 
+// Rabbits get their own choices on the same 1 to 5 steps (3 is ideal, 4 and 5 are soft to runny), so the
+// "Call your vet" rules stay the same. Based on the RWAF and PDSA guidance on rabbit droppings.
+export const POOP_SCALE_RABBIT = [
+  { score: 1, emoji: "\u{1FAA8}", label: "Small, dry or fewer pellets", hint: "Smaller, drier or fewer droppings than usual can mean their gut is slowing down. Check they're eating hay and drinking, and call your vet if it carries on. None for 12 hours is an emergency." },
+  { score: 2, emoji: "\u{1F347}", label: "Soft, sticky clusters (caecotropes)", hint: "Shiny, grape-like clusters. Normal: rabbits eat them straight from their bottom. Lots left uneaten? Mention it to your vet." },
+  { score: 3, emoji: "✅", label: "Normal: round, dry pellets", hint: "Round, crumbly pellets about the size of a chickpea, and lots of them. This is what you want to see." },
+  { score: 4, emoji: "\u{1F366}", label: "Mushy or shapeless", hint: "Soft poop that isn't caecotropes can be a diet or health problem. Call your vet if it carries on, or today if your rabbit seems unwell." },
+  { score: 5, emoji: "\u{1F4A6}", label: "Runny", hint: "Runny poop in a rabbit needs your vet today. Check their bottom is clean too: a dirty bottom attracts flies." },
+];
+
 // Extra notes shown under the scale for one species.
 export const POOP_HINTS = {
-  rabbit: "Soft, sticky, grape-like clusters (caecotropes) are normal, and rabbits eat them. Worry about runny, shapeless poop.",
+  rabbit: "Rabbits should poop lots, every day. Tap the one that looks most like today's.",
 };
 
 // Optional extras the app can tick when logging a poop.

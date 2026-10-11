@@ -4,7 +4,7 @@
 
 import { S, pet, save, remove, removePet, adoptSample, setSetting, eventsOf, forPet, units, refresh, UI } from "./state.js";
 import { h, put, em, uid, sheet, toast, confirmBox, isoDate, addDays, addMonths, daysBetween, toLocalInput, fromLocalInput, resizePhoto, fmtDate, weeklyStreak, isoWeek, motionOK, buzz } from "./util.js";
-import { ALSO_NOTICED, scaleFor, skillsFor, medStatus, fromUnit, toUnit, medIsActive, recordStatus, currentRecords, healthAlerts, recordDoneCheck } from "./logic.js";
+import { ALSO_NOTICED, scaleFor, poopScale, skillsFor, medStatus, fromUnit, toUnit, medIsActive, recordStatus, currentRecords, healthAlerts, recordDoneCheck } from "./logic.js";
 import { saveErrorText } from "./db.js";
 import * as ics from "./ics.js";
 
@@ -13,6 +13,8 @@ export const SPECIES = [
   { id: "cat", label: "Cat", emoji: "🐱" },
   { id: "rabbit", label: "Rabbit", emoji: "🐰" },
   { id: "bird", label: "Bird", emoji: "🐦" },
+  { id: "chicken", label: "Chickens", emoji: "🐔" },
+  { id: "horse", label: "Horse", emoji: "🐴" },
   { id: "other", label: "Other", emoji: "🐾" },
 ];
 /** Icons a pet can have when there's no photo. The species' own emoji is the default. */
@@ -32,6 +34,7 @@ export const TYPES = {
   care: { emoji: "✨", label: "Care" },
   weight: { emoji: "⚖️", label: "Weight" },
   vet: { emoji: "🩺", label: "Vet visit" },
+  eggs: { emoji: "🥚", label: "Eggs" },
 };
 
 /** The Unwell checklist, in plain words. Ids are the shared contract with logic.js (healthAlerts). */
@@ -392,6 +395,8 @@ export const foodName = (f) => [f.brand, f.product].filter(Boolean).join(" ");
 const treatsInUse = () => forPet("foods").filter((f) => f.kind === "treat" && f.inUse !== false);
 
 export function logPoop() { return quickLog("poop", { score: 3 }, "a typical poop"); }
+/** Hens: how many eggs today (a number, so it opens the small form). */
+export function logEggs() { eventSheet("eggs"); }
 export function logMeal() {
   const cur = currentFood();
   const last = lastOf("meal");
@@ -448,18 +453,19 @@ export function eventSheet(type, existing, { details = false } = {}) {
     if (type === "poop") {
       const scaleBox = h("div.scale");
       const hint = h("p.hint.scale-hint", { "aria-live": "polite" });
-      S.content.POOP_SCALE.forEach((s) => {
+      const rabbit = p.species === "rabbit";
+      poopScale(p.id).forEach((s) => {
         const id = fid();
         const inp = h("input", { type: "radio", name: "score", id, value: String(s.score), checked: ev.score === s.score, onchange: () => { hint.textContent = s.hint; } });
         scaleBox.append(inp, h("label", { for: id }, h("span.em", { "aria-hidden": "true" }, s.emoji), h("span.sc-n", String(s.score)), h("span.sc-l", s.label)));
       });
-      if (ev.score) hint.textContent = (scaleFor(ev.score) || {}).hint || "";
+      if (ev.score) hint.textContent = (scaleFor(ev.score, p.id) || {}).hint || "";
       const spHint = (S.content.POOP_HINTS || {})[p.species];
       const flags = new Set(ev.flags || []);
       const checks = (list) => h("div.checks", list.map((f) => check(f.label, { value: f.id, checked: flags.has(f.id) }).row));
       parts.push(
         h("fieldset.fs", h("legend", "How did it look?"),
-          S.content.POOP_SCALE_NAME ? h("p.hint.scale-name", S.content.POOP_SCALE_NAME) : null,
+          !rabbit && S.content.POOP_SCALE_NAME ? h("p.hint.scale-name", S.content.POOP_SCALE_NAME) : null,
           spHint ? h("p.hint.sp-hint", spHint) : null, scaleBox, hint),
         h("fieldset.fs", h("legend", "Anything unusual?", opt()), checks(S.content.POOP_FLAGS)),
         h("fieldset.fs", h("legend", "Also noticed today", opt()), checks(ALSO_NOTICED)));
@@ -507,10 +513,16 @@ export function eventSheet(type, existing, { details = false } = {}) {
     }
 
     if (type === "weight") {
-      const u = units();
-      const w = h("input", { type: "number", inputmode: "decimal", min: "0", step: "0.01", required: true, value: ev.kg ? String(Math.round(toUnit(ev.kg, u) * 100) / 100) : "" });
+      const u = units(p);
+      const w = h("input", { type: "number", inputmode: "decimal", min: "0", step: u === "g" ? "1" : "0.01", required: true, value: ev.kg ? String(Math.round(toUnit(ev.kg, u) * 100) / 100) : "" });
       parts.push(field(`Weight in ${u}`, w));
       collect = () => { const v = parseFloat(w.value); return v > 0 ? { kg: fromUnit(v, u) } : { error: "Enter a weight above 0." }; };
+    }
+
+    if (type === "eggs") {
+      const n = h("input", { type: "number", inputmode: "numeric", min: "0", max: "500", step: "1", required: true, value: ev.count ?? "" });
+      parts.push(field("How many eggs?", n));
+      collect = () => { const v = parseInt(n.value, 10); return v >= 0 && v <= 500 ? { count: v } : { error: "Enter how many eggs (0 is fine)." }; };
     }
 
     if (type === "care") {

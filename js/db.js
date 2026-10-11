@@ -3,7 +3,8 @@
 // Stores (all keyed by `id`, except settings which is keyed by `key`):
 //   pets      { id, name, species, birthday?, homeSince?, photo?, allergies?, conditions?, sex?, vet?, insurer?, microchip?,
 //               neutered?, lastSeason?, training?, sample?, createdAt }
-//   events    { id, petId, type, at, ... }  type: poop | meal | treat | med | walk | training | weight | vet | symptom | care
+//   events    { id, petId, type, at, ... }  type: poop | meal | treat | med | walk | training | weight | vet | symptom | care | eggs
+//               eggs: { count } (a flock's eggs collected)
 //               symptom: { symptoms: [ids] } (ids in js/logic.js SYMPTOM_IDS); care: { task } (an id from CARE_TASKS)
 //   records   { id, petId, kind: vaccine|preventive, name, given, nextDue?, note? }
 //   meds      { id, petId, name, dose, freq, times, everyDays?, start, end?, note? }
@@ -23,7 +24,7 @@ export const SCHEMA = 2;
 export const STORES = ["pets", "events", "records", "meds", "foods", "settings", "adventures", "skillChecks", "academy", "journal", "daily"];
 /** Stores whose rows belong to one pet (they have a petId index and go when the pet is deleted). */
 const PET_STORES = ["events", "records", "meds", "foods", "adventures", "skillChecks"];
-const EVENT_TYPES = ["poop", "meal", "treat", "med", "walk", "training", "weight", "vet", "symptom", "care"];
+const EVENT_TYPES = ["poop", "meal", "treat", "med", "walk", "training", "weight", "vet", "symptom", "care", "eggs"];
 
 // ---------- storage health ----------
 
@@ -208,7 +209,7 @@ const CLEAN = {
     }
     return clean({
       id: r.id, name: str(r.name, 40),
-      species: ["dog", "cat", "rabbit", "bird", "other"].includes(r.species) ? r.species : "other",
+      species: ["dog", "cat", "rabbit", "bird", "chicken", "horse", "other"].includes(r.species) ? r.species : "other",
       birthday: date(r.birthday), homeSince: date(r.homeSince), photo: photo(r.photo), allergies: str(r.allergies, 1000), conditions: str(r.conditions, 1000),
       sex: r.sex === "male" || r.sex === "female" ? r.sex : undefined,
       vet: obj(r.vet, { name: (v) => str(v, 120), phone: (v) => str(v, 40), emergencyPhone: (v) => str(v, 40) }),
@@ -230,6 +231,7 @@ const CLEAN = {
       skillId: id(r.skillId), minutes: num(r.minutes), kg: num(r.kg), clinic: str(r.clinic, 120),
       symptoms: Array.isArray(r.symptoms) ? r.symptoms.filter((f) => id(f)).slice(0, 20) : undefined, task: id(r.task),
       mood: [1, 2, 3].includes(r.mood) ? r.mood : undefined,
+      count: Number.isInteger(r.count) && r.count >= 0 && r.count <= 500 ? r.count : undefined,
       sample: r.sample === true || undefined,
     });
   },

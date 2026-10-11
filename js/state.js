@@ -39,7 +39,11 @@ export function forPet(store, petId = pet() && pet().id) {
 export function eventsOf(type, petId = pet() && pet().id) {
   return S.events.filter((e) => e.petId === petId && e.type === type).sort((a, b) => b.at - a.at);
 }
-export function units() { return S.settings.units === "lb" ? "lb" : "kg"; }
+/** Weight unit: the user's kg/lb setting, except small pets (rabbits, birds) in grams when on kg. Always stored in kg. */
+export function units(p) {
+  const base = S.settings.units === "lb" ? "lb" : "kg";
+  return base === "kg" && p && ["rabbit", "bird", "chicken"].includes(p.species) ? "g" : base;
+}
 
 export async function save(store, row, { quiet } = {}) {
   await db.put(store, row);
@@ -96,7 +100,7 @@ export async function wipe() {
 
 // ---------- v1.1 helpers ----------
 /** Diary entries that count as "a log" for onboarding and nudges (not weights or vet visits). */
-export const LOG_TYPES = ["poop", "meal", "treat", "med", "walk", "training", "symptom", "care"];
+export const LOG_TYPES = ["poop", "meal", "treat", "med", "walk", "training", "symptom", "care", "eggs"];
 export function realPets() { return S.pets.filter((p) => !p.sample); }
 /** Logs for one pet, or for every real (non-sample) pet when petId is omitted. */
 export function logsOf(petId) {

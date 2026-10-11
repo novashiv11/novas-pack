@@ -126,7 +126,12 @@ export function dueItems(petId) {
 }
 
 // ---------- poop ----------
-export function scaleFor(score) { return S.content.POOP_SCALE.find((s) => s.score === score); }
+/** The poop scale for a pet (rabbits have their own words on the same 1 to 5 steps). */
+export function poopScale(petId) {
+  const p = S.pets.find((x) => x.id === (petId || S.settings.currentPet));
+  return p && p.species === "rabbit" && S.content.POOP_SCALE_RABBIT ? S.content.POOP_SCALE_RABBIT : S.content.POOP_SCALE;
+}
+export function scaleFor(score, petId) { return poopScale(petId).find((s) => s.score === score); }
 export function flagLabel(id) {
   const f = S.content.POOP_FLAGS.find((x) => x.id === id) || ALSO_NOTICED.find((x) => x.id === id);
   return f ? f.label : id;
@@ -232,7 +237,7 @@ function symptomRules(p, now, events) {
   const add = (key, level, reason, gid, advice) => out.push({ key, level, reason, gid, advice });
   const in24 = (id) => logs.filter((e) => now - e.at < DAY && e.symptoms.includes(id));
   const vul = vulnerability(p, now);
-  const sp = p.species;
+  const sp = p.species === "chicken" ? "bird" : p.species; // hens follow the bird rules
   const small = sp === "bird" || sp === "other";
 
   // "Unresolved": logged within the last 14 days and nothing since that shows it's better (a meal for not eating, a poop for no droppings).
@@ -366,11 +371,11 @@ export function poopWeek(petId, now = Date.now()) {
 }
 
 // ---------- weight ----------
-export const toUnit = (kg, u) => (u === "lb" ? kg * 2.20462 : kg);
-export const fromUnit = (v, u) => (u === "lb" ? v / 2.20462 : v);
+export const toUnit = (kg, u) => (u === "lb" ? kg * 2.20462 : u === "g" ? kg * 1000 : kg);
+export const fromUnit = (v, u) => (u === "lb" ? v / 2.20462 : u === "g" ? v / 1000 : v);
 export function fmtWeight(kg, u) {
   const v = toUnit(kg, u);
-  return `${v >= 100 ? Math.round(v) : Math.round(v * 10) / 10} ${u}`;
+  return `${v >= 100 || u === "g" ? Math.round(v) : Math.round(v * 10) / 10} ${u}`;
 }
 
 // ---------- training ----------

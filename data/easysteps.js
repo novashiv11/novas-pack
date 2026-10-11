@@ -139,6 +139,66 @@ export const EASY = {
     ],
     win: "One calm paw touch is a win.",
   },
+  sit: {
+    need: "tiny treats",
+    steps: [
+      "Hold a treat at your dog's nose.",
+      "Move it slowly up over their head. Their bottom goes down!",
+      "Bottom on the floor? Say \"yes!\" and give the treat.",
+      "Do it 5 times. Then try the same hand move with no treat in it.",
+    ],
+    win: "Your dog sits when your hand moves. Magic.",
+  },
+  down: {
+    need: "tiny treats and a rug",
+    steps: [
+      "Your dog sits on a rug.",
+      "Hold a treat at their nose and slowly move it down to the floor.",
+      "Elbows on the floor? Say \"yes!\" and put the treat on the floor.",
+      "Only head down? Still say \"yes!\". Little steps count.",
+    ],
+    win: "Your dog lies down to follow your hand.",
+  },
+  "check-in": {
+    need: "tiny treats",
+    steps: [
+      "Say your dog's name once, in a happy voice.",
+      "They look at you? Say \"yes!\" and give a treat.",
+      "Move to another spot in the room and do it again.",
+      "On a walk, they look back at you by themselves? Treat!",
+    ],
+    win: "Your dog turns to you when you say their name.",
+  },
+  "drop-it": {
+    need: "a toy and tasty treats",
+    steps: [
+      "Play with a toy. Hold a tasty treat at your dog's nose.",
+      "They let go of the toy? Say \"yes!\" and give the treat.",
+      "Give the toy back and play again.",
+      "Never chase. Always swap for something better.",
+    ],
+    win: "Your dog lets go when you offer a swap.",
+  },
+  stay: {
+    need: "tiny treats",
+    steps: [
+      "Your dog sits. Count 1 second, then \"yes!\" and a treat.",
+      "Say \"free!\" and let them get up.",
+      "Next time count 2 seconds, then 3, then 5.",
+      "Take one step away and straight back. Treat, then \"free!\".",
+    ],
+    win: "Your dog waits 5 seconds with you a step away.",
+  },
+  "look-at-that": {
+    need: "tasty treats and lots of space",
+    steps: [
+      "Stand far away from what worries your dog (another dog, a bike).",
+      "Your dog looks at it? Say \"yes!\" and give a treat.",
+      "Barking or not eating? Move further away. That's OK.",
+      "Short and calm. Then go somewhere quiet for a sniff.",
+    ],
+    win: "Your dog looks at the scary thing, then back at you.",
+  },
   "talk-buttons": {
     need: "a recordable button and tiny snacks",
     steps: [

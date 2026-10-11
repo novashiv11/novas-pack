@@ -14,12 +14,12 @@ The CEO (Claude, the main session) owns this list: it adds new requests, sets th
 | CRQ-006 | "Agent org" with a CEO reporting to Shiv; master prompt in `docs/org-prompt.md` | Shiv | P1 | CEO | Done |
 | CRQ-007 | Archive a pet (fosters, rehomed) and keep the human's XP and diary | Persona test | P2 | — | Planned |
 | CRQ-008 | Care-only mode (hide the game for people who only want the diary) | Persona test | P2 | — | Planned |
-| CRQ-009 | Egg and flock counts; species-aware logs for hens | Persona test | P3 | — | Planned |
-| CRQ-010 | Rabbit poop options (pellets, soft clusters) and gram weights | Persona test | P2 | — | Planned |
+| CRQ-009 | Egg and flock counts; species-aware logs for hens | Persona test | P3 | — | Done (12 Oct: "Chickens" species, egg count tile with the week total; hens follow bird health rules) |
+| CRQ-010 | Rabbit poop options (pellets, soft clusters) and gram weights | Persona test | P2 | — | Done (12 Oct: rabbit poop choices on the same 1 to 5 safety steps; grams for rabbits, birds, hens) |
 | CRQ-011 | Share: caption and hashtags, a Story (9:16) size, hide empty stats on the card | Persona test | P2 | — | Done (11 Oct: Story size, caption, empty stats hidden) |
-| CRQ-012 | Skill-specific self-check ladders (alone time in minutes, toilet, tricks) | Persona test | P2 | — | Planned |
-| CRQ-013 | Basic skills: sit, down, name/check-in, drop it, stay | Persona test | P2 | — | Planned |
-| CRQ-014 | Reactive and shy dog path: a lesson on space and distance, a "look at that" skill | Persona test | P2 | — | Planned |
+| CRQ-012 | Skill-specific self-check ladders (alone time in minutes, toilet, tricks) | Persona test | P2 | — | Done (12 Oct: own ladders for stay, look at that, alone time, toilet training) |
+| CRQ-013 | Basic skills: sit, down, name/check-in, drop it, stay | Persona test | P2 | — | Done (12 Oct: sit, down, name and check-in, drop it, stay) |
+| CRQ-014 | Reactive and shy dog path: a lesson on space and distance, a "look at that" skill | Persona test | P2 | — | Done (12 Oct: "Look at that" skill + "Worried dogs: space first" lesson) |
 | CRQ-015 | Early badges (first session, first stamp, first lesson, 3 days) | Persona test | P2 | — | Done (12 Oct: first step, three days, first stamp) |
 | CRQ-016 | Region-aware notes (Irish muzzle law shown only where relevant) | Persona test | P3 | — | Done (12 Oct: Irish law note only for Irish phones) |
 | CRQ-017 | Faster first load on slow networks (bundle the JS) | Persona test | P3 | — | Planned |

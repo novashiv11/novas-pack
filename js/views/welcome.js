@@ -5,7 +5,7 @@
 import { quizSkills } from "./placement.js";
 import { S, pet, refresh, UI, setSetting } from "../state.js";
 import { h, put, em, toast, motionOK } from "../util.js";
-import { eventSheet, unwellSheet, logPoop, logMeal, logTreat, logWalk, logMed, petForm, field, textIn } from "../forms.js";
+import { eventSheet, unwellSheet, logPoop, logMeal, logEggs, logTreat, logWalk, logMed, petForm, field, textIn } from "../forms.js";
 import { subBar, NOVA } from "./parts.js";
 import { addSample } from "../sample.js";
 import { importForm } from "./more.js";
@@ -60,7 +60,7 @@ export function welcome(main, arg) {
 // ---------- app-shell hooks ----------
 
 /** #/quick/<type> (home-screen shortcuts) lands here, after app.js has drawn the screen. */
-const QUICK = { poop: logPoop, meal: logMeal, treat: logTreat, walk: logWalk, med: logMed, medicine: logMed,
+const QUICK = { poop: logPoop, meal: logMeal, treat: logTreat, walk: logWalk, med: logMed, medicine: logMed, eggs: logEggs,
   training: () => trainingPicker(pet()), unwell: () => unwellSheet(), symptom: () => unwellSheet(), weight: () => eventSheet("weight"), vet: () => eventSheet("vet") };
 export function openQuickLog(type) {
   if (!pet()) return;

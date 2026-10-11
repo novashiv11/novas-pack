@@ -8,8 +8,8 @@ import { h, put, em, weeklyStreak, motionOK, fmtDay, fmtTime, toast, confirmBox,
 import { skillsFor, progressOf } from "../logic.js";
 import { pageHead, subBar, sampleStrip, NOVA, moreBtn } from "./parts.js";
 import { speciesOf, eventSheet } from "../forms.js";
-import { gameOf, pips, bar, levelText, skillName, startSession, selfCheck, logSession, trainingPicker, howTo } from "./gameui.js";
-import { LEVEL_REQ, LEVEL_PLACE, CAPS, countedSessions, dayKey, weekBounds } from "../game.js";
+import { gameOf, pips, bar, levelText, placeFor, skillName, startSession, selfCheck, logSession, trainingPicker, howTo } from "./gameui.js";
+import { LEVEL_REQ, CAPS, countedSessions, dayKey, weekBounds } from "../game.js";
 
 const GROUPS = ["Foundation", "Next steps", "Fun"];
 
@@ -61,7 +61,7 @@ export function training(main, arg, sub) {
   const other = skills.filter((s) => !GROUPS.includes(s.level));
   if (other.length) put(main, h("ul.skill-list", other.map((s) => skillRow(s, a.progress[s.id]))));
   put(main, h("details.fold.how-levels", h("summary", "How levels work"),
-    h("p.small", `Levels need ${LEVEL_REQ.slice(1).join(", ")} sessions, each with a self-check at a harder place: home, garden, street, park. Up to ${CAPS.sessions} sessions per skill, and ${CAPS.sessionsPerDay} in total, count each day.`),
+    h("p.small", `Levels need ${LEVEL_REQ.slice(1).join(", ")} sessions, each with a self-check at a harder place: home, garden, street, park (or, for skills like stay and alone time, a little longer each time). Up to ${CAPS.sessions} sessions per skill, and ${CAPS.sessionsPerDay} in total, count each day.`),
     h("p.small", "Every 4 weeks of practice earns a grace week (up to 2), so one busy week won't break your practice weeks."),
     h("p.small", "💛 Kind methods only: treats, toys and praise. No shouting, no shock, prong or choke collars.")));
 }
@@ -113,11 +113,11 @@ function skillPage(main, p, sk) {
         h("div",
           h("p.eyebrow", `${sk.level} · ${sk.minutes} min a session`),
           h("h2", { id: "lv-h" }, `Level ${pr.level}`, h("span.lv-of", " of 5")),
-          h("p.small", pr.level ? `Works ${LEVEL_PLACE[pr.level].where}.` : "Just starting. Everyone does.")),
+          h("p.small", pr.level ? `Works ${placeFor(sk.id, pr.level).where}.` : "Just starting. Everyone does.")),
         pips(pr.level),
         lastCheck ? moreBtn(`${sk.title} level`, [[`Undo the level ${pr.level} check`, () => undoCheck(p, sk, pr.level, lastCheck)]]) : null),
       pr.next ? [
-        h("p.lv-next", h("b", `Level ${pr.next}: `), `${LEVEL_REQ[pr.next]} sessions, and it works ${LEVEL_PLACE[pr.next].where}.`),
+        h("p.lv-next", h("b", `Level ${pr.next}: `), `${LEVEL_REQ[pr.next]} sessions, and it works ${placeFor(sk.id, pr.next).where}.`),
         bar(Math.min(pr.sessions, pr.need) - LEVEL_REQ[pr.level], pr.need - LEVEL_REQ[pr.level], "gold"),
         h("p.small.muted", `${pr.sessions} counted session${pr.sessions === 1 ? "" : "s"} · ${pr.ready ? "enough for the next level" : `${pr.toGo} to go`}`),
         pr.ready ? h("div.ready-box",

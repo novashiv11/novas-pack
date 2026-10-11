@@ -5,10 +5,11 @@ import { doItNowCard } from "./doitnow.js";
 import { S, pet, setSetting, save, logsOf, LOG_TYPES } from "../state.js";
 import { h, put, em, fmtDate, isoDate, ageText, sinceText, isAnniversary, DAY, toast } from "../util.js";
 import { healthAlerts, backupDue, dueItems, dueText } from "../logic.js";
-import { logWalk, logMeal, logTreat, logPoop, speciesOf, openPetSheet, saveError, markGiven, doneRecord } from "../forms.js";
+import { logWalk, logMeal, logTreat, logPoop, logEggs, speciesOf, openPetSheet, saveError, markGiven, doneRecord } from "../forms.js";
 import { sampleStrip, alertCard, avatar, chevron } from "./parts.js";
 import { gameOf, trainerFor, trainerName, bar, ring, badgeChip, trainingPicker, howTo } from "./gameui.js";
 import { openPartnerCard, openLineCard } from "../sharecard.js";
+import { weekBounds } from "../game.js";
 import { lineOfDay, youActionOfDay, replyOfDay } from "../../data/quotes.js";
 import { exportBackup } from "./more.js";
 import { installCard } from "../install.js";
@@ -213,9 +214,17 @@ function quickLog(p) {
     h("div.ql-grid.home-ql.ql-5",
       tile("meal", "🍽️", "Meal", { onclick: logMeal }),
       tile("treat", "🦴", "Treat", { onclick: logTreat }),
+      p.species === "chicken" ? tile("eggs", "🥚", eggLabel(p), { onclick: logEggs }) : null,
       tile("poop", "💩", "Poop", { onclick: logPoop }),
       p.species === "dog" ? tile("walk", "🚶", "Walk", { onclick: logWalk }) : tile("unwell", "😟", "Unwell?", { href: "#/health/unwell" }),
-      tile("training", "🎓", "Train", { onclick: () => trainingPicker(p) })));
+      p.species === "chicken" ? null : tile("training", "🎓", "Train", { onclick: () => trainingPicker(p) })));
+}
+
+/** "Eggs" with this week's count, e.g. "Eggs · 12". */
+function eggLabel(p) {
+  const [w0] = weekBounds(Date.now());
+  const n = S.events.filter((e) => e.petId === p.id && e.type === "eggs" && e.at >= w0).reduce((t, e) => t + (e.count || 0), 0);
+  return n ? `Eggs · ${n}` : "Eggs";
 }
 
 function badgeRow(a) {

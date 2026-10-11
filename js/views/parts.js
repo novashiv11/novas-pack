@@ -107,7 +107,7 @@ export function cardTitle(text, onEdit, k) {
 export function eventText(e) {
   switch (e.type) {
     case "poop": {
-      const s = scaleFor(e.score);
+      const s = scaleFor(e.score, e.petId);
       const bits = [s ? s.label.split(":")[0] : "Logged"];
       if (e.flags && e.flags.length) bits.push(e.flags.map(flagLabel).map((l) => l.split(" (")[0]).join(", "));
       return bits.join(" · ");
@@ -115,12 +115,13 @@ export function eventText(e) {
     case "meal": case "treat": return [e.name, e.amount].filter(Boolean).join(" · ") || (e.type === "meal" ? "Meal" : "Treat");
     case "med": return e.name || "Medicine";
     case "walk": return e.minutes ? `${e.minutes} min` : "Walk";
+    case "eggs": return `${e.count ?? 0} egg${e.count === 1 ? "" : "s"}`;
     case "training": {
       const sk = S.content.SKILLS.find((s) => s.id === e.skillId);
       return [sk ? sk.title : "General practice", e.minutes ? `${e.minutes} min` : ""].filter(Boolean).join(" · ");
     }
     case "symptom": return (e.symptoms || []).map((id) => symptomLabel(id).split(" (")[0].split(",")[0]).join(", ") || "Unwell";
-    case "weight": return fmtWeight(e.kg, units());
+    case "weight": return fmtWeight(e.kg, units(S.pets.find((x) => x.id === e.petId)));
     case "vet": return [e.clinic, e.note].filter(Boolean).join(" · ") || "Vet visit";
     default: return "";
   }

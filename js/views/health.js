@@ -130,7 +130,7 @@ function poopSection(main, p) {
   const week = poopWeek(p.id);
   const strip = h("ol.week-strip", { "aria-label": "Poops in the last 7 days" }, week.map((d) => {
     const label = new Date(d.day).toLocaleDateString(undefined, { weekday: "short" });
-    const s = scaleFor(d.worst);
+    const s = scaleFor(d.worst, p.id);
     const desc = `${new Date(d.day).toLocaleDateString(undefined, { weekday: "long" })}: ${d.count} poop${d.count === 1 ? "" : "s"}${d.flagged ? ", something unusual noted" : ""}${d.count && s ? `, least typical: ${s.label}` : ""}`;
     return h(`li.ws-day${d.flagged ? ".flag" : ""}${d.count && d.worst !== 3 && d.worst !== 2 ? ".off" : ""}${d.count ? ".has" : ""}`,
       h("span.ws-l", { "aria-hidden": "true" }, label),
@@ -269,10 +269,10 @@ function medCard(p, m) {
 
 // ---------- weight ----------
 function weight(main, p) {
-  const u = units();
+  const u = units(p);
   const list = eventsOf("weight");
   const latest = list[0];
-  const input = h("input", { type: "number", inputmode: "decimal", min: "0", step: "0.1", id: "w-in", required: true });
+  const input = h("input", { type: "number", inputmode: "decimal", min: "0", step: u === "g" ? "1" : "0.1", id: "w-in", required: true });
   const err = h("p.form-error", { role: "alert" });
   const form = h("form.inline-form", { novalidate: true, onsubmit: async (e) => {
     e.preventDefault();
@@ -289,7 +289,7 @@ function weight(main, p) {
   if (list.length > 1) {
     const prev = list.find((e) => latest.at - e.at > 25 * DAY) || list[list.length - 1];
     const d = toUnit(latest.kg - prev.kg, u);
-    change = `${d >= 0 ? "+" : "−"}${Math.abs(Math.round(d * 10) / 10)} ${u} since ${fmtDate(prev.at, { day: "numeric", month: "short" })}`;
+    change = `${d >= 0 ? "+" : "−"}${Math.abs(u === "g" ? Math.round(d) : Math.round(d * 10) / 10)} ${u} since ${fmtDate(prev.at, { day: "numeric", month: "short" })}`;
   }
   const chart = h("div.chart", { id: "weight-chart" });
   put(main,
@@ -384,7 +384,7 @@ function vet(main, p) {
 // ---------- printable vet summary ----------
 export function summary(main) {
   const p = pet();
-  const u = units();
+  const u = units(p);
   if (!p.sample && !S.settings.summaryViewed) setSetting("summaryViewed", Date.now()).catch(() => {});
   const food = forPet("foods").find((f) => f.kind === "food" && !f.until);
   const treats = forPet("foods").filter((f) => f.kind === "treat" && f.inUse !== false);
@@ -438,7 +438,7 @@ export function summary(main) {
       unwell.length ? h("ul", unwell.map((e) => h("li", `${fmtDate(e.at, { day: "numeric", month: "short" })} ${fmtTime(e.at)}: ${(e.symptoms || []).map(symptomLabel).join("; ")}${e.note ? ` · "${e.note}"` : ""}`))) : h("p", "Nothing logged."),
       h("h3", "Poop notes, last 14 days"),
       flagged.length ? h("ul", flagged.map((e) => {
-        const s = scaleFor(e.score);
+        const s = scaleFor(e.score, e.petId);
         return h("li", `${fmtDate(e.at, { day: "numeric", month: "short" })} ${fmtTime(e.at)}: ${s ? `Type ${e.score}, ${s.label}` : ""}${e.flags && e.flags.length ? ` · ${e.flags.map(flagLabel).join(", ")}` : ""}${e.note ? ` · "${e.note}"` : ""}`);
       })) : h("p", `Nothing unusual logged (${eventsOf("poop").filter((e) => e.at >= since).length} poops logged).`),
       h("h3", "Recent vet visits"),

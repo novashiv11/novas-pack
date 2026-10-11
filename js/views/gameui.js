@@ -64,12 +64,12 @@ function changes(p, a, before, after) {
     const was = before.skills[id] || 0;
     if (L > was) {
       const sk = (S.content.SKILLS || []).find((s) => s.id === id) || { id, title: id };
-      items.push({ emoji: "⭐", title: `${skillName(sk)} reached level ${L}: ${G.LEVEL_PLACE[L].short}.`, text: "Nova approves.",
-        share: { kind: "level", title: `Level ${L}: ${skillName(sk)}`, sub: `Now ${G.LEVEL_PLACE[L].short}`, emoji: sk.emoji || "⭐" } });
+      items.push({ emoji: "⭐", title: `${skillName(sk)} reached level ${L}: ${placeFor(id, L).short}.`, text: "Nova approves.",
+        share: { kind: "level", title: `Level ${L}: ${skillName(sk)}`, sub: `Now ${placeFor(id, L).short}`, emoji: sk.emoji || "⭐" } });
     }
   }
   for (const b of a.badges) {
-    if (b.earned && !before.badges.has(b.id)) items.push({ emoji: b.emoji, badge: true, title: `New badge: ${b.name}`, text: b.kind === "skill" ? `${p.name} can do it in the garden now. Real progress.` : `${b.need}: done. That's showing up.`,
+    if (b.earned && !before.badges.has(b.id)) items.push({ emoji: b.emoji, badge: true, title: `New badge: ${b.name}`, text: b.kind === "skill" ? `${p.name} reached level ${G.SKILL_BADGE_LEVEL}: ${placeFor(b.skill, G.SKILL_BADGE_LEVEL).short}. Real progress.` : `${b.need}: done. That's showing up.`,
       share: { kind: "badge", title: b.name, sub: "New badge", emoji: b.emoji } });
   }
   if (after.level > before.level) items.push({ emoji: "🎉", title: `${p.name} reached level ${after.level}`, text: "Small steps, adding up.",
@@ -220,12 +220,17 @@ export function badgeChip(b, { showName = true } = {}) {
     h("span.badge-disc", { "aria-hidden": "true" }, b.earned ? b.emoji : "🔒"),
     showName ? h("span.badge-name", b.name) : null);
 }
+/** What level L means for this skill: its own ladder (time, steps) if it has one, else home → garden → street → park. */
+export function placeFor(skillId, L) {
+  const sk = (S.content.SKILLS || []).find((s) => s.id === skillId);
+  return (sk && sk.ladder && sk.ladder[L]) || G.LEVEL_PLACE[L];
+}
 export function levelText(pr) {
   if (!pr) return "";
-  if (pr.level >= 5) return "Level 5: works anywhere. Top marks.";
+  if (pr.level >= 5) return `Level 5: works ${placeFor(pr.skillId, 5).where}. Top marks.`;
   if (pr.ready) return `Ready for level ${pr.next}: do the self-check`;
   if (pr.needDay) return `Level ${pr.next}: practise on one more day, then do the self-check`;
-  return `Level ${pr.next}: ${pr.toGo} more session${pr.toGo === 1 ? "" : "s"}, then works ${G.LEVEL_PLACE[pr.next].where}`;
+  return `Level ${pr.next}: ${pr.toGo} more session${pr.toGo === 1 ? "" : "s"}, then works ${placeFor(pr.skillId, pr.next).where}`;
 }
 
 // ---------- simple steps ("so a child can follow") ----------
@@ -360,7 +365,7 @@ export function startSession(p, sk, { seconds } = {}) {
 
 /** The honest self-check before a level-up: "Did it work 4 out of 5 times …?" Yes / Not yet. */
 export function selfCheck(p, sk, level) {
-  const where = G.LEVEL_PLACE[level].where;
+  const where = placeFor(sk.id, level).where;
   sheet(`Level ${level} check: ${skillName(sk)}`, (body, close) => {
     put(body,
       h("p.check-q", `Honest answer, no judgement: did ${skillName(sk).toLowerCase()} work for ${p.name} about 4 out of 5 times ${where}?`),

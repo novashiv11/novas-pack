@@ -171,6 +171,7 @@ async function loadContent() {
   c.VACCINES = care.VACCINES || {};
   c.PREVENTIVES = care.PREVENTIVES || {};
   c.POOP_SCALE = Array.isArray(care.POOP_SCALE) && care.POOP_SCALE.length ? care.POOP_SCALE : [1, 2, 3, 4, 5].map((n) => ({ score: n, emoji: "", label: ["Very hard", "Firm", "Ideal", "Soft", "Watery"][n - 1], hint: "" }));
+  c.POOP_SCALE_RABBIT = Array.isArray(care.POOP_SCALE_RABBIT) && care.POOP_SCALE_RABBIT.length ? care.POOP_SCALE_RABBIT : c.POOP_SCALE;
   c.POOP_SCALE_NAME = typeof care.POOP_SCALE_NAME === "string" ? care.POOP_SCALE_NAME : "";
   c.POOP_HINTS = care.POOP_HINTS && typeof care.POOP_HINTS === "object" ? care.POOP_HINTS : {};
   c.POOP_FLAGS = Array.isArray(care.POOP_FLAGS) ? care.POOP_FLAGS : [];
