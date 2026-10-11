@@ -11,7 +11,7 @@ Handoff summary for Claude Code. Read this first, then `docs/00-master-brief.md`
 ## Repo map
 | Path | What |
 |---|---|
-| `index.html` + `app.css` + `js/` | **The app: "Level up together"** (PWA). `js/app.js` router, `js/db.js` IndexedDB + backup (schema v2), `js/game.js` pure XP/level/rank/badge logic (derived, never stored), `js/logic.js` due/red-flag logic, `js/views/*` screens (welcome, home, training, adventures, trainer, journal, health, food, more, gameui), `js/sharecard.js` partner share image, `js/ics.js` calendar files, `js/sample.js` labelled sample data. |
+| `index.html` + `app.css` + `js/` | **The app: "Level up together"** (PWA). `js/app.js` router, `js/db.js` IndexedDB + backup (schema v2), `js/game.js` pure XP/level/rank/badge logic (derived, never stored), `js/logic.js` due/red-flag logic, `js/views/*` screens (welcome, home, training, adventures, trainer, journal, health, food, more, gameui, placement level check, studio art, ready "no pet yet" checklist), `js/scenes.js` + `data/scenes.js` drawn step pictures, `js/sharecard.js` partner share image, `js/ics.js` calendar files, `js/sample.js` labelled sample data. |
 | `data/` | Content: `skills.js` (20 reward-based skills), `care.js` (vaccines/preventives/poop scale/red flags, sourced), `adventures.js` (Adventure Book stamps), `academy.js` (Trainer Academy lessons), `quotes.js` (Nova's daily lines + a few attributed quotes). Vet-first; no doses. |
 | `clips/` | Drop training clips here as `<skill-id>.mp4` (muted, <3 MB). Missing clip → "Clip coming soon". |
 | `manifest.webmanifest`, `sw.js`, `img/icons/` | PWA install + offline. **Bump `VERSION` in sw.js on every app change.** |

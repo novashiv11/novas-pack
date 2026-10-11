@@ -2,7 +2,7 @@
 
 The **co-captain** (Claude, the main session) updates this file after every step and commits it, so no work is lost when a session stops or hits a usage limit. The full backlog is in `docs/crq.md` and decisions are in `docs/decisions.md`.
 
-**Last updated:** 11 Oct 2026, night (Sprint 2 + GUI pass v2 shipped).
+**Last updated:** 12 Oct 2026 (all buildable CRQs done; final QA running).
 
 ## How we never lose work
 1. Every request from Shiv goes into `docs/crq.md` first, with an ID, before any work starts.
@@ -11,33 +11,25 @@ The **co-captain** (Claude, the main session) updates this file after every step
 4. Agents write into files in the repo (never only into chat), and the co-captain commits their work as soon as each agent finishes.
 5. If an agent dies at a limit, its CRQ goes back to "Planned" here, along with whatever partial files it left.
 
-## Now (Sprint 2: "Fun, simple, less text", plus business)
+## Now (12 Oct: "Finish all tasks")
 
-| CRQ | What | State |
-|---|---|---|
-| 027 | Duolingo lessons (`docs/duolingo-lessons.md`) applied | Done |
-| 028 | This STATUS file | Done |
-| 029 | Welcome: "Tiny daily wins. For you and your pet.", "Add my pet" / "No pet yet? Peek inside", emoji grid | Done |
-| 030 | Level check: one question per screen, big cards, progress bar, results, then the first 1-minute win | Done |
-| 031 | "Mission complete!" screen: Nova pops, XP counts up, week dot fills, sticker drops, confetti | Done |
-| 033 | One-tap log on Home: Meal, Treat, Poop, Walk (or Unwell), Train | Done |
-| 034 | Less text: Home stats folded, extras as icon tiles, Train notes behind "How levels work" | Done (more in QA) |
-| 035 | "Plan" is now "⏰ When should Nova nudge you?": 4 one-tap times + calendar | Done |
-| 036 | Photos: tighter crop, colour lift, framed "photo sticker" look; step photos now show in "How?" (the cartoon filter looked worse) | Done |
-| 037 | Discord removed (privacy page, site.js, CLAUDE.md). Instagram/Facebook now, WhatsApp group later | Done |
-| 039/041 | `sponsor.html` (unlisted) + `docs/business-vets.md`: founding vet partner offer | Done; prices wait on Shiv |
-| 042 | Trophy card: "📸 Share this win" on Mission complete, level-ups, badges, week won (Story 9:16 or Post 4:5, caption) | Done |
-| 043 | Timer's dead "Keep at it" button removed (ring timer); full GUI pass by the designer agent from `docs/design-prompt.md` | Done |
-| 044 | QA fixes: only time together wins the day, cat-friendly content, first win = weakest skill, XP split, sample can't share | Done |
-| 045 | New link preview "Tiny daily wins with your pet" | Done |
-| 032 | Navigation: Android Back with a sheet open (QA 11), sheet close animation | Next |
-| 003 | Picture steps for every skill: `js/scenes.js` is a work in progress, not loaded | Planned |
+Everything buildable in `docs/crq.md` is done. What's left needs Shiv (below).
+
+| Batch | What shipped |
+|---|---|
+| A | Phone Back closes the top sheet (032); early badges First step / Three days / First stamp (015); Coach needs 5 lessons, Mentor 8 (025); Irish muzzle law only on Irish phones (016); "Home since" gotcha day (026); Story share (011) |
+| B | 6 new skills: sit, down, check-in, drop it, stay, look at that (013, 014); own level ladders for stay, look at that, alone time, toilet training (012); lesson "Worried dogs: space first"; rabbit poop choices and grams (010); Chickens with an Eggs tile, Horse (009) |
+| C | Archive a pet (007); Care diary only mode (008); "No pet yet? Get ready" checklist (024); faster first load (017) |
+| 003 | A drawn picture for every simple step of all 20 skills (`js/scenes.js`, `data/scenes.js`) |
+| QA | Final independent QA pass on a frozen copy: running; fixes follow |
 
 ## Waiting on Shiv
 - **CRQ-001:** pick our own name for "1% better every day". Recommended: **"Nova's Nudge"** (see `docs/research-psych.md`).
 - **CRQ-038:** location-based walk groups with a "people near you" counter. This needs a server, carries privacy and safety risk, and goes against the "online-only, no meetups" decision of 10 Oct. Shiv decides whether to revisit it (options in `docs/crq.md`).
 - **CRQ-019:** full name and an app email for the privacy page.
 - **CRQ-018:** Google Play account ($25), when ready.
+- **CRQ-023:** Learn with Nova paid content (milestone-gated money decision).
+- **TWA verification:** create the `novashiv11.github.io` repo so the Android app loses its address bar (`docs/android-app.md`).
 - **CRQ-039/041:** vet partner price (recommended: free 3 months for the first 3 to 5, then €29 a month; a Reel with Nova €150). Check tax and VAT registration and your day-job contract first.
 
 ## Done today (11 Oct)
