@@ -5,7 +5,7 @@
 // install.js first: it sets up the install prompt listener and the update-hook queue before any view module runs.
 import { doNow } from "./views/doitnow.js";
 import { isStandalone } from "./install.js";
-import { S, load, onChange, pet, setSetting } from "./state.js";
+import { S, load, onChange, pet, setSetting, activePets } from "./state.js";
 import { h, ago, toast } from "./util.js";
 import { onQuotaError, QUOTA_MESSAGE, persist } from "./db.js";
 import { welcome } from "./views/welcome.js";
@@ -16,16 +16,28 @@ import { adventures } from "./views/adventures.js";
 import { trainer } from "./views/trainer.js";
 import { journal } from "./views/journal.js";
 import { placement } from "./views/placement.js";
-import { studio } from "./views/studio.js";
+// The art studio (50 KB) loads the first time it's opened, not on the first visit; after that it draws straight away.
+let studioMod = null;
+function studio(main, ...args) {
+  if (studioMod) { studioMod.studio(main, ...args); return; }
+  main.append(h("p.boot", { role: "status" }, "Opening the art studio…"));
+  import("./views/studio.js").then((m) => {
+    studioMod = m;
+    if (route().name === "studio") { draw(); const t = document.getElementById("page-title"); if (t) t.focus({ preventScroll: true }); }
+  }).catch(() => {
+    main.replaceChildren(h("div.empty", h("h1", { tabindex: "-1", id: "page-title" }, "Couldn't open the art studio"), h("p", "Check your connection, then try again."), h("a.btn.btn-blue", { href: "#/home" }, "Back to Home")));
+  });
+}
+import { ready } from "./views/ready.js";
 import { more } from "./views/more.js";
 import { avatar } from "./views/parts.js";
 import { openPetSheet, eventSheet, medGivenSheet } from "./forms.js";
 
-const ROUTES = { home, train: training, adventures, health, summary, more, trainer, journal, welcome, placement, studio };
+const ROUTES = { home, train: training, adventures, health, summary, more, trainer, journal, welcome, placement, studio, ready };
 // Old v1 addresses (bookmarks, shortcuts) still land somewhere sensible.
 const ALIASES = { today: ["home"], training: ["train"], poop: ["health", "poop"], food: ["health", "food"] };
-const TAB_OF = { home: "home", trainer: "home", journal: "home", studio: "home", placement: "train", train: "train", adventures: "adventures", health: "health", summary: "health", more: "more" };
-const TITLES = { home: "Home", train: "Train", adventures: "Adventures", health: "Health", summary: "Vet summary", more: "More", trainer: "Trainer", journal: "Growth Journal", placement: "Level check", studio: "Art studio" };
+const TAB_OF = { home: "home", trainer: "home", journal: "home", studio: "home", ready: "more", placement: "train", train: "train", adventures: "adventures", health: "health", summary: "health", more: "more" };
+const TITLES = { home: "Home", train: "Train", adventures: "Adventures", health: "Health", summary: "Vet summary", more: "More", trainer: "Trainer", journal: "Growth Journal", placement: "Level check", studio: "Art studio", ready: "Get ready" };
 const HEALTH_QUICK = ["poop", "meal", "treat", "med", "weight", "vet", "symptom"];
 
 const main = document.getElementById("main");
@@ -58,8 +70,8 @@ function draw() {
     name = HEALTH_QUICK.includes(arg) ? "health" : "home"; arg = "";
     history.replaceState(null, "", `#/${name}`);
   }
-  if (!S.pets.length && name !== "welcome") { pendingQuick = ""; name = "welcome"; arg = ""; if (location.hash !== "#/welcome") history.replaceState(null, "", "#/welcome"); }
-  if (S.pets.length && name === "welcome") { name = "home"; arg = ""; history.replaceState(null, "", "#/home"); }
+  if (!activePets().length && name !== "welcome" && name !== "ready") { pendingQuick = ""; name = "welcome"; arg = ""; if (location.hash !== "#/welcome") history.replaceState(null, "", "#/welcome"); }
+  if (activePets().length && name === "welcome") { name = "home"; arg = ""; history.replaceState(null, "", "#/home"); }
   const key = `${name}/${arg}/${sub}`;
   const navigated = key !== lastRoute;
   lastRoute = key;
@@ -102,7 +114,7 @@ function drawChrome(name) {
   // pet switcher
   switcher.replaceChildren();
   if (name !== "welcome" && p) {
-    for (const x of S.pets) {
+    for (const x of activePets()) {
       const on = x.id === p.id;
       switcher.append(h("button.pet-chip", { type: "button", "aria-pressed": String(on), onclick: () => switchTo(x.id) },
         avatar(x, 32), h("span.pet-chip-name", x.name), x.sample ? h("span.sample-dot", "SAMPLE") : null));
@@ -111,9 +123,9 @@ function drawChrome(name) {
       h("span.avatar.av-add", { "aria-hidden": "true" }, "+"), h("span.pet-chip-name", "Add pet")));
   }
   // The bar shows with 2+ pets (to switch). With one real pet it shows until "Hide" (Add pet stays in More → Pets).
-  const real = S.pets.filter((x) => !x.sample).length;
-  const show = name !== "welcome" && !!p && (S.pets.length > 1 || (real === 1 && !S.settings.addBarHidden));
-  if (show && S.pets.length === 1) {
+  const real = activePets().filter((x) => !x.sample).length;
+  const show = name !== "welcome" && !!p && (activePets().length > 1 || (real === 1 && !S.settings.addBarHidden));
+  if (show && activePets().length === 1) {
     switcher.append(h("button.pet-chip.bar-hide", { type: "button", "data-k": "bar-hide", onclick: async () => {
       await setSetting("addBarHidden", true);
       drawChrome(name);
@@ -124,7 +136,8 @@ function drawChrome(name) {
   appbar.classList.toggle("show", show);
   // bottom nav
   const tab = TAB_OF[name];
-  tabbar.hidden = name === "welcome";
+  tabbar.hidden = name === "welcome" || !activePets().length;
+  document.body.classList.toggle("care-only", !!S.settings.careOnly);
   tabbar.querySelectorAll("a").forEach((a) => {
     if (a.dataset.tab === tab) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
   });
@@ -193,7 +206,7 @@ async function start() {
     tabbar.hidden = true;
     return;
   }
-  if (S.settings.currentPet && !S.pets.some((p) => p.id === S.settings.currentPet)) S.settings.currentPet = S.pets[0] ? S.pets[0].id : null;
+  if (S.settings.currentPet && !activePets().some((p) => p.id === S.settings.currentPet)) S.settings.currentPet = activePets()[0] ? activePets()[0].id : null;
   onChange(draw);
   window.addEventListener("hashchange", () => {
     // A sheet belongs to the screen it was opened on: Back (or any route change) closes it.

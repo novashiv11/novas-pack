@@ -5,7 +5,7 @@ import { doItNowCard } from "./doitnow.js";
 import { S, pet, setSetting, save, logsOf, LOG_TYPES } from "../state.js";
 import { h, put, em, fmtDate, isoDate, ageText, sinceText, isAnniversary, DAY, toast } from "../util.js";
 import { healthAlerts, backupDue, dueItems, dueText } from "../logic.js";
-import { logWalk, logMeal, logTreat, logPoop, logEggs, speciesOf, openPetSheet, saveError, markGiven, doneRecord } from "../forms.js";
+import { logWalk, logMeal, logTreat, logPoop, logEggs, eventSheet, speciesOf, openPetSheet, saveError, markGiven, doneRecord } from "../forms.js";
 import { sampleStrip, alertCard, avatar, chevron } from "./parts.js";
 import { gameOf, trainerFor, trainerName, bar, ring, badgeChip, trainingPicker, howTo } from "./gameui.js";
 import { openPartnerCard, openLineCard } from "../sharecard.js";
@@ -16,6 +16,7 @@ import { installCard } from "../install.js";
 
 export function home(main) {
   const p = pet();
+  if (S.settings.careOnly) { careHome(main, p); return; }
   const a = gameOf(p);
   const tr = trainerFor(p);
   put(main,
@@ -30,6 +31,26 @@ export function home(main) {
     extras(p, a, tr),
     nudge(p, a, tr),
   );
+}
+
+/** Care diary only (More → Care diary only): no levels, quests or stickers. Due today, one-tap logs, and the diary. */
+function careHome(main, p) {
+  const a = { stage: null };
+  const st = stageText(p, a);
+  put(main,
+    sampleStrip(p),
+    h("section.care-head", { "aria-labelledby": "page-title" },
+      h("div.partner-av", avatar(p, 56)),
+      h("div", h("h1.partner-name", { tabindex: "-1", id: "page-title" }, p.name), st ? h("p.partner-stage", st) : null)),
+    alertCard(healthAlerts(p, Date.now()), p),
+    dueToday(p),
+    quickLog(p),
+    h("nav.extras.care-links", { "aria-label": "Care diary" },
+      h("a.ex-tile", { href: "#/health", "data-k": "care-health" }, h("span.ex-e", { "aria-hidden": "true" }, "🩺"), h("span.ex-l", "Health")),
+      h("a.ex-tile", { href: "#/health/food", "data-k": "care-food" }, h("span.ex-e", { "aria-hidden": "true" }, "🍽️"), h("span.ex-l", "Food")),
+      h("a.ex-tile", { href: "#/health/vet", "data-k": "care-vet" }, h("span.ex-e", { "aria-hidden": "true" }, "📋"), h("span.ex-l", "Vet summary")),
+      h("a.ex-tile", { href: "#/more/profile", "data-k": "care-profile" }, h("span.ex-e", { "aria-hidden": "true" }, "📇"), h("span.ex-l", "Contacts"))),
+    nudge(p, null, null));
 }
 
 function stageText(p, a) {
@@ -68,7 +89,7 @@ function partnerCard(p, a, tr) {
 // ---------- 1% today ----------
 /** Medicines and records due today or overdue, for every pet (sample world or real), with one tap to mark them. */
 function dueToday(p) {
-  const pets = p.sample ? S.pets.filter((x) => x.sample) : S.pets.filter((x) => !x.sample);
+  const pets = p.sample ? S.pets.filter((x) => x.sample) : S.pets.filter((x) => !x.sample && !x.archivedAt);
   const rows = [];
   for (const x of pets) {
     for (const it of dueItems(x.id)) {
@@ -217,7 +238,8 @@ function quickLog(p) {
       p.species === "chicken" ? tile("eggs", "🥚", eggLabel(p), { onclick: logEggs }) : null,
       tile("poop", "💩", "Poop", { onclick: logPoop }),
       p.species === "dog" ? tile("walk", "🚶", "Walk", { onclick: logWalk }) : tile("unwell", "😟", "Unwell?", { href: "#/health/unwell" }),
-      p.species === "chicken" ? null : tile("training", "🎓", "Train", { onclick: () => trainingPicker(p) })));
+      p.species === "chicken" ? null : S.settings.careOnly ? tile("weight", "⚖️", "Weight", { onclick: () => eventSheet("weight") })
+        : tile("training", "🎓", "Train", { onclick: () => trainingPicker(p) })));
 }
 
 /** "Eggs" with this week's count, e.g. "Eggs · 12". */
@@ -258,7 +280,7 @@ function nudge(p, a, tr) {
         h("button.btn.btn-line.sm", { type: "button", onclick: () => setSetting("backupSnooze", now, { quiet: false }) }, "Not now")));
   }
   const days = new Set(logs.filter((e) => LOG_TYPES.includes(e.type)).map((e) => isoDate(new Date(e.at)))).size;
-  if (!S.settings.partnerCardOffered && days >= 7) {
+  if (!S.settings.partnerCardOffered && days >= 7 && a && tr) {
     return h("aside.nudge.nudge-card", { "aria-labelledby": "nudge-h" },
       h("h2.nudge-h", { id: "nudge-h" }, `A week in. Share ${p.name}'s card?`),
       h("p", "Level, stats and badges on one image. Made on your phone; the photo never leaves it unless you share it."),

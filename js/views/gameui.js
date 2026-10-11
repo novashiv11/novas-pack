@@ -87,7 +87,7 @@ function changes(p, a, before, after) {
 
 /** Show the calm celebration for whatever changed. Confetti only for badges, and only if motion is OK. */
 export function celebrateDiff(p, before, after) {
-  if (!p) return;
+  if (!p || S.settings.careOnly) return;
   const items = changes(p, gameOf(p), before, after);
   if (!items.length) return;
   setTimeout(() => celebrate(items, p), 250);
@@ -126,6 +126,7 @@ export function celebrate(items, p = null) {
  * opts: { title, xp, firstToday, more } where more() starts 4 more minutes.
  */
 export async function missionComplete(p, before, after, { title, xp, bonus, firstToday, more, win } = {}) {
+  if (S.settings.careOnly) { toast("Session logged. Nice one."); return; }
   let D = null;
   try { D = await import("./doitnow.js"); } catch { /* fine: no dots */ }
   const ws = D ? D.weekAndSticker(p) : null;

@@ -218,6 +218,7 @@ export function petForm(box, existing, onSaved, { openProfile = false, extra = n
   drawIcons();
   put(form, dropSample ? dropSample.row : null, extra, err,
     h("div.row-btns",
+      existing && !p.sample ? h("button.btn.btn-line", { type: "button", "data-k": "archive-pet", onclick: () => archivePetFlow(p) }, "Archive") : null,
       existing ? h("button.btn.btn-line", { type: "button", onclick: () => deletePetFlow(p) }, p.sample ? "Delete sample" : "Delete") : null,
       existing && p.sample ? h("button.btn.btn-line", { type: "button", "data-k": "adopt-sample", onclick: () => adoptSampleFlow(p) }, "Make it mine") : null,
       h("button.btn.btn-blue", { type: "submit" }, existing ? "Save changes" : submitLabel || "Add pet")));
@@ -330,6 +331,28 @@ export async function adoptSampleFlow(p) {
   toast(`${mine.name} is yours now. Clean slate. Today counts.`);
   if (location.hash !== "#/home") location.hash = "#/home"; else refresh();
   openPetSheet(mine);
+}
+
+/** Archive a pet (a foster gone home, rehomed, or remembered): off the switcher and Home, diary and XP kept. */
+export async function archivePetFlow(p) {
+  if (S.pets.filter((x) => !x.archivedAt && !x.sample).length <= 1) {
+    toast("Add your next pet first, then archive. Or keep them here: nothing's lost either way.");
+    return;
+  }
+  const ok = await confirmBox(`Archive ${p.name}?`, `${p.name} leaves the pet bar and Home. Their diary stays, and so does your XP. Bring them back any time from More → Pets.`, "Archive");
+  if (!ok) return;
+  document.querySelectorAll("dialog[open]").forEach((d) => d.close());
+  try { await save("pets", { ...p, archivedAt: Date.now() }, { quiet: true }); } catch (e) { toast(saveError(e)); return; }
+  if (S.settings.currentPet === p.id) { const next = S.pets.find((x) => !x.archivedAt && !x.sample && x.id !== p.id); if (next) await setSetting("currentPet", next.id).catch(() => {}); }
+  toast(`${p.name} is archived. Thank you for every day with them.`);
+  refresh();
+}
+export async function unarchivePet(p) {
+  const row = { ...p };
+  delete row.archivedAt;
+  try { await save("pets", row, { quiet: true }); } catch (e) { toast(saveError(e)); return; }
+  toast(`${p.name} is back in the pack.`);
+  refresh();
 }
 
 /** Delete one pet (or, for the sample, every sample pet), after asking. */

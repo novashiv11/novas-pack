@@ -31,7 +31,8 @@ export async function load() {
 
 /** The pet being looked at (the switcher at the top). */
 export function pet() {
-  return S.pets.find((p) => p.id === S.settings.currentPet) || S.pets[0] || null;
+  const act = activePets();
+  return act.find((p) => p.id === S.settings.currentPet) || act[0] || null;
 }
 export function forPet(store, petId = pet() && pet().id) {
   return S[store].filter((r) => r.petId === petId);
@@ -101,7 +102,10 @@ export async function wipe() {
 // ---------- v1.1 helpers ----------
 /** Diary entries that count as "a log" for onboarding and nudges (not weights or vet visits). */
 export const LOG_TYPES = ["poop", "meal", "treat", "med", "walk", "training", "symptom", "care", "eggs"];
+/** Every real pet, archived ones too (their logs still count for the human's XP and stay in the diary). */
 export function realPets() { return S.pets.filter((p) => !p.sample); }
+/** Pets you can switch to and log for: everyone not archived (fosters gone home, rehomed, or remembered). */
+export function activePets() { return S.pets.filter((p) => !p.archivedAt); }
 /** Logs for one pet, or for every real (non-sample) pet when petId is omitted. */
 export function logsOf(petId) {
   const ids = petId ? new Set([petId]) : new Set(realPets().map((p) => p.id));

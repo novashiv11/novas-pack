@@ -2,7 +2,7 @@
 //
 // Stores (all keyed by `id`, except settings which is keyed by `key`):
 //   pets      { id, name, species, birthday?, homeSince?, photo?, allergies?, conditions?, sex?, vet?, insurer?, microchip?,
-//               neutered?, lastSeason?, training?, sample?, createdAt }
+//               neutered?, lastSeason?, training?, sample?, createdAt, archivedAt? }
 //   events    { id, petId, type, at, ... }  type: poop | meal | treat | med | walk | training | weight | vet | symptom | care | eggs
 //               eggs: { count } (a flock's eggs collected)
 //               symptom: { symptoms: [ids] } (ids in js/logic.js SYMPTOM_IDS); care: { task } (an id from CARE_TASKS)
@@ -219,7 +219,7 @@ const CLEAN = {
       lastSeason: date(r.lastSeason), icon: typeof r.icon === "string" && /^[^\x00-\x7F]{1,16}$/u.test(r.icon) ? r.icon : undefined,
       photoStyle: r.photoStyle === "cartoon" ? "cartoon" : undefined,
       placement: placementOf(r.placement), placedAt: num(r.placedAt),
-      training, sample: r.sample === true || undefined, createdAt: num(r.createdAt),
+      training, sample: r.sample === true || undefined, createdAt: num(r.createdAt), archivedAt: num(r.archivedAt),
     });
   },
   events(r) {

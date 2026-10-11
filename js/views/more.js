@@ -6,7 +6,7 @@ import { S, pet, setSetting, wipe, load, refresh, units, UI } from "../state.js"
 import { h, put, em, sheet, toast, confirmBox, fmtDate, isoDate, ageText, telHref, shareOrSave } from "../util.js";
 import { exportData, validateBackup, importData } from "../db.js";
 import { installCard, isStandalone } from "../install.js";
-import { openPetSheet, speciesOf, segmented, deletePetFlow, adoptSampleFlow } from "../forms.js";
+import { openPetSheet, speciesOf, segmented, deletePetFlow, adoptSampleFlow, unarchivePet } from "../forms.js";
 import { pageHead, subBar, avatar, chevron, sampleStrip } from "./parts.js";
 import { gameOf, trainerFor, badgeChip } from "./gameui.js";
 import { openPartnerCard } from "../sharecard.js";
@@ -45,7 +45,7 @@ export function more(main, arg) {
     pageHead("More"),
     UI.applyUpdate ? h("aside.nudge", h("p", h("b", "Update ready."), " Same diary, fresh paint."),
       h("div.row-btns.left", h("button.btn.btn-blue.sm", { type: "button", onclick: () => UI.applyUpdate() }, "Update now"))) : null,
-    p ? h("section.set-group", { "aria-labelledby": "g-lvl" },
+    p && !S.settings.careOnly ? h("section.set-group", { "aria-labelledby": "g-lvl" },
       h("h2.set-h", { id: "g-lvl" }, "Level up"),
       h("ul.set-list",
         row("🍪", "Nova's treat jar", "Stickers", "#/more/jar", "m-jar"),
@@ -59,11 +59,17 @@ export function more(main, arg) {
       h("h2.set-h", { id: "g-pets" }, "Your pets"),
       h("ul.set-list",
         row("🐾", "Pets", String(S.pets.length), "#/more/pets", "m-pets"),
-        row("📇", "Profile and contacts", p ? p.name : "", "#/more/profile", "m-profile"))),
+        row("📇", "Profile and contacts", p ? p.name : "", "#/more/profile", "m-profile"),
+        row("🌱", "Getting a new pet?", "Checklist", "#/ready", "m-ready"))),
     h("section.set-group", { "aria-labelledby": "g-app" },
       h("h2.set-h", { id: "g-app" }, "App"),
       h("ul.set-list",
         row("⚖️", "Units", u, "#/more/units", "m-units"),
+        btnRow("🧺", "Care diary only", S.settings.careOnly ? "On" : "Off", async () => {
+          const on = !S.settings.careOnly;
+          await setSetting("careOnly", on, { quiet: false });
+          toast(on ? "Care diary only: levels, quests and stickers are hidden. Your logs keep counting if you switch back." : "The game is back. Everything you logged still counts.");
+        }, "m-care-only"),
         row("💾", "Backup", S.settings.lastBackup ? fmtDate(S.settings.lastBackup, { day: "numeric", month: "short" }) : "Never", "#/more/backup", "m-backup"),
         row("📲", "Install", isStandalone() ? "Installed" : "", "#/more/install", "m-install"))),
     h("section.set-group", { "aria-labelledby": "g-pack" },
@@ -131,15 +137,22 @@ function badges(main) {
 }
 
 function pets(main) {
+  const gone = S.pets.filter((p) => p.archivedAt);
   put(main,
     subBar("Pets", "#/more", "Back to More"),
-    h("ul.set-list.pet-rows", S.pets.map((p) => h("li",
+    h("ul.set-list.pet-rows", S.pets.filter((p) => !p.archivedAt).map((p) => h("li",
       h("button.set-row.pet-row", { type: "button", "data-k": `edit-pet-${p.id}`, onclick: () => openPetSheet(p) },
         avatar(p, 40),
         h("span.set-label", h("b", p.name), h("span.small.muted.block", [p.sample ? "Sample" : "", speciesOf(p.species).label, ageText(p.birthday)].filter(Boolean).join(" · "))),
         h("span.vh", ", edit"), chevron())))),
     h("div.top-actions", h("button.btn.btn-blue", { type: "button", "data-k": "add-pet", onclick: () => openPetSheet() }, "Add a pet")),
-    h("p.small.muted", "Tap a pet to edit, add a photo, or delete."));
+    h("p.small.muted", "Tap a pet to edit, add a photo, archive or delete."),
+    gone.length ? h("section.sec", { "aria-labelledby": "pets-arch" },
+      h("h2.sec-title", { id: "pets-arch" }, "Archived"),
+      h("p.small.muted", "Fosters gone home, rehomed, or remembered. Their diary and your XP stay."),
+      h("ul.set-list.pet-rows", gone.map((p) => h("li.pet-arch",
+        h("div.set-row.pet-row", avatar(p, 40), h("span.set-label", h("b", p.name), h("span.small.muted.block", `Archived ${fmtDate(p.archivedAt)}`)),
+          h("button.btn.btn-line.sm", { type: "button", "data-k": `unarchive-${p.id}`, onclick: () => unarchivePet(p) }, "Bring back", h("span.vh", `: ${p.name}`))))))) : null);
 }
 
 function profile(main) {

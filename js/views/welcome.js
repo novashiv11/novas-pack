@@ -7,7 +7,6 @@ import { S, pet, refresh, UI, setSetting } from "../state.js";
 import { h, put, em, toast, motionOK } from "../util.js";
 import { eventSheet, unwellSheet, logPoop, logMeal, logEggs, logTreat, logWalk, logMed, petForm, field, textIn } from "../forms.js";
 import { subBar, NOVA } from "./parts.js";
-import { addSample } from "../sample.js";
 import { importForm } from "./more.js";
 import { inAppBanner, installCard } from "../install.js";
 import { trainingPicker } from "./gameui.js";
@@ -43,9 +42,7 @@ export function welcome(main, arg) {
     h("p.lede", "Free. Private on your phone. No account."),
     h("div.welcome-ctas",
       h("a.btn.btn-blue.wide", { href: "#/welcome/add", "data-k": "wel-add" }, "Add my pet"),
-      h("button.btn.btn-line.wide", { type: "button", "data-k": "wel-peek", onclick: async () => {
-        try { await addSample(); location.hash = "#/home"; } catch { toast("Couldn't save on this device. Private browsing?"); }
-      } }, "No pet yet? Peek inside")),
+      h("a.btn.btn-line.wide", { href: "#/ready", "data-k": "wel-ready" }, "No pet yet? Get ready")),
     welcomeInstall(),
     h("ul.welcome-grid",
       h("li", em("🎓"), h("span", "Skills that level up")),

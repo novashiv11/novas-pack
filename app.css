@@ -950,3 +950,19 @@ main .form > .row-btns:last-child .btn-blue{flex:1;min-height:56px;font-size:var
 .add-lede{margin:4px 0 12px}
 
 @media (prefers-reduced-motion:reduce){.timer-ring.done{animation:none}.ex-tile{transition:none}}
+/* Care diary only (More → Care diary only): just Home, Health and More in the tab bar */
+.care-only .tabbar{grid-template-columns:repeat(3,minmax(0,1fr))}
+.care-only .tabbar a[data-tab="train"],.care-only .tabbar a[data-tab="adventures"]{display:none}
+.care-head{display:flex;align-items:center;gap:12px;margin:10px 0 14px}
+.care-links{grid-template-columns:repeat(4,minmax(0,1fr))}
+.pet-arch .set-row{display:flex;align-items:center;gap:10px;cursor:default}
+.pet-arch .set-label{flex:1;min-width:0}
+/* Get ready (no pet yet) */
+.ready-prog{margin:8px 0 12px}
+.ready-list{list-style:none;margin:0 0 16px;padding:0;display:flex;flex-direction:column;gap:8px}
+.ready-item{display:grid;grid-template-columns:24px minmax(0,1fr);gap:10px;align-items:start;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:10px 14px}
+.ready-item input{width:24px;height:24px;margin:10px 0 0;accent-color:var(--blue)}
+.ready-item label{display:flex;gap:10px;align-items:flex-start;min-height:44px;cursor:pointer;line-height:1.35;font-size:var(--t14)}
+.ready-e{font-size:1.4rem;line-height:1.2}
+.ready-item input:checked+label b{text-decoration:line-through;text-decoration-thickness:1.5px;color:var(--muted)}
+.ready-go{grid-column:2;min-height:44px;display:inline-flex;align-items:center;font-size:var(--t14)}
