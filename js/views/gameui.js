@@ -244,6 +244,13 @@ export function howTo(skillId, title, { open = false, k = "howto" } = {}) {
 }
 
 // ---------- training ----------
+const SVGNS = "http://www.w3.org/2000/svg";
+function svgEl(tag, attrs = {}, ...kids) {
+  const el = document.createElementNS(SVGNS, tag);
+  for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+  el.append(...kids);
+  return el;
+}
 const MOODS = [[1, "😕", "Tricky"], [2, "🙂", "OK"], [3, "🤩", "Great"]];
 const MOOD_LINE = { 1: "Tricky is normal. Make it easier next time.", 2: "Solid work. I supervised.", 3: "Great session. End there. Biscuit." };
 
@@ -291,14 +298,18 @@ export function startSession(p, sk, { seconds } = {}) {
   let t0 = Date.now(), pausedAt = 0, pausedFor = 0, timer = 0, lastMin = -1, over = false;
   const elapsed = () => (pausedAt || Date.now()) - t0 - pausedFor;
   sheet(one ? `${skillName(sk)}: your 1-minute win` : `${skillName(sk)}: ${sk.minutes || 5}-minute session`, (body, close) => {
+    // A ring that fills as the time runs. No dead buttons: "Done" only appears once it does something (after 1 minute);
+    // the 1-minute win simply ends by itself and asks how it went.
+    const R = 54, C = 2 * Math.PI * R;
     const clock = h("p.timer-clock", { role: "timer", "aria-label": "Time left" }, fmtClock(total));
+    const arc = svgEl("circle", { class: "ring-fill", cx: "60", cy: "60", r: String(R), "stroke-dasharray": String(C), "stroke-dashoffset": String(C) });
+    const ring = h("div.timer-ring", svgEl("svg", { viewBox: "0 0 120 120", "aria-hidden": "true" }, svgEl("circle", { class: "ring-track", cx: "60", cy: "60", r: String(R) }), arc), clock);
     const first = sk.steps && sk.steps.length ? sk.steps[0] : "";
     const status = h("p.timer-status", { "aria-live": "polite" }, one ? `Just one minute, ${place}.${first ? ` Try: ${first}` : ""}` : `Practise ${place}. Short and happy. End on a win.`);
-    const track = h("div.gbar.timer-bar", { "aria-hidden": "true" }, h("span", { style: { width: "0%" } }));
-    const pauseBtn = h("button.btn.btn-line", { type: "button", onclick: () => {
-      if (pausedAt) { pausedFor += Date.now() - pausedAt; pausedAt = 0; pauseBtn.textContent = "Pause"; status.textContent = "Back to it."; }
-      else { pausedAt = Date.now(); pauseBtn.textContent = "Resume"; status.textContent = "Paused. Take your time."; }
-    } }, "Pause");
+    const pauseBtn = h("button.btn.btn-line.timer-pause", { type: "button", "data-k": "timer-pause", onclick: () => {
+      if (pausedAt) { pausedFor += Date.now() - pausedAt; pausedAt = 0; pauseBtn.textContent = "⏸ Pause"; status.textContent = "Back to it."; ring.classList.remove("paused"); }
+      else { pausedAt = Date.now(); pauseBtn.textContent = "▶ Resume"; status.textContent = "Paused. Take your time."; ring.classList.add("paused"); }
+    } }, "⏸ Pause");
     const moodBox = h("fieldset.fs.mood-box", { hidden: true },
       h("legend", "How did it go?"),
       h("div.mood-row", MOODS.map(([v, e, label]) => h("button.mood-btn", { type: "button", "data-k": `mood-${v}`, onclick: () => {
@@ -310,34 +321,35 @@ export function startSession(p, sk, { seconds } = {}) {
       clearInterval(timer);
       if (!pausedAt) pausedAt = Date.now();
       runRow.hidden = true;
+      ring.classList.add("done");
       moodBox.hidden = false;
       moodBox.querySelector("button").focus();
     };
-    // Finish unlocks after a minute, so a session is a real one (a 1-minute win simply ends by itself).
-    const doneBtn = h("button.btn.btn-blue", { type: "button", "data-k": "timer-done", disabled: true, onclick: finish }, one ? "Keep at it…" : "Finish (after 1 min)");
+    // Done shows up after a minute, so a session is a real one.
+    const doneBtn = h("button.btn.btn-blue", { type: "button", "data-k": "timer-done", hidden: true, onclick: finish }, "✓ Done");
     const runRow = h("div.row-btns.timer-btns", pauseBtn, doneBtn);
     const tick = () => {
       const left = total - elapsed();
       clock.textContent = fmtClock(left);
-      track.firstChild.style.width = `${Math.min(100, (elapsed() / total) * 100)}%`;
-      if (!one && doneBtn.disabled && elapsed() >= 60000) { doneBtn.disabled = false; doneBtn.textContent = "Finish session"; }
+      arc.setAttribute("stroke-dashoffset", String(C * (1 - Math.min(1, elapsed() / total))));
+      if (!one && doneBtn.hidden && elapsed() >= 60000) { doneBtn.hidden = false; status.textContent = "1 minute in: that counts. Stop whenever you like."; }
       const min = Math.ceil(left / 60000);
       if (!over && left <= 0) {
         over = true; buzz(200);
-        status.textContent = "Time! End on a win, then tell me how it went.";
+        status.textContent = one ? "Time! That's your minute. 🎉" : "Time! End on a win, then tell me how it went.";
         finish();
-      } else if (!pausedAt && min !== lastMin && left > 0 && lastMin !== -1 && min >= 1) {
+      } else if (!pausedAt && min !== lastMin && left > 0 && lastMin !== -1 && min >= 1 && (one || elapsed() > 61000)) {
         status.textContent = `${min} minute${min === 1 ? "" : "s"} left.`;
       }
       lastMin = min;
     };
     put(body,
-      h("div.timer", clock, track, status),
+      h("div.timer", ring, status),
       runRow,
       moodBox,
       EASY[sk.id] ? h("details.more-box", { open: one }, h("summary", "Simple steps"), h("ol.steps-list.timer-steps", EASY[sk.id].steps.map((s) => h("li", s))))
         : sk.steps && sk.steps.length ? h("details.more-box", h("summary", "Steps"), h("ol.steps-list.timer-steps", sk.steps.map((s) => h("li", s)))) : null,
-      h("p.small.muted", one ? "Closing this logs nothing. Treats, toys and praise only." : "Closing this logs nothing. Kind methods only: treats, toys and praise."));
+      h("p.small.muted", "Closing this logs nothing. Treats, toys and praise only."));
     timer = setInterval(tick, 250);
     tick();
   }, { onClose: () => clearInterval(timer) });
