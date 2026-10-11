@@ -49,7 +49,8 @@ The CEO (Claude, the main session) owns this list: it adds new requests, sets th
 | CRQ-040 | Co-captain: a super-manager who reports to Shiv at his level (strategy, money, roadmap) | Shiv | P1 | Co-captain | Done (`docs/org-prompt.md`, `docs/STATUS.md`) |
 | CRQ-041 | Business model for vets and pet businesses in Ireland (subscription, sponsorship), with a pitch and outreach | Shiv | P1 | Business agent | Done; price waits on Shiv |
 | CRQ-042 | Shareable Instagram "trophy" card: proud moments (trick done, level up), Story size, funnier | Shiv | P1 | Share agent | Done (11 Oct) |
-| CRQ-043 | Timer "Keep at it…" button did nothing: rethink; then a full GUI pass from a designer prompt (`docs/design-prompt.md`) | Shiv | P1 | Co-captain (timer, done) + Designer agent | In build |
-| CRQ-044 | QA sprint 2 logic fixes (`docs/qa-sprint2.md` 1, 2, 3, 6, 8, 9, 11): care taps counted as the 1-minute win, cat first win, dog-only content for cats, XP split, cap warning, sample share | QA | P1 | Co-captain | In build |
+| CRQ-043 | Timer "Keep at it…" button did nothing: rethink; then a full GUI pass from a designer prompt (`docs/design-prompt.md`) | Shiv | P1 | Co-captain (timer, done) + Designer agent | Done (11 Oct): `docs/design-system.md` |
+| CRQ-045 | Link preview looks bad when sharing: redo it (readable thumbnail, any pet, short text) | Shiv | P1 | Co-captain | Done (11 Oct): `img/og-tiny-wins.jpg` |
+| CRQ-044 | QA sprint 2 logic fixes (`docs/qa-sprint2.md` 1, 2, 3, 6, 8, 9, 11): care taps counted as the 1-minute win, cat first win, dog-only content for cats, XP split, cap warning, sample share | QA | P1 | Co-captain | Done (11 Oct), except 11 (Back with a sheet open): Planned |
 
 Done earlier on 11 Oct: Do it now (spec v3); simple steps; persona-test batch 1 (decision 48); cartoon photos; pet icons; Add-pet bar; Android APK.

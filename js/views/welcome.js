@@ -17,7 +17,7 @@ function welcomeInstall() {
 }
 
 export function welcome(main, arg) {
-  document.title = "Nova's Pack · Level up together";
+  document.title = "Nova's Pack · Tiny daily wins with your pet";
   if (arg === "add") {
     const name = textIn({ maxlength: "40", value: S.settings.trainerName || "", placeholder: "e.g. Shiv", autocomplete: "given-name" });
     const extra = S.settings.trainerName ? null : field(h("span", "And you are?", h("span.opt", " (optional)")), name, "So Nova can say hi. Stays on this device.");

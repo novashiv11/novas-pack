@@ -2,7 +2,7 @@
 
 The **co-captain** (Claude, the main session) updates this file after every step and commits it, so no work is lost when a session stops or hits a usage limit. The full backlog is in `docs/crq.md` and decisions are in `docs/decisions.md`.
 
-**Last updated:** 11 Oct 2026, late evening (Sprint 2 shipped).
+**Last updated:** 11 Oct 2026, night (Sprint 2 + GUI pass v2 shipped).
 
 ## How we never lose work
 1. Every request from Shiv goes into `docs/crq.md` first, with an ID, before any work starts.
@@ -27,7 +27,10 @@ The **co-captain** (Claude, the main session) updates this file after every step
 | 037 | Discord removed (privacy page, site.js, CLAUDE.md). Instagram/Facebook now, WhatsApp group later | Done |
 | 039/041 | `sponsor.html` (unlisted) + `docs/business-vets.md`: founding vet partner offer | Done; prices wait on Shiv |
 | 042 | Trophy card: "📸 Share this win" on Mission complete, level-ups, badges, week won (Story 9:16 or Post 4:5, caption) | Done |
-| 032 | Navigation polish and a fresh QA pass | Next |
+| 043 | Timer's dead "Keep at it" button removed (ring timer); full GUI pass by the designer agent from `docs/design-prompt.md` | Done |
+| 044 | QA fixes: only time together wins the day, cat-friendly content, first win = weakest skill, XP split, sample can't share | Done |
+| 045 | New link preview "Tiny daily wins with your pet" | Done |
+| 032 | Navigation: Android Back with a sheet open (QA 11), sheet close animation | Next |
 | 003 | Picture steps for every skill: `js/scenes.js` is a work in progress, not loaded | Planned |
 
 ## Waiting on Shiv

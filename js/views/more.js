@@ -54,7 +54,7 @@ export function more(main, arg) {
         row("🏅", "Badges", `${a.badges.filter((b) => b.earned).length} of ${a.badges.length}`, "#/more/badges", "m-badges"),
         row("🎓", "Trainer and Academy", trainerFor(p).rank.name, "#/trainer", "m-trainer"),
         row("📓", "Growth Journal", S.journal.length ? `${S.journal.length} line${S.journal.length === 1 ? "" : "s"}` : "", "#/journal", "m-journal"),
-        btnRow("📸", "Share the partner card", p.name, () => openPartnerCard(p, gameOf(p), trainerFor(p)), "m-share"))) : null,
+        p.sample ? null : btnRow("📸", "Share the partner card", p.name, () => openPartnerCard(p, gameOf(p), trainerFor(p)), "m-share"))) : null,
     h("section.set-group", { "aria-labelledby": "g-pets" },
       h("h2.set-h", { id: "g-pets" }, "Your pets"),
       h("ul.set-list",

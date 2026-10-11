@@ -59,7 +59,7 @@ function partnerCard(p, a, tr) {
         h("span.st-l", s.label), bar(s.value, 100), h("b.st-v", String(s.value), h("span.vh", " out of 100"))))))
       : null,
     h("div.partner-actions",
-      h("button.btn.btn-line.sm", { type: "button", "data-k": "share-card", onclick: () => openPartnerCard(p, a, tr) }, em("📸"), " Share card"),
+      p.sample ? h("span") : h("button.btn.btn-line.sm", { type: "button", "data-k": "share-card", onclick: () => openPartnerCard(p, a, tr) }, em("📸"), " Share card"),
       h("a.text-link", { href: "#/train" }, "Skills", chevron())));
 }
 
