@@ -24,13 +24,13 @@ Everything buildable in `docs/crq.md` is done. What's left needs Shiv (below).
 | QA | **Next session, first job:** run the final independent QA pass (prompt pattern in `docs/qa-sprint2.md` style) on batches A–C, then fix Critical/Major. Stopped on 12 Oct to save usage at Shiv's request. |
 
 ## Waiting on Shiv
-- **CRQ-001:** pick our own name for "1% better every day". Recommended: **"Nova's Nudge"** (see `docs/research-psych.md`).
+- **CRQ-001 (decided 12 Oct):** our "1% better" is an emotional play: **"Do it for them"**. Next session: rename the 1% wording in the app to it.
 - **CRQ-038:** location-based walk groups with a "people near you" counter. This needs a server, carries privacy and safety risk, and goes against the "online-only, no meetups" decision of 10 Oct. Shiv decides whether to revisit it (options in `docs/crq.md`).
-- **CRQ-019:** full name and an app email for the privacy page.
-- **CRQ-018:** Google Play account ($25), when ready.
+- **CRQ-019:** full name and an app email for the privacy page (Shiv: not yet).
+- **CRQ-018:** Google Play account ($25), only when he wants the Play Store; the web install works without it.
 - **CRQ-023:** Learn with Nova paid content (milestone-gated money decision).
 - **TWA verification:** create the `novashiv11.github.io` repo so the Android app loses its address bar (`docs/android-app.md`).
-- **CRQ-039/041:** vet partner price (recommended: free 3 months for the first 3 to 5, then €29 a month; a Reel with Nova €150). Check tax and VAT registration and your day-job contract first.
+- **CRQ-039/041 (decided 12 Oct, live on sponsor.html):** vet partner price (recommended: free 3 months for the first 3 to 5, then €29 a month; a Reel with Nova €150). Check tax and VAT registration and your day-job contract first.
 
 ## Done today (11 Oct)
 Android APK · link preview image · launch kit · Do it now (1-minute win, plan, week dots, stickers, fresh start) · simple steps for kids · 20-user test, with the critical bug and most majors fixed · level check · talk buttons · feeding guide · media slots · art studio · psychology research · CRQ list · agent-org prompt.
