@@ -25,6 +25,8 @@ Handoff summary for Claude Code. Read this first, then `docs/00-master-brief.md`
 | `docs/launch-app.md` | **App launch kit**: bio, "APP" reply, 5 launch Reels, stories, never-say list. |
 | `docs/global-plan.md` | Growth/money plan (community parts now secondary). |
 | `docs/decisions.md` | Decision log + open items. |
+| `docs/STATUS.md`, `docs/crq.md` | **Read first after a restart:** Now / Next / Waiting on Shiv, and the change-request backlog. |
+| `sponsor.html`, `docs/business-vets.md` | Page and plan for vets and pet businesses (unlisted; Shiv shares the link). |
 | `_archive/` | Old landing pages, prototype, old docs. Never published. |
 
 ## Design tokens
@@ -40,7 +42,7 @@ Handoff summary for Claude Code. Read this first, then `docs/00-master-brief.md`
 3. **Safe.**
    - Vet-first note on every health topic.
    - No selling or rehoming animals for money.
-   - 16+ for Instagram features and the Pack Card; 18+ for the Discord chat.
+   - 16+ for Instagram features and the Pack Card; 18+ for any group chat (a WhatsApp group, later).
    - Never show exact locations; strip EXIF from uploads.
    - Lost pets: route to local shelters/vets and microchip databases (Ireland: ISPCA). Don't build our own alerts.
    - No in-person meetups organised by the pack (online-only since 10 Oct 2026).
@@ -71,15 +73,15 @@ Handoff summary for Claude Code. Read this first, then `docs/00-master-brief.md`
 - **Health tab kept small:** vaccines/preventives/medicines with due lists and .ics reminders, food and treats, poop log with vet-first red flags, Unwell checklist, weight, vet summary.
 - **XP rules:** derived from logs, never stored; capped (3 sessions per skill and 10 in total a day, 2 walks a day, stamps and lessons once). Never XP for opens, likes or shares. No Pokémon names or art.
 - Data on the device (IndexedDB), no accounts, backup/export/delete. Never dosing advice or diagnosis.
-- Spec: `docs/spec-v2-levelup.md`. Community, Discord and the Pack Card are secondary.
+- Spec: `docs/spec-v2-levelup.md`. Community and the Pack Card are secondary.
 
 ## Strategy (10 Oct 2026): worldwide, online-only
-- Reach: Instagram Reels (main), TikTok, YouTube Shorts, Facebook Reels: one video, four places. Home: **Discord** (18+). Hub: website + Pack Card.
+- Reach: Instagram Reels (main), TikTok, YouTube Shorts, Facebook Reels: one video, four places. No Discord (Shiv, 11 Oct 2026): Instagram/Facebook Reels now, a WhatsApp group later (18+). Hub: the app + Pack Card.
 - Weekly rhythm: Mon challenge · Wed Ask the Pack · Sat Shout-out Saturday · Sun #PackWalk (real life).
 - Engagement: Pack Card, weekly streak with grace weeks, badges for showing up/helping/learning. Never XP for likes or messages, no dark patterns.
 - Money (by milestone): affiliates → brand posts (5k+) → sponsored challenge, merch (500+ members) → Learn with Nova mini-course (10k+) → supporter membership (25k+). Never pay-to-rank, selling data, pet-sale ads. TikTok Creator Rewards not listed for Ireland.
 - No offline activity, no flyers, no Limerick focus (Shiv, 10 Oct 2026).
-- Ages: Instagram features + Pack Card 16+; Discord chat 18+.
+- Ages: Instagram features + Pack Card 16+; group chat 18+.
 - Rehoming: none at all, free or paid. Vet first on health.
 - Usage: save Claude usage: no new research agents; build directly; one small QA pass.
 

@@ -39,20 +39,20 @@ export function welcome(main, arg) {
   put(main, h("section.welcome",
     h("img.disc.welcome-nova", { src: NOVA, alt: "", width: "96", height: "96" }),
     h("p.eyebrow", "Nova's Pack · Level up together"),
-    h("h1", { tabindex: "-1", id: "page-title" }, "Grow with your dog. 1% a day."),
-    h("p.lede", "Real-life training, walks and adventures. Free, private on your phone, no account."),
+    h("h1", { tabindex: "-1", id: "page-title" }, "Tiny daily wins. For you and your pet."),
+    h("p.lede", "Free. Private on your phone. No account."),
     h("div.welcome-ctas",
-      h("a.btn.btn-blue.wide", { href: "#/welcome/add" }, "Pick your partner"),
-      h("button.btn.btn-line.wide", { type: "button", onclick: async () => {
+      h("a.btn.btn-blue.wide", { href: "#/welcome/add", "data-k": "wel-add" }, "Add my pet"),
+      h("button.btn.btn-line.wide", { type: "button", "data-k": "wel-peek", onclick: async () => {
         try { await addSample(); location.hash = "#/home"; } catch { toast("Couldn't save on this device. Private browsing?"); }
-      } }, "No dog yet? Explore Nova's sample")),
+      } }, "No pet yet? Peek inside")),
     welcomeInstall(),
-    h("ul.welcome-features",
-      h("li", em("🎓"), " Skills that level up, from home to the park"),
-      h("li", em("🌟"), " An Adventure Book of real-life firsts"),
-      h("li", em("🏅"), " Badges and trainer ranks for the human, too"),
-      h("li", em("🩺"), " The pet care diary: vaccines, meds, poop, food")),
-    h("p.bubble.welcome-bubble", "I'm Nova, professional human handler. Five minutes a day and we both get better. I'll keep score."),
+    h("ul.welcome-grid",
+      h("li", em("🎓"), h("span", "Skills that level up")),
+      h("li", em("🌟"), h("span", "Real-life adventures")),
+      h("li", em("🩺"), h("span", "Care diary")),
+      h("li", em("🏅"), h("span", "Badges for you too"))),
+    h("p.bubble.welcome-bubble", "I'm Nova. One minute a day. I'll keep score."),
     h("details.more-box.restore", h("summary", "Have a backup? Restore it"), importForm("replace")),
     h("p.small.muted", "Everything stays on this device. ", h("a", { href: "privacy.html" }, "Privacy notice"), " · ", h("a", { href: "card.html" }, "Pack Card maker"))));
 }

@@ -50,7 +50,7 @@ export function more(main, arg) {
       h("ul.set-list",
         row("🍪", "Nova's treat jar", "Stickers", "#/more/jar", "m-jar"),
         row("🎨", "Art studio", "Play", "#/studio", "m-studio"),
-        btnRow("🗓️", "My plan", S.settings.plan && S.settings.plan.anchor ? planText(S.settings.plan) : "Make one", () => planSheet(p), "m-plan"),
+        btnRow("⏰", "Nudge time", S.settings.plan && S.settings.plan.anchor ? planText(S.settings.plan) : "Pick one", () => planSheet(p), "m-plan"),
         row("🏅", "Badges", `${a.badges.filter((b) => b.earned).length} of ${a.badges.length}`, "#/more/badges", "m-badges"),
         row("🎓", "Trainer and Academy", trainerFor(p).rank.name, "#/trainer", "m-trainer"),
         row("📓", "Growth Journal", S.journal.length ? `${S.journal.length} line${S.journal.length === 1 ? "" : "s"}` : "", "#/journal", "m-journal"),

@@ -33,21 +33,21 @@ The CEO (Claude, the main session) owns this list: it adds new requests, sets th
 | CRQ-025 | Coach rank needs 5 or more Academy lessons, not only XP | Persona test | P2 | — | Planned |
 | CRQ-026 | "Working on" picker (Calm / Confidence / Recall) and a rescue/adoption date | Persona test | P2 | — | Partly done (Pick this week's skill) |
 
-| CRQ-027 | Learn from Duolingo: flow, GUI, logic, presentation, psychology; take the best, ethically | Shiv | P1 | Co-captain | In build |
+| CRQ-027 | Learn from Duolingo: flow, GUI, logic, presentation, psychology; take the best, ethically | Shiv | P1 | Co-captain | Done (11 Oct) |
 | CRQ-028 | Never lose work at a usage limit: `docs/STATUS.md` progress file, small commits, agents write to files | Shiv | P1 | Co-captain | Done |
-| CRQ-029 | Welcome page says "Grow with your dog", but people may not have a dog: inclusive copy | Shiv | P1 | Co-captain | Planned |
-| CRQ-030 | Level check is too much text: one question per screen, big cards with pictures, progress bar, fun | Shiv | P1 | Co-captain | Planned |
-| CRQ-031 | Animated celebrations for missions (mission-complete screen, XP count-up) | Shiv | P1 | Co-captain | Planned |
+| CRQ-029 | Welcome page says "Grow with your dog", but people may not have a dog: inclusive copy | Shiv | P1 | Co-captain | Done (11 Oct) |
+| CRQ-030 | Level check is too much text: one question per screen, big cards with pictures, progress bar, fun | Shiv | P1 | Co-captain | Done (11 Oct) |
+| CRQ-031 | Animated celebrations for missions (mission-complete screen, XP count-up) | Shiv | P1 | Co-captain | Done (11 Oct) |
 | CRQ-032 | Navigation and flow: less text per screen, smoother back and forward, fun styles | Shiv | P1 | Co-captain + QA | Planned |
-| CRQ-033 | Simpler food logging (one-tap meal, treat and poop on Home) | Shiv | P1 | Co-captain | Planned |
-| CRQ-034 | Fewer tips and spam screens; minimal, appealing, curiosity-led | Shiv | P1 | Co-captain | Planned |
-| CRQ-035 | Plan feature is unclear: reframe as "When should Nova nudge you?" | Shiv | P1 | Co-captain | Planned |
-| CRQ-036 | Shiv's photos look plain: better crop and a styled treatment so they're appealing | Shiv | P1 | Co-captain | Planned |
-| CRQ-037 | Remove Discord; Instagram/Facebook Reels now, WhatsApp group later | Shiv | P1 | Co-captain | Planned |
+| CRQ-033 | Simpler food logging (one-tap meal, treat and poop on Home) | Shiv | P1 | Co-captain | Done (11 Oct) |
+| CRQ-034 | Fewer tips and spam screens; minimal, appealing, curiosity-led | Shiv | P1 | Co-captain | Done, more in QA |
+| CRQ-035 | Plan feature is unclear: reframe as "When should Nova nudge you?" | Shiv | P1 | Co-captain | Done (11 Oct) |
+| CRQ-036 | Shiv's photos look plain: better crop and a styled treatment so they're appealing | Shiv | P1 | Co-captain | Done (11 Oct) |
+| CRQ-037 | Remove Discord; Instagram/Facebook Reels now, WhatsApp group later | Shiv | P1 | Co-captain | Done (11 Oct) |
 | CRQ-038 | Location-based walk-group requests with a "people within X km" counter. Needs a server, location data is personal (GDPR), carries stalking and safety risk, and conflicts with the 10 Oct online-only decision. Options: (a) park it; (b) opt-in county-level interest counts, shown only at 10 or more, no meetups organised by us; (c) a WhatsApp group per county. | Shiv | P3 | **Shiv decides** | Waiting on Shiv |
-| CRQ-039 | Businesses and vets section: a clear page Shiv can send, showing why to sponsor and what easy value we provide | Shiv | P1 | Business agent | In build |
+| CRQ-039 | Businesses and vets section: a clear page Shiv can send, showing why to sponsor and what easy value we provide | Shiv | P1 | Business agent | Done; price waits on Shiv |
 | CRQ-040 | Co-captain: a super-manager who reports to Shiv at his level (strategy, money, roadmap) | Shiv | P1 | Co-captain | Done (`docs/org-prompt.md`, `docs/STATUS.md`) |
-| CRQ-041 | Business model for vets and pet businesses in Ireland (subscription, sponsorship), with a pitch and outreach | Shiv | P1 | Business agent | In build |
-| CRQ-042 | Shareable Instagram "trophy" card: proud moments (trick done, level up), Story size, funnier | Shiv | P1 | Share agent | In build |
+| CRQ-041 | Business model for vets and pet businesses in Ireland (subscription, sponsorship), with a pitch and outreach | Shiv | P1 | Business agent | Done; price waits on Shiv |
+| CRQ-042 | Shareable Instagram "trophy" card: proud moments (trick done, level up), Story size, funnier | Shiv | P1 | Share agent | Done (11 Oct) |
 
 Done earlier on 11 Oct: Do it now (spec v3); simple steps; persona-test batch 1 (decision 48); cartoon photos; pet icons; Add-pet bar; Android APK.

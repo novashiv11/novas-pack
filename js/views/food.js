@@ -31,7 +31,7 @@ function feedingGuide(p) {
   const ph = p.species === "dog" ? GUIDE_PHOTOS.feeding : null;
   return h("details.more-box.feed-guide", { "data-k": "feed-guide" },
     h("summary", `How to feed ${p.name}: tips with pictures`),
-    ph ? h("figure.feed-photo", h("img", { src: ph.src, alt: ph.alt, loading: "lazy", width: "800", height: "1037" }), h("figcaption.small.muted", "Nova's dinner: soaked kibble with a spoon of wet food.")) : null,
+    ph ? h("figure.feed-photo", h("img", { src: ph.src, alt: ph.alt, loading: "lazy", width: "640", height: "633" }), h("figcaption", "Nova's dinner: soaked kibble + a spoon of wet food")) : null,
     h("ul.feed-tips", tips.map(([e, t, d]) => h("li", h("span.ft-e", { "aria-hidden": "true" }, e), h("span", h("b", `${t}. `), d)))),
     h("p.small.muted", "Your vet knows your pet: ask them about amounts, special diets and any weight change. ",
       h("a", { href: "https://wsava.org/global-guidelines/global-nutrition-guidelines/", rel: "noopener" }, "WSAVA nutrition guidelines"), "."));

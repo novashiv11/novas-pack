@@ -5,7 +5,7 @@ import { doItNowCard } from "./doitnow.js";
 import { S, pet, setSetting, save, logsOf, LOG_TYPES } from "../state.js";
 import { h, put, em, fmtDate, isoDate, ageText, DAY, toast } from "../util.js";
 import { healthAlerts, backupDue, dueItems, dueText } from "../logic.js";
-import { logWalk, speciesOf, openPetSheet, saveError, markGiven, doneRecord } from "../forms.js";
+import { logWalk, logMeal, logTreat, logPoop, speciesOf, openPetSheet, saveError, markGiven, doneRecord } from "../forms.js";
 import { sampleStrip, alertCard, avatar, chevron } from "./parts.js";
 import { gameOf, trainerFor, trainerName, bar, ring, badgeChip, trainingPicker, howTo } from "./gameui.js";
 import { openPartnerCard, openLineCard } from "../sharecard.js";
@@ -22,12 +22,11 @@ export function home(main) {
     alertCard(healthAlerts(p, Date.now()), p),
     dueToday(p),
     doItNowCard(p),
-    partnerCard(p, a, tr),
     quickLog(p),
-    onePercent(p, a),
-    trainerStrip(tr, p),
+    partnerCard(p, a, tr),
+    forYou(p),
     weekly(p, a),
-    badgeRow(a),
+    extras(p, a, tr),
     nudge(p, a, tr),
   );
 }
@@ -50,15 +49,15 @@ function partnerCard(p, a, tr) {
         h("p.partner-eyebrow", p.sample ? "Sample partner" : "Your partner"),
         h("h1.partner-name", { tabindex: "-1", id: "page-title" }, p.name),
         st ? h("p.partner-stage", st)
-          : h("button.linkish.partner-stage", { type: "button", "data-k": "add-bday", onclick: () => openPetSheet(p) }, "Add a birthday to see their stage")),
+          : h("button.linkish.partner-stage", { type: "button", "data-k": "add-bday", onclick: () => openPetSheet(p) }, "+ Add birthday")),
       h("div.lv-medal", h("span.lv-l", "Level"), h("b.lv-n", String(lv.level)))),
     h("div.xp-row",
       h("p.xp-text", lv.max ? `Level ${lv.level}: the top. ${a.xp} XP` : h("span", h("b", `${lv.into} / ${lv.need} XP`), ` to level ${lv.level + 1}`)),
       bar(lv.max ? 1 : lv.into, lv.max ? 1 : lv.need, "gold")),
     stats.length
-      ? h("ul.stats", { "aria-label": `${p.name}'s stats, out of 100` }, stats.map((s) => h("li",
-        h("span.st-l", s.label), bar(s.value, 100), h("b.st-v", String(s.value), h("span.vh", " out of 100")))))
-      : h("p.small.muted", "Skill levels are dog-first for now. Adventures, Health and the journal work for every pet."),
+      ? h("details.stats-fold", h("summary", "Stats"), h("ul.stats", { "aria-label": `${p.name}'s stats, out of 100` }, stats.map((s) => h("li",
+        h("span.st-l", s.label), bar(s.value, 100), h("b.st-v", String(s.value), h("span.vh", " out of 100"))))))
+      : null,
     h("div.partner-actions",
       h("button.btn.btn-line.sm", { type: "button", "data-k": "share-card", onclick: () => openPartnerCard(p, a, tr) }, em("📸"), " Share card"),
       h("a.text-link", { href: "#/train" }, "Skills", chevron())));
@@ -89,6 +88,31 @@ function dueToday(p) {
     h("h2.sec-title", { id: "dt-h" }, "💊 Due today"),
     h("ul.due-rows", rows.slice(0, 6)),
     rows.length > 6 ? h("a.text-link", { href: "#/health" }, `${rows.length - 6} more in Health`) : null);
+}
+
+/** The human's 1% for today, as one line with a tick. */
+function forYou(p) {
+  if (p.sample) return null;
+  const today = isoDate();
+  const row = S.daily.find((d) => d.id === today) || { id: today, date: today, dogDone: false, youDone: false };
+  const id = "tick-youDone";
+  return h("section.for-you", { "aria-label": "For you today" },
+    h("input", { type: "checkbox", id, "data-k": id, checked: !!row.youDone, onchange: async (e) => {
+      try { await save("daily", { ...row, youDone: e.target.checked }); if (e.target.checked) toast(replyOfDay()); } catch (ex) { toast(saveError(ex)); }
+    } }),
+    h("label", { for: id }, h("b", "For you: "), youActionOfDay()));
+}
+
+/** Everything else is one tap away, as a row of icons (less text on Home). */
+function extras(p, a, tr) {
+  const earned = a.badges.filter((b) => b.earned).length;
+  const tile = (href, e, label, k) => h("a.ex-tile", { href, "data-k": k }, h("span.ex-e", { "aria-hidden": "true" }, e), h("span.ex-l", label));
+  return h("nav.extras", { "aria-label": "More to explore" },
+    tile("#/studio", "🎨", "Art", "ex-art"),
+    tile("#/more/jar", "🍪", "Stickers", "ex-jar"),
+    tile("#/more/badges", "🏅", earned ? `Badges ${earned}` : "Badges", "ex-badges"),
+    tile("#/journal", "📓", "Journal", "ex-journal"),
+    tile("#/trainer", "🎓", tr.rank.name, "ex-trainer"));
 }
 
 function lastActive(p) {
@@ -184,12 +208,13 @@ function quickLog(p) {
   const tile = (k, emoji, label, attrs) => h(attrs.href ? "a.ql" : "button.ql", { "data-k": `ql-${k}`, ...attrs, type: attrs.href ? undefined : "button" },
     h("span.ql-em", { "aria-hidden": "true" }, emoji), h("span.ql-l", label));
   return h("section.sec.ql-sec", { "aria-labelledby": "hq-h" },
-    h("h2.sec-title", { id: "hq-h" }, "Quick log"),
-    h("div.ql-grid.home-ql",
-      tile("training", "🎓", "Training", { onclick: () => trainingPicker(p) }),
-      p.species === "dog" ? tile("walk", "🚶", "Walk", { onclick: logWalk }) : tile("unwell", "😟", "Unwell?", { href: "#/health" }),
-      tile("adventure", "🌟", "Adventure", { href: "#/adventures" }),
-      tile("health", "💩", "Poop & food", { href: "#/health" })));
+    h("h2.sec-title", { id: "hq-h" }, "One-tap log"),
+    h("div.ql-grid.home-ql.ql-5",
+      tile("meal", "🍽️", "Meal", { onclick: logMeal }),
+      tile("treat", "🦴", "Treat", { onclick: logTreat }),
+      tile("poop", "💩", "Poop", { onclick: logPoop }),
+      p.species === "dog" ? tile("walk", "🚶", "Walk", { onclick: logWalk }) : tile("unwell", "😟", "Unwell?", { href: "#/health/unwell" }),
+      tile("training", "🎓", "Train", { onclick: () => trainingPicker(p) })));
 }
 
 function badgeRow(a) {

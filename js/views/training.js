@@ -60,9 +60,10 @@ export function training(main, arg, sub) {
   }
   const other = skills.filter((s) => !GROUPS.includes(s.level));
   if (other.length) put(main, h("ul.skill-list", other.map((s) => skillRow(s, a.progress[s.id]))));
-  put(main,
-    h("p.note-line", em("💛"), ` Levels: ${LEVEL_REQ.slice(1).join(", ")} sessions, each with a self-check at a harder place: home, garden, street, park. Up to ${CAPS.sessions} sessions per skill, and ${CAPS.sessionsPerDay} in total, count each day.`),
-    h("p.note-line", em("💛"), " Kind methods only: treats, toys and praise. No shouting, no shock, prong or choke collars."));
+  put(main, h("details.fold.how-levels", h("summary", "How levels work"),
+    h("p.small", `Levels need ${LEVEL_REQ.slice(1).join(", ")} sessions, each with a self-check at a harder place: home, garden, street, park. Up to ${CAPS.sessions} sessions per skill, and ${CAPS.sessionsPerDay} in total, count each day.`),
+    h("p.small", "Every 4 weeks of practice earns a grace week (up to 2), so one busy week won't break your practice weeks."),
+    h("p.small", "💛 Kind methods only: treats, toys and praise. No shouting, no shock, prong or choke collars.")));
 }
 
 function skillRow(s, pr) {
@@ -89,8 +90,7 @@ function streakCard(p) {
       h(`li${w.done ? ".done" : ""}${w.current ? ".current" : ""}`,
         h("span.vh", `${w.current ? "This week" : (w.label || w.id)}: ${w.done ? "practised" : "no practice logged"}`),
         h("span", { "aria-hidden": "true" }, w.done ? "✓" : "")))),
-    h("p.small.muted", st.thisWeek ? "This week counts. " : "Any practice this week keeps it going. ",
-      st.graces ? `Grace weeks saved: ${st.graces}. ` : "", "Every 4 weeks of practice earns a grace week (up to 2), so one busy week won't break it."));
+    h("p.small.muted", st.thisWeek ? "This week counts ✓" : "Any practice this week keeps it going.", st.graces ? ` 🛟 ${st.graces} grace week${st.graces === 1 ? "" : "s"} saved.` : ""));
 }
 
 // ---------- one skill ----------

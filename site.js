@@ -1,7 +1,7 @@
 // Nova's Pack site script. No cookies, no tracking, no network requests.
 //
-// THE ONE SETTING: paste the Discord invite link between the quotes, e.g.
-//   const COMMUNITY_URL = "https://discord.gg/AbC123";
+// THE ONE SETTING (later): paste a WhatsApp group invite link between the quotes, e.g.
+//   const COMMUNITY_URL = "https://chat.whatsapp.com/AbC123";
 // Until it's set, the "Join the pack chat" buttons stay hidden and the chat is labelled "Opening soon".
 const COMMUNITY_URL = "";
 
@@ -150,7 +150,7 @@ const NP = (() => {
 
 // Wire up shared page bits.
 (() => {
-  const hasCommunity = /^https:\/\/(discord\.gg|discord\.com\/invite)\/[\w-]+\/?$/.test(COMMUNITY_URL);
+  const hasCommunity = /^https:\/\/chat\.whatsapp\.com\/[\w-]+\/?$/.test(COMMUNITY_URL);
   document.querySelectorAll("[data-community]").forEach((a) => {
     if (hasCommunity) { a.href = COMMUNITY_URL; a.hidden = false; }
   });

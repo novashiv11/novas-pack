@@ -3,6 +3,7 @@
 // celebrations, the session timer, the honest self-check and the skill picker. Plus small widgets (bars, rings, pips).
 
 import { EASY } from "../../data/easysteps.js";
+import { STEP_PHOTOS } from "../../data/media.js";
 import { S, pet, save, remove, refresh, realPets } from "../state.js";
 import { h, put, em, uid, sheet, toast, motionOK, buzz, isoDate } from "../util.js";
 import { skillsFor } from "../logic.js";
@@ -62,14 +63,18 @@ function changes(p, a, before, after) {
     const was = before.skills[id] || 0;
     if (L > was) {
       const sk = (S.content.SKILLS || []).find((s) => s.id === id) || { id, title: id };
-      items.push({ emoji: "⭐", title: `${skillName(sk)} reached level ${L}: ${G.LEVEL_PLACE[L].short}.`, text: "Nova approves." });
+      items.push({ emoji: "⭐", title: `${skillName(sk)} reached level ${L}: ${G.LEVEL_PLACE[L].short}.`, text: "Nova approves.",
+        share: { kind: "level", title: `Level ${L}: ${skillName(sk)}`, sub: `Now ${G.LEVEL_PLACE[L].short}`, emoji: sk.emoji || "⭐" } });
     }
   }
   for (const b of a.badges) {
-    if (b.earned && !before.badges.has(b.id)) items.push({ emoji: b.emoji, badge: true, title: `New badge: ${b.name}`, text: b.kind === "skill" ? `${p.name} can do it in the garden now. Real progress.` : `${b.need}: done. That's showing up.` });
+    if (b.earned && !before.badges.has(b.id)) items.push({ emoji: b.emoji, badge: true, title: `New badge: ${b.name}`, text: b.kind === "skill" ? `${p.name} can do it in the garden now. Real progress.` : `${b.need}: done. That's showing up.`,
+      share: { kind: "badge", title: b.name, sub: "New badge", emoji: b.emoji } });
   }
-  if (after.level > before.level) items.push({ emoji: "🎉", title: `${p.name} reached level ${after.level}`, text: "Small steps, adding up." });
-  if (after.weekAll && !before.weekAll) items.push({ emoji: "🗓️", title: "All 3 weekly quests done", text: `+${G.XP.weekBonus} bonus XP for ${p.name}. That's a good week.` });
+  if (after.level > before.level) items.push({ emoji: "🎉", title: `${p.name} reached level ${after.level}`, text: "Small steps, adding up.",
+    share: { kind: "level", title: `Partner level ${after.level}`, sub: "Small steps, adding up", emoji: "🎉" } });
+  if (after.weekAll && !before.weekAll) items.push({ emoji: "🗓️", title: "All 3 weekly quests done", text: `+${G.XP.weekBonus} bonus XP for ${p.name}. That's a good week.`,
+    share: { kind: "week", title: "All 3 weekly quests", sub: "That's a good week", emoji: "🗓️" } });
   if (after.rank !== before.rank && G.RANKS.findIndex((r) => r.id === after.rank) > G.RANKS.findIndex((r) => r.id === before.rank)) {
     const r = G.RANKS.find((x) => x.id === after.rank);
     items.push({ emoji: "🏅", title: `App rank: ${r.name}`, text: "A learning milestone in the app, not a qualification. Still: well done, you." });
@@ -82,9 +87,19 @@ export function celebrateDiff(p, before, after) {
   if (!p) return;
   const items = changes(p, gameOf(p), before, after);
   if (!items.length) return;
-  setTimeout(() => celebrate(items), 250);
+  setTimeout(() => celebrate(items, p), 250);
 }
-export function celebrate(items) {
+
+/** "📸 Share this win": the trophy card (Story size) for a real pet. Never for the sample, which isn't anyone's win. */
+export function shareWinBtn(p, win, k = "share-win") {
+  if (!p || p.sample || !win) return null;
+  return h("button.btn.btn-line.wide", { type: "button", "data-k": k, onclick: async () => {
+    try { const m = await import("../sharecard.js"); m.openTrophyCard({ pet: { name: p.name, photo: p.photo, icon: p.icon, species: p.species }, date: Date.now(), ...win }); }
+    catch { toast("Couldn't open the card. Try again."); }
+  } }, em("📸"), " Share this win");
+}
+
+export function celebrate(items, p = null) {
   if (document.querySelector("dialog.cele[open]")) return;
   const title = items.length === 1 ? items[0].title : "Look at you two";
   const { dlg } = sheet(title, (body, close) => {
@@ -93,12 +108,49 @@ export function celebrate(items) {
       h("ul.cele-list", items.map((it) => h(`li${it.badge ? ".is-badge" : ""}`,
         h("span.cele-em", { "aria-hidden": "true" }, it.emoji),
         h("span", items.length > 1 ? h("b", it.title) : null, items.length > 1 ? " " : null, it.text)))),
-      h("button.btn.btn-gold.wide", { type: "button", autofocus: true, onclick: close }, "Carry on"));
+      h("button.btn.btn-gold.wide", { type: "button", autofocus: true, onclick: close }, "Carry on"),
+      shareWinBtn(p, (items.find((i) => i.share) || {}).share));
   });
   dlg.classList.add("cele");
   dlg.querySelector(".btn-gold").focus();
   buzz(20);
   if (items.some((i) => i.badge)) confetti();
+}
+
+/**
+ * "Mission complete": the Duolingo-style moment after a session. Nova pops in, XP counts up, today's week dot fills
+ * and (on the first log of the day) the sticker drops in. Then any level-up or badge celebration follows.
+ * opts: { title, xp, firstToday, more } where more() starts 4 more minutes.
+ */
+export async function missionComplete(p, before, after, { title, xp, firstToday, more, win } = {}) {
+  let D = null;
+  try { D = await import("./doitnow.js"); } catch { /* fine: no dots */ }
+  const ws = D ? D.weekAndSticker(p) : null;
+  const moving = motionOK();
+  const n = h("b.mc-xp-n", moving ? "0" : String(xp || 0));
+  const { dlg } = sheet("Mission complete!", (body, close) => {
+    put(body,
+      h("div.mc-hero", h("div.mc-rays", { "aria-hidden": "true" }), h("img.disc.mc-nova", { src: NOVA, alt: "", width: "96", height: "96" })),
+      h("p.mc-title", title || "One more good minute."),
+      xp ? h("p.mc-xp", { "aria-label": `Plus ${xp} XP` }, "+", n, " XP") : null,
+      ws ? h("div.mc-week", { "aria-label": `This week: ${ws.count} of 3 days` },
+        h("span.wk-dots", { "aria-hidden": "true" }, ws.week.map((d) => h(`span.wk-dot${d.on ? ".on" : ""}${d.today ? ".today.pop" : ""}`, d.on ? "✓" : ""))),
+        h("span.small", ws.count >= 3 ? "Week won 🏆" : `${ws.count} of 3 days wins the week`)) : null,
+      firstToday && ws && ws.sticker ? h("div.mc-sticker", h("span.st-e", { "aria-hidden": "true" }, ws.sticker.e), h("span", h("b", `New sticker ${ws.sticker.n}: `), ws.sticker.t)) : null,
+      h("div.mc-btns",
+        h("button.btn.btn-gold.wide", { type: "button", "data-k": "mc-continue", onclick: close }, "Continue"),
+        more ? h("button.btn.btn-line.wide", { type: "button", "data-k": "mc-more", onclick: () => { close(); more(); } }, "4 more minutes") : null,
+        shareWinBtn(p, win, "mc-share")));
+  }, { onClose: () => celebrateDiff(p, before, after) });
+  dlg.classList.add("cele", "mission");
+  buzz([20, 40, 20]);
+  confetti();
+  if (moving && xp) {
+    const t0 = performance.now();
+    (function tick(t) { const k = Math.min(1, (t - t0) / 700); n.textContent = String(Math.round(xp * (1 - Math.pow(1 - k, 3)))); if (k < 1) requestAnimationFrame(tick); })(t0);
+  }
+  const btn = dlg.querySelector('[data-k="mc-continue"]');
+  if (btn) btn.focus();
 }
 
 /** Run an action that may level something up, then celebrate the difference. */
@@ -183,7 +235,10 @@ export function howTo(skillId, title, { open = false, k = "howto" } = {}) {
     h("summary", h("span.howto-title", title), h("span.howto-hint", "How? Tap for simple steps")),
     h("div.howto-body",
       e.need ? h("p.howto-need", h("b", "You need: "), e.need) : null,
-      h("ol.howto-steps", e.steps.map((s) => h("li", s))),
+      h("ol.howto-steps", e.steps.map((s, i) => {
+        const ph = (STEP_PHOTOS[skillId] || {})[i + 1];
+        return h("li", s, ph ? h("figure.step-photo", h("img", { src: ph.src, alt: ph.alt, loading: "lazy", width: "460", height: "345" })) : null);
+      })),
       e.win ? h("p.howto-win", "✅ ", e.win) : null,
       h("p.small.muted", "Simple enough for kids to help, with a grown-up. Treats, toys and praise only.")));
 }
@@ -193,11 +248,13 @@ const MOODS = [[1, "😕", "Tricky"], [2, "🙂", "OK"], [3, "🤩", "Great"]];
 const MOOD_LINE = { 1: "Tricky is normal. Make it easier next time.", 2: "Solid work. I supervised.", 3: "Great session. End there. Biscuit." };
 
 /** Save one training session (skill optional), then "+10 XP" and any celebration. */
-export async function logSession(p, sk, { minutes, mood, more } = {}) {
+export async function logSession(p, sk, { minutes, mood, more, mission } = {}) {
   const ev = { id: uid(), petId: p.id, type: "training", at: Date.now(), skillId: sk ? sk.id : undefined, minutes, mood };
   for (const k of Object.keys(ev)) if (ev[k] === undefined) delete ev[k];
   if (p.sample) ev.sample = true;
   const before = snap(p);
+  const today = isoDate();
+  const firstToday = !S.events.some((e) => e.petId === p.id && isoDate(new Date(e.at)) === today) && !S.daily.some((d) => d.id === today && (d.dogDone || d.youDone));
   try { await save("events", ev, { quiet: true }); } catch (e) { toast(saveError(e)); return null; }
   const after = snap(p);
   refresh();
@@ -209,6 +266,11 @@ export async function logSession(p, sk, { minutes, mood, more } = {}) {
     : S.events.filter((e) => e.petId === p.id && e.type === "training" && (e.skillId || "general") === (ev.skillId || "general") && G.dayKey(e.at) === G.dayKey(ev.at)).length > G.CAPS.sessions
       ? `Logged: ${name}. Only ${G.CAPS.sessions} sessions per skill count each day, so this one's just for fun. Give that skill a rest.`
       : `Logged: ${name}. Only ${G.CAPS.sessionsPerDay} sessions a day count, so this one's just for fun. Rest is training too.`;
+  if (mission && counted) {
+    missionComplete(p, before, after, { title: `${name} · ${minutes || 1} min · ${MOOD_LINE[mood] || "I supervised."}`, xp: Math.max(0, after.trainerXp - before.trainerXp) || G.XP.session, firstToday, more,
+      win: { kind: "session", title: name, sub: `${minutes || 1} min together`, emoji: "🎯" } });
+    return ev;
+  }
   const acts = [["Undo", () => remove("events", ev.id).then(() => toast("Undone."))]];
   if (more && counted) acts.unshift(["Keep going", more]);
   toast(msg, acts, more ? { ms: 9000 } : undefined);
@@ -242,7 +304,7 @@ export function startSession(p, sk, { seconds } = {}) {
       h("div.mood-row", MOODS.map(([v, e, label]) => h("button.mood-btn", { type: "button", "data-k": `mood-${v}`, onclick: () => {
         const mins = Math.max(1, Math.round(elapsed() / 60000));
         close();
-        logSession(p, sk, { minutes: Math.min(mins, 180), mood: v, more: one ? () => startSession(p, sk) : undefined });
+        logSession(p, sk, { minutes: Math.min(mins, 180), mood: v, more: one ? () => startSession(p, sk) : undefined, mission: true });
       } }, h("span.mood-em", { "aria-hidden": "true" }, e), h("span", label)))));
     const finish = () => {
       clearInterval(timer);

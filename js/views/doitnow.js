@@ -1,7 +1,7 @@
-// "Do it now" (spec v3): built for procrastinators. One big button for a 1-minute win, a plan they chose
-// ("after breakfast, with a coffee") with a daily calendar reminder, "3 days wins the week", a sticker from Nova's
+// "Do it now" (spec v3): built for procrastinators. One big button for a 1-minute win, a nudge time they picked
+// (morning, lunch, after work, evening) as a daily calendar reminder, "3 days wins the week", a sticker from Nova's
 // treat jar for each day they show up, and a fresh start whenever they come back. No streak to lose, no guilt.
-// Everything is derived from what's already logged; only the plan is stored (settings.plan).
+// Everything is derived from what's already logged; only the nudge time is stored (settings.plan).
 
 import { S, save, setSetting, refresh } from "../state.js";
 import { h, put, sheet, toast, isoDate, uid, shareOrSave } from "../util.js";
@@ -14,13 +14,13 @@ import * as G from "../game.js";
 
 const DAY = 86400000;
 export const ANCHORS = [
-  ["breakfast", "After breakfast", "08:00"],
-  ["walk", "After a walk", "18:30"],
-  ["home", "When I get home", "18:00"],
-  ["bed", "Before bed", "21:30"],
-  ["own", "At my own time", "19:00"],
+  ["morning", "☀️", "Morning", "08:00"],
+  ["lunch", "🥪", "Lunch", "13:00"],
+  ["work", "🏠", "After work", "18:00"],
+  ["evening", "🌙", "Evening", "21:00"],
 ];
-const PAIRS = [["", "Nothing"], ["coffee", "a coffee"], ["tea", "a tea"], ["music", "music"], ["podcast", "a podcast"]];
+// Plans saved before the nudge picker (CRQ-035) still read sensibly.
+const OLD = { breakfast: "After breakfast", walk: "After a walk", home: "When I get home", bed: "Before bed", own: "My own time" };
 
 // ---------- showing up (derived) ----------
 
@@ -40,6 +40,12 @@ export function showUpDates(p) {
 export function stickerFor(dates, date) {
   const i = dates.indexOf(date);
   return i < 0 ? null : { ...STICKERS[i % STICKERS.length], n: i + 1 };
+}
+/** For the mission-complete screen: this week's dots and today's sticker (if today is a show-up day). */
+export function weekAndSticker(p) {
+  const dates = showUpDates(p);
+  const week = weekDays(dates);
+  return { week, count: week.filter((d) => d.on).length, sticker: stickerFor(dates, isoDate()) };
 }
 function weekDays(dates, now = Date.now()) {
   const [a] = G.weekBounds(now);
@@ -73,7 +79,7 @@ export function doItNowCard(p) {
   // Celebrate winning the week once.
   const wk = week[0].date;
   if (won && !p.sample && S.settings.weekWon !== wk) {
-    setTimeout(() => { setSetting("weekWon", wk); celebrate([{ emoji: "🏆", title: "Week won", text: "3 days of showing up. That's the whole trick." }]); }, 300);
+    setTimeout(() => { setSetting("weekWon", wk); celebrate([{ emoji: "🏆", title: "Week won", text: "3 days of showing up. That's the whole trick.", share: { kind: "week", title: "Week won", sub: "3 days of showing up", emoji: "🏆" } }], p); }, 300);
   }
 
   const head = doneToday
@@ -90,16 +96,14 @@ export function doItNowCard(p) {
     st
       ? h("a.doit-sticker", { href: "#/more/jar", "data-k": "sticker" }, h("span.st-e", { "aria-hidden": "true" }, st.e), h("span", h("b", `Sticker ${st.n}: `), st.t))
       : h("p.small.muted.doit-jar", "🍪 Your first log today opens Nova's treat jar."),
-    h("a.doit-art", { href: "#/studio", "data-k": "open-studio" }, "🎨 Turn your week into art"),
     plan && plan.anchor
-      ? h("p.doit-plan", "Your plan: ", h("b", planText(plan)), " ", h("button.linkish", { type: "button", "data-k": "plan-edit", onclick: () => planSheet(p) }, "Change"))
-      : h("button.btn.btn-line.wide.doit-plan-btn", { type: "button", "data-k": "plan-make", onclick: () => planSheet(p) }, "Make a 30-second plan (people who plan, do)"));
+      ? h("button.linkish.doit-plan", { type: "button", "data-k": "plan-edit", onclick: () => planSheet(p) }, "⏰ Nova nudges you: ", h("b", planText(plan)))
+      : h("button.btn.btn-line.wide.doit-plan-btn", { type: "button", "data-k": "plan-make", onclick: () => planSheet(p) }, "⏰ When should Nova nudge you?"));
 }
 
 export function planText(plan) {
   const a = ANCHORS.find((x) => x[0] === plan.anchor);
-  const pair = PAIRS.find((x) => x[0] === plan.pair);
-  return `${a ? a[1].toLowerCase() : "my own time"} (${plan.time || "19:00"})${pair && pair[0] ? `, with ${pair[1]}` : ""}`;
+  return `${a ? a[2].toLowerCase() : OLD[plan.anchor] ? OLD[plan.anchor].toLowerCase() : "my time"} (${plan.time || "19:00"})`;
 }
 
 // ---------- Do 1 minute now ----------
@@ -125,47 +129,36 @@ export function doNow(p) {
   });
 }
 
-// ---------- the plan ----------
+// ---------- the nudge time (was "the plan") ----------
 
+/** One tap: when should Nova nudge you? Then an optional daily calendar reminder. The app never sends notifications. */
 export function planSheet(p) {
   const cur = S.settings.plan || {};
-  let anchor = cur.anchor || "breakfast";
-  let pair = cur.pair || "";
-  sheet("Your 30-second plan", (body, close) => {
-    const time = h("input", { type: "time", value: cur.time || ANCHORS.find((x) => x[0] === anchor)[2], "data-k": "plan-time" });
-    const anchors = h("div.plan-pick", { role: "radiogroup", "aria-label": "When" }, ANCHORS.map(([v, label, t]) => {
-      const id = `pa-${v}`;
-      return [h("input", { type: "radio", name: "plan-anchor", id, value: v, checked: v === anchor, onchange: () => { anchor = v; if (!cur.time || cur.anchor !== v) time.value = t; } }),
-        h("label", { for: id }, label)];
-    }).flat());
-    const pairs = h("div.plan-pick.small-pick", { role: "radiogroup", "aria-label": "Pair it with" }, PAIRS.map(([v, label]) => {
-      const id = `pp-${v || "none"}`;
-      return [h("input", { type: "radio", name: "plan-pair", id, value: v, checked: v === pair, onchange: () => { pair = v; } }), h("label", { for: id }, label === "Nothing" ? "Nothing" : label.replace(/^a /, ""))];
-    }).flat());
+  sheet("When should Nova nudge you?", (body, close) => {
     const after = h("div.plan-after", { hidden: true });
-    const saveBtn = h("button.btn.btn-blue", { type: "button", "data-k": "plan-save", onclick: async () => {
-      const plan = { anchor, time: time.value || "19:00", pair };
-      await setSetting("plan", plan, { quiet: false });
-      saveBtn.hidden = true;
+    const pick = async (anchor, time) => {
+      const plan = { anchor, time };
+      try { await setSetting("plan", plan, { quiet: true }); } catch (e) { toast(saveError(e)); return; }
+      body.querySelectorAll(".nudge-opt").forEach((b) => b.classList.toggle("on", b.dataset.a === anchor));
       put(after,
-        h("p", h("b", "Saved: "), planText(plan), "."),
-        h("p.small", "Want a nudge? Add it to your calendar: your phone reminds you every day. We never send notifications."),
+        h("p", "✅ ", h("b", planText(plan)), ". Add it to your calendar so your phone reminds you."),
         h("div.row-btns.left",
           h("button.btn.btn-blue", { type: "button", "data-k": "plan-cal", onclick: () => {
             const title = `1 minute with ${p ? p.name : "your pet"} 🐾`;
-            ics.download("novas-pack-daily-minute.ics", ics.dailyEvent({ uid: `plan-${uid()}`, title, time: plan.time, start: isoDate(), note: "Open Nova's Pack and tap Do 1 minute now." }));
+            ics.download("novas-pack-daily-minute.ics", ics.dailyEvent({ uid: `plan-${uid()}`, title, time, start: isoDate(), note: "Open Nova's Pack and tap Do 1 minute now." }));
             toast("Calendar file made. Open it and tap Add.");
-          } }, "Add daily reminder"),
-          h("button.btn.btn-line", { type: "button", "data-k": "plan-friend", onclick: () => tellFriend(p, plan) }, "Tell a friend")),
-        h("button.linkish", { type: "button", onclick: close }, "Done"));
+          } }, "Add to calendar"),
+          h("button.btn.btn-line", { type: "button", "data-k": "plan-done", onclick: () => { close(); refresh(); } }, "Done")),
+        h("button.linkish", { type: "button", "data-k": "plan-friend", onclick: () => tellFriend(p, plan) }, "Tell a friend to check on you"));
       after.hidden = false;
-    } }, "Save my plan");
+    };
+    const custom = h("input", { type: "time", id: "nudge-own", value: cur.anchor === "own" && cur.time ? cur.time : "19:00", "data-k": "plan-time" });
     put(body,
-      h("p.sheet-intro", "Pick a moment you already have every day. Linking it to something you do anyway makes it far more likely to happen."),
-      h("fieldset.fs", h("legend", "When?"), anchors),
-      h("div.field", h("label", { for: "plan-time-in" }, "Around"), Object.assign(time, { id: "plan-time-in" })),
-      h("fieldset.fs", h("legend", "Pair it with something you like (optional)"), pairs),
-      h("div.row-btns", saveBtn),
+      h("div.nudge-grid", ANCHORS.map(([v, e, label, t]) => h(`button.nudge-opt${cur.anchor === v ? ".on" : ""}`, { type: "button", "data-a": v, "data-k": `plan-${v}`, onclick: () => pick(v, t) },
+        h("span.nudge-e", { "aria-hidden": "true" }, e), h("b", label), h("span.small.muted", t)))),
+      h("div.nudge-own", h("label", { for: "nudge-own" }, "Or pick a time"), custom,
+        h("button.btn.btn-line.sm", { type: "button", "data-k": "plan-own", onclick: () => pick("own", custom.value || "19:00") }, "Set")),
+      h("p.small.muted", "We never send notifications. Your calendar does the nudging."),
       after);
   });
 }
