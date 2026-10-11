@@ -21,7 +21,7 @@ export const LEVEL_PLACE = [
 export const QUEST_PLACE = ["at home", "at home", "at home", "in the garden", "on the street", "in the park"];
 
 export const XP = { session: 10, levelUp: 50, walk: 5, stamp: 20, care: 5, lesson: 40, quest: 30, weekBonus: 50 };
-export const CAPS = { sessions: 3, sessionsPerDay: 10, walks: 2, carePerDay: 5 };
+export const CAPS = { sessions: 3, sessionsPerDay: 10, walks: 2, carePerDay: 5, stampsPerDay: 2 };
 export const MAX_LEVEL = 50;
 export const RANKS = [
   { id: "rookie", name: "Rookie", xp: 0 },
@@ -32,19 +32,32 @@ export const RANKS = [
 
 /** The 5 partner stats and the skills that feed them (spec C.2). Confidence also gets a small adventure bonus. */
 export const STATS = [
-  { id: "focus", label: "Focus", skills: ["leave-it", "settle", "trick-spin", "toilet-training"] },
+  { id: "focus", label: "Focus", skills: ["leave-it", "settle", "trick-spin", "toilet-training", "talk-buttons"] },
   { id: "recall", label: "Recall", skills: ["recall"] },
   { id: "lead", label: "Lead manners", skills: ["loose-lead", "wait-doors"] },
   { id: "calm", label: "Calm", skills: ["settle", "greetings", "handling", "alone-time"] },
   { id: "confidence", label: "Confidence", skills: ["muzzle", "handling", "cat-carrier", "cat-handling"], adventures: true },
 ];
+/** Puppies (under 6 months) start with the basics that matter most at that age, lowest level first. */
+const PUPPY_FIRST = ["toilet-training", "handling", "settle", "alone-time"];
+function puppyPick(ctx, sess, at, skip) {
+  const st = stageOf(ctx.pet, at);
+  if (!st || st.id !== "puppy") return null;
+  const ids = skillIds(ctx);
+  const cands = PUPPY_FIRST.filter((id) => ids.has(id) && !skip.has(id)).map((id, i) => ({ i, p: skillProgress(id, sess, ctx.checks, at, placedOf(ctx, id)) }))
+    .filter((c) => c.p.level < 3).sort((a, b) => a.p.level - b.p.level || a.p.sessions - b.p.sessions || a.i - b.i);
+  return cands.length ? cands[0].p : null;
+}
+
+/** Skills that only become automatic quests once you've practised them (or picked them as this week's skill). */
+const OPT_IN = ["muzzle"];
 /** When stats tie, the quest goes to the most useful one first (recall keeps dogs safe). */
 const QUEST_PRIORITY = ["recall", "lead", "calm", "focus", "confidence"];
 
 export const SHORT = {
   recall: "Recall", "loose-lead": "Loose lead", settle: "Settle", greetings: "Calm greetings", "leave-it": "Leave it",
   "wait-doors": "Wait at doors", handling: "Handling", "trick-spin": "Spin", muzzle: "Muzzle", "toilet-training": "Toilet training",
-  "alone-time": "Alone time", "cat-carrier": "Carrier", "cat-handling": "Handling",
+  "alone-time": "Alone time", "cat-carrier": "Carrier", "cat-handling": "Handling", "talk-buttons": "Talk buttons",
 };
 
 export const SKILL_BADGES = [
@@ -100,25 +113,31 @@ export function sessionCounts(events, ev) {
  * One skill's progress from counted sessions and self-checks (both only before `before`).
  * A level needs LEVEL_REQ sessions AND a "yes" self-check at that level, in order.
  */
-export function skillProgress(skillId, sessions, checks, before = Infinity) {
+/** The starting level for a skill from the level check (pet.placement), 0 if none. */
+export const placedOf = (ctx, id) => Number((ctx.pet && ctx.pet.placement && ctx.pet.placement[id]) || 0);
+
+export function skillProgress(skillId, sessions, checks, before = Infinity, placed = 0) {
+  // `placed`: the starting level from the level check (0–4). It counts as done (its sessions are assumed), gives no XP,
+  // and practice from today builds on it.
+  const P = Math.max(0, Math.min(4, Math.floor(placed) || 0));
   const s = sessions.filter((e) => e.skillId === skillId && e.at < before).sort(byAt);
   const ch = checks.filter((c) => c.skillId === skillId && c.at < before);
-  const n = s.length;
+  const n = s.length, nEff = n + LEVEL_REQ[P];
   const days = new Set(s.map((e) => dayKey(e.at))).size; // a level needs practice on at least 2 different days
-  let level = 0;
+  let level = P;
   const ups = [];
-  for (let L = 1; L <= 5; L++) {
-    if (n < LEVEL_REQ[L] || days < 2) break;
+  for (let L = P + 1; L <= 5; L++) {
+    if (nEff < LEVEL_REQ[L] || days < 2) break;
     const c = ch.filter((x) => x.level === L).sort(byAt)[0];
     if (!c) break;
     level = L;
-    ups.push({ skillId, level: L, at: Math.max(c.at, s[LEVEL_REQ[L] - 1].at) });
+    ups.push({ skillId, level: L, at: Math.max(c.at, s[LEVEL_REQ[L] - LEVEL_REQ[P] - 1].at) });
   }
   const next = level < 5 ? level + 1 : null;
   const need = next ? LEVEL_REQ[next] : LEVEL_REQ[5];
   const from = LEVEL_REQ[level];
-  const frac = next ? Math.max(0, Math.min(1, (n - from) / (need - from))) : 1;
-  return { skillId, sessions: n, level, next, need, ready: !!next && n >= need && days >= 2, needDay: !!next && n >= need && days < 2, frac, ups, toGo: next ? Math.max(0, need - n) : 0 };
+  const frac = next ? Math.max(0, Math.min(1, (nEff - from) / (need - from))) : 1;
+  return { skillId, sessions: n, placed: P, level, next, need, ready: !!next && nEff >= need && days >= 2, needDay: !!next && nEff >= need && days < 2, frac, ups, toGo: next ? Math.max(0, need - nEff) : 0 };
 }
 /** Points for stats: the level, plus up to half a level for sessions done towards the next one. */
 const points = (pr) => (pr.level >= 5 ? 5 : pr.level + 0.5 * pr.frac);
@@ -179,7 +198,7 @@ export function statsOf(ctx, before = Infinity) {
   const { sessions } = base(ctx);
   const sess = sessions.filter((e) => e.at < before);
   const prog = {};
-  for (const id of ids) prog[id] = skillProgress(id, sess, ctx.checks, before);
+  for (const id of ids) prog[id] = skillProgress(id, sess, ctx.checks, before, placedOf(ctx, id));
   const stamps = stampsEarned(ctx, before).length;
   return STATS.map((st) => {
     let list = st.skills.filter((id) => ids.has(id));
@@ -201,18 +220,23 @@ export function focusSkill(ctx, at) {
   if (!stats.length) return null;
   const rank = (s) => QUEST_PRIORITY.indexOf(s.id);
   const sess = base(ctx).sessions;
-  const skip = new Set(ctx.exclude || []);
+  const skip = new Set(ctx.exclude || []); // "not for us"
+  const auto = new Set(skip); // automatic picks also leave out opt-in skills nobody has practised
+  for (const id of OPT_IN) if (!sess.some((e) => e.skillId === id)) auto.add(id);
   const wk = weekBounds(at)[0];
   const chosen = ctx.focus && ctx.focus.week === wk && skillIds(ctx).has(ctx.focus.skillId) && !skip.has(ctx.focus.skillId) ? ctx.focus.skillId : null;
   let p, weakest;
   if (chosen) {
-    p = skillProgress(chosen, sess, ctx.checks, at);
+    p = skillProgress(chosen, sess, ctx.checks, at, placedOf(ctx, chosen));
     weakest = stats.find((s) => s.skills.includes(chosen)) || stats[0];
+  } else if (puppyPick(ctx, sess, at, auto)) {
+    p = puppyPick(ctx, sess, at, auto);
+    weakest = stats.find((s) => s.skills.includes(p.skillId)) || stats[0];
   } else {
-    const usable = stats.map((s) => ({ ...s, skills: s.skills.filter((id) => !skip.has(id)) })).filter((s) => s.skills.length);
+    const usable = stats.map((s) => ({ ...s, skills: s.skills.filter((id) => !auto.has(id)) })).filter((s) => s.skills.length);
     if (!usable.length) return null;
     weakest = [...usable].sort((a, b) => a.value - b.value || rank(a) - rank(b))[0];
-    const cands = weakest.skills.map((id, i) => ({ i, p: skillProgress(id, sess, ctx.checks, at) }))
+    const cands = weakest.skills.map((id, i) => ({ i, p: skillProgress(id, sess, ctx.checks, at, placedOf(ctx, id)) }))
       .sort((a, b) => a.p.level - b.p.level || a.p.sessions - b.p.sessions || a.i - b.i);
     p = cands[0].p;
   }
@@ -247,10 +271,15 @@ export function weeklyQuests(ctx, ms = ctx.now) {
   }
   const manual = (ctx.stamps || []).filter((s) => !s.auto);
   const before = stampsEarned(ctx, a).filter((s) => !s.auto).length;
-  if (manual.length && before < manual.length) {
+  const dog = ctx.pet && ctx.pet.species === "dog";
+  const walkWeek = Math.round(a / (7 * 86400000)) % 2 === 1; // dogs alternate: an adventure week, then a walk week
+  if (manual.length && before < manual.length && !(dog && walkWeek)) {
     quests.push({ id: "adventure", emoji: "🌟", text: "1 new adventure", target: 1, progress: stampsEarned(ctx, b).filter((s) => !s.auto && inWeek(s.at)).length });
-  } else {
+  } else if (dog) {
     quests.push({ id: "walks", emoji: "🚶", text: "3 walks", target: 3, progress: walks.filter((e) => inWeek(e.at)).length });
+  } else {
+    const days = new Set(ctx.events.filter((e) => inWeek(e.at) && e.type !== "weight").map((e) => dayKey(e.at)));
+    quests.push({ id: "days", emoji: "📒", text: "Diary on 4 days", target: 4, progress: days.size });
   }
   quests.push({ id: "care", emoji: "✨", text: "1 care task", target: 1, progress: care.filter((e) => inWeek(e.at)).length });
   for (const q of quests) { q.progress = Math.min(q.target, q.progress); q.done = q.progress >= q.target; }
@@ -311,7 +340,7 @@ export function badgesOf(ctx, a) {
   for (const b of SKILL_BADGES) {
     if (!ids.has(b.skill)) continue;
     const pr = a.progress[b.skill];
-    const up = pr && pr.ups[SKILL_BADGE_LEVEL - 1];
+    const up = pr && pr.ups.find((u) => u.level >= SKILL_BADGE_LEVEL); // earned by practice (after a level check, at the next level up)
     out.push({ ...b, kind: "skill", earned: !!up, at: up ? up.at : null, need: `${SHORT[b.skill]} level ${SKILL_BADGE_LEVEL}`, progress: pr ? `Level ${pr.level} of ${SKILL_BADGE_LEVEL}` : "" });
   }
   const streak = bestStreak(ctx.events.filter((e) => e.type === "training").map((e) => e.at), ctx.now);
@@ -329,7 +358,7 @@ export function badgesOf(ctx, a) {
 export function analyze(ctx) {
   const b = base(ctx);
   const progress = {};
-  for (const s of ctx.skills) progress[s.id] = skillProgress(s.id, b.sessions, ctx.checks);
+  for (const s of ctx.skills) progress[s.id] = skillProgress(s.id, b.sessions, ctx.checks, Infinity, placedOf(ctx, s.id));
   const ups = Object.values(progress).flatMap((p) => p.ups);
   const stamps = stampsEarned(ctx);
   const weeks = weeklyHistory(ctx);
@@ -338,7 +367,7 @@ export function analyze(ctx) {
     sessions: b.sessions.length * XP.session,
     levelUps: ups.length * XP.levelUp,
     walks: b.walks.length * XP.walk,
-    stamps: stamps.length * XP.stamp,
+    stamps: capped(stamps.filter((s) => s.at), (s) => dayKey(s.at), CAPS.stampsPerDay).length * XP.stamp + stamps.filter((s) => !s.at).length * XP.stamp,
     bonus: bonusWeeks * XP.weekBonus,
   };
   const xp = Object.values(xpParts).reduce((s, v) => s + v, 0);

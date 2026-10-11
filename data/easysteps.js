@@ -139,4 +139,14 @@ export const EASY = {
     ],
     win: "One calm paw touch is a win.",
   },
+  "talk-buttons": {
+    need: "a recordable button and tiny snacks",
+    steps: [
+      "Record \"snack please\" on the button. Put it on the floor by the snacks.",
+      "You press it, then give a tiny snack. Do it lots, for a few days.",
+      "Your pet sniffs or paws it and it plays? Say \"yes!\" and give a snack straight away.",
+      "Snack times only: put the button away the rest of the day.",
+    ],
+    win: "One press by your pet is a big win. Film it!",
+  },
 };

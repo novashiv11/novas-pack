@@ -2,6 +2,7 @@
 // Today: window.NP_openQuickLog for #/quick/<type>, the "Update ready" toast, the in-app browser banner and the
 // route cross-fade.
 
+import { quizSkills } from "./placement.js";
 import { S, pet, refresh, UI, setSetting } from "../state.js";
 import { h, put, em, toast, motionOK } from "../util.js";
 import { eventSheet, unwellSheet, logPoop, logMeal, logTreat, logWalk, logMed, petForm, field, textIn } from "../forms.js";
@@ -25,8 +26,13 @@ export function welcome(main, arg) {
       h("p.add-lede", "Who's in your family? Only the name is needed. Free, no account."));
     petForm(main, null, async (row) => {
       if (extra && name.value.trim()) await setSetting("trainerName", name.value.trim().slice(0, 40)).catch(() => {});
-      toast(`${row.name} is your partner. Here's today's quest.`);
-      location.hash = "#/home";
+      if (quizSkills(row).length) {
+        toast(`${row.name} is your partner. One quick question round first.`);
+        location.hash = "#/placement";
+      } else {
+        toast(`${row.name} is your partner. Here's today's quest.`);
+        location.hash = "#/home";
+      }
     }, { extra, submitLabel: "Start levelling up" });
     return;
   }

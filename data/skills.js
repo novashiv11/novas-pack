@@ -255,4 +255,23 @@ export const SKILLS = [
     pro: "Ask your vet or vet nurse to show you how to trim safely, and see your vet if your cat hides, hisses or swats when touched in one place, since pain may be behind it.",
     clip: "clips/cat-handling.mp4",
   },
+  {
+    id: "talk-buttons",
+    title: "Talk buttons: \"snack please\"",
+    species: ["dog", "cat"],
+    level: "Fun",
+    minutes: 3,
+    why: "A recordable button by the snack spot turns asking into a game: your pet learns that pressing it makes \"snack please\" happen. It builds focus and confidence, and it's brilliant on camera. (Researchers are still studying what pets understand from buttons; for us it's a kind, fun game.)",
+    steps: [
+      "Record your words (\"snack please\") on the button and put it on the floor where snacks come from. Stick it down so it can't slide.",
+      "Show them how: press the button yourself, then give a tiny snack straight away. Do it every time you'd give a treat anyway, for a few days.",
+      "Wait for curiosity. When your pet sniffs, noses or paws the button and it plays, say \"yes!\" and give the snack within 2 seconds.",
+      "If they ignore it, reward small steps: looking at it, then sniffing it, then touching it. Keep sessions short.",
+      "Keep it fair: snacks come out of their daily food, and the button only works at snack times (put it away the rest of the day).",
+      "Once they press it on their own, add a second button well away from the first (\"outside\" by the door), never right next to it.",
+    ],
+    mistake: "Ignoring presses at the start (so the button stops meaning anything), or letting it become an all-day snack machine. Pick snack times, and use part of their daily food.",
+    pro: "If your pet gets frustrated, barks or paws hard at the button, or has a health condition or special diet, ask your vet about treats and a reward-based trainer about the training.",
+    clip: "clips/talk-buttons.mp4",
+  },
 ];

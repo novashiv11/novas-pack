@@ -23,10 +23,10 @@ export function home(main) {
     dueToday(p),
     doItNowCard(p),
     partnerCard(p, a, tr),
+    quickLog(p),
     onePercent(p, a),
     trainerStrip(tr, p),
     weekly(p, a),
-    quickLog(p),
     badgeRow(a),
     nudge(p, a, tr),
   );

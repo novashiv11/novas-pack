@@ -180,6 +180,12 @@ const str = (v, max = 2000) => (typeof v === "string" ? v.slice(0, max) : undefi
 const num = (v) => (typeof v === "number" && Number.isFinite(v) ? v : undefined);
 const date = (v) => (typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : undefined);
 const id = (v) => (typeof v === "string" && v.length > 0 && v.length <= 80 ? v : undefined);
+const placementOf = (v) => {
+  if (!v || typeof v !== "object" || Array.isArray(v)) return undefined;
+  const out = {};
+  for (const [k, n] of Object.entries(v)) if (/^[a-z][a-z-]{0,29}$/.test(k) && Number.isInteger(n) && n >= 1 && n <= 4) out[k] = n;
+  return Object.keys(out).length ? out : undefined;
+};
 const photo = (v) => (typeof v === "string" && /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(v) && v.length < 3e6 ? v : undefined);
 function clean(o) {
   for (const k of Object.keys(o)) if (o[k] === undefined) delete o[k];
@@ -211,6 +217,7 @@ const CLEAN = {
       neutered: obj(r.neutered, { yes: (v) => (typeof v === "boolean" ? v : undefined), date }),
       lastSeason: date(r.lastSeason), icon: typeof r.icon === "string" && /^[^\x00-\x7F]{1,16}$/u.test(r.icon) ? r.icon : undefined,
       photoStyle: r.photoStyle === "cartoon" ? "cartoon" : undefined,
+      placement: placementOf(r.placement), placedAt: num(r.placedAt),
       training, sample: r.sample === true || undefined, createdAt: num(r.createdAt),
     });
   },

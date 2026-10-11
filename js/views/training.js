@@ -2,6 +2,7 @@
 // harder place (home → garden → street → park). The skill page has the clip, steps, a 5-minute session timer and
 // the session history. Sessions, XP and levels all come from the diary (js/game.js).
 
+import { quizSkills } from "./placement.js";
 import { S, pet, eventsOf, save, remove, setSetting } from "../state.js";
 import { h, put, em, weeklyStreak, motionOK, fmtDay, fmtTime, toast, confirmBox, sheet } from "../util.js";
 import { skillsFor, progressOf } from "../logic.js";
@@ -46,6 +47,9 @@ export function training(main, arg, sub) {
         : h("div.row-btns.left", h("a.btn.btn-blue.sm", { href: `#/train/${encodeURIComponent(q.skillId)}/start` }, "Start the timer")),
       h("button.linkish", { type: "button", "data-k": "swap-focus", onclick: () => focusPicker(p, skills) }, "Not this one? Pick this week's skill")));
   }
+  if (!p.sample && quizSkills(p).length) {
+    put(main, h("p.lc-link", h("a.text-link", { href: "#/placement", "data-k": "lc-open" }, p.placement ? "Redo the level check" : `Already trained some skills? 1-minute level check for ${p.name}`)));
+  }
   put(main, streakCard(p));
   for (const g of GROUPS) {
     const list = skills.filter((s) => s.level === g);
@@ -72,12 +76,16 @@ function skillRow(s, pr) {
 
 function streakCard(p) {
   const st = weeklyStreak(eventsOf("training").map((e) => e.at));
+  // Only the weeks since this pet joined (no row of "no practice" weeks from before you started).
+  const since = weekBounds(p.createdAt || Date.now())[0];
+  const shown = Math.max(1, Math.min(8, Math.round((weekBounds(Date.now())[0] - since) / (7 * 86400000)) + 1));
+  st.last8 = st.last8.slice(-shown);
   return h("section.streak-card", { "aria-labelledby": "st-h" },
     h("div.streak-top",
       h("div", h("h2", { id: "st-h" }, "Practice weeks"),
         h("p.streak-n", h("b", String(st.weeks)), ` week${st.weeks === 1 ? "" : "s"}`)),
       h("button.btn.btn-blue", { type: "button", "data-k": "log-practice", onclick: () => trainingPicker(p) }, "Train now")),
-    h("ol.week-dots", { "aria-label": "Last 8 weeks" }, st.last8.map((w) =>
+    h("ol.week-dots", { "aria-label": st.last8.length === 1 ? "This week" : `Last ${st.last8.length} weeks` }, st.last8.map((w) =>
       h(`li${w.done ? ".done" : ""}${w.current ? ".current" : ""}`,
         h("span.vh", `${w.current ? "This week" : (w.label || w.id)}: ${w.done ? "practised" : "no practice logged"}`),
         h("span", { "aria-hidden": "true" }, w.done ? "✓" : "")))),

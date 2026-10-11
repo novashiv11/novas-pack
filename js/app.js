@@ -15,15 +15,16 @@ import { training } from "./views/training.js";
 import { adventures } from "./views/adventures.js";
 import { trainer } from "./views/trainer.js";
 import { journal } from "./views/journal.js";
+import { placement } from "./views/placement.js";
 import { more } from "./views/more.js";
 import { avatar } from "./views/parts.js";
 import { openPetSheet, eventSheet, medGivenSheet } from "./forms.js";
 
-const ROUTES = { home, train: training, adventures, health, summary, more, trainer, journal, welcome };
+const ROUTES = { home, train: training, adventures, health, summary, more, trainer, journal, welcome, placement };
 // Old v1 addresses (bookmarks, shortcuts) still land somewhere sensible.
 const ALIASES = { today: ["home"], training: ["train"], poop: ["health", "poop"], food: ["health", "food"] };
-const TAB_OF = { home: "home", trainer: "home", journal: "home", train: "train", adventures: "adventures", health: "health", summary: "health", more: "more" };
-const TITLES = { home: "Home", train: "Train", adventures: "Adventures", health: "Health", summary: "Vet summary", more: "More", trainer: "Trainer", journal: "Growth Journal" };
+const TAB_OF = { home: "home", trainer: "home", journal: "home", placement: "train", train: "train", adventures: "adventures", health: "health", summary: "health", more: "more" };
+const TITLES = { home: "Home", train: "Train", adventures: "Adventures", health: "Health", summary: "Vet summary", more: "More", trainer: "Trainer", journal: "Growth Journal", placement: "Level check" };
 const HEALTH_QUICK = ["poop", "meal", "treat", "med", "weight", "vet", "symptom"];
 
 const main = document.getElementById("main");

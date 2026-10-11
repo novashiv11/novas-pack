@@ -207,7 +207,10 @@ function poopRules(p, now, events) {
   // No poop for over 48 hours, but only for people who log regularly (otherwise it's just a gap in the diary).
   if ((p.species === "dog" || p.species === "cat") && latest && now - latest.at > 2 * DAY) {
     const logged = poops.filter((e) => latest.at - e.at < 7 * DAY).length;
-    if (logged >= 4) add("no-poop-48h", "today", "No poop logged for more than 48 hours. If they really haven't been:", "no-poop-48h");
+    // Only when you're clearly still logging (something else logged in the last day, after the last poop): a quiet
+    // diary means you stopped logging, not that your pet stopped pooping.
+    const stillLogging = events.some((e) => e.petId === p.id && e.type !== "poop" && e.type !== "symptom" && e.at > latest.at + DAY && now - e.at < DAY);
+    if (logged >= 4 && stillLogging) add("no-poop-48h", "today", "No poop logged for more than 48 hours. If they really haven't been:", "no-poop-48h");
   }
   return out;
 }
