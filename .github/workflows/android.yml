@@ -30,12 +30,13 @@ jobs:
       - name: Check the signing password is set
         run: |
           if [ -z "$KS_PASS" ]; then
-            echo "::error::Add the repository secret ANDROID_KEYSTORE_PASSWORD (Settings → Secrets and variables → Actions), then run this workflow again."
-            exit 1
-          fi
-          if [ "${#KS_PASS}" -lt 12 ]; then
+            echo "::warning::No ANDROID_KEYSTORE_PASSWORD secret yet, so this run only test-builds the app (nothing is published). Add the secret (Settings → Secrets and variables → Actions), then run this workflow again."
+            echo "HAS_KEY=0" >> "$GITHUB_ENV"
+          elif [ "${#KS_PASS}" -lt 12 ]; then
             echo "::error::ANDROID_KEYSTORE_PASSWORD must be at least 12 characters."
             exit 1
+          else
+            echo "HAS_KEY=1" >> "$GITHUB_ENV"
           fi
 
       - uses: actions/setup-java@v4
@@ -43,7 +44,15 @@ jobs:
           distribution: temurin
           java-version: "17"
 
+      - name: Test build (no secret yet)
+        if: env.HAS_KEY == '0'
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon assembleDebug
+
       - name: Signing key (created on the first run only)
+        if: env.HAS_KEY == '1'
         working-directory: android
         run: |
           if [ ! -f android.keystore ]; then
@@ -59,13 +68,14 @@ jobs:
           test -s signing-sha256.txt
 
       - name: Build the APK and the App Bundle
+        if: env.HAS_KEY == '1'
         working-directory: android
         run: |
           chmod +x gradlew
           ./gradlew --no-daemon assembleRelease bundleRelease
 
       - name: Save the new key and its fingerprint (first run only)
-        if: env.NEW_KEY == '1'
+        if: env.HAS_KEY == '1' && env.NEW_KEY == '1'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -74,6 +84,7 @@ jobs:
           git push
 
       - name: Publish on the "android" release
+        if: env.HAS_KEY == '1'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
