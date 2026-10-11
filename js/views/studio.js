@@ -127,7 +127,7 @@ function describe(d, name, short = false) {
   if (d.training.length) parts.push(plural(d.training.length, "training circle", "training circles"));
   if (d.walks.length) parts.push(plural(d.walks.length, "walk ribbon", "walk ribbons"));
   if (d.stamps) parts.push(plural(d.stamps, "Adventure star", "Adventure stars"));
-  if (d.hearts) parts.push(plural(d.hearts, "1% heart", "1% hearts"));
+  if (d.hearts) parts.push(plural(d.hearts, "daily heart", "daily hearts"));
   if (d.glows) parts.push(plural(d.glows, "journal glow", "journal glows"));
   if (d.other) parts.push(short ? plural(d.other, "sprinkle", "sprinkles") : plural(d.other, "sprinkle from your other logs", "sprinkles from your other logs"));
   return parts.length ? `${name}'s week so far: ${parts.join(", ")}.` : "";
@@ -726,7 +726,7 @@ export function studio(main) {
     noFrameBtn.setAttribute("aria-pressed", String(cur === null));
   }
 
-  const legend = [["Training", "circles"], ["Walks", "ribbons"], ["Adventure stamps", "stars"], ["1% ticks", "hearts"], ["Journal lines", "glows"]];
+  const legend = [["Training", "circles"], ["Walks", "ribbons"], ["Adventure stamps", "stars"], ["Daily ticks", "hearts"], ["Journal lines", "glows"]];
   put(main, h("div.st-wrap",
     h("header.st-hero",
       h("img.avatar.disc.st-nova", { src: NOVA, alt: "", width: "44", height: "44" }),

@@ -83,7 +83,7 @@ function goPro() {
 // ---------- the 1% curve: small multiples, one per measure (different scales never share an axis) ----------
 function curveSection(p) {
   const pts = curve(worldPets(p).map(gameOf), Date.now(), 12);
-  const head = h("h2.sec-title", { id: "cv-h" }, "1% a day adds up");
+  const head = h("h2.sec-title", { id: "cv-h" }, "Do it for them: it adds up");
   if (pts.length < 2) {
     return h("section.sec", { "aria-labelledby": "cv-h" }, head,
       h("p.empty", pts.length ? "Your curve starts this week. Come back next week and you'll see it climb." : "Your curve starts with your first session. Small steps, every week."));

@@ -287,7 +287,7 @@ export async function drawLine(canvas, line) {
   canvas.width = W; canvas.height = H;
   g.fillStyle = C.blue; g.fillRect(0, 0, W, H);
   g.fillStyle = C.oat; rr(g, 40, 40, 1000, 1000, 48); g.fill();
-  header(g, head, W, "1% BETTER", false);
+  header(g, head, W, "DO IT FOR THEM", false);
   // big quote, sized to fit
   let size = 76, lines;
   for (;;) {
@@ -305,7 +305,7 @@ export async function drawLine(canvas, line) {
   if (line.source) { g.fillStyle = C.muted; g.font = font(600, 24, false); g.fillText(fit(g, line.source, 860, 24, 600, false), 110, y + 62); }
   g.fillStyle = C.gold; rr(g, 110, 920, 120, 10, 5); g.fill();
   g.fillStyle = C.blue; g.font = font(800, 28, false); g.textAlign = "left";
-  g.fillText("Nova's Pack · 1% better every day", 110, 990);
+  g.fillText("Nova's Pack · Do it for them", 110, 990);
 }
 
 // ---------- Trophy card ----------

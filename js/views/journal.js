@@ -29,7 +29,7 @@ function weekSummary(p, a0, a1) {
   [plural("sessions", "trained once", "trained # times"), plural("walks", "went for a walk", "went for # walks"),
     plural("levels", "levelled up a skill", "levelled up # skills"), plural("stamps", "earned a stamp", "earned # stamps"),
     plural("care", "did a care task", "did # care tasks"), plural("lessons", "finished a lesson", "finished # lessons"),
-    plural("days", "did your 1% on one day", "did your 1% on # days")].forEach((x) => x && bits.push(x));
+    plural("days", "did it for them on one day", "did it for them on # days")].forEach((x) => x && bits.push(x));
   if (!bits.length) return null;
   return bits.length === 1 ? bits[0] : `${bits.slice(0, -1).join(", ")} and ${bits[bits.length - 1]}`;
 }
@@ -52,9 +52,9 @@ function dayList(days) {
     const t = S.daily.find((x) => x.id === key);
     return h(`li${e ? ".has" : ""}`,
       h("span.jr-day", dayLabel(d)),
-      h("span.jr-text", e ? e.text : h("span.muted", "Ticked 1% today.")),
+      h("span.jr-text", e ? e.text : h("span.muted", "Did it for them today.")),
       t && (t.dogDone || t.youDone) ? h("span.jr-ticks", h("span", { "aria-hidden": "true" }, `${t.dogDone ? "🐾" : ""}${t.youDone ? "💛" : ""}`),
-        h("span.vh", `1% done: ${[t.dogDone ? "for your pet" : "", t.youDone ? "for you" : ""].filter(Boolean).join(" and ")}`)) : null);
+        h("span.vh", `Done today: ${[t.dogDone ? "for your pet" : "", t.youDone ? "for you" : ""].filter(Boolean).join(" and ")}`)) : null);
   }));
 }
 
