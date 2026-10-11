@@ -7,7 +7,7 @@ import { h, put, em, fmtDate, isoDate, ageText, DAY, toast } from "../util.js";
 import { healthAlerts, backupDue } from "../logic.js";
 import { logWalk, speciesOf, openPetSheet, saveError } from "../forms.js";
 import { sampleStrip, alertCard, avatar, chevron } from "./parts.js";
-import { gameOf, trainerFor, trainerName, bar, ring, badgeChip, trainingPicker } from "./gameui.js";
+import { gameOf, trainerFor, trainerName, bar, ring, badgeChip, trainingPicker, howTo } from "./gameui.js";
 import { openPartnerCard, openLineCard } from "../sharecard.js";
 import { lineOfDay, youActionOfDay, replyOfDay } from "../../data/quotes.js";
 import { exportBackup } from "./more.js";
@@ -101,6 +101,7 @@ function onePercent(p, a) {
         q && !q.done ? h("a.btn.btn-blue.sm.tick-go", { href: `#/train/${encodeURIComponent(q.skillId)}/start` }, "Start", h("span.vh", `: ${q.text}`)) : q && q.done ? h("span.pill.done-pill", "Session logged") : null,
         q && q.done),
       tick("youDone", !!row.youDone, `For you: ${youActionOfDay()}`)),
+    q && !q.done ? howTo(q.skillId, `How to do "${q.text}"`, { k: "home-howto" }) : null,
     h("p.nova-reply", { "aria-live": "polite" }, both ? replyOfDay() : dogDone || row.youDone ? "One small thing done. That counts." : ""),
     entry
       ? h("p.journal-line", "Tonight's line: ", h("q", entry.text), " ", h("a", { href: "#/journal" }, "Growth Journal"))

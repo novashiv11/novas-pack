@@ -7,7 +7,7 @@ import { h, put, em, weeklyStreak, motionOK, fmtDay, fmtTime, toast, confirmBox 
 import { skillsFor, progressOf } from "../logic.js";
 import { pageHead, subBar, sampleStrip, NOVA, moreBtn } from "./parts.js";
 import { speciesOf, eventSheet } from "../forms.js";
-import { gameOf, pips, bar, levelText, skillName, startSession, selfCheck, logSession, trainingPicker } from "./gameui.js";
+import { gameOf, pips, bar, levelText, skillName, startSession, selfCheck, logSession, trainingPicker, howTo } from "./gameui.js";
 import { LEVEL_REQ, LEVEL_PLACE, CAPS, countedSessions, dayKey } from "../game.js";
 
 const GROUPS = ["Foundation", "Next steps", "Fun"];
@@ -41,7 +41,7 @@ export function training(main, arg, sub) {
   if (q) {
     put(main, h("section.quest-card", { "aria-labelledby": "dq-h" },
       h("p.eyebrow", { id: "dq-h" }, "Today's quest · optional"),
-      h("p.quest-text", q.text),
+      howTo(q.skillId, q.text, { k: "quest-howto" }),
       q.done ? h("p.small", em("✅"), " Done today. Nova approves.")
         : h("div.row-btns.left", h("a.btn.btn-blue.sm", { href: `#/train/${encodeURIComponent(q.skillId)}/start` }, "Start the timer"))));
   }
@@ -122,7 +122,7 @@ function skillPage(main, p, sk) {
     old !== "none" && pr.level === 0 ? h("p.note-line", em("📒"), ` In the old diary you marked this "${old === "got" ? "Got it" : "Practising"}". Levels start fresh: log sessions and do the self-checks.`) : null,
     clipBox,
     h("section.sec.skill-sec", h("h2", "Why it matters"), h("p", sk.why)),
-    h("section.sec.skill-sec", h("h2", "Steps"), h("ol.steps-list", (sk.steps || []).map((s) => h("li", s))), soon),
+    h("section.sec.skill-sec", h("h2", "Steps"), howTo(sk.id, "Simple version (for everyone)", { k: "skill-howto" }), h("ol.steps-list", (sk.steps || []).map((s) => h("li", s))), soon),
     h("section.sec.skill-sec.mistake", h("h2", "Common mistake"), h("p", sk.mistake)),
     h("section.sec.skill-sec.pro", h("h2", "When to see a professional"), h("p", sk.pro)),
     h("section.sec", { "aria-labelledby": "sh-h" },

@@ -2,6 +2,7 @@
 // (js/game.js) between changes, and owns the calm reward moments: "+10 XP" in toasts, level-up and badge
 // celebrations, the session timer, the honest self-check and the skill picker. Plus small widgets (bars, rings, pips).
 
+import { EASY } from "../../data/easysteps.js";
 import { S, pet, save, remove, refresh, realPets } from "../state.js";
 import { h, put, em, uid, sheet, toast, motionOK, buzz, isoDate } from "../util.js";
 import { skillsFor } from "../logic.js";
@@ -170,6 +171,21 @@ export function levelText(pr) {
   return `Level ${pr.next}: ${pr.toGo} more session${pr.toGo === 1 ? "" : "s"}, then works ${G.LEVEL_PLACE[pr.next].where}`;
 }
 
+// ---------- simple steps ("so a child can follow") ----------
+
+/** The quest as a tap-to-open card: what you need, simple numbered steps, and what counts as a win. */
+export function howTo(skillId, title, { open = false, k = "howto" } = {}) {
+  const e = EASY[skillId];
+  if (!e) return h("p.quest-text", title);
+  return h("details.howto", { open, "data-k": k },
+    h("summary", h("span.howto-title", title), h("span.howto-hint", "How? Tap for simple steps")),
+    h("div.howto-body",
+      e.need ? h("p.howto-need", h("b", "You need: "), e.need) : null,
+      h("ol.howto-steps", e.steps.map((s) => h("li", s))),
+      e.win ? h("p.howto-win", "✅ ", e.win) : null,
+      h("p.small.muted", "Simple enough for kids to help, with a grown-up. Treats, toys and praise only.")));
+}
+
 // ---------- training ----------
 const MOODS = [[1, "😕", "Tricky"], [2, "🙂", "OK"], [3, "🤩", "Great"]];
 const MOOD_LINE = { 1: "Tricky is normal. Make it easier next time.", 2: "Solid work. I supervised.", 3: "Great session. End there. Biscuit." };
@@ -255,7 +271,8 @@ export function startSession(p, sk, { seconds } = {}) {
       h("div.timer", clock, track, status),
       runRow,
       moodBox,
-      sk.steps && sk.steps.length ? h("details.more-box", h("summary", "Steps"), h("ol.steps-list.timer-steps", sk.steps.map((s) => h("li", s)))) : null,
+      EASY[sk.id] ? h("details.more-box", { open: one }, h("summary", "Simple steps"), h("ol.steps-list.timer-steps", EASY[sk.id].steps.map((s) => h("li", s))))
+        : sk.steps && sk.steps.length ? h("details.more-box", h("summary", "Steps"), h("ol.steps-list.timer-steps", sk.steps.map((s) => h("li", s)))) : null,
       h("p.small.muted", one ? "Closing this logs nothing. Treats, toys and praise only." : "Closing this logs nothing. Kind methods only: treats, toys and praise."));
     timer = setInterval(tick, 250);
     tick();
