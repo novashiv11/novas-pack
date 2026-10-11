@@ -17,7 +17,7 @@ export function training(main, arg, sub) {
   const p = pet();
   const skills = skillsFor(p);
   if (arg) {
-    const sk = skills.find((s) => s.id === arg) || S.content.SKILLS.find((s) => s.id === arg);
+    const sk = skills.find((s) => s.id === arg);
     if (sk) {
       skillPage(main, p, sk);
       if (sub === "start") {
@@ -36,7 +36,7 @@ export function training(main, arg, sub) {
     put(main, h("div.card.soon-card",
       h("img.disc", { src: NOVA, alt: "", width: "56", height: "56" }),
       h("div", h("h2", `${speciesOf(p.species).label} skills: coming soon`),
-        h("p", "Nova is dog-first (she's biased). You can still log practice."),
+        h("p", "Skills for your kind of pet are on their way. You can still log practice, and every log counts."),
         h("button.btn.btn-line.sm", { type: "button", onclick: () => eventSheet("training") }, "Log practice"))));
   }
   if (q) {
