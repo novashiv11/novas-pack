@@ -12,11 +12,11 @@ Legend: `*` = verified by search; `†` = from memory.
 - **Goal gradient:** effort rises near a reward [6†]. *In the app:* ADD real progress only ("1 session to Level 2"); no pre-filled bars.
 - **Fresh start:** effort rises after Mondays, month starts, birthdays [7*]. *In the app:* ADD a Monday "clean lead" card, restart on any day, the dog's gotcha day.
 - **Self-compassion and procrastination:** links to more health behaviours, r = .25 [8†], and motivation after failure [9†]. *In the app:* EXISTS (guilt-free tone). CHANGE: welcome-back never mentions missed days.
-- **Temporal motivation:** motivation falls with delay [10†]. *In the app:* reward within 2 seconds of "done"; cue at moments the dog is already keen (meals, walks).
+- **Temporal motivation:** motivation falls with delay [10†]. *In the app:* reward within 2 seconds of "done"; cue when the dog is already keen (meals, walks).
 - **Overjustification:** expected, engagement- or completion-contingent tangible rewards cut intrinsic motivation, d = -0.28 to -0.40; positive feedback helped [11*]. *In the app:* EXISTS (XP derived, capped). CHANGE: milestones state competence ("Maya now waits 5 seconds"); no prizes; ADD "XP off" toggle.
 - **Variable rewards, streaks:** variable-ratio schedules persist most [12†]; streaks exploit loss aversion [13†]. *In the app:* EXISTS (no streak guilt). Keep: no mystery rewards, paid freezes, "streak lost" screens.
 - **Gamification meta-analysis:** small effects: cognitive g = .49, motivational .36, behavioural .25 [14*]. *In the app:* keep points light; lean on Nova's story and competence feedback.
-- **Social accountability:** progress monitoring helps, more when reported to others [15†]. *In the app:* ADD an optional weekly buddy note via the share sheet; no public boards.
+- **Social accountability:** progress monitoring helps, more when reported to others [15†]. *In the app:* ADD optional weekly buddy note via share sheet; no public boards.
 
 ## 2. Pictures for instructions
 
@@ -30,8 +30,8 @@ Pictures help recall when tied to text and aid comprehension when they show spat
 
 ## 3. Starting-level quiz
 
-- Ask about the last 2 weeks, with counts and places, not "how good is your dog". I found no direct study of owner-report accuracy for obedience; the C-BARQ was validated against consultants in a referred sample [20*]. Treat answers as a first guess.
-- Normalise, say "if torn, pick the lower one", give no XP or badges for placement, offer a no-penalty step down after two misses. Six questions, about a minute. Test recall only in a fenced area or on a long line.
+- Ask about the last 2 weeks, with counts and places, not "how good is your dog". No direct study of owner-report accuracy for obedience turned up; the C-BARQ was validated against consultants in a referred sample [20*]. Treat answers as a first guess.
+- Normalise, say "if torn, pick the lower one", give no XP or badges for placement, offer a no-penalty step down after two misses. Test recall only in a fenced area or on a long line.
 
 Options map to levels 0 to 4 in order.
 
@@ -47,16 +47,16 @@ Options map to levels 0 to 4 in order.
 - **Well supported:** dog owners tend to be more physically active (observational) [21†]; people often report comfort, routine and connection from pets (mainly qualitative) [22*].
 - **Mixed:** mental health. A 54-study review found 17 positive, 19 mixed, 13 no effect, 5 negative [23*]. Attachment quality matters more than ownership; data are mostly cross-sectional [24*].
 - **Overclaimed:** "cures" anxiety or depression, lowers blood pressure or cortisol, extends life, or that people without a pet are worse off.
-- **Safe wording:** "A walk with a dog is an easy excuse to get outside." "For many people a dog brings comfort, routine and company." "Designed to make small habits easier; we haven't tested that it improves wellbeing." "No pet yet? You're still in the pack."
+- **Safe wording:** "A walk with a dog is an easy excuse to get outside." "Many people find a dog brings comfort and routine." "Designed to make small habits easier; we haven't tested that it improves wellbeing." "No pet yet? You're still in the pack."
 
 ## 5. Your own take on "1% better"
 
-Idea: Nova handles her human. She nudges; the human takes it.
+Idea: Nova nudges; her human takes it.
 
-1. **Nova's Nudge.** Dogs really nose-nudge their person; small, optional, bossy but loving. Check: no brand or app found; "nudge" is a common word, so "Nova's" carries the identity.
+1. **Nova's Nudge.** Dogs really nose-nudge their person; small, optional, bossy but loving. Check: no brand found; "nudge" is common, so "Nova's" carries the identity.
 2. **Treat-Sized.** Tiny habits in dog language. Check: nothing found; generic, so a tagline only.
 3. **Loose Lead Living.** Slack, not tension: the tone for missed days. Check: only generic training guides.
-4. **Nova's Orders.** The bossy joke. Check: nothing found. "Orders" clashes with autonomy unless paired with "swap".
+4. **Nova's Orders.** Bossy joke. Check: nothing found. "Orders" clashes with autonomy unless paired with "swap".
 5. **One Wag Better.** Dog twist on "1% better". Check: nothing found, but Wag! is a big dog-walking app (memory). Avoid.
 6. **Both Ends of the Lead.** Growing together. Check: a Substack uses it; echoes McConnell's *The Other End of the Leash*. Avoid.
 
@@ -64,16 +64,16 @@ Idea: Nova handles her human. She nudges; the human takes it.
 - Card: replaces "1% today"; two lines, "For [dog]" and "For you".
 - Daily ritual: **Take the nudge.** Button "Nudge taken"; reply "Nova approves."
 - Copy: "Nova nudged. Your move." After a gap: "Nova's still here. Smallest nudge?" Tagline: "Small nudges. Big tail." Say "tiny steps add up", not a 1% claim.
-- Caveat: one search per pair is not a trademark search. Before merch, check app stores, social handles, EUIPO TMview.
+- Caveat: one search per pair is not a trademark check; check app stores, social handles, EUIPO TMview before merch.
 
 ## 6. Top 10 changes (impact/effort) and red lines
 
 1. If-then cue picker; card reads "When ___, I'll ___" (high/low).
 2. "Make it smaller" on every card; after 2+ missed days show only that (high/low).
-3. Rolling "x of last 14 days", welcome-back without missed-day count, Monday fresh-start card (high/low).
+3. Rolling "x of last 14 days"; welcome-back with no missed-day count; Monday fresh start (high/low).
 4. Celebration within 2 seconds of "done": Nova line plus sticker (high/low).
 5. Competence-language milestones plus "XP off" toggle (medium/low).
-6. Swap-the-nudge; opt-in reminder at the user's cue time, max 1 a day (medium/low).
+6. Swap-the-nudge; opt-in reminder at their cue time, max 1 daily (medium/low).
 7. Six-question placement quiz with step-down (medium/medium).
 8. Picture-first step cards, top 3 skills first (medium-high/high).
 9. Gotcha-day landmark and 30-day journal look-back (medium/low).
