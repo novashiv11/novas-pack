@@ -13,7 +13,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ["android/**", ".github/workflows/android.yml"]
+    paths: ["android/**", "!android/store/**", "!android/*.md", ".github/workflows/android.yml"]
 
 permissions:
   contents: write
@@ -95,5 +95,10 @@ jobs:
           Signing key: $KEY_KIND
           SHA-256: $SIGN_SHA256
           NOTES
-          gh release delete android --yes --cleanup-tag || true
-          gh release create android $FILES --title "Nova's Pack for Android ($VERSION)" --notes-file notes.md
+          # Replace the files in place, so the download link never disappears mid-download.
+          if gh release view android >/dev/null 2>&1; then
+            gh release edit android --title "Nova's Pack for Android ($VERSION)" --notes-file notes.md
+            gh release upload android $FILES --clobber
+          else
+            gh release create android $FILES --title "Nova's Pack for Android ($VERSION)" --notes-file notes.md
+          fi
