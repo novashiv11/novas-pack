@@ -9,7 +9,9 @@ import { eventSheet, unwellSheet, logPoop, logMeal, logEggs, logTreat, logWalk, 
 import { subBar, NOVA } from "./parts.js";
 import { importForm } from "./more.js";
 import { inAppBanner, installCard } from "../install.js";
-import { trainingPicker } from "./gameui.js";
+import { trainingPicker, confetti } from "./gameui.js";
+import { scene } from "../scenes.js";
+import { SCENES } from "../../data/scenes.js";
 
 function welcomeInstall() {
   try { const c = installCard(); return c ? h("div.welcome-install", c) : null; } catch { return null; }
@@ -35,21 +37,40 @@ export function welcome(main, arg) {
     }, { extra, submitLabel: "Start levelling up" });
     return;
   }
+  const nova = h("button.welcome-hero", { type: "button", "data-k": "wel-nova", "aria-label": "High-five Nova" },
+    h("span.wh-rays", { "aria-hidden": "true" }),
+    h("img.disc.welcome-nova", { src: NOVA, alt: "", width: "120", height: "120" }),
+    h("span.wh-medal", { "aria-hidden": "true" }, "LEVEL", h("b", "UP!")),
+    h("span.wh-pop", { "aria-hidden": "true" }, "+10 XP"));
+  let fives = 0;
+  nova.addEventListener("click", () => {
+    fives++;
+    nova.classList.remove("hi"); void nova.offsetWidth; nova.classList.add("hi");
+    if (motionOK()) confetti();
+    hint.textContent = fives === 1 ? "That's how a win feels. Real XP comes from real minutes with your pet." : fives < 5 ? "Again? I like you already." : "Okay, okay. Go add your pet. 🐾";
+  });
+  const hint = h("p.small.muted.wh-hint", { "aria-live": "polite" }, "Tap me. Go on.");
+  const how = [
+    ["1", "Do 1 minute", SCENES.sit && SCENES.sit[2]],
+    ["2", "Level up", SCENES.recall && SCENES.recall[3]],
+    ["3", "Share the win", SCENES.stay && SCENES.stay[3]],
+  ];
   put(main, h("section.welcome",
-    h("img.disc.welcome-nova", { src: NOVA, alt: "", width: "96", height: "96" }),
-    h("p.eyebrow", "Nova's Pack · Level up together"),
+    nova, hint,
+    h("p.eyebrow", "Nova's Pack · Do it for them"),
     h("h1", { tabindex: "-1", id: "page-title" }, "Tiny daily wins. For you and your pet."),
     h("p.lede", "Free. Private on your phone. No account."),
     h("div.welcome-ctas",
       h("a.btn.btn-blue.wide", { href: "#/welcome/add", "data-k": "wel-add" }, "Add my pet"),
       h("a.btn.btn-line.wide", { href: "#/ready", "data-k": "wel-ready" }, "No pet yet? Get ready")),
     welcomeInstall(),
+    h("ol.welcome-how", { "aria-label": "How it works" }, how.map(([n, t, sp]) => h("li",
+      sp ? h("figure.wh-pic", scene(sp)) : null, h("span.wh-n", { "aria-hidden": "true" }, n), h("b", t)))),
     h("ul.welcome-grid",
-      h("li", em("🎓"), h("span", "Skills that level up")),
-      h("li", em("🌟"), h("span", "Real-life adventures")),
-      h("li", em("🩺"), h("span", "Care diary")),
-      h("li", em("🏅"), h("span", "Badges for you too"))),
-    h("p.bubble.welcome-bubble", "I'm Nova. One minute a day. I'll keep score."),
+      h("li.wg-blue", em("🎓"), h("span", "20 skills, kid-simple")),
+      h("li.wg-gold", em("🏆"), h("span", "Badges and trophies")),
+      h("li.wg-tan", em("🩺"), h("span", "Care diary + vet summary")),
+      h("li.wg-pink", em("🐾"), h("span", "Dogs, cats, rabbits, hens…"))),
     h("details.more-box.restore", h("summary", "Have a backup? Restore it"), importForm("replace")),
     h("p.small.muted", "Everything stays on this device. ", h("a", { href: "privacy.html" }, "Privacy notice"), " · ", h("a", { href: "card.html" }, "Pack Card maker"))));
 }

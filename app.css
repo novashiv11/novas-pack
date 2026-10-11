@@ -966,3 +966,26 @@ main .form > .row-btns:last-child .btn-blue{flex:1;min-height:56px;font-size:var
 .ready-e{font-size:1.4rem;line-height:1.2}
 .ready-item input:checked+label b{text-decoration:line-through;text-decoration-thickness:1.5px;color:var(--muted)}
 .ready-go{grid-column:2;min-height:44px;display:inline-flex;align-items:center;font-size:var(--t14)}
+/* Welcome v3: tappable Nova hero, how it works, sticker tiles */
+.welcome-hero{position:relative;width:180px;height:180px;display:grid;place-items:center;border:0;background:none;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.wh-rays{position:absolute;inset:0;border-radius:50%;background:repeating-conic-gradient(var(--gold-soft) 0 12deg,transparent 12deg 24deg);opacity:.9;animation:wh-spin 24s linear infinite}
+.welcome-hero .welcome-nova{position:relative;width:120px;height:120px;animation:wh-float 3.2s ease-in-out infinite}
+.wh-medal{position:absolute;right:4px;bottom:14px;width:62px;height:62px;border-radius:50%;background:var(--gold);box-shadow:0 4px 0 var(--gold-ledge);display:grid;place-content:center;font:800 .62rem/1 var(--f-display);color:#1E1B17;transform:rotate(-10deg)}
+.wh-medal b{display:block;font-size:1.05rem}
+.wh-pop{position:absolute;top:6px;left:50%;transform:translate(-50%,0);font:800 1.1rem var(--f-display);color:var(--tan-text);opacity:0;pointer-events:none}
+.welcome-hero.hi .welcome-nova{animation:wh-boop .45s ease-out}
+.welcome-hero.hi .wh-pop{animation:wh-up .9s ease-out}
+.wh-hint{margin:-8px 0 0;min-height:1.4em}
+.welcome-how{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%;max-width:420px}
+.welcome-how li{position:relative;display:flex;flex-direction:column;align-items:center;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:6px 4px 10px;font-size:var(--t12)}
+.wh-pic{margin:0;width:100%}
+.wh-pic svg{display:block;width:100%;height:auto;border-radius:10px}
+.wh-n{position:absolute;top:-8px;left:-6px;width:26px;height:26px;border-radius:50%;background:var(--blue);color:var(--on-blue);display:grid;place-items:center;font-weight:800;font-size:var(--t14)}
+.welcome-grid li{transform:rotate(-1deg);border:0;box-shadow:0 3px 0 var(--line)}
+.welcome-grid li:nth-child(2n){transform:rotate(1deg)}
+.wg-blue{background:var(--blue-soft)!important}.wg-gold{background:var(--gold-soft)!important}.wg-tan{background:var(--tan-soft)!important}.wg-pink{background:color-mix(in srgb,#E0566E 18%,var(--surface))!important}
+@keyframes wh-spin{to{transform:rotate(360deg)}}
+@keyframes wh-float{50%{transform:translateY(-6px)}}
+@keyframes wh-boop{30%{transform:scale(1.15) rotate(-6deg)}60%{transform:scale(.95) rotate(4deg)}}
+@keyframes wh-up{0%{opacity:0;transform:translate(-50%,10px)}30%{opacity:1}100%{opacity:0;transform:translate(-50%,-30px)}}
+@media (prefers-reduced-motion:reduce){.wh-rays,.welcome-hero .welcome-nova,.welcome-hero.hi .welcome-nova,.welcome-hero.hi .wh-pop{animation:none}.welcome-grid li{transform:none}}
