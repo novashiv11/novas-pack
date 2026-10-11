@@ -9,6 +9,7 @@ Live app: https://novashiv11.github.io/novas-pack/ (open in Chrome or Safari, th
 | Path | What it is |
 |---|---|
 | `index.html`, `app.css`, `js/`, `data/` | The app (PWA, data on the device). Spec: `docs/spec-v2-levelup.md`. |
+| `android/` | The Android app (opens the web app full screen). See `docs/android-app.md`. |
 | `clips/` | Training clips: add `<skill-id>.mp4` (e.g. `recall.mp4`) and they appear in the app. |
 | `privacy.html` | Full privacy notice. |
 | `site.css`, `site.js` | Shared styles; `site.js` holds the Discord invite link (the only setting), the challenge rotation and the streak logic. |

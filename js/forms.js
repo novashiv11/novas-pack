@@ -2,7 +2,7 @@
 // care routine, medicines, food and treats. Forms open in a bottom sheet (a <dialog>), except the
 // first-run pet form, which sits on the page.
 
-import { S, pet, save, remove, removePet, setSetting, eventsOf, forPet, units, refresh, UI } from "./state.js";
+import { S, pet, save, remove, removePet, adoptSample, setSetting, eventsOf, forPet, units, refresh, UI } from "./state.js";
 import { h, put, em, uid, sheet, toast, confirmBox, isoDate, addDays, addMonths, daysBetween, toLocalInput, fromLocalInput, resizePhoto, fmtDate, weeklyStreak, isoWeek, motionOK, buzz } from "./util.js";
 import { ALSO_NOTICED, scaleFor, skillsFor, medStatus, fromUnit, toUnit, medIsActive, recordStatus, currentRecords, healthAlerts, recordDoneCheck } from "./logic.js";
 import { saveErrorText } from "./db.js";
@@ -157,6 +157,7 @@ export function petForm(box, existing, onSaved, { openProfile = false, extra = n
   put(form, extra, err,
     h("div.row-btns",
       existing ? h("button.btn.btn-line", { type: "button", onclick: () => deletePetFlow(p) }, p.sample ? "Delete sample" : "Delete") : null,
+      existing && p.sample ? h("button.btn.btn-line", { type: "button", "data-k": "adopt-sample", onclick: () => adoptSampleFlow(p) }, "Make it mine") : null,
       h("button.btn.btn-blue", { type: "submit" }, existing ? "Save changes" : submitLabel || "Add pet")));
 
   form.addEventListener("submit", async (e) => {
@@ -241,12 +242,29 @@ function profileFields(p, open, species, sex) {
 export function openPetSheet(existing, { openProfile = false } = {}) {
   sheet(existing ? `Edit ${existing.name}` : "Add a pet", (body, close) => {
     if (!existing) body.append(h("p.sheet-intro", "Only the name is needed. Free. No account to lose."));
+    const sample = !existing && S.pets.find((x) => x.sample);
+    if (sample) body.append(h("p.adopt-line", `Is your pet ${sample.name}? `,
+      h("button.linkish", { type: "button", "data-k": "adopt-from-add", onclick: () => { close(); adoptSampleFlow(sample); } }, `Keep the sample's ${sample.name} and clear the examples`)));
     petForm(body, existing, (row) => {
       close();
       toast(existing ? "Saved." : `${row.name} added. Welcome to the pack.`);
       if (!existing && location.hash !== "#/home") location.hash = "#/home"; else refresh();
     }, { openProfile });
   });
+}
+
+/** Keep the sample pet as your own and clear every example, after asking; then open its details to check. */
+export async function adoptSampleFlow(p) {
+  const ok = await confirmBox(`Make ${p.name} yours?`,
+    `${p.name}'s name stays. Every example is cleared: logs, vaccines, medicines, food, training, stamps and the example vet and insurer. Check the birthday and details next.`,
+    "Clear examples, keep pet");
+  if (!ok) return;
+  document.querySelectorAll("dialog[open]").forEach((d) => d.close());
+  const mine = await adoptSample(p.id);
+  if (!mine) return;
+  toast(`${mine.name} is yours now. Clean slate. Today counts.`);
+  if (location.hash !== "#/home") location.hash = "#/home"; else refresh();
+  openPetSheet(mine);
 }
 
 /** Delete one pet (or, for the sample, every sample pet), after asking. */

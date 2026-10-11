@@ -19,6 +19,7 @@ Handoff summary for Claude Code. Read this first, then `docs/00-master-brief.md`
 | `privacy.html` | GDPR notice incl. on-device app data. Needs Shiv's full name + email when available. |
 | `site.css` / `site.js` | Shared brand styles; site.js used by card.html (challenge rotation, streak). |
 | `docs/spec-v2-levelup.md` | **Current app spec** (v2 "Level up together" + the "1% better every day" addendum). Older: `docs/build-prompt-v4-app.md` (v1), `docs/spec-v1.1.md`. |
+| `android/`, `.github/workflows/android.yml` | **Android app** (Trusted Web Activity, Bubblewrap). Built and signed on GitHub Actions; APK and AAB on the `android` release. Setup and Play Store steps: `docs/android-app.md`. |
 | `js/install.js`, `img/screenshots/` | One-click install (Android prompt, iOS steps, in-app browser banner); manifest screenshots. |
 | `docs/learn-with-nova.md` | Training clip episode plans (shot lists). |
 | `docs/launch-app.md` | **App launch kit**: bio, "APP" reply, 5 launch Reels, stories, never-say list. |

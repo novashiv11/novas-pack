@@ -70,6 +70,21 @@ export async function removePet(petId) {
   S.pets = S.pets.filter((p) => p.id !== petId);
   if (S.settings.currentPet === petId) await setSetting("currentPet", S.pets[0] ? S.pets[0].id : null);
 }
+/** Keep a sample pet as your own: the same name and basics, with every example (logs, records, food, training,
+ * stamps and the example vet, insurer and microchip) cleared. It then counts like any pet you added yourself. */
+export async function adoptSample(petId) {
+  const p = S.pets.find((x) => x.id === petId);
+  if (!p || !p.sample) return null;
+  await db.deletePet(petId);
+  S.rev++;
+  for (const k of PET_LISTS) S[k] = S[k].filter((r) => r.petId !== petId);
+  S.pets = S.pets.filter((x) => x.id !== petId);
+  const mine = { id: p.id, name: p.name, species: p.species, sex: p.sex, birthday: p.birthday, photo: p.photo, training: {}, createdAt: Date.now() };
+  for (const k of Object.keys(mine)) if (mine[k] === undefined) delete mine[k];
+  await save("pets", mine, { quiet: true });
+  await setSetting("currentPet", mine.id);
+  return mine;
+}
 export async function wipe() {
   await db.deleteAll();
   // The Pack Card maker keeps its choices and streak in localStorage ("np-…" keys): clear those too.

@@ -5,7 +5,7 @@ import { S, pet, setSetting, wipe, load, refresh, units, UI } from "../state.js"
 import { h, put, em, sheet, toast, confirmBox, fmtDate, isoDate, ageText, telHref, shareOrSave } from "../util.js";
 import { exportData, validateBackup, importData } from "../db.js";
 import { installCard, isStandalone } from "../install.js";
-import { openPetSheet, speciesOf, segmented, deletePetFlow } from "../forms.js";
+import { openPetSheet, speciesOf, segmented, deletePetFlow, adoptSampleFlow } from "../forms.js";
 import { pageHead, subBar, avatar, chevron, sampleStrip } from "./parts.js";
 import { gameOf, trainerFor, badgeChip } from "./gameui.js";
 import { openPartnerCard } from "../sharecard.js";
@@ -74,6 +74,8 @@ export function more(main, arg) {
     h("section.set-group", { "aria-labelledby": "g-del" },
       h("h2.set-h", { id: "g-del" }, "Delete"),
       h("ul.set-list",
+        sample ? h("li", h("button.set-row", { type: "button", "data-k": "m-adopt-sample", onclick: () => adoptSampleFlow(sample) },
+          h("span.set-ico", { "aria-hidden": "true" }, "✨"), h("span.set-label", `Make ${sample.name} mine (clear the examples)`), chevron())) : null,
         sample ? h("li", h("button.set-row", { type: "button", "data-k": "m-del-sample", onclick: () => deletePetFlow(sample) },
           h("span.set-ico", { "aria-hidden": "true" }, "🧹"), h("span.set-label", "Delete the sample diary"), chevron())) : null,
         h("li", h("button.set-row.danger", { type: "button", "data-k": "wipe", onclick: deleteAll },

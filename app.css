@@ -95,6 +95,8 @@ body.first-run .appbar{display:none}
 .mini-btn{min-height:44px;min-width:44px;padding:6px 12px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-weight:700;font-size:var(--t14);cursor:pointer;flex:none}
 .mini-btn:hover,.chip:hover,.ql:hover,.pet-chip:hover,.more-btn:hover{border-color:var(--blue)}
 .linkish{color:var(--blue);min-height:44px;background:none;border:0;font:inherit;font-weight:700;cursor:pointer;padding:0}
+.adopt-line{margin:0 0 12px;padding:8px 12px;border-radius:12px;background:var(--gold-soft);font-size:var(--t14)}
+.adopt-line .linkish{text-align:left}
 .more-btn{position:relative;z-index:2;flex:none;display:grid;place-items:center;width:44px;height:44px;margin-left:auto;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
 .more-btn .dots{width:20px;height:20px;fill:currentColor}
 
