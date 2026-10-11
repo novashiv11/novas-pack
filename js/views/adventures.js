@@ -8,18 +8,20 @@ import { logWalk, eventSheet, saveError } from "../forms.js";
 import { pageHead, sampleStrip, NOVA } from "./parts.js";
 import { gameOf, withRewards, bar } from "./gameui.js";
 import { XP, CAPS, weekBounds } from "../game.js";
+import { stampsFor } from "../../data/adventures.js";
 
 export function adventures(main) {
   const p = pet();
   const a = gameOf(p);
-  const stamps = S.content.STAMPS || [];
-  const sets = S.content.STAMP_SETS || [];
+  const dog = p.species === "dog";
+  const stamps = stampsFor(S.content.STAMPS || [], p.species);
+  const sets = (S.content.STAMP_SETS || []).filter((set) => stamps.some((s) => s.set === set.id));
   const earned = new Map(a.stamps.map((s) => [s.stampId, s]));
   put(main,
     sampleStrip(p),
     pageHead("Adventures", h("p.nova-line", h("img.disc.nova-face", { src: NOVA, alt: "", width: "28", height: "28" }),
-      h("span", h("span.vh", "Nova says: "), `${earned.size} of ${stamps.length} stamps. The world is big. Let's sniff it.`))),
-    walkCard(p, a),
+      h("span", h("span.vh", "Nova says: "), dog ? `${earned.size} of ${stamps.length} stamps. The world is big. Let's sniff it.` : `${earned.size} of ${stamps.length} stamps. Small brave firsts count.`))),
+    dog ? walkCard(p, a) : null,
     sets.map((set) => {
       const list = stamps.filter((s) => s.set === set.id);
       const got = list.filter((s) => earned.has(s.id)).length;

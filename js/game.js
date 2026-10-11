@@ -21,6 +21,8 @@ export const LEVEL_PLACE = [
 export const QUEST_PLACE = ["at home", "at home", "at home", "in the garden", "on the street", "in the park"];
 
 export const XP = { session: 10, levelUp: 50, walk: 5, stamp: 20, care: 5, lesson: 40, quest: 30, weekBonus: 50 };
+/** Logs that mean time together (they count as showing up). Meals, treats, poop and medicines are care admin, not a minute together. */
+export const TOGETHER = ["training", "walk", "care"];
 export const CAPS = { sessions: 3, sessionsPerDay: 10, walks: 2, carePerDay: 5, stampsPerDay: 2 };
 export const MAX_LEVEL = 50;
 export const RANKS = [
@@ -50,7 +52,7 @@ function puppyPick(ctx, sess, at, skip) {
 }
 
 /** Skills that only become automatic quests once you've practised them (or picked them as this week's skill). */
-const OPT_IN = ["muzzle"];
+const OPT_IN = ["muzzle", "talk-buttons"]; // need kit you may not have: only in quests once you start them or pick them
 /** When stats tie, the quest goes to the most useful one first (recall keeps dogs safe). */
 const QUEST_PRIORITY = ["recall", "lead", "calm", "focus", "confidence"];
 
@@ -344,7 +346,9 @@ export function badgesOf(ctx, a) {
     out.push({ ...b, kind: "skill", earned: !!up, at: up ? up.at : null, need: `${SHORT[b.skill]} level ${SKILL_BADGE_LEVEL}`, progress: pr ? `Level ${pr.level} of ${SKILL_BADGE_LEVEL}` : "" });
   }
   const streak = bestStreak(ctx.events.filter((e) => e.type === "training").map((e) => e.at), ctx.now);
+  const dog = ctx.pet && ctx.pet.species === "dog";
   for (const b of MILESTONE_BADGES) {
+    if ((b.walks && !dog) || (b.stamps && (ctx.stamps || []).length < b.stamps)) continue; // only badges this pet can earn
     let earned = false, at = null, progress = "";
     if (b.stamps) { earned = a.stamps.length >= b.stamps; at = earned ? a.stamps[b.stamps - 1].at : null; progress = `${Math.min(a.stamps.length, b.stamps)} of ${b.stamps} stamps`; }
     if (b.walks) { earned = a.walks.length >= b.walks; at = earned ? a.walks[b.walks - 1].at : null; progress = `${Math.min(a.walks.length, b.walks)} of ${b.walks} walks`; }

@@ -4,6 +4,7 @@
 //   tip   one kind, safe "how to" line, shown when you open the stamp
 //   auto  { walks: N } for milestone stamps earned by logging walks (up to 2 a day count); everything else
 //         is earned by tapping the stamp and adding the date (and an optional photo that stays on the device).
+//   any   true when the stamp suits every pet; the rest are dog adventures (walks, cafés, meeting dogs)
 // Each stamp is earned once per partner, for +20 XP once. No locations are ever stored.
 
 export const SETS = [
@@ -20,17 +21,17 @@ export const STAMPS = [
   { id: "cafe", set: "places", emoji: "☕", title: "Café or pub garden", tip: "Bring their mat and a long chew. Pick a quiet corner and keep the first visit short and sweet." },
   { id: "forest", set: "places", emoji: "🌲", title: "Forest walk", tip: "Sniffing is brain work, so let them take their time. Check for ticks when you get home." },
   { id: "city", set: "places", emoji: "🏙️", title: "City street", tip: "Start somewhere quieter, at a calm time of day. Watch their body language and leave before it's too much." },
-  { id: "vet-calm", set: "places", emoji: "🩺", title: "Calm vet visit", tip: "A happy 'just visiting' trip counts: hello, a weigh-in, treats, home. Ask your practice when it's quiet." },
-  { id: "car", set: "places", emoji: "🚗", title: "Car trip", tip: "Secured in a crate, behind a dog guard or in a crash-tested harness. Start with short trips to somewhere fun." },
+  { id: "vet-calm", set: "places", emoji: "🩺", title: "Calm vet visit", any: true, tip: "A happy 'just visiting' trip counts: hello, a weigh-in, treats, home. Ask your practice when it's quiet." },
+  { id: "car", set: "places", emoji: "🚗", title: "Car trip", any: true, tip: "Secured in a carrier or crate, behind a dog guard or in a crash-tested harness. Start with short, calm trips." },
   { id: "friend-house", set: "places", emoji: "🏡", title: "A friend's home", tip: "Ask first, bring their mat, and keep it short and calm. Leave before anyone gets tired." },
   { id: "transport", set: "places", emoji: "🚆", title: "Bus or train ride", tip: "Check the operator's rules for dogs first. Go off-peak, with treats and a mat to settle on." },
 
   // Friends
   { id: "calm-dog", set: "friends", emoji: "🐕", title: "Met a calm dog", tip: "Optional: skip this one if your dog is worried or reactive around dogs; calmly watching from a distance is a win too. Otherwise ask the other owner first, keep leads loose, a short sniff, then walk on." },
-  { id: "child", set: "friends", emoji: "🧒", title: "Calm hello with a child", tip: "Optional: skip it if your dog is unsure around children. Only with a parent's OK and an adult right there. Let your dog choose to say hello, and keep it short." },
+  { id: "child", set: "friends", emoji: "🧒", title: "Calm hello with a child", any: true, tip: "Optional: skip it if your pet is unsure around children. Only with a parent's OK and an adult right there. Let your pet choose to say hello, and keep it short." },
   { id: "cat", set: "friends", emoji: "🐈", title: "Polite with a cat", tip: "From a distance, on lead. Reward your dog for looking away from the cat. No chasing, ever." },
   { id: "hat-hivis", set: "friends", emoji: "🦺", title: "Someone in a hat or hi-vis", tip: "Hats, hoods, beards and hi-vis can look odd to a dog. Treats for calmly noticing, from a comfy distance." },
-  { id: "doorbell", set: "friends", emoji: "📦", title: "Calm at the doorbell", tip: "Mat or baby gate first, then treats for staying calm while a parcel arrives." },
+  { id: "doorbell", set: "friends", emoji: "📦", title: "Calm at the doorbell", any: true, tip: "Mat or baby gate first, then treats for staying calm while a parcel arrives." },
   { id: "farm", set: "friends", emoji: "🐄", title: "Farm animals from afar", tip: "Always on lead near livestock, and keep your distance. Reward calm watching, then move on." },
 
   // Milestones
@@ -53,6 +54,9 @@ export const STAMPS = [
   { id: "stairs", set: "brave", emoji: "🪜", title: "Stairs", tip: "Open-backed or steep stairs take confidence. Go slowly, on lead, with treats. Puppies: ask your vet about stairs." },
   { id: "lift", set: "brave", emoji: "🛗", title: "Lift", tip: "Try an empty lift first. Treats while the doors open and close, then a short ride." },
   { id: "bridge", set: "brave", emoji: "🌉", title: "Bridge", tip: "Choose a quiet footbridge. Go at their pace and reward calm steps." },
-  { id: "hoover", set: "brave", emoji: "🧹", title: "Calm with the hoover", tip: "Start with it switched off, far away. Treats when it appears, then when it hums from another room." },
-  { id: "groom", set: "brave", emoji: "✂️", title: "Calm groom or nail trim", tip: "One nail at a time is a win. Stop before they've had enough." },
+  { id: "hoover", set: "brave", emoji: "🧹", title: "Calm with the hoover", any: true, tip: "Start with it switched off, far away. Treats when it appears, then when it hums from another room." },
+  { id: "groom", set: "brave", emoji: "✂️", title: "Calm groom or nail trim", any: true, tip: "One nail at a time is a win. Stop before they've had enough." },
 ];
+
+/** The stamps for this pet: dogs get the whole book, everyone else the ones marked `any`. */
+export const stampsFor = (stamps, species) => (species === "dog" ? stamps : stamps.filter((s) => s.any));

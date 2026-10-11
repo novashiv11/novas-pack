@@ -68,13 +68,15 @@ export function placement(main) {
     const row = { ...p, placedAt: Date.now() };
     if (Object.keys(placementRow).length) row.placement = placementRow; else delete row.placement;
     try { await save("pets", row, { quiet: true }); } catch (ex) { stage.replaceChildren(h("p.form-error", saveError(ex))); return; }
+    // The first win practises the skill that needs it most (lowest level; the first one on a tie).
+    const weakest = skills.reduce((m, s) => ((picked[s.id] || 0) < (picked[m.id] || 0) ? s : m), skills[0]).id;
     if (motionOK()) confetti();
     stage.replaceChildren(h(`section.lc2-card.lc2-done${motionOK() ? ".in" : ""}`, { "aria-labelledby": "lc2-done-h" },
       h("div.lc2-emoji", { "aria-hidden": "true" }, "🧭"),
       h("h1.lc2-q", { id: "lc2-done-h", tabindex: "-1" }, `Here's where ${p.name} starts`),
       h("ul.lc2-res", skills.map((s) => h("li", h("span", { "aria-hidden": "true" }, QUIZ[s.id].e), h("b", skillName(s)), h("span.lc2-lv.on", `L${picked[s.id] || 0}`)))),
       h("p.small.muted", "No XP for answers. XP is for what you do from today."),
-      h("button.btn.btn-blue.wide", { type: "button", "data-k": "lc-first-win", onclick: () => { location.hash = "#/home"; setTimeout(() => doNow(row), 50); } }, "▶ Do your first 1-minute win"),
+      h("button.btn.btn-blue.wide", { type: "button", "data-k": "lc-first-win", onclick: () => { location.hash = "#/home"; setTimeout(() => doNow(row, weakest), 50); } }, "▶ Do your first 1-minute win"),
       h("a.btn.btn-line.wide", { href: "#/home", "data-k": "lc-home" }, "Go to Home")));
     stage.querySelector("h1").focus({ preventScroll: true });
   };

@@ -4,6 +4,7 @@
 
 import { EASY } from "../../data/easysteps.js";
 import { STEP_PHOTOS } from "../../data/media.js";
+import { stampsFor } from "../../data/adventures.js";
 import { S, pet, save, remove, refresh, realPets } from "../state.js";
 import { h, put, em, uid, sheet, toast, motionOK, buzz, isoDate } from "../util.js";
 import { skillsFor } from "../logic.js";
@@ -16,7 +17,7 @@ export function ctxFor(p) {
   return {
     pet: p, skills: skillsFor(p).map((s) => ({ id: s.id, title: s.title, minutes: s.minutes, level: s.level })),
     events: S.events.filter((e) => e.petId === p.id), adventures: S.adventures.filter((a) => a.petId === p.id),
-    checks: S.skillChecks.filter((c) => c.petId === p.id), stamps: S.content.STAMPS || [], now: Date.now(),
+    checks: S.skillChecks.filter((c) => c.petId === p.id), stamps: stampsFor(S.content.STAMPS || [], p.species), now: Date.now(),
     exclude: ((S.settings.notForUs || {})[p.id]) || [], focus: (S.settings.focus || {})[p.id] || null,
   };
 }
@@ -122,7 +123,7 @@ export function celebrate(items, p = null) {
  * and (on the first log of the day) the sticker drops in. Then any level-up or badge celebration follows.
  * opts: { title, xp, firstToday, more } where more() starts 4 more minutes.
  */
-export async function missionComplete(p, before, after, { title, xp, firstToday, more, win } = {}) {
+export async function missionComplete(p, before, after, { title, xp, bonus, firstToday, more, win } = {}) {
   let D = null;
   try { D = await import("./doitnow.js"); } catch { /* fine: no dots */ }
   const ws = D ? D.weekAndSticker(p) : null;
@@ -133,6 +134,7 @@ export async function missionComplete(p, before, after, { title, xp, firstToday,
       h("div.mc-hero", h("div.mc-rays", { "aria-hidden": "true" }), h("img.disc.mc-nova", { src: NOVA, alt: "", width: "96", height: "96" })),
       h("p.mc-title", title || "One more good minute."),
       xp ? h("p.mc-xp", { "aria-label": `Plus ${xp} XP` }, "+", n, " XP") : null,
+      bonus ? h("p.mc-bonus", `+${bonus} bonus XP (quest or level) 🎯`) : null,
       ws ? h("div.mc-week", { "aria-label": `This week: ${ws.count} of 3 days` },
         h("span.wk-dots", { "aria-hidden": "true" }, ws.week.map((d) => h(`span.wk-dot${d.on ? ".on" : ""}${d.today ? ".today.pop" : ""}`, d.on ? "✓" : ""))),
         h("span.small", ws.count >= 3 ? "Week won 🏆" : `${ws.count} of 3 days wins the week`)) : null,
@@ -261,7 +263,7 @@ export async function logSession(p, sk, { minutes, mood, more, mission } = {}) {
   if (p.sample) ev.sample = true;
   const before = snap(p);
   const today = isoDate();
-  const firstToday = !S.events.some((e) => e.petId === p.id && isoDate(new Date(e.at)) === today) && !S.daily.some((d) => d.id === today && (d.dogDone || d.youDone));
+  const firstToday = !S.events.some((e) => e.petId === p.id && G.TOGETHER.includes(e.type) && isoDate(new Date(e.at)) === today) && !S.adventures.some((x) => x.petId === p.id && (x.date || isoDate(new Date(x.at))) === today) && !S.daily.some((d) => d.id === today && d.dogDone);
   try { await save("events", ev, { quiet: true }); } catch (e) { toast(saveError(e)); return null; }
   const after = snap(p);
   refresh();
@@ -274,7 +276,7 @@ export async function logSession(p, sk, { minutes, mood, more, mission } = {}) {
       ? `Logged: ${name}. Only ${G.CAPS.sessions} sessions per skill count each day, so this one's just for fun. Give that skill a rest.`
       : `Logged: ${name}. Only ${G.CAPS.sessionsPerDay} sessions a day count, so this one's just for fun. Rest is training too.`;
   if (mission && counted) {
-    missionComplete(p, before, after, { title: `${name} · ${minutes || 1} min · ${MOOD_LINE[mood] || "I supervised."}`, xp: Math.max(0, after.trainerXp - before.trainerXp) || G.XP.session, firstToday, more,
+    missionComplete(p, before, after, { title: `${name} · ${minutes || 1} min · ${MOOD_LINE[mood] || "I supervised."}`, xp: Math.min(G.XP.session, Math.max(0, after.trainerXp - before.trainerXp)) || G.XP.session, bonus: Math.max(0, after.trainerXp - before.trainerXp - G.XP.session), firstToday, more,
       win: { kind: "session", title: name, sub: `${minutes || 1} min together`, emoji: "🎯" } });
     return ev;
   }

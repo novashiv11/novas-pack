@@ -24,16 +24,14 @@ const OLD = { breakfast: "After breakfast", walk: "After a walk", home: "When I 
 
 // ---------- showing up (derived) ----------
 
-/** Dates (YYYY-MM-DD) you showed up: any log for this pet's world, a stamp, a 1% tick, or a journal line. */
+/** Dates (YYYY-MM-DD) you showed up: time together with this pet's world (training, a walk, a care task like brushing),
+ *  a stamp, or the 1-minute tick. Logging a meal or a poop is care admin, so it doesn't win the day on its own. */
 export function showUpDates(p) {
   const ids = new Set(worldPets(p).map((x) => x.id));
   const set = new Set();
-  for (const e of S.events) if (ids.has(e.petId)) set.add(isoDate(new Date(e.at)));
+  for (const e of S.events) if (ids.has(e.petId) && G.TOGETHER.includes(e.type)) set.add(isoDate(new Date(e.at)));
   for (const a of S.adventures) if (ids.has(a.petId)) set.add(a.date || isoDate(new Date(a.at)));
-  if (!p.sample) {
-    for (const d of S.daily) if (d.dogDone || d.youDone) set.add(d.date || d.id);
-    for (const j of S.journal) if (j.text) set.add(j.date || j.id);
-  }
+  if (!p.sample) for (const d of S.daily) if (d.dogDone) set.add(d.date || d.id);
   return [...set].filter(Boolean).sort();
 }
 /** The sticker for a show-up date: the n-th day you showed up gets sticker n (so the first 30 are all new). */
@@ -95,7 +93,7 @@ export function doItNowCard(p) {
       h("span.wk-text", { "aria-hidden": "true" }, won ? "Week won 🏆" : count === 2 ? "1 more day wins the week" : `${count} of 3 days wins the week`)),
     st
       ? h("a.doit-sticker", { href: "#/more/jar", "data-k": "sticker" }, h("span.st-e", { "aria-hidden": "true" }, st.e), h("span", h("b", `Sticker ${st.n}: `), st.t))
-      : h("p.small.muted.doit-jar", "🍪 Your first log today opens Nova's treat jar."),
+      : h("p.small.muted.doit-jar", "🍪 Your first minute today opens Nova's treat jar."),
     plan && plan.anchor
       ? h("button.linkish.doit-plan", { type: "button", "data-k": "plan-edit", onclick: () => planSheet(p) }, "⏰ Nova nudges you: ", h("b", planText(plan)))
       : h("button.btn.btn-line.wide.doit-plan-btn", { type: "button", "data-k": "plan-make", onclick: () => planSheet(p) }, "⏰ When should Nova nudge you?"));
@@ -108,13 +106,23 @@ export function planText(plan) {
 
 // ---------- Do 1 minute now ----------
 
-/** The 1-minute win: today's quest skill (or the first skill this pet can learn), else one minute together. */
-export function doNow(p) {
+/** The 1-minute win: the skill asked for, else today's quest skill, else the first skill that needs no special kit,
+ *  else one minute together. */
+const KIT = ["talk-buttons", "muzzle"];
+export function doNow(p, skillId) {
   if (!p) return;
   const a = gameOf(p);
   const skills = skillsFor(p);
-  const sk = (a.daily && skills.find((s) => s.id === a.daily.skillId)) || skills[0];
-  if (sk) { startSession(p, sk, { seconds: 60 }); return; }
+  const sk = (skillId && skills.find((s) => s.id === skillId)) || (a.daily && skills.find((s) => s.id === a.daily.skillId))
+    || skills.find((s) => !KIT.includes(s.id)) || skills[0];
+  if (sk) {
+    // Say up front when today's XP is already full, rather than after the minute.
+    const today = G.dayKey(Date.now());
+    const mine = S.events.filter((e) => e.petId === p.id && e.type === "training" && G.dayKey(e.at) === today);
+    if (mine.length >= G.CAPS.sessionsPerDay || mine.filter((e) => e.skillId === sk.id).length >= G.CAPS.sessions) toast("XP is full for today. This minute is just for fun, and still counts for you two.");
+    startSession(p, sk, { seconds: 60 });
+    return;
+  }
   sheet(`One minute with ${p.name}`, (body, close) => {
     put(body,
       h("p", `A gentle brush, a scratch where they like it, or just sitting together. One minute.`),
@@ -179,7 +187,7 @@ export function treatJar(main, p, head) {
   dates.forEach((d, i) => { const s = STICKERS[i % STICKERS.length]; got.set(s.e, (got.get(s.e) || 0) + 1); });
   put(main,
     head,
-    h("p.lede", `${dates.length} day${dates.length === 1 ? "" : "s"} of showing up, ${got.size} of ${STICKERS.length} stickers. One per day you log anything. Never lost, never bought.`),
+    h("p.lede", `${dates.length} day${dates.length === 1 ? "" : "s"} of showing up, ${got.size} of ${STICKERS.length} stickers. One for each day you spend a minute together. Never lost, never bought.`),
     h("ul.jar", STICKERS.map((s, i) => {
       const n = got.get(s.e) || 0;
       return h(`li${n ? "" : ".locked"}`, h("span.jar-e", { "aria-hidden": "true" }, n ? s.e : "?"),

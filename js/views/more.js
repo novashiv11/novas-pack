@@ -123,7 +123,9 @@ function badges(main) {
   put(main,
     subBar("Badges", "#/more", "Back to More"),
     sampleStrip(p),
-    h("p.small.muted.badge-intro", `${p.name}'s badges are for real milestones only: a skill at level 3 (it works in the garden), 10 and 25 stamps, 100 walks, and 8 weeks of training.`),
+    h("p.small.muted.badge-intro", p.species === "dog"
+      ? `${p.name}'s badges are for real milestones only: a skill at level 3 (it works in the garden), 10 and 25 stamps, 100 walks, and 8 weeks of training.`
+      : `${p.name}'s badges are for real milestones only, like 8 weeks of training. More ${p.species === "cat" ? "cat" : "pet"} badges are coming soon.`),
     group("skill", "Skill badges"),
     group("milestone", "Milestones"));
 }
