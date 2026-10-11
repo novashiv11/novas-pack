@@ -212,6 +212,8 @@ The EU is preparing rules on addictive design and dark patterns (the Digital Fai
 
 ## Appendix C: Launch content
 
+**Launching the app? Use `docs/launch-app.md` first** (bio, "APP" reply, 5 launch Reels). The community content below is for later.
+
 **Instagram bio (under 150 characters):**
 > Professional human handler. Still waiting on that raise.
 > Host of Nova's Pack: free, friendly, any animal, anywhere 🐾

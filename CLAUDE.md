@@ -21,6 +21,7 @@ Handoff summary for Claude Code. Read this first, then `docs/00-master-brief.md`
 | `docs/spec-v2-levelup.md` | **Current app spec** (v2 "Level up together" + the "1% better every day" addendum). Older: `docs/build-prompt-v4-app.md` (v1), `docs/spec-v1.1.md`. |
 | `js/install.js`, `img/screenshots/` | One-click install (Android prompt, iOS steps, in-app browser banner); manifest screenshots. |
 | `docs/learn-with-nova.md` | Training clip episode plans (shot lists). |
+| `docs/launch-app.md` | **App launch kit**: bio, "APP" reply, 5 launch Reels, stories, never-say list. |
 | `docs/global-plan.md` | Growth/money plan (community parts now secondary). |
 | `docs/decisions.md` | Decision log + open items. |
 | `_archive/` | Old landing pages, prototype, old docs. Never published. |
