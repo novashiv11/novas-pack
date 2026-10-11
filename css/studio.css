@@ -1,0 +1,88 @@
+/* Nova's Art Studio (js/views/studio.js). Loaded after app.css; uses its tokens, so dark mode follows for free.
+   Every tap target is 44 px or more, text stays at 14 px or above, and nothing here is wider than a 320 px phone. */
+
+.st-wrap{display:flex;flex-direction:column;gap:14px;padding-block:10px 12px;min-width:0}
+.st-wrap > *{min-width:0}
+
+/* intro */
+.st-hero{display:flex;align-items:flex-start;gap:12px}
+.st-nova{flex:none;width:44px;height:44px;border-radius:50%}
+.st-title{font-size:var(--t22);line-height:1.15;color:var(--blue)}
+.st-lede{margin-top:4px;color:var(--muted);font-size:var(--t14);line-height:1.45}
+.st-sample{display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:10px 12px;border-radius:12px;background:var(--gold-soft);font-size:var(--t14);line-height:1.4}
+.st-sample p{margin:0}
+
+/* the picture */
+.st-stage{width:100%;max-width:480px;margin-inline:auto;border-radius:16px;background:var(--surface);box-shadow:0 3px 0 var(--line),0 12px 28px rgba(20,18,15,.14)}
+.st-canvas{display:block;width:100%;height:auto;aspect-ratio:1/1;border-radius:16px;cursor:crosshair;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+.st-stage.is-shaking{animation:st-shake .45s ease-in-out}
+@keyframes st-shake{
+  0%,100%{transform:none}
+  20%{transform:translate(-5px,2px) rotate(-1.2deg)}
+  40%{transform:translate(5px,-2px) rotate(1.2deg)}
+  60%{transform:translate(-3px,1px) rotate(-.6deg)}
+  80%{transform:translate(3px,-1px) rotate(.6deg)}
+}
+.st-caption{margin:0;text-align:center;color:var(--ink);font-weight:600;font-size:var(--t14);line-height:1.4}
+.st-status{margin:0;min-height:1.4em;text-align:center;color:var(--muted);font-size:var(--t14);font-weight:600;line-height:1.4}
+.st-status:empty{display:none}
+
+/* styles, buttons, play */
+.st-chips{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.st-chip{min-height:44px;padding:6px 14px;border-radius:12px;border:1.5px solid var(--ctl);background:var(--surface);color:var(--ink);font:inherit;font-size:var(--t14);font-weight:700;line-height:1.25;cursor:pointer;transition:background .15s,border-color .15s,color .15s}
+.st-chip:hover{border-color:var(--blue)}
+.st-chip[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:var(--on-blue)}
+.st-chip-quiet{border-color:var(--line);color:var(--muted)}
+.st-chip-quiet[aria-pressed="true"]{color:var(--on-blue)}
+.st-row{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.st-row .btn:disabled{opacity:.6}
+.st-card{display:flex;flex-direction:column;gap:10px;padding:14px 16px;border-radius:16px;border:1px solid var(--line);background:var(--surface);min-width:0}
+.st-h{font-size:var(--t18);line-height:1.2}
+.st-hint{margin:0;color:var(--muted);font-size:var(--t14);line-height:1.45}
+.st-head-row{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.st-seg{display:flex;gap:4px;min-height:44px;padding:4px;border-radius:12px;background:var(--line);max-width:320px}
+.st-seg button{flex:1 1 0;min-width:0;min-height:44px;padding:4px 10px;border:0;border-radius:12px;background:transparent;color:var(--ink);font:inherit;font-size:var(--t14);font-weight:700;cursor:pointer}
+.st-seg button[aria-pressed="true"]{background:var(--blue);color:var(--on-blue)}
+
+/* frames */
+.st-frames{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (min-width:520px){.st-frames{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.st-frame{display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-height:44px;padding:10px;border-radius:16px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;text-align:left;cursor:pointer;min-width:0}
+button.st-frame:hover{border-color:var(--blue)}
+button.st-frame[aria-pressed="true"]{border-color:var(--blue);box-shadow:inset 0 0 0 1.5px var(--blue);background:var(--blue-soft)}
+.st-frame.is-locked{border-style:dashed;cursor:default;background:transparent}
+.st-thumb-box{position:relative;display:block;width:72px;height:72px;flex:none}
+.st-thumb{display:block;width:72px;height:72px;border-radius:12px}
+.is-locked .st-thumb{filter:grayscale(1);opacity:.5}
+.st-lock{position:absolute;right:-6px;bottom:-6px;display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--surface);border:1.5px solid var(--line);font-size:14px;line-height:1}
+.st-new{position:absolute;left:-6px;top:-8px;padding:1px 8px;border-radius:12px;background:var(--gold);color:#1E1B17;font-size:var(--t12);font-weight:800;letter-spacing:.04em;text-transform:uppercase;box-shadow:0 2px 0 var(--gold-ledge)}
+.st-frame-name{font-family:var(--f-display);font-weight:800;font-size:var(--t14);line-height:1.25}
+.st-frame-need{color:var(--muted);font-size:var(--t14);line-height:1.35;font-weight:500}
+
+/* legend and footnote */
+.st-legend{display:flex;flex-wrap:wrap;gap:6px 14px;list-style:none;margin:0;padding:0;color:var(--muted);font-size:var(--t14);line-height:1.4}
+.st-legend b{color:var(--ink)}
+.st-foot{margin:0;color:var(--muted);font-size:var(--t14);line-height:1.45;text-align:center}
+
+/* focus */
+.st-chip:focus-visible,.st-seg button:focus-visible,.st-frame:focus-visible,.st-row .btn:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+
+/* dark mode: the picture keeps its own colours; only the frame around it changes */
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .st-stage{box-shadow:0 3px 0 var(--line),0 12px 28px rgba(0,0,0,.5)}
+  :root:not([data-theme="light"]) .st-sample{color:var(--ink)}
+  :root:not([data-theme="light"]) .st-new{color:#1E1B17}
+}
+:root[data-theme="dark"] .st-stage{box-shadow:0 3px 0 var(--line),0 12px 28px rgba(0,0,0,.5)}
+:root[data-theme="dark"] .st-sample{color:var(--ink)}
+
+@media (max-width:359px){
+  .st-chip{padding-inline:10px}
+  .st-card{padding:12px}
+  .st-title{font-size:var(--t18)}
+}
+
+@media (prefers-reduced-motion: reduce){
+  .st-stage.is-shaking{animation:none}
+  .st-chip,.st-frame{transition:none}
+}

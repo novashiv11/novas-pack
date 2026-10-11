@@ -90,6 +90,7 @@ export function doItNowCard(p) {
     st
       ? h("a.doit-sticker", { href: "#/more/jar", "data-k": "sticker" }, h("span.st-e", { "aria-hidden": "true" }, st.e), h("span", h("b", `Sticker ${st.n}: `), st.t))
       : h("p.small.muted.doit-jar", "🍪 Your first log today opens Nova's treat jar."),
+    h("a.doit-art", { href: "#/studio", "data-k": "open-studio" }, "🎨 Turn your week into art"),
     plan && plan.anchor
       ? h("p.doit-plan", "Your plan: ", h("b", planText(plan)), " ", h("button.linkish", { type: "button", "data-k": "plan-edit", onclick: () => planSheet(p) }, "Change"))
       : h("button.btn.btn-line.wide.doit-plan-btn", { type: "button", "data-k": "plan-make", onclick: () => planSheet(p) }, "Make a 30-second plan (people who plan, do)"));

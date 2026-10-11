@@ -49,6 +49,7 @@ export function more(main, arg) {
       h("h2.set-h", { id: "g-lvl" }, "Level up"),
       h("ul.set-list",
         row("🍪", "Nova's treat jar", "Stickers", "#/more/jar", "m-jar"),
+        row("🎨", "Art studio", "Play", "#/studio", "m-studio"),
         btnRow("🗓️", "My plan", S.settings.plan && S.settings.plan.anchor ? planText(S.settings.plan) : "Make one", () => planSheet(p), "m-plan"),
         row("🏅", "Badges", `${a.badges.filter((b) => b.earned).length} of ${a.badges.length}`, "#/more/badges", "m-badges"),
         row("🎓", "Trainer and Academy", trainerFor(p).rank.name, "#/trainer", "m-trainer"),

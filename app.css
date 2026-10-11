@@ -800,3 +800,4 @@ legend{max-width:100%;overflow-wrap:anywhere}
 .feed-tips{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px}
 .feed-tips li{display:grid;grid-template-columns:30px minmax(0,1fr);gap:8px;align-items:start;font-size:var(--t14);line-height:1.4}
 .ft-e{font-size:20px;line-height:1.2}
+.doit-art{display:flex;align-items:center;min-height:44px;font-weight:700;font-size:var(--t14);color:var(--blue)}
