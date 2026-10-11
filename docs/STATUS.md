@@ -2,7 +2,7 @@
 
 The **co-captain** (Claude, the main session) updates this file after every step and commits it, so no work is lost when a session stops or hits a usage limit. The full backlog is in `docs/crq.md` and decisions are in `docs/decisions.md`.
 
-**Last updated:** 12 Oct 2026 (all buildable CRQs done; final QA running).
+**Last updated:** 12 Oct 2026 (all buildable CRQs done; final QA is the next job).
 
 ## How we never lose work
 1. Every request from Shiv goes into `docs/crq.md` first, with an ID, before any work starts.
@@ -21,7 +21,7 @@ Everything buildable in `docs/crq.md` is done. What's left needs Shiv (below).
 | B | 6 new skills: sit, down, check-in, drop it, stay, look at that (013, 014); own level ladders for stay, look at that, alone time, toilet training (012); lesson "Worried dogs: space first"; rabbit poop choices and grams (010); Chickens with an Eggs tile, Horse (009) |
 | C | Archive a pet (007); Care diary only mode (008); "No pet yet? Get ready" checklist (024); faster first load (017) |
 | 003 | A drawn picture for every simple step of all 20 skills (`js/scenes.js`, `data/scenes.js`) |
-| QA | Final independent QA pass on a frozen copy: running; fixes follow |
+| QA | **Next session, first job:** run the final independent QA pass (prompt pattern in `docs/qa-sprint2.md` style) on batches A–C, then fix Critical/Major. Stopped on 12 Oct to save usage at Shiv's request. |
 
 ## Waiting on Shiv
 - **CRQ-001:** pick our own name for "1% better every day". Recommended: **"Nova's Nudge"** (see `docs/research-psych.md`).
