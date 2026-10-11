@@ -1,6 +1,7 @@
 // Home: your Partner. The partner card (stage, level, XP, 5 stats), "1% today" (one tiny thing for your dog, one for
 // you, and Nova's line of the day), the trainer strip, this week's quests, quick logs, badges, and one gentle nudge.
 
+import { doItNowCard } from "./doitnow.js";
 import { S, pet, setSetting, save, logsOf, LOG_TYPES } from "../state.js";
 import { h, put, em, fmtDate, isoDate, ageText, DAY, toast } from "../util.js";
 import { healthAlerts, backupDue } from "../logic.js";
@@ -19,6 +20,7 @@ export function home(main) {
   put(main,
     sampleStrip(p),
     alertCard(healthAlerts(p, Date.now()), p),
+    doItNowCard(p),
     partnerCard(p, a, tr),
     onePercent(p, a),
     trainerStrip(tr, p),
@@ -75,8 +77,6 @@ function onePercent(p, a) {
   const dogDone = !!(row.dogDone || (q && q.done));
   const both = dogDone && row.youDone;
   const line = lineOfDay();
-  const last = lastActive(p);
-  const back = last > 0 && Date.now() - last >= 3 * DAY;
   const set = async (k, v) => {
     try { await save("daily", { ...row, [k]: v }); } catch (e) { toast(saveError(e)); }
   };
@@ -92,7 +92,6 @@ function onePercent(p, a) {
   const evening = new Date().getHours() >= 17;
   return h("section.onepct", { "aria-labelledby": "op-h" },
     h("div.op-head", h("h2", { id: "op-h" }, "1% today"), h("span.op-opt", "Optional. Nothing to lose.")),
-    back ? h("p.welcome-back", h("img.disc", { src: "img/brand/nova-head.svg", alt: "", width: "28", height: "28" }), h("b", "Welcome back. Today counts.")) : null,
     h("figure.day-line",
       h("blockquote", h("p", `“${line.text}”`)),
       h("figcaption", line.by ? [`${line.by}`, line.source ? h("span.muted", `, ${line.source}`) : null] : "Nova, today",

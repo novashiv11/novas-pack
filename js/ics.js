@@ -78,6 +78,19 @@ export function medEvents({ uid, title, start, end, freq, times, everyDays, dose
   }));
 }
 
+/** A daily habit reminder at `time` (HH:MM, local), starting today, repeating every day, with an alarm at that time. */
+export function dailyEvent({ uid, title, time, note, start }) {
+  const dt = `${ymd(start)}T${time.replace(":", "")}00`;
+  return wrap([[
+    "BEGIN:VEVENT", `UID:${uid}@novas-pack`, `DTSTAMP:${stamp()}`,
+    `DTSTART:${dt}`, "DURATION:PT5M", "RRULE:FREQ=DAILY",
+    `SUMMARY:${esc(title)}`,
+    `DESCRIPTION:${esc((note ? note + "\n" : "") + "From Nova's Pack. One minute counts.")}`,
+    ...alarm("-PT0M", title),
+    "END:VEVENT",
+  ]]);
+}
+
 /** Save text as a file (works on phones: opens or offers to add to the calendar). */
 export function download(filename, text, type = "text/calendar;charset=utf-8") {
   const blob = new Blob([text], { type });

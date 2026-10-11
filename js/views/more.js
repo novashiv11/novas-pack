@@ -1,6 +1,7 @@
 // More: settings-style rows (Level up: badges, trainer, journal; Pets, Profile and contacts, Units, Backup, Install,
 // Pack Card, Privacy, "If things feel heavy", Delete all) and their sub-pages (#/more/<page>).
 
+import { treatJar, planSheet, planText } from "./doitnow.js";
 import { S, pet, setSetting, wipe, load, refresh, units, UI } from "../state.js";
 import { h, put, em, sheet, toast, confirmBox, fmtDate, isoDate, ageText, telHref, shareOrSave } from "../util.js";
 import { exportData, validateBackup, importData } from "../db.js";
@@ -28,7 +29,7 @@ export async function exportBackup() {
   } catch { toast("Couldn't make the backup file."); }
 }
 
-const PAGES = { pets, profile, units: unitsPage, backup, install, sources, badges };
+const PAGES = { pets, profile, units: unitsPage, backup, install, sources, badges, jar };
 
 export function more(main, arg) {
   if (PAGES[arg]) { PAGES[arg](main); return; }
@@ -47,6 +48,8 @@ export function more(main, arg) {
     p ? h("section.set-group", { "aria-labelledby": "g-lvl" },
       h("h2.set-h", { id: "g-lvl" }, "Level up"),
       h("ul.set-list",
+        row("🍪", "Nova's treat jar", "Stickers", "#/more/jar", "m-jar"),
+        btnRow("🗓️", "My plan", S.settings.plan && S.settings.plan.anchor ? planText(S.settings.plan) : "Make one", () => planSheet(p), "m-plan"),
         row("🏅", "Badges", `${a.badges.filter((b) => b.earned).length} of ${a.badges.length}`, "#/more/badges", "m-badges"),
         row("🎓", "Trainer and Academy", trainerFor(p).rank.name, "#/trainer", "m-trainer"),
         row("📓", "Growth Journal", S.journal.length ? `${S.journal.length} line${S.journal.length === 1 ? "" : "s"}` : "", "#/journal", "m-journal"),
@@ -97,6 +100,10 @@ function heavy() {
 }
 
 // ---------- sub-pages ----------
+function jar(main) {
+  treatJar(main, pet(), subBar("Nova's treat jar", "#/more", "Back to More"));
+}
+
 function badges(main) {
   const p = pet();
   const a = gameOf(p);

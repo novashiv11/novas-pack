@@ -175,7 +175,7 @@ const MOODS = [[1, "😕", "Tricky"], [2, "🙂", "OK"], [3, "🤩", "Great"]];
 const MOOD_LINE = { 1: "Tricky is normal. Make it easier next time.", 2: "Solid work. I supervised.", 3: "Great session. End there. Biscuit." };
 
 /** Save one training session (skill optional), then "+10 XP" and any celebration. */
-export async function logSession(p, sk, { minutes, mood } = {}) {
+export async function logSession(p, sk, { minutes, mood, more } = {}) {
   const ev = { id: uid(), petId: p.id, type: "training", at: Date.now(), skillId: sk ? sk.id : undefined, minutes, mood };
   for (const k of Object.keys(ev)) if (ev[k] === undefined) delete ev[k];
   if (p.sample) ev.sample = true;
@@ -187,11 +187,13 @@ export async function logSession(p, sk, { minutes, mood } = {}) {
   const counted = G.sessionCounts(S.events.filter((e) => e.petId === p.id), ev);
   const name = sk ? skillName(sk) : "General practice";
   const msg = counted
-    ? `Session logged: ${name}.${xpText(before, after, ev)} ${MOOD_LINE[mood] || "I supervised."}`
+    ? more ? `That counts! ${name}.${xpText(before, after, ev)} Want 4 more minutes?` : `Session logged: ${name}.${xpText(before, after, ev)} ${MOOD_LINE[mood] || "I supervised."}`
     : S.events.filter((e) => e.petId === p.id && e.type === "training" && (e.skillId || "general") === (ev.skillId || "general") && G.dayKey(e.at) === G.dayKey(ev.at)).length > G.CAPS.sessions
       ? `Logged: ${name}. Only ${G.CAPS.sessions} sessions per skill count each day, so this one's just for fun. Give that skill a rest.`
       : `Logged: ${name}. Only ${G.CAPS.sessionsPerDay} sessions a day count, so this one's just for fun. Rest is training too.`;
-  toast(msg, [["Undo", () => remove("events", ev.id).then(() => toast("Undone."))]]);
+  const acts = [["Undo", () => remove("events", ev.id).then(() => toast("Undone."))]];
+  if (more && counted) acts.unshift(["Keep going", more]);
+  toast(msg, acts, more ? { ms: 9000 } : undefined);
   celebrateDiff(p, before, after);
   return ev;
 }
@@ -199,16 +201,19 @@ export async function logSession(p, sk, { minutes, mood } = {}) {
 const fmtClock = (ms) => { const s = Math.max(0, Math.ceil(ms / 1000)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`; };
 
 /** The session timer: counts down the skill's minutes, then "How did it go? 😕 🙂 🤩". Closing it logs nothing. */
-export function startSession(p, sk) {
-  const total = Math.max(1, sk.minutes || 5) * 60000;
+/** The session timer. opts.seconds = 60 gives the 1-minute win (spec v3): first step shown, ends by itself. */
+export function startSession(p, sk, { seconds } = {}) {
+  const one = !!seconds;
+  const total = one ? seconds * 1000 : Math.max(1, sk.minutes || 5) * 60000;
   const a = gameOf(p);
   const pr = a.progress[sk.id];
   const place = pr ? G.QUEST_PLACE[Math.min(5, pr.level + 1)] : "at home";
   let t0 = Date.now(), pausedAt = 0, pausedFor = 0, timer = 0, lastMin = -1, over = false;
   const elapsed = () => (pausedAt || Date.now()) - t0 - pausedFor;
-  sheet(`${skillName(sk)}: ${sk.minutes || 5}-minute session`, (body, close) => {
+  sheet(one ? `${skillName(sk)}: your 1-minute win` : `${skillName(sk)}: ${sk.minutes || 5}-minute session`, (body, close) => {
     const clock = h("p.timer-clock", { role: "timer", "aria-label": "Time left" }, fmtClock(total));
-    const status = h("p.timer-status", { "aria-live": "polite" }, `Practise ${place}. Short and happy. End on a win.`);
+    const first = sk.steps && sk.steps.length ? sk.steps[0] : "";
+    const status = h("p.timer-status", { "aria-live": "polite" }, one ? `Just one minute, ${place}.${first ? ` Try: ${first}` : ""}` : `Practise ${place}. Short and happy. End on a win.`);
     const track = h("div.gbar.timer-bar", { "aria-hidden": "true" }, h("span", { style: { width: "0%" } }));
     const pauseBtn = h("button.btn.btn-line", { type: "button", onclick: () => {
       if (pausedAt) { pausedFor += Date.now() - pausedAt; pausedAt = 0; pauseBtn.textContent = "Pause"; status.textContent = "Back to it."; }
@@ -219,7 +224,7 @@ export function startSession(p, sk) {
       h("div.mood-row", MOODS.map(([v, e, label]) => h("button.mood-btn", { type: "button", "data-k": `mood-${v}`, onclick: () => {
         const mins = Math.max(1, Math.round(elapsed() / 60000));
         close();
-        logSession(p, sk, { minutes: Math.min(mins, 180), mood: v });
+        logSession(p, sk, { minutes: Math.min(mins, 180), mood: v, more: one ? () => startSession(p, sk) : undefined });
       } }, h("span.mood-em", { "aria-hidden": "true" }, e), h("span", label)))));
     const finish = () => {
       clearInterval(timer);
@@ -228,11 +233,14 @@ export function startSession(p, sk) {
       moodBox.hidden = false;
       moodBox.querySelector("button").focus();
     };
-    const runRow = h("div.row-btns.timer-btns", pauseBtn, h("button.btn.btn-blue", { type: "button", "data-k": "timer-done", onclick: finish }, "Finish session"));
+    // Finish unlocks after a minute, so a session is a real one (a 1-minute win simply ends by itself).
+    const doneBtn = h("button.btn.btn-blue", { type: "button", "data-k": "timer-done", disabled: true, onclick: finish }, one ? "Keep at it…" : "Finish (after 1 min)");
+    const runRow = h("div.row-btns.timer-btns", pauseBtn, doneBtn);
     const tick = () => {
       const left = total - elapsed();
       clock.textContent = fmtClock(left);
       track.firstChild.style.width = `${Math.min(100, (elapsed() / total) * 100)}%`;
+      if (!one && doneBtn.disabled && elapsed() >= 60000) { doneBtn.disabled = false; doneBtn.textContent = "Finish session"; }
       const min = Math.ceil(left / 60000);
       if (!over && left <= 0) {
         over = true; buzz(200);
@@ -248,7 +256,7 @@ export function startSession(p, sk) {
       runRow,
       moodBox,
       sk.steps && sk.steps.length ? h("details.more-box", h("summary", "Steps"), h("ol.steps-list.timer-steps", sk.steps.map((s) => h("li", s)))) : null,
-      h("p.small.muted", "Closing this logs nothing. Kind methods only: treats, toys and praise."));
+      h("p.small.muted", one ? "Closing this logs nothing. Treats, toys and praise only." : "Closing this logs nothing. Kind methods only: treats, toys and praise."));
     timer = setInterval(tick, 250);
     tick();
   }, { onClose: () => clearInterval(timer) });

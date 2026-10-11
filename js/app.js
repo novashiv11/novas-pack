@@ -3,6 +3,7 @@
 // except loading the app's own files.
 
 // install.js first: it sets up the install prompt listener and the update-hook queue before any view module runs.
+import { doNow } from "./views/doitnow.js";
 import { isStandalone } from "./install.js";
 import { S, load, onChange, pet, setSetting } from "./state.js";
 import { h, ago, toast } from "./util.js";
@@ -38,7 +39,7 @@ function route() {
 
 // #/quick/<type> (Home Screen shortcuts): show Today, then open that quick log once.
 const QUICK = ["poop", "meal", "treat", "med", "walk", "training", "weight", "vet", "symptom"];
-let pendingQuick = "";
+let pendingQuick = "", pendingNow = false;
 function openQuick(type) {
   if (!pet()) return;
   if (typeof window.NP_openQuickLog === "function") { window.NP_openQuickLog(type); return; }
@@ -49,6 +50,7 @@ function openQuick(type) {
 let lastRoute = "";
 function draw() {
   let { name, arg, sub, raw } = route();
+  if (raw === "now") { pendingNow = true; name = "home"; arg = ""; history.replaceState(null, "", "#/home"); }
   if (raw === "quick") {
     pendingQuick = QUICK.includes(arg) ? arg : "";
     name = HEALTH_QUICK.includes(arg) ? "health" : "home"; arg = "";
@@ -85,6 +87,7 @@ function draw() {
     const el = focusKey && main.querySelector(focusKey);
     if (el) el.focus({ preventScroll: true });
   }
+  if (pendingNow && pet()) { pendingNow = false; setTimeout(() => { try { doNow(pet()); } catch (err) { console.warn(err); } }, 0); }
   if (pendingQuick) {
     const t = pendingQuick;
     pendingQuick = "";
