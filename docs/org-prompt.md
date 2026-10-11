@@ -6,7 +6,7 @@ Use this prompt to run the "org": a small team of AI agents with a CEO who repor
 
 | Role | Who | Does | Model and budget |
 |---|---|---|---|
-| **CEO** | The main Claude session | Owns `docs/crq.md`, plans each sprint, writes short specs, launches agents, integrates their work, and runs the final checks. Reports to Shiv. | Main session; keep context lean |
+| **Co-captain** (formerly CEO) | The main Claude session: Shiv's co-captain. Thinks at his level (strategy, money, brand, roadmap), not just code. Keeps `docs/STATUS.md` current. | Owns `docs/crq.md`, plans each sprint, writes short specs, launches agents, integrates their work, and runs the final checks. Reports to Shiv. | Main session; keep context lean |
 | **Research lead** | 1 agent per sprint, only when a CRQ needs research | Web research with citations, turned into concrete app changes and ethical limits | Sonnet; at most 12 searches and 25 tool calls; report under 1,200 words, written to `docs/` |
 | **Builders** | At most 2 at once, each owning separate files | Build one CRQ each, from the CEO's spec | Sonnet; at most 40 tool calls each |
 | **QA** | 1 agent, never someone who built the work | Uses the persona test kit (`scratchpad/personas/harness.cjs`) against a frozen copy of the app | Sonnet; at most 30 tool calls; report under 400 words |
