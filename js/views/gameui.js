@@ -139,8 +139,9 @@ export async function missionComplete(p, before, after, { title, xp, firstToday,
       firstToday && ws && ws.sticker ? h("div.mc-sticker", h("span.st-e", { "aria-hidden": "true" }, ws.sticker.e), h("span", h("b", `New sticker ${ws.sticker.n}: `), ws.sticker.t)) : null,
       h("div.mc-btns",
         h("button.btn.btn-gold.wide", { type: "button", "data-k": "mc-continue", onclick: close }, "Continue"),
-        more ? h("button.btn.btn-line.wide", { type: "button", "data-k": "mc-more", onclick: () => { close(); more(); } }, "4 more minutes") : null,
-        shareWinBtn(p, win, "mc-share")));
+        h("div.mc-second",
+          more ? h("button.btn.btn-line.wide", { type: "button", "data-k": "mc-more", onclick: () => { close(); more(); } }, "4 more minutes") : null,
+          shareWinBtn(p, win, "mc-share"))));
   }, { onClose: () => celebrateDiff(p, before, after) });
   dlg.classList.add("cele", "mission");
   buzz([20, 40, 20]);
@@ -307,9 +308,9 @@ export function startSession(p, sk, { seconds } = {}) {
     const first = sk.steps && sk.steps.length ? sk.steps[0] : "";
     const status = h("p.timer-status", { "aria-live": "polite" }, one ? `Just one minute, ${place}.${first ? ` Try: ${first}` : ""}` : `Practise ${place}. Short and happy. End on a win.`);
     const pauseBtn = h("button.btn.btn-line.timer-pause", { type: "button", "data-k": "timer-pause", onclick: () => {
-      if (pausedAt) { pausedFor += Date.now() - pausedAt; pausedAt = 0; pauseBtn.textContent = "⏸ Pause"; status.textContent = "Back to it."; ring.classList.remove("paused"); }
-      else { pausedAt = Date.now(); pauseBtn.textContent = "▶ Resume"; status.textContent = "Paused. Take your time."; ring.classList.add("paused"); }
-    } }, "⏸ Pause");
+      if (pausedAt) { pausedFor += Date.now() - pausedAt; pausedAt = 0; pauseBtn.textContent = "Pause"; status.textContent = "Back to it."; ring.classList.remove("paused"); }
+      else { pausedAt = Date.now(); pauseBtn.textContent = "Resume"; status.textContent = "Paused. Take your time."; ring.classList.add("paused"); }
+    } }, "Pause");
     const moodBox = h("fieldset.fs.mood-box", { hidden: true },
       h("legend", "How did it go?"),
       h("div.mood-row", MOODS.map(([v, e, label]) => h("button.mood-btn", { type: "button", "data-k": `mood-${v}`, onclick: () => {
@@ -326,7 +327,7 @@ export function startSession(p, sk, { seconds } = {}) {
       moodBox.querySelector("button").focus();
     };
     // Done shows up after a minute, so a session is a real one.
-    const doneBtn = h("button.btn.btn-blue", { type: "button", "data-k": "timer-done", hidden: true, onclick: finish }, "✓ Done");
+    const doneBtn = h("button.btn.btn-blue", { type: "button", "data-k": "timer-done", hidden: true, onclick: finish }, "Done");
     const runRow = h("div.row-btns.timer-btns", pauseBtn, doneBtn);
     const tick = () => {
       const left = total - elapsed();

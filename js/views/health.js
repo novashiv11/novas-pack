@@ -166,7 +166,7 @@ function unwellSection(main, p) {
       h("h2.sec-title", { id: "un-h" }, "Unwell notes, last 30 days"),
       notes.length ? eventList(notes, (e) => eventSheet("symptom", e), { showDay: true, single: true }) : emptyState("Nothing logged. Long may it last.")),
     redFlags(true),
-    p.vet && telHref(p.vet.phone) ? null : h("p.small", h("a", { href: "#/more/profile" }, "Add your vet's number"), " so it's one tap away when you need it."));
+    p.vet && telHref(p.vet.phone) ? null : h("a.text-link", { href: "#/more/profile" }, "Add your vet's number"));
 }
 
 const pillFor = (st) => (st.state === "overdue" ? ["overdue", dueText(st)] : st.state === "today" ? ["today", "Due today"] : st.state === "soon" ? ["soon", dueText(st)] : st.state === "later" ? ["ok", "Up to date"] : ["none", "No next date"]);

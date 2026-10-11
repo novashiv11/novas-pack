@@ -40,7 +40,7 @@ function walkCard(p, a) {
       h("div", h("h2", { id: "walk-h" }, "Walks"),
         h("p.walk-n", h("b", String(a.walks.length)), " counted · ", `${week} this week`)),
       h("button.btn.btn-blue", { type: "button", "data-k": "log-walk", onclick: logWalk }, em("🚶"), " Log a walk")),
-    next ? [bar(a.walks.length, next.auto.walks, "gold"), h("p.small.muted", `${next.auto.walks - a.walks.length} more to the ${next.title} stamp. Up to ${CAPS.walks} walks a day count.`)]
+    next ? [bar(a.walks.length, next.auto.walks, "gold"), h("p.small.muted", `${next.auto.walks - a.walks.length} more to the ${next.title} stamp.`)]
       : h("p.small.muted", "Every walk milestone stamped. Legendary. Keep sniffing."),
     walks.length ? h("details.more-box.walk-list",
       h("summary", `Recent walks (${Math.min(walks.length, 10)})`),

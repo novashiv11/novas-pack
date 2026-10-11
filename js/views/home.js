@@ -201,7 +201,7 @@ function weekly(p, a) {
         ring(q.progress, q.target, q.done),
         h("span.q-body", h("span.q-text", q.text), h("span.q-meta", q.done ? "Done. +30 trainer XP" : `${q.progress} of ${q.target} · +30 trainer XP`)),
         chevron())))),
-    h("p.small.muted", w.allDone ? `All 3 done: +50 bonus XP for ${p.name}. Lovely week.` : "All 3 by Sunday: +50 bonus XP. Miss a week? No drama, Monday's a fresh start."));
+    h("p.small.muted", w.allDone ? `All 3 done: +50 bonus XP for ${p.name}. Lovely week.` : "All 3 by Sunday: +50 bonus XP. Missed? Monday is a fresh start."));
 }
 
 function quickLog(p) {

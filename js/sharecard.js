@@ -580,7 +580,7 @@ async function shareCanvas(canvas, filename, title, status) {
   let can = false;
   try { can = !!(file && navigator.share && navigator.canShare && navigator.canShare({ files: [file] })); } catch { can = false; }
   if (can) {
-    try { await navigator.share({ files: [file], title }); status.textContent = "Shared. Tag @novathehumanhandler so Nova sees it."; return; } catch (e) {
+    try { await navigator.share({ files: [file], title }); status.textContent = "✓ Shared. Tag @novathehumanhandler so Nova sees it."; return; } catch (e) {
       if (e && e.name === "AbortError") return;
     }
   }
@@ -588,7 +588,7 @@ async function shareCanvas(canvas, filename, title, status) {
   const a = h("a", { href: url, download: filename });
   document.body.append(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 4000);
-  status.textContent = "Saved to your downloads.";
+  status.textContent = "✓ Saved to your downloads.";
 }
 
 async function copyText(text, area) {
@@ -613,12 +613,13 @@ function cardSheet(title, alt, filename, draw, opts = {}) {
   const nameFor = typeof filename === "function" ? filename : () => filename;
   sheet(title, (body) => {
     const canvas = h("canvas.share-canvas", { role: "img", "aria-label": alt, width: "1080", height: fmt === "story" ? "1920" : "1350" });
-    const status = h("p.small.muted", { role: "status" }, "Drawing…");
+    const status = h("p.share-status", { role: "status" }, "Drawing…");
     const shareBtn = h("button.btn.btn-blue", { type: "button", "data-k": "share-go", disabled: true, onclick: () => shareCanvas(canvas, nameFor(fmt), title, status) }, "Share or save");
     const area = opts.caption ? h("textarea", { rows: "5", "aria-label": "Caption, ready to post", value: opts.caption }) : null;
     const copyBtn = area ? h("button.btn.btn-line", { type: "button", "data-k": "copy-caption", onclick: async () => {
       const ok = await copyText(area.value, area);
-      status.textContent = ok ? "Caption copied. Paste it into your post." : "Couldn't copy automatically. Press and hold the caption to copy it.";
+      status.textContent = ok ? "✓ Caption copied. Paste it into your post." : "Couldn't copy automatically. Press and hold the caption to copy it.";
+      status.classList.toggle("ok", ok);
     } }, "Copy caption") : null;
     let token = 0;
     const redraw = () => {
@@ -633,10 +634,9 @@ function cardSheet(title, alt, filename, draw, opts = {}) {
     put(body,
       formats ? segmented("share-size", "Picture size", formats, fmt, (v) => { fmt = v; redraw(); }, { hideLegend: true }) : null,
       h("div.share-frame", canvas),
-      h("div.row-btns.left", shareBtn, copyBtn),
-      status,
       area ? h("div.field", area) : null,
-      h("p.small.muted", "Made on your phone. Nothing is uploaded; you choose where it goes."));
+      h("p.small.muted", "Made on your phone. Nothing is uploaded; you choose where it goes."),
+      h("div.share-actions", status, h("div.row-btns.left", shareBtn, copyBtn)));
     redraw();
   });
 }

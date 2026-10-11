@@ -77,15 +77,15 @@ export function installCard() {
       h("div.row-btns.left", action, notNow));
 
     if (S.installPrompt) {
-      return card("One tap, and your diary opens like an app and stays put.",
-        h("button.btn.btn-blue.sm", { type: "button", onclick: promptInstall }, "Install"));
+      return card("Opens like an app.",
+        h("button.btn.btn-line.sm", { type: "button", onclick: promptInstall }, "Install"));
     }
     if (isIOS()) {
-      return card("Two taps, and your diary opens like an app and stays put.",
-        h("button.btn.btn-blue.sm", { type: "button", onclick: iosSheet }, "Show me how"));
+      return card("Opens like an app.",
+        h("button.btn.btn-line.sm", { type: "button", onclick: iosSheet }, "Show me how"));
     }
     if (isAndroid()) {
-      return card("Open your browser menu (⋮ or ☰) and tap \"Install app\". Chrome may call it \"Install and create shortcut\" or \"Add to Home screen\". It then opens like any app.", null);
+      return card("Opens like an app.", h("button.btn.btn-line.sm", { type: "button", "data-k": "install-how", onclick: androidSheet }, "How?"));
     }
     return null;
   } catch { return null; }
@@ -102,6 +102,19 @@ function addIcon() {
   s.setAttribute("viewBox", "0 0 24 24"); s.setAttribute("aria-hidden", "true"); s.setAttribute("width", "28"); s.setAttribute("height", "28");
   s.innerHTML = '<rect x="4" y="4" width="16" height="16" rx="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 8.5v7M8.5 12h7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>';
   return s;
+}
+
+/** The Android steps, for browsers that don't offer the one-tap install. */
+export function androidSheet() {
+  try {
+    sheet("Add Nova's Pack to your Home Screen", (body, close) => {
+      body.append(
+        h("ol.ios-steps",
+          h("li", h("span.ios-ico", "⋮"), h("div", h("b", "Open the browser menu"), h("p.small.muted", "The ⋮ or ☰ button, top right or bottom right."))),
+          h("li", h("span.ios-ico", addIcon()), h("div", h("b", "Tap \"Install app\""), h("p.small.muted", "Chrome may call it \"Install and create shortcut\" or \"Add to Home screen\".")))),
+        h("button.btn.btn-blue.wide", { type: "button", onclick: close }, "Got it"));
+    });
+  } catch { /* no dialog support */ }
 }
 
 /** The iPhone and iPad steps: Share, then "Add to Home Screen". */
