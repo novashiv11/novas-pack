@@ -97,3 +97,5 @@ GitHub repo: `novashiv11/novas-pack`. To deploy on GitHub Pages: **Settings → 
 
 ## Communication
 Shiv reads on his phone, sometimes writes in Hinglish, and prefers to "just start". Lead with the answer, keep it short, and ask only when a decision is genuinely his: strategy, money, anything public, anything irreversible.
+
+**Replies: an executive summary of at most 5 short bullets** (Shiv, 11 Oct 2026). Add more only when his input is needed, and then say exactly what's needed.
