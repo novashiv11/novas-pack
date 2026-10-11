@@ -4,6 +4,7 @@
 # Folders starting with "_" (like _archive/) are never published.
 exclude:
   - docs/
+  - android/
   - finance/
   - README.md
   - CLAUDE.md
