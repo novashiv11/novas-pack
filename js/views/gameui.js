@@ -4,6 +4,8 @@
 
 import { EASY } from "../../data/easysteps.js";
 import { STEP_PHOTOS } from "../../data/media.js";
+import { SCENES } from "../../data/scenes.js";
+import { scene } from "../scenes.js";
 import { stampsFor } from "../../data/adventures.js";
 import { S, pet, save, remove, refresh, realPets } from "../state.js";
 import { h, put, em, uid, sheet, toast, motionOK, buzz, isoDate } from "../util.js";
@@ -245,7 +247,8 @@ export function howTo(skillId, title, { open = false, k = "howto" } = {}) {
       e.need ? h("p.howto-need", h("b", "You need: "), e.need) : null,
       h("ol.howto-steps", e.steps.map((s, i) => {
         const ph = (STEP_PHOTOS[skillId] || {})[i + 1];
-        return h("li", s, ph ? h("figure.step-photo", h("img", { src: ph.src, alt: ph.alt, loading: "lazy", width: "460", height: "345" })) : null);
+        const sp = !ph && (SCENES[skillId] || [])[i];
+        return h("li", s, ph ? h("figure.step-photo", h("img", { src: ph.src, alt: ph.alt, loading: "lazy", width: "460", height: "345" })) : sp ? h("figure.step-pic", scene(sp)) : null);
       })),
       e.win ? h("p.howto-win", "✅ ", e.win) : null,
       h("p.small.muted", "Simple enough for kids to help, with a grown-up. Treats, toys and praise only.")));
