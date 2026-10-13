@@ -1,6 +1,8 @@
 // Trainer: the human's growth. Rank (Rookie → Handler → Coach → Mentor, in-app learning milestones, not a
 // qualification), where the XP came from, the "1% a day adds up" curve (real data only), the Academy (short lessons
 // with a 2-question check, +40 XP once each), and at Coach, a "Go pro" card with real routes into the job.
+// Lessons can be tagged with `species` (data/academy.js): a pet sees the untagged ones plus its own species'. Rank still
+// counts every lesson ever finished, so nobody loses XP when the list changes or they switch pet.
 
 import { S, pet, save, setSetting } from "../state.js";
 import { h, put, em, fmtDate, toast } from "../util.js";
@@ -9,15 +11,23 @@ import { gameOf, trainerFor, trainerName, worldPets, withRewards, bar } from "./
 import { RANKS, XP, curve } from "../game.js";
 import { saveError } from "../forms.js";
 
+/** The lessons this pet sees: untagged ones (everyone) plus those tagged with its species. The sample world and "no pet" see all. */
+export function lessonsFor(all, p) {
+  if (!p || p.sample) return all;
+  return all.filter((l) => !l.species || l.species.includes(p.species));
+}
+
 export function trainer(main, arg) {
-  const lessons = S.content.LESSONS || [];
-  if (arg) {
-    const i = lessons.findIndex((l) => l.id === arg);
-    if (i >= 0) { lesson(main, lessons[i], i, lessons.length); return; }
-  }
+  const all = S.content.LESSONS || [];
   const p = pet();
+  const lessons = lessonsFor(all, p);
+  if (arg) {
+    const l = all.find((x) => x.id === arg); // a direct link to any lesson still opens, even one not in this pet's list
+    if (l) { lesson(main, l, lessons); return; }
+  }
   const tr = trainerFor(p);
   const done = tr.lessonsDone;
+  const doneHere = lessons.filter((l) => done.has(l.id)).length;
   const isCoach = RANKS.findIndex((r) => r.id === tr.rank.id) >= 2;
   const P = tr.parts;
   put(main,
@@ -35,7 +45,7 @@ export function trainer(main, arg) {
         h("span.rl-name", r.name), h("span.rl-xp", `${r.xp.toLocaleString()} XP${r.lessons ? ` + ${r.lessons} lessons` : ""}`),
         h("span.vh", i <= RANKS.findIndex((x) => x.id === tr.rank.id) ? ", reached" : ", not yet")))),
       h("p.small.muted", "Trainer ranks are learning milestones in this app, not a qualification."),
-      p.sample ? h("p.small.muted", "Sample mode: Nova's sample progress counts here, never towards your real rank.") : null),
+      p && p.sample ? h("p.small.muted", "Sample mode: Nova's sample progress counts here, never towards your real rank.") : null),
     h("section.sec", { "aria-labelledby": "xp-h" },
       h("h2.sec-title", { id: "xp-h" }, "Where your XP came from"),
       h("table.xp-table", h("tbody",
@@ -47,7 +57,7 @@ export function trainer(main, arg) {
       h("p.small.muted", "XP comes from real things you did, worked out from your diary. Never from opening the app, likes or shares.")),
     curveSection(p),
     h("section.sec", { "aria-labelledby": "ac-h" },
-      h("div.sec-row", h("h2.sec-title", { id: "ac-h" }, "Academy"), h("span.small.muted", `${done.size} of ${lessons.length} done`)),
+      h("div.sec-row", h("h2.sec-title", { id: "ac-h" }, "Academy"), h("span.small.muted", `${doneHere} of ${lessons.length} done`)),
       h("p.small.muted", `1 to 2 minutes each, reward-based, with sources. Pass the 2-question check for +${XP.lesson} XP, once.`),
       h("ul.lesson-list", lessons.map((l, i) => h("li", h("a.lesson-row", { href: `#/trainer/${encodeURIComponent(l.id)}`, "data-k": `ls-${l.id}` },
         h("span.ls-em", { "aria-hidden": "true" }, done.has(l.id) ? "✅" : l.emoji),
@@ -138,8 +148,9 @@ function spark(pts, key, name, label) {
 }
 
 // ---------- one lesson ----------
-function lesson(main, l, i, n) {
+function lesson(main, l, list) {
   const p = pet();
+  const i = list.indexOf(l), n = list.length, next = i >= 0 && i + 1 < n ? list[i + 1] : null;
   const done = S.academy.find((r) => r.lessonId === l.id);
   const form = h("form.form.quiz", { novalidate: true });
   const result = h("div.quiz-result", { "aria-live": "polite" });
@@ -179,7 +190,7 @@ function lesson(main, l, i, n) {
   put(main,
     subBar(l.title, "#/trainer", "Back to Trainer"),
     h("article.lesson", { "aria-labelledby": "page-title" },
-      h("p.eyebrow", `Lesson ${i + 1} of ${n} · ${l.minutes} min read${done ? " · done" : ""}`),
+      h("p.eyebrow", `${i >= 0 ? `Lesson ${i + 1} of ${n}` : "Lesson"} · ${l.minutes} min read${done ? " · done" : ""}`),
       h("p.lesson-intro", h("img.disc", { src: NOVA, alt: "", width: "40", height: "40" }), h("span", l.intro)),
       l.parts.map((part) => h("section.lesson-part",
         h("h2", part.h),
@@ -193,6 +204,6 @@ function lesson(main, l, i, n) {
       h("section.lesson-src", { "aria-labelledby": "src-h" },
         h("h2", { id: "src-h" }, "Sources and further reading"),
         h("ul.src-list", l.sources.map((s) => h("li", h("a", { href: s.url, rel: "noopener" }, s.title))))),
-      h("p.vet-first", em("🩺"), " General education, not a diagnosis. Worried about your dog's health or behaviour? Talk to your vet first.")),
-    i + 1 < n ? h("a.btn.btn-line.wide.next-lesson", { href: `#/trainer/${encodeURIComponent(S.content.LESSONS[i + 1].id)}` }, `Next: ${S.content.LESSONS[i + 1].title}`) : null);
+      h("p.vet-first", em("🩺"), " General education, not a diagnosis. Worried about your pet's health or behaviour? Talk to your vet first.")),
+    next ? h("a.btn.btn-line.wide.next-lesson", { href: `#/trainer/${encodeURIComponent(next.id)}` }, `Next: ${next.title}`) : null);
 }

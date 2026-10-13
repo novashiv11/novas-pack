@@ -4,7 +4,7 @@
 // A new version downloads every file in ASSETS in the background, all or nothing, then waits. The app shows
 // "Update ready"; tapping it sends SKIP_WAITING, this worker takes over and the page reloads. Until then the app keeps
 // running the version it started with, so old and new files are never mixed. ASSETS must list only files that exist.
-const VERSION = "2026-10-13-v5-1";
+const VERSION = "2026-10-13-v5-2";
 const CACHE = `novas-pack-${VERSION}`;
 const CLIPS = "novas-pack-clips";
 

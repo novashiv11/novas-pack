@@ -1,10 +1,14 @@
-// Nova's Pack: the Academy (spec v2, parts C.5 and D.5). Short lessons for the human: how dogs learn.
+// Nova's Pack: the Academy (spec v2, parts C.5 and D.5). Short lessons for the human, for every kind of pet.
 //
-// Shape: { id, title, emoji, minutes, intro, parts: [{ h, p?, list? }], takeaway, check: [{ q, options, answer, why }], sources }
+// Shape: { id, title, emoji, minutes, intro, parts: [{ h, p?, list? }], takeaway, check: [{ q, options, answer, why }], sources, species? }
+//   species  optional list of pet species ("dog", "cat", "rabbit", "chicken"...). No `species` means the lesson is for everyone;
+//            a tag means only pets of those species see it (the sample world and "no pet" see everything). Never remove or rename
+//            an id: lessons people already finished still count towards their Trainer rank.
 //   check    2 questions; answer is the index of the right option. Passing both completes the lesson (+40 trainer XP, once).
 //   sources  reputable pages for further reading. General education only: not a qualification, no diagnosis, no doses.
 //
-// Reward-based throughout, in line with the AVSAB position statement on humane dog training.
+// Reward-based throughout, in line with the AVSAB position statement on humane dog training. The cat, rabbit and hen lessons
+// only state what the linked welfare charities say, and leave the rest out.
 
 const AVSAB = { title: "AVSAB position statement on humane dog training (via Purdue Canine Welfare Science)", url: "https://caninewelfare.centers.purdue.edu/resource/humane-dog-training-position-statement/" };
 const AVSAB_HOME = { title: "AVSAB position statements", url: "https://avsab.org/resources/position-statements/" };
@@ -17,9 +21,26 @@ const RSPCA_WALK = { title: "RSPCA, Teach your dog to walk nicely on a lead", ur
 const RSPCA_BEH = { title: "RSPCA, Dog behaviour", url: "https://www.rspca.org.uk/adviceandwelfare/pets/dogs/behaviour" };
 const RSPCA_SEP = { title: "RSPCA, Separation-related behaviour", url: "https://www.rspca.org.uk/adviceandwelfare/pets/dogs/behaviour/separationrelatedbehaviour/treatment" };
 
+// Sources for the cat, rabbit and hen lessons (welfare charities). Claims in those lessons are limited to what these say.
+const CP_BODY = { title: "Cats Protection, Cat body language", url: "https://www.cats.org.uk/help-and-advice/cat-behaviour/cat-body-language" };
+const PDSA_CAT_BODY = { title: "PDSA, Cat body language", url: "https://www.pdsa.org.uk/pet-help-and-advice/looking-after-your-pet/kittens-cats/cat-body-language" };
+const RSPCA_CAT_UNDERSTAND = { title: "RSPCA, Understanding your cat's behaviour", url: "https://www.rspca.org.uk/adviceandwelfare/pets/cats/behaviour/understanding" };
+const ICC_HANDLING = { title: "International Cat Care, Handling and interactions", url: "https://icatcare.org/articles/handling-and-interactions" };
+const ICC_FRIENDLY = { title: "International Cat Care, Cat friendly interaction", url: "https://icatcare.org/articles/cat-friendly-interaction" };
+const RSPCA_RABBITS = { title: "RSPCA, Pet rabbits: care, behaviour and welfare", url: "https://www.rspca.org.uk/adviceandwelfare/pets/rabbits" };
+const RSPCA_RABBIT_BOOKLET = { title: "RSPCA, Getting ready for your RSPCA rescue rabbits (booklet)", url: "https://www.rspca.org.uk/documents/1494939/7712578/648_Pre-adoption_booklet_rabbits_single_2021+(1).pdf/5f5f1a45-4486-421c-cef2-b8579feae514?t=1646424890372" };
+const RWAF_HANDLING = { title: "Rabbit Welfare Association & Fund, How to handle pet rabbits safely and calmly", url: "https://rabbitwelfare.co.uk/handling-rabbits/" };
+const RWAF_CODE = { title: "Rabbit Welfare Association & Fund, Good practice code for the welfare of rabbits (2023)", url: "https://rabbitwelfare.co.uk/wp-content/uploads/2023/01/Rabbit-CoP-July-2023-final.pdf" };
+const RSPCA_CHICKENS = { title: "RSPCA, Keeping chickens as pets: how to care for backyard hens", url: "https://www.rspca.org.uk/adviceandwelfare/pets/chickens" };
+const BHWT_FAQ = { title: "British Hen Welfare Trust, Hen health FAQs", url: "https://www.bhwt.org.uk/hen-health/hen-health-faqs/" };
+const BHWT_DUST = { title: "British Hen Welfare Trust, Chicken dust bath: the ultimate spa treatment", url: "https://www.bhwt.org.uk/blog/health-welfare/chicken-dust-bath/" };
+const BHWT_BROODY = { title: "British Hen Welfare Trust, The complete guide to caring for a broody hen", url: "https://www.bhwt.org.uk/blog/health-welfare/caring-for-a-broody-hen/" };
+const BHWT_HOUSING = { title: "British Hen Welfare Trust, Avian flu housing order tips (mentions pecking blocks as treats)", url: "https://bhwt.org.uk/health-welfare/tip-for-keeping-your-hens-safe-under-a-housing-order" };
+
 export const LESSONS = [
   {
     id: "how-dogs-learn",
+    species: ["dog"],
     title: "How dogs learn",
     emoji: "🧠",
     minutes: 2,
@@ -38,6 +59,7 @@ export const LESSONS = [
   },
   {
     id: "body-language",
+    species: ["dog"],
     title: "Reading body language",
     emoji: "👀",
     minutes: 2,
@@ -55,7 +77,68 @@ export const LESSONS = [
     sources: [RSPCA_BEH, DT_ADVICE, AVSAB],
   },
   {
+    id: "cats",
+    species: ["cat"],
+    title: "Reading your cat",
+    emoji: "🐱",
+    minutes: 2,
+    intro: "I say everything out loud. Cats say it quietly, with a tail, an ear or a blink, and then look unimpressed when we miss it. Learn to listen and you'll get a lot more out of your cat.",
+    parts: [
+      { h: "Tails and ears", p: "Read the whole cat, not just one bit.", list: ["An upright tail with a curl at the tip usually means \"glad to see you\"", "A tail flicking from side to side suggests irritation", "A tail tucked tightly against the body suggests fear or worry", "Ears forward and relaxed suggest a content cat", "Ears flat or turned sideways suggest stress or unhappiness", "Ears up but turned outwards suggest a worried cat on high alert"] },
+      { h: "The slow blink", p: "Cats Protection suggests slowly blinking at your cat and turning your head slightly: cats often blink slowly back. International Cat Care adds that a slow blink can also be a cat keeping the peace, so it isn't an automatic invitation to touch." },
+      { h: "Let your cat choose", p: "A cat who walks away, or turns their head away, is giving you a clear no. Take it kindly. International Cat Care suggests:", list: ["Turn your body side-on, which feels less threatening", "Stay still and let the cat come to you", "Avoid staring, and never reach into a hiding place", "Stroke for about three seconds, then pause, so your cat can decide whether to carry on", "Avoid picking your cat up when you're just saying hello: it takes away their choice"] },
+      { h: "Hiding is a message", p: "A cat who hides is usually stressed or worried, so leave them in their hiding place. Hiding places help cats feel safe, so make sure yours has somewhere to retreat to. If hiding is new, goes on, or comes with other changes in behaviour, talk to your vet." },
+    ],
+    takeaway: "Notice the quiet signals. Offer, don't force. Let your cat choose.",
+    check: [
+      { q: "Your cat walks away while you're stroking them. What now?", options: ["Follow and keep stroking, they'll come round", "Let them go: walking away is a clear no", "Pick them up for a cuddle instead"], answer: 1, why: "Walking away or turning the head away is a clear no. Letting them leave keeps the choice with your cat." },
+      { q: "Your cat has gone under the bed and is staying there. Best move?", options: ["Reach in and gently pull them out", "Leave them be, and call your vet if it's new or keeps going", "Stare at them until they come out"], answer: 1, why: "Hiding usually means a cat is stressed or worried. Reaching in or staring adds pressure, and a new pattern of hiding is worth a vet's opinion." },
+    ],
+    sources: [CP_BODY, PDSA_CAT_BODY, ICC_HANDLING, ICC_FRIENDLY, RSPCA_CAT_UNDERSTAND],
+  },
+  {
+    id: "rabbits",
+    species: ["rabbit"],
+    title: "Happy rabbits",
+    emoji: "🐰",
+    minutes: 2,
+    intro: "Rabbits are prey animals: fragile, easily hurt, and not keen on being picked up. I'm a dog, so on paper I'm the thing they worry about. Be gentler than me.",
+    parts: [
+      { h: "Come down to their level", p: "The RSPCA says rabbits are fragile and can be injured easily, and as prey animals they generally prefer not to be picked up. Where you can, interact at ground level: sit on the floor and offer a suitable treat so your rabbit can choose to come to you." },
+      { h: "If you do have to lift", p: "Sometimes you must, a vet trip for one. The RSPCA suggests one hand under the chest and front legs and the other supporting the bottom, then holding your rabbit close to your body so they feel secure and can't kick out. Never hold a rabbit on their back to keep them still: the Rabbit Welfare Association & Fund says that is a terrified rabbit playing dead, a prey animal's response to being caught." },
+      { h: "Company and a place to hide", list: ["Rabbits need the company of another rabbit (ask a rescue or your vet how to introduce rabbits safely)", "They tend to hide when they're afraid, unwell or stressed, or when they want time away from other rabbits or people, so always give them somewhere to retreat", "They're most active at dawn, dusk and overnight, so a steady daily routine for food and handling suits them"], p: "A rabbit who is hiding more than usual, or just seems off, is a reason to call your vet." },
+      { h: "Room to be a rabbit", p: "The Rabbit Welfare Association & Fund describes rabbits as naturally athletic and inquisitive: they need chances to run, jump, forage and dig." },
+    ],
+    takeaway: "Low, slow and patient. Let your rabbit choose to come to you.",
+    check: [
+      { q: "Your rabbit is nervous about being picked up. What's a kind way to spend time together?", options: ["Sit on the floor and offer a suitable treat so they can come to you", "Lift them out of their enclosure for a cuddle", "Hold them on their back until they relax"], answer: 0, why: "Ground-level time lets a prey animal choose to approach. A rabbit held on their back isn't relaxed: it's a terrified, playing-dead response." },
+      { q: "Which is true of rabbits?", options: ["They need the company of another rabbit", "They're happiest living alone", "They're happiest when held often"], answer: 0, why: "The RSPCA lists the company of another rabbit among the things rabbits need." },
+    ],
+    sources: [RSPCA_RABBITS, RWAF_HANDLING, RSPCA_RABBIT_BOOKLET, RWAF_CODE],
+  },
+  {
+    id: "hens",
+    species: ["chicken"],
+    title: "Happy hens",
+    emoji: "🐔",
+    minutes: 2,
+    intro: "Hens run a social order stricter than any dog park, and they take their dust baths seriously. Learn the flock's rules and you'll have happy hens (and a bit more respect for the top hen).",
+    parts: [
+      { h: "The pecking order", p: "The British Hen Welfare Trust says flocks usually settle into a fairly firm hierarchy: the top hen eats first and the others defer to her. Some pushing about is normal. If bullying becomes consistent and skin is broken, the RSPCA suggests separating the birds. A hen who is injured, or just not herself, is one for your vet." },
+      { h: "Dust baths", p: "Hens need somewhere to dust bathe. The BHWT suggests dry, loose soil or sand, and the RSPCA notes that dry soil or wood shavings are particularly important when it's wet outside." },
+      { h: "Handling", p: "Hens can peck when you handle them. In its guide to broody hens, the BHWT suggests wearing garden gloves to protect your hands if a hen is pecking at you." },
+      { h: "Treats are treats", p: "Treats are the fun part, and they should stay a small part. The BHWT notes that pecking blocks are treats, and fattening, so they shouldn't be overfed. Ask your vet if you're unsure what suits your hens." },
+    ],
+    takeaway: "Respect the pecking order, give them somewhere to dust bathe, and keep treats as treats.",
+    check: [
+      { q: "What should hens have for dust bathing?", options: ["Dry, loose soil or sand", "A shallow dish of water", "Wet mud"], answer: 0, why: "The BHWT suggests dry, loose soil or sand for dust bathing." },
+      { q: "Your hens love their pecking block. How should you treat it?", options: ["As a treat: it's fattening, so don't overfeed it", "As their main meal", "Leave it out and forget about it"], answer: 0, why: "The BHWT notes that pecking blocks are treats, and fattening, so they shouldn't be overfed." },
+    ],
+    sources: [BHWT_FAQ, BHWT_DUST, BHWT_BROODY, BHWT_HOUSING, RSPCA_CHICKENS],
+  },
+  {
     id: "space",
+    species: ["dog"],
     title: "Worried dogs: space first",
     emoji: "🌿",
     minutes: 2,
@@ -78,21 +161,22 @@ export const LESSONS = [
     title: "Choosing rewards",
     emoji: "🧀",
     minutes: 2,
-    intro: "A reward is whatever your dog wants right now, not what you think they should want. Kibble at home, sausage at the park. I don't make the rules. Actually, I do.",
+    intro: "A reward is whatever your pet wants right now, not what you think they should want. Everyday food at home, something special somewhere busy. I don't make the rules. Actually, I do.",
     parts: [
-      { h: "Build a reward ladder", p: "List what your dog loves, from 'fine' to 'the best thing ever': kibble, then biscuits, then cheese or chicken, then a game of tug. Use better rewards for harder places." },
-      { h: "Keep them tiny", p: "Pea-sized treats keep sessions moving. Count training treats as part of the day's food, and check with your vet if your dog is on a special diet or has allergies." },
-      { h: "Not just food", p: "Play, praise, a sniff of that interesting lamp post, or the chance to go and say hello (only for dogs who enjoy it) can all be rewards, once your dog has learned them." },
+      { h: "Build a reward ladder", p: "List what your pet loves, from 'fine' to 'the best thing ever', and use better rewards for harder places. For a dog that might climb from kibble to biscuits, then cheese or chicken, then a game of tug. For other animals, ask your vet which foods and treats are safe for them." },
+      { h: "Keep them tiny", p: "Tiny treats keep sessions moving (pea-sized is plenty for a dog). Count training treats as part of the day's food, and check with your vet if your pet is on a special diet or has allergies." },
+      { h: "Not just food", p: "Play, praise, a good sniff of something interesting, or time doing something they love can all be rewards, once your pet has learned to enjoy them." },
     ],
     takeaway: "Harder place, better pay. Small and often.",
     check: [
-      { q: "You're practising recall in a busy park for the first time. Which reward?", options: ["Plain kibble", "Their top favourite, like cheese or a tug game", "Nothing, they should just come"], answer: 1, why: "Hard places need high-value rewards to compete with distractions." },
-      { q: "How big should a training treat be?", options: ["About pea-sized", "A whole biscuit each time", "Size doesn't matter"], answer: 0, why: "Tiny treats keep sessions quick and don't overfill your dog." },
+      { q: "You're practising somewhere busy for the first time. Which reward?", options: ["Their plain everyday food", "Their top favourite, like a special treat or a favourite game", "Nothing, they should just do it"], answer: 1, why: "Hard places need high-value rewards to compete with distractions." },
+      { q: "How big should a training treat be?", options: ["Tiny: about pea-sized for a dog", "A big piece each time", "Size doesn't matter"], answer: 0, why: "Tiny treats keep sessions quick and don't overfill your pet." },
     ],
     sources: [PDSA_PUPPY, DT_RECALL],
   },
   {
     id: "distractions",
+    species: ["dog"],
     title: "Distraction levels",
     emoji: "🌳",
     minutes: 2,
@@ -114,16 +198,16 @@ export const LESSONS = [
     title: "Short sessions, end on a win",
     emoji: "⏱️",
     minutes: 1,
-    intro: "Five minutes. That's it. Long sessions make tired, frustrated dogs and tired, frustrated humans. I've seen both.",
+    intro: "Five minutes. That's it. Long sessions make tired, frustrated pets and tired, frustrated humans. I've seen both.",
     parts: [
-      { h: "Little and often", p: "A few short sessions spread through the day usually beat one long one. Stop while your dog still wants more." },
-      { h: "End on a win", p: "Finish with something easy your dog can do, then reward and play. The last rep is the one they remember." },
-      { h: "Bad day? Call it", p: "If you're stressed or your dog is tired, unwell or overexcited, skip it or just do one easy thing. Training should feel good for both of you." },
+      { h: "Little and often", p: "A few short sessions spread through the day usually beat one long one. Stop while your pet still wants more." },
+      { h: "End on a win", p: "Finish with something easy your pet can do, then reward and play. The last rep is the one they remember." },
+      { h: "Bad day? Call it", p: "If you're stressed or your pet is tired, unwell or overexcited, skip it or just do one easy thing. Training should feel good for both of you." },
     ],
     takeaway: "Short, happy, finished on a success.",
     check: [
-      { q: "Which plan is better for a young dog?", options: ["One 40-minute session on Sunday", "A few 3 to 5 minute sessions across the week"], answer: 1, why: "Short sessions keep focus high and learning fun." },
-      { q: "The session is going badly. How do you finish?", options: ["Keep going until it works", "Ask for something easy, reward it, and stop"], answer: 1, why: "Ending on a win keeps your dog keen for next time." },
+      { q: "Which plan is better for a young or new pet?", options: ["One 40-minute session on Sunday", "A few 3 to 5 minute sessions across the week"], answer: 1, why: "Short sessions keep focus high and learning fun." },
+      { q: "The session is going badly. How do you finish?", options: ["Keep going until it works", "Ask for something easy, reward it, and stop"], answer: 1, why: "Ending on a win keeps your pet keen for next time." },
     ],
     sources: [PDSA_PUPPY, DT_RECALL],
   },
@@ -134,13 +218,13 @@ export const LESSONS = [
     minutes: 2,
     intro: "Training teaches a new habit. Management stops the old one being practised in the meantime. You need both. I need a baby gate, apparently.",
     parts: [
-      { h: "What management looks like", list: ["A baby gate so jumping at visitors can't happen yet", "A lead or long line where recall isn't reliable", "Food off the counter while you teach 'leave it'", "A chew or puzzle toy when you can't supervise"] },
-      { h: "Why it matters", p: "Every time a dog practises an unwanted behaviour, it gets stronger. Management isn't giving up: it buys time while training catches up." },
-      { h: "Then train", p: "Use the calm moments management gives you to teach what you'd like instead, like sitting to say hello or settling on a mat." },
+      { h: "What management looks like", list: ["A baby gate or pen so jumping at visitors can't happen yet", "A lead or long line where recall isn't reliable (for dogs)", "Food out of reach while you teach 'leave it'", "A safe chew, forage or puzzle toy when you can't supervise"] },
+      { h: "Why it matters", p: "Every time a pet practises an unwanted behaviour, it gets stronger. Management isn't giving up: it buys time while training catches up." },
+      { h: "Then train", p: "Use the calm moments management gives you to teach what you'd like instead, like calm greetings or settling on a mat." },
     ],
     takeaway: "Prevent the mistake, then teach the alternative.",
     check: [
-      { q: "Your dog jumps on guests. Best short-term fix while you train?", options: ["A gate or lead so jumping can't happen", "Telling them off when they jump", "Doing nothing until training works"], answer: 0, why: "Management stops the habit being rehearsed while you teach calm greetings." },
+      { q: "Your pet jumps up on guests. Best short-term fix while you train?", options: ["A gate or lead so jumping can't happen", "Telling them off when they jump", "Doing nothing until training works"], answer: 0, why: "Management stops the habit being rehearsed while you teach calm greetings." },
       { q: "Management on its own...", options: ["Teaches the new behaviour", "Prevents practice of the old one, so pair it with training"], answer: 1, why: "It's half the job. Training teaches what to do instead." },
     ],
     sources: [DT_JUMP, RSPCA_SEP, DT_RECALL],
@@ -152,19 +236,20 @@ export const LESSONS = [
     minutes: 2,
     intro: "Asking for help is a pro move, not a failure. I have my human for the hard stuff. You can have a professional.",
     parts: [
-      { h: "See your vet first if", list: ["A behaviour starts suddenly or changes a lot", "Your dog seems in pain, or doesn't like being touched somewhere", "Toileting, sleep or appetite change"], p: "Pain and illness often show up as behaviour changes. Your vet can check, and refer you on." },
-      { h: "Then a qualified behaviour professional if", list: ["There's growling, snapping or biting", "Fear or worry is stopping your dog enjoying life", "They struggle to be left alone", "Things aren't improving despite steady, kind practice"] },
+      { h: "See your vet first if", list: ["A behaviour starts suddenly or changes a lot", "Your pet seems in pain, or doesn't like being touched somewhere", "Toileting, sleep or appetite change"], p: "Pain and illness often show up as behaviour changes. Your vet can check, and refer you on." },
+      { h: "Then a qualified behaviour professional if", list: ["There's growling, snapping or biting", "Fear or worry is stopping your pet enjoying life", "They struggle to be left alone", "Things aren't improving despite steady, kind practice"] },
       { h: "Choosing someone", p: "Pick a trainer or behaviourist who uses reward-based methods and can tell you about their qualifications and memberships. Avoid anyone who uses pain, fear or 'dominance'." },
     ],
     takeaway: "Sudden change: vet first. Aggression or big fear: a qualified, reward-based professional.",
     check: [
-      { q: "Your calm dog suddenly starts growling when you touch their back. First step?", options: ["Book a vet check", "Correct the growl firmly", "Ignore it"], answer: 0, why: "Sudden changes can mean pain. A vet should rule that out first." },
-      { q: "Which trainer is the better choice?", options: ["One who promises fast results with a prong collar", "One who uses rewards and explains their qualifications"], answer: 1, why: "Reward-based professionals who are open about their training are the safe choice." },
+      { q: "Your usually calm pet suddenly growls or hisses when you touch their back. First step?", options: ["Book a vet check", "Correct them firmly", "Ignore it"], answer: 0, why: "Sudden changes can mean pain. A vet should rule that out first." },
+      { q: "Which trainer is the better choice?", options: ["One who promises fast results with pain or fear-based tools", "One who uses rewards and explains their qualifications"], answer: 1, why: "Reward-based professionals who are open about their training are the safe choice." },
     ],
     sources: [AVSAB, { title: "Animal Behaviour and Training Council (ABTC)", url: "https://abtc.org.uk/" }, { title: "Association of Pet Behaviour Counsellors (APBC)", url: "https://www.apbc.org.uk/" }],
   },
   {
     id: "muzzle",
+    species: ["dog"],
     title: "Muzzle-positive in public",
     emoji: "🛡️",
     minutes: 2,
@@ -188,20 +273,20 @@ export const LESSONS = [
   },
   {
     id: "good-for-us",
-    title: "Why dogs are good for us",
+    title: "Why pets are good for us",
     emoji: "💛",
     minutes: 2,
     intro: "I'd say I'm good for my human. He'd probably agree, on most days. Here's what's known, kept honest: no miracle claims.",
     parts: [
-      { h: "Getting moving", p: "A dog needs walking, and walking is good for people too. One UK study found dog owners were more likely than people without a dog to reach recommended activity levels." },
-      { h: "Routine", p: "Meals, walks and training give a day some shape. Small, regular routines are a kind way to build good days, for both of you." },
-      { h: "Connection", p: "Dogs are great conversation starters on walks, and many people say time with their dog helps them feel calmer and less alone. Researchers are still learning how much, and for whom." },
-      { h: "Keep it kind", p: "A dog is not a fix for hard times, and it's fine if some days are hard. If things feel heavy, talking helps: see 'If things feel heavy' in More." },
+      { h: "Getting moving", p: "A dog needs walking, and walking is good for people too. One UK study found dog owners were more likely than people without a dog to reach recommended activity levels. (Other animals bring their own jobs: a rabbit's run, a hen's coop, a cat's play.)" },
+      { h: "Routine", p: "Meals, care and play give a day some shape. Small, regular routines are a kind way to build good days, for both of you." },
+      { h: "Connection", p: "Pets are great conversation starters (dogs on walks especially), and many people say time with their pet helps them feel calmer and less alone. Researchers are still learning how much, and for whom." },
+      { h: "Keep it kind", p: "A pet is not a fix for hard times, and it's fine if some days are hard. If things feel heavy, talking helps: see 'If things feel heavy' in More." },
     ],
-    takeaway: "Walks, routine and company: small things that add up to good days.",
+    takeaway: "Moving, routine and company: small things that add up to good days.",
     check: [
       { q: "What did a UK study find about dog owners?", options: ["They were more likely to reach recommended activity levels", "They never get ill", "They don't need to see a doctor"], answer: 0, why: "Owners walked more on average. That's activity, not a cure for anything." },
-      { q: "Which is the honest way to put it?", options: ["Owning a dog heals you", "Many people say time with their dog helps them feel calmer and build good days"], answer: 1, why: "We keep it honest: helpful for many people, not a medical treatment." },
+      { q: "Which is the honest way to put it?", options: ["Owning a pet heals you", "Many people say time with their pet helps them feel calmer and build good days"], answer: 1, why: "We keep it honest: helpful for many people, not a medical treatment." },
     ],
     sources: [
       { title: "Westgarth et al. (2019), Dog owners are more likely to meet physical activity guidelines, Scientific Reports", url: "https://doi.org/10.1038/s41598-019-41254-6" },

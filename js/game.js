@@ -29,7 +29,7 @@ export const RANKS = [
   { id: "rookie", name: "Rookie", xp: 0 },
   { id: "handler", name: "Handler", xp: 300 },
   { id: "coach", name: "Coach", xp: 2500, lessons: 5 },
-  { id: "mentor", name: "Mentor", xp: 6000, lessons: 8 },
+  { id: "mentor", name: "Mentor", xp: 6000, lessons: 6 }, // 6: every pet type has at least 6 lessons
 ];
 
 /** The 5 partner stats and the skills that feed them (spec C.2). Confidence also gets a small adventure bonus. */
