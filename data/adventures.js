@@ -4,7 +4,7 @@
 //   tip   one kind, safe "how to" line, shown when you open the stamp
 //   auto  { walks: N } for milestone stamps earned by logging walks (up to 2 a day count); everything else
 //         is earned by tapping the stamp and adding the date (and an optional photo that stays on the device).
-//   any   true when the stamp suits every pet; the rest are dog adventures (walks, cafés, meeting dogs)
+//   for   only for these species (rabbits, hens); any: suits every pet; the rest are dog adventures (walks, cafés, meeting dogs)
 // Each stamp is earned once per partner, for +20 XP once. No locations are ever stored.
 
 export const SETS = [
@@ -56,7 +56,16 @@ export const STAMPS = [
   { id: "bridge", set: "brave", emoji: "🌉", title: "Bridge", tip: "Choose a quiet footbridge. Go at their pace and reward calm steps." },
   { id: "hoover", set: "brave", emoji: "🧹", title: "Calm with the hoover", any: true, tip: "Start with it switched off, far away. Treats when it appears, then when it hums from another room." },
   { id: "groom", set: "brave", emoji: "✂️", title: "Calm groom or nail trim", any: true, tip: "One nail at a time is a win. Stop before they've had enough." },
+
+  // Rabbits and hens (shown only to them)
+  { id: "rb-run", set: "places", emoji: "🌿", title: "First time in a safe run", for: ["rabbit"], tip: "Secure from foxes, cats and birds of prey, with shade, water and a hide. Stay close the first time." },
+  { id: "rb-binky", set: "brave", emoji: "🐇", title: "First binky spotted", for: ["rabbit"], tip: "A happy jump-and-twist. It means a relaxed rabbit. Film it if you can!" },
+  { id: "rb-hand", set: "friends", emoji: "🥕", title: "Came over for a treat", for: ["rabbit"], tip: "Sit on the floor and let them come to you. A tiny piece of herb or leafy green, never sugary treats." },
+  { id: "hen-dust", set: "seasons", emoji: "🌤️", title: "First dust bath", for: ["chicken"], tip: "Dry soil or sand in a sheltered spot. It's how hens keep their feathers clean and mites away." },
+  { id: "hen-egg", set: "brave", emoji: "🥚", title: "First egg", for: ["chicken"], tip: "Usually from about 18 to 22 weeks. A nest box with clean bedding helps." },
+  { id: "hen-free", set: "places", emoji: "🌻", title: "Free-range in the garden", for: ["chicken"], tip: "Supervised, away from toxic plants and slug pellets, and back in the coop well before dusk." },
+  { id: "hen-call", set: "friends", emoji: "🐔", title: "Came when called for a treat", for: ["chicken"], tip: "Shake a cup of mealworms or corn, then reward. A few treats a day, as a small part of their diet." },
 ];
 
 /** The stamps for this pet: dogs get the whole book, everyone else the ones marked `any`. */
-export const stampsFor = (stamps, species) => (species === "dog" ? stamps : stamps.filter((s) => s.any));
+export const stampsFor = (stamps, species) => stamps.filter((s) => (s.for ? s.for.includes(species) : species === "dog" || s.any));

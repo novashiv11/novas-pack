@@ -61,6 +61,17 @@ function openQuick(type) {
   else if (type !== "symptom") eventSheet(type);
 }
 
+// Care diary only (More): game screens opened from an old link say so, with one tap to switch the game back on.
+const GAME_ROUTES = ["train", "adventures", "placement", "trainer", "studio", "journal"];
+function gameOff(main) {
+  main.append(h("div.empty",
+    h("h1", { tabindex: "-1", id: "page-title" }, "Care diary only is on"),
+    h("p", "Training, levels and adventures are hidden. Everything you logged still counts if you switch back."),
+    h("div.row-btns",
+      h("a.btn.btn-blue", { href: "#/home" }, "Back to Home"),
+      h("button.btn.btn-line", { type: "button", "data-k": "game-on", onclick: async () => { await setSetting("careOnly", false, { quiet: false }); toast("The game is back."); } }, "Show the game"))));
+}
+
 let lastRoute = "";
 function draw() {
   let { name, arg, sub, raw } = route();
@@ -85,7 +96,8 @@ function draw() {
   drawChrome(name);
   main.replaceChildren();
   try {
-    ROUTES[name](main, arg, sub);
+    if (S.settings.careOnly && GAME_ROUTES.includes(name)) gameOff(main);
+    else ROUTES[name](main, arg, sub);
   } catch (err) {
     console.warn(err);
     main.replaceChildren(h("div.empty", h("h1", { tabindex: "-1", id: "page-title" }, "Something went wrong"), h("p", "Your data is safe on this device. Try going back to Home."), h("a.btn.btn-blue", { href: "#/home" }, "Home")));

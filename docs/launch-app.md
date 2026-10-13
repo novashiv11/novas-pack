@@ -11,7 +11,7 @@ For Shiv. Copy and paste; film everything with Nova at home in about 15 minutes 
 ## 1. Bio (Instagram, under 150 characters)
 
 > Professional human handler. Still waiting on that raise.
-> Level up with your dog, 1% a day: free app 👇
+> Tiny daily wins with your pet. Do it for them 👇 Free app
 
 Put the link in the bio's link field. In Stories, use the link sticker.
 
@@ -37,17 +37,17 @@ Each Reel is 15–25 seconds. Show the hook as on-screen text in the first 2 sec
   3. Nova's face.
 - **On-screen text:** "My dog has a level now." → "Recall: level 1. We're working on it." → "Free app. Link in bio."
 - **Caption:**
-  > Small daily training sessions, real-life adventures, and your dog levels up. So do you. 1% a day.
+  > Small daily training sessions, real-life adventures, and your pet levels up. So do you. Do it for them.
   > Free, no account, private on your phone. Comment APP for the link.
   > #NewToThePack #NovasPack #dogtraining
 
-### Day 2 (Tue): "1% better today."
+### Day 2 (Tue): "Do it for them."
 
 - **Shots:**
   1. A 5-minute training session, sped up.
   2. You ticking the "1% today" card.
   3. Nova asleep afterwards.
-- **On-screen text:** "5 minutes of recall." → "5 slow breaths for me." → "1% better. That's it. That's the post."
+- **On-screen text:** "5 minutes of recall." → "5 slow breaths for me." → "Did it for them. That's it. That's the post."
 - **Caption:**
   > One tiny step for your dog, one for you. No streaks to lose, no guilt. Comment APP.
 

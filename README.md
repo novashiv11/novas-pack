@@ -1,6 +1,6 @@
 # Nova's Pack
 
-**Nova's Pack: Level up together.** A free, private app (installable from the website) that turns real-life training, walks and adventures with your dog into levels, skills, badges and an Adventure Book, while you grow too: Trainer ranks, short lessons and a "1% better every day" habit. A small Health tab keeps vaccines, medicines, food and poop. Everyone's welcome in the pack. Hosted by Nova, a young German Shepherd and professional human handler ([@novathehumanhandler](https://www.instagram.com/novathehumanhandler/)). Worldwide, online.
+**Nova's Pack: Level up together.** A free, private app (installable from the website) that turns real-life training, walks and adventures with your dog into levels, skills, badges and an Adventure Book, while you grow too: Trainer ranks, short lessons and a "Do it for them" daily habit. A small Health tab keeps vaccines, medicines, food and poop. Everyone's welcome in the pack. Hosted by Nova, a young German Shepherd and professional human handler ([@novathehumanhandler](https://www.instagram.com/novathehumanhandler/)). Worldwide, online.
 
 Created by **Shiv** ([@novashiv11](https://github.com/novashiv11)) and Nova. See [CREDITS.md](CREDITS.md).
 

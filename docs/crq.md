@@ -54,9 +54,9 @@ The CEO (Claude, the main session) owns this list: it adds new requests, sets th
 | CRQ-044 | QA sprint 2 logic fixes (`docs/qa-sprint2.md` 1, 2, 3, 6, 8, 9, 11): care taps counted as the 1-minute win, cat first win, dog-only content for cats, XP split, cap warning, sample share | QA | P1 | Co-captain | Done (11 Oct), except 11 (Back with a sheet open): Planned |
 | CRQ-046 | Final independent QA of 12 Oct batches A–C, picture steps and the rename; fix every Critical/Major | Co-captain | P1 | QA agent | Done (12 Oct): 0 Critical, 0 Major; minors in CRQ-051 |
 | CRQ-047 | Remove the Android address bar: add `.well-known/assetlinks.json` + `.nojekyll` to the `novashiv11.github.io` repo (needs the Claude GitHub App on that repo) and a stable signing key (secret `ANDROID_KEYSTORE_PASSWORD`) | Shiv | P1 | Co-captain | Done 12 Oct for the current APK (assetlinks + .nojekyll live). Stable key still needs the secret, else update the SHA-256 after each new build |
-| CRQ-048 | "Do it for them" replaces "1% better" everywhere (done in the app 12 Oct; check docs, launch kit, Reels scripts) | Shiv | P2 | Co-captain | Partly done |
+| CRQ-048 | "Do it for them" replaces "1% better" everywhere (done in the app 12 Oct; check docs, launch kit, Reels scripts) | Shiv | P2 | Co-captain | Done (13 Oct) |
 | CRQ-049 | Credit Shiv: CREDITS.md, README, future commits under Shiv's name | Shiv | P1 | Co-captain | Done (12 Oct) |
-| CRQ-051 | QA minors: Academy and badges dog-centric for other pets; adventures generic for hens/rabbits; hen-specific Unwell signs; Train opens by URL in care-only mode | QA | P3 | — | Planned |
+| CRQ-051 | QA minors: Academy and badges dog-centric for other pets; adventures generic for hens/rabbits; hen-specific Unwell signs; Train opens by URL in care-only mode | QA | P3 | Co-captain | Mostly done (13 Oct): hen Unwell signs, rabbit and hen stamps, care-only guard. Left: Academy lessons for cats/rabbits/hens (needs sourced content) |
 | CRQ-050 | Reddit/community launch post (copy drafted in chat): link the website, not the APK; hide email on GitHub | Shiv | P2 | **Shiv** | Shiv to post |
 
 Done earlier on 11 Oct: Do it now (spec v3); simple steps; persona-test batch 1 (decision 48); cartoon photos; pet icons; Add-pet bar; Android APK.

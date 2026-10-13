@@ -143,7 +143,7 @@ export const isRunny = (p) => typeof p.score === "number" && p.score >= RUNNY_FR
 // ---------- "Call your vet" rules ----------
 
 export const SYMPTOM_IDS = ["not-eating", "vomiting", "lethargy", "breathing", "no-droppings", "maggots", "bloat", "toxin", "straining-urine", "diarrhoea",
-  "collapse", "heat", "bleeding", "swelling", "eye", "limping", "coughing"];
+  "collapse", "heat", "bleeding", "swelling", "eye", "limping", "coughing", "egg-bound", "crop", "comb", "laying"];
 export const LEVELS = ["emergency", "today", "watch"];
 const RANK = { emergency: 0, today: 1, watch: 2 };
 // Used only if data/care.js didn't load: every alert still says what to do.
@@ -254,6 +254,11 @@ function symptomRules(p, now, events) {
   if (in24("bloat").length) add("bloat", "emergency", "Swollen, hard belly or retching with nothing coming up.", "bloat");
   if (in24("toxin").length) add("toxin", "emergency", "May have eaten something poisonous.", "toxin",
     "Call your vet or an animal poison line now. Do not make your pet sick unless a vet tells you to. Keep the packaging.");
+  // Hens: egg binding, crop problems and comb changes need a vet who sees poultry; laying changes are often moult or short days.
+  if (in24("egg-bound").length) add("egg-bound", "today", "A hen straining or hunched, maybe egg-bound.", null, "Call a vet who treats poultry today. Keep her somewhere warm and quiet. If she's weak or it's been hours, it's an emergency.");
+  if (in24("crop").length) add("crop", "today", "A crop that hasn't emptied overnight.", null, "Call a vet who treats poultry today. Don't try to empty the crop yourself.");
+  if (in24("comb").length) add("comb", "today", "A comb that's suddenly pale, shrunken or purple.", null, "Call a vet who treats poultry today, especially if she's also quiet or not eating.");
+  if (in24("laying").length) add("laying", "watch", "Laying has stopped or eggs are soft.", null, "Moulting, short winter days, stress and age often slow laying. Check her diet includes layers' feed and grit or oyster shell. Call your vet if she also seems unwell.");
   if (in24("maggots").length) add("maggots", "emergency", "Maggots or fly eggs seen.", "maggots", "Call an emergency vet now. Do not wait or treat at home.");
   if (in24("collapse").length) add("collapse", "emergency", "Collapse, a fit (seizure), or can't stand.", "collapse");
   if (in24("heat").length) add("heat", "emergency", "Signs of overheating.", "heat");

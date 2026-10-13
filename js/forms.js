@@ -54,7 +54,11 @@ export const SYMPTOMS = [
   { id: "bloat", label: "Swollen, hard belly, or retching with nothing coming up" },
   { id: "straining-urine", label: "Straining to pee, little or nothing coming out" },
   { id: "no-droppings", label: "No poop or droppings, or far fewer than usual" },
-  { id: "maggots", label: "Maggots or fly eggs on the skin or bottom", only: ["rabbit"] },
+  { id: "maggots", label: "Maggots or fly eggs on the skin or bottom", only: ["rabbit", "chicken"] },
+  { id: "egg-bound", label: "Straining, sitting hunched with the tail down, or walking like a penguin", only: ["chicken"] },
+  { id: "crop", label: "Crop still full, swollen or squishy in the morning", only: ["chicken"] },
+  { id: "comb", label: "Comb suddenly pale, shrunken or dark purple", only: ["chicken"] },
+  { id: "laying", label: "Stopped laying suddenly, or soft or shell-less eggs", only: ["chicken"] },
   { id: "toxin", label: "Might have eaten something poisonous" },
 ];
 export const symptomLabel = (id) => (SYMPTOMS.find((s) => s.id === id) || { label: id }).label;
