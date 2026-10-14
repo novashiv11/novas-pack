@@ -3,7 +3,7 @@
 // first-run pet form, which sits on the page.
 
 import { S, pet, save, remove, removePet, adoptSample, setSetting, eventsOf, forPet, units, refresh, UI } from "./state.js";
-import { h, put, em, uid, sheet, toast, confirmBox, isoDate, addDays, addMonths, daysBetween, toLocalInput, fromLocalInput, resizePhoto, fmtDate, weeklyStreak, isoWeek, motionOK, buzz } from "./util.js";
+import { h, put, em, uid, sheet, toast, confirmBox, isoDate, addDays, addMonths, daysBetween, toLocalInput, fromLocalInput, resizePhoto, fmtDate, fmtDay, fmtTime, weeklyStreak, isoWeek, motionOK, buzz } from "./util.js";
 import { ALSO_NOTICED, scaleFor, poopScale, skillsFor, medStatus, fromUnit, toUnit, medIsActive, recordStatus, currentRecords, healthAlerts, recordDoneCheck } from "./logic.js";
 import { saveErrorText } from "./db.js";
 import * as ics from "./ics.js";
@@ -374,6 +374,60 @@ export async function deletePetFlow(p) {
   refresh();
 }
 
+// ---------- v7 log-form pieces: "When" defaults to now, poop pictures, quick-minute tiles ----------
+
+/**
+ * The time of a log. New entries say "Now" with a "Change time" link; the date-time field only appears when asked,
+ * and an untouched new entry is stamped at the moment you press Save. Existing entries keep their time.
+ */
+function whenControl(ev, existing, label = "When") {
+  const input = h("input", { type: "datetime-local", value: toLocalInput(ev.at || Date.now()), max: toLocalInput(Date.now() + 3600000), required: true });
+  let changed = false;
+  const pick = h("div.when-pick", { hidden: true }, field(label, input));
+  const row = h("div.when-row", { "data-k": "when-row" },
+    h("span.when-ic", { "aria-hidden": "true" }, "🕐"),
+    h("span.when-txt", h("small", label), h("b", existing ? `${fmtDay(ev.at)}, ${fmtTime(ev.at)}` : "Now")),
+    h("button.linkish.when-change", { type: "button", "data-k": "when-change", "aria-expanded": "false", onclick: () => {
+      if (!existing) input.value = toLocalInput(Date.now());
+      changed = true; row.hidden = true; pick.hidden = false; input.focus();
+    } }, "Change time"));
+  return { node: h("div.when", row, pick), input, at: () => (existing || changed ? fromLocalInput(input.value) : Date.now()) };
+}
+
+/** Big tap tiles that fill a number field (10, 20, 30 minutes ...). The field stays for any other number. */
+function minuteTiles(input, list) {
+  const row = h("div.min-tiles", { role: "group", "aria-label": "Quick minutes" }, list.map((m) =>
+    h("button.min-tile", { type: "button", "data-k": `min-${m}`, "aria-pressed": "false", onclick: () => { input.value = String(m); sync(); } }, h("b", String(m)), h("span", "min"))));
+  const sync = () => row.querySelectorAll(".min-tile").forEach((b) => b.setAttribute("aria-pressed", String(input.value === b.querySelector("b").textContent)));
+  input.addEventListener("input", sync);
+  sync();
+  return row;
+}
+
+/** A flat little picture for each step of the poop scale (dogs/cats, and rabbit droppings). */
+function poopArt(score, rabbit) {
+  const d = "#6B3F24", m = "#8F5A33", l = "#B98150";
+  const ball = (x, y, r) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${m}"/><circle cx="${x - r * 0.3}" cy="${y - r * 0.3}" r="${(r * 0.38).toFixed(1)}" fill="${l}"/>`;
+  const soft = `<ellipse cx="32" cy="41" rx="25" ry="4" fill="${d}" opacity=".3"/><ellipse cx="32" cy="36" rx="22" ry="7" fill="${m}"/><ellipse cx="32" cy="27" rx="16" ry="6.5" fill="${m}"/><ellipse cx="32" cy="19" rx="10" ry="5.5" fill="${m}"/><circle cx="37" cy="13" r="3.2" fill="${m}"/><path d="M20 33q5-2 9 0M26 24q4-2 7 0" stroke="${l}" stroke-width="2" fill="none" stroke-linecap="round"/>`;
+  const puddle = `<path d="M7 33c1-8 10-10 16-8 4-6 14-6 18-1 7-1 15 3 14 10-1 6-8 8-14 7-6 3-14 3-19 0-6 1-16-1-15-8z" fill="${l}"/><path d="M14 31c4-3 9-2 12 0" stroke="#fff" stroke-opacity=".45" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M14 8q2.4 3.4 0 5.4-2.4-2 0-5.4zM50 7q2.4 3.4 0 5.4-2.4-2 0-5.4zM31 6q2.4 3.4 0 5.4-2.4-2 0-5.4z" fill="${l}"/>`;
+  let g;
+  if (score === 4) g = soft;
+  else if (score === 5) g = puddle;
+  else if (rabbit) {
+    g = score === 1 ? ball(16, 31, 3.6) + ball(34, 22, 3.6) + ball(48, 36, 3.6)
+      : score === 2 ? [[26, 17], [38, 17], [20, 27], [32, 27], [44, 27], [26, 37], [38, 37]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="6.2" fill="${m}"/><circle cx="${x - 2}" cy="${y - 2.2}" r="2" fill="${l}"/>`).join("")
+        : [[14, 36], [26, 38], [38, 37], [50, 36], [20, 27], [32, 29], [44, 27], [26, 18], [38, 19], [32, 10]].map(([x, y]) => ball(x, y, 5)).join("");
+  } else {
+    g = score === 1 ? [[14, 31], [26, 22], [35, 33], [47, 24], [22, 39], [42, 41]].map(([x, y]) => ball(x, y, 4.6)).join("")
+      : score === 2 ? `<g stroke="${d}" stroke-width="1.5">${[16, 32, 48].map((x) => `<ellipse cx="${x}" cy="27" rx="12" ry="10.5" fill="${m}"/>`).join("")}</g><path d="M10 22q6-3 12 0M26 22q6-3 12 0M42 22q6-3 12 0" stroke="${l}" stroke-width="2.2" fill="none" stroke-linecap="round"/>`
+        : `<rect x="5" y="17" width="54" height="22" rx="11" fill="${m}"/><rect x="11" y="21" width="40" height="4.5" rx="2.2" fill="${l}"/><path d="M53 3l1.9 4.5L59.4 9.4 54.9 11.3 53 15.8 51.1 11.3 46.6 9.4 51.1 7.5z" fill="#F2B544"/>`;
+  }
+  const s = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  s.setAttribute("viewBox", "0 0 64 48"); s.setAttribute("aria-hidden", "true"); s.setAttribute("class", "pp-art");
+  s.innerHTML = g;
+  return s;
+}
+
 // ---------- one-tap logs ----------
 
 /** The little bounce on the tile that was tapped, plus a tap of haptics. */
@@ -475,24 +529,24 @@ export function eventSheet(type, existing, { details = false } = {}) {
   sheet(title, (body, close) => {
     const form = h("form.form", { novalidate: true });
     const err = errorLine();
-    const when = h("input", { type: "datetime-local", value: toLocalInput(ev.at || Date.now()), max: toLocalInput(Date.now() + 3600000), required: true });
+    const wc = whenControl(ev, !!existing);
     const note = h("textarea", { rows: "2", maxlength: "1000", value: ev.note || "" });
     const parts = [];
     let collect = () => ({});
 
     if (type === "poop") {
-      const scaleBox = h("div.scale");
+      const scaleBox = h("div.scale.pic-scale");
       const hint = h("p.hint.scale-hint", { "aria-live": "polite" });
       const rabbit = p.species === "rabbit";
       poopScale(p.id).forEach((s) => {
         const id = fid();
         const inp = h("input", { type: "radio", name: "score", id, value: String(s.score), checked: ev.score === s.score, onchange: () => { hint.textContent = s.hint; } });
-        scaleBox.append(inp, h("label", { for: id }, h("span.em", { "aria-hidden": "true" }, s.emoji), h("span.sc-n", String(s.score)), h("span.sc-l", s.label)));
+        scaleBox.append(inp, h("label", { for: id, "data-k": `poop-${s.score}` }, h("span.pp-pic", poopArt(s.score, rabbit)), h("span.sc-n", String(s.score)), h("span.sc-l", s.label), h("span.pp-tick", { "aria-hidden": "true" }, "✓")));
       });
       if (ev.score) hint.textContent = (scaleFor(ev.score, p.id) || {}).hint || "";
       const spHint = (S.content.POOP_HINTS || {})[p.species];
       const flags = new Set(ev.flags || []);
-      const checks = (list) => h("div.checks", list.map((f) => check(f.label, { value: f.id, checked: flags.has(f.id) }).row));
+      const checks = (list) => h("div.checks.tile-checks", list.map((f) => check(f.label, { value: f.id, checked: flags.has(f.id) }).row));
       parts.push(
         h("fieldset.fs", h("legend", "How did it look?"),
           !rabbit && S.content.POOP_SCALE_NAME ? h("p.hint.scale-name", S.content.POOP_SCALE_NAME) : null,
@@ -512,18 +566,19 @@ export function eventSheet(type, existing, { details = false } = {}) {
       const fill = (nm, am) => { nameIn.value = nm || ""; amount.value = am || ""; nameIn.focus(); };
       const last = eventsOf(type).find((x) => x.id !== ev.id && x.name);
       const chips = [];
-      if (last) chips.push(h("button.chip", { type: "button", onclick: () => fill(last.name, last.amount) }, "Same as last time: ", h("b", [last.name, last.amount].filter(Boolean).join(", "))));
+      const mark = (btn) => chips.forEach((c) => c.setAttribute("aria-pressed", String(c === btn)));
+      if (last) chips.push(h("button.chip.same", { type: "button", "data-k": "same-as-last", onclick: (e) => { fill(last.name, last.amount); mark(e.currentTarget); } }, h("span.chip-em", { "aria-hidden": "true" }, "🔁"), h("span.chip-t", h("small", "Same as last time"), h("b", [last.name, last.amount].filter(Boolean).join(", ")))));
       const cur = type === "meal" ? currentFood() : null;
-      if (cur && foodName(cur) && (!last || last.name !== foodName(cur))) chips.push(h("button.chip", { type: "button", onclick: () => fill(foodName(cur), "") }, foodName(cur)));
-      if (type === "treat") treatsInUse().filter((f) => !last || f.name !== last.name).forEach((f) => chips.push(h("button.chip", { type: "button", onclick: () => fill(f.name, "") }, f.name)));
-      if (chips.length) parts.push(h("div.chips-row", { role: "group", "aria-label": "Quick fill" }, chips));
+      if (cur && foodName(cur) && (!last || last.name !== foodName(cur))) chips.push(h("button.chip", { type: "button", onclick: (e) => { fill(foodName(cur), ""); mark(e.currentTarget); } }, foodName(cur)));
+      if (type === "treat") treatsInUse().filter((f) => !last || f.name !== last.name).forEach((f) => chips.push(h("button.chip", { type: "button", onclick: (e) => { fill(f.name, ""); mark(e.currentTarget); } }, f.name)));
+      if (chips.length) parts.push(h("div.chips-row.quick-fill", { role: "group", "aria-label": "Quick fill" }, chips));
       parts.push(field(h("span", type === "meal" ? "What" : "Which treat", opt()), nameIn), field(h("span", "How much", opt()), amount));
       collect = () => ({ name: nameIn.value.trim() || undefined, amount: amount.value.trim() || undefined });
     }
 
     if (type === "walk") {
       const mins = h("input", { type: "number", inputmode: "numeric", min: "1", max: "600", value: ev.minutes || "" });
-      parts.push(field(h("span", "Minutes", opt()), mins));
+      parts.push(minuteTiles(mins, [10, 20, 30, 45, 60]), field(h("span", "Minutes", opt()), mins));
       collect = () => ({ minutes: parseInt(mins.value, 10) > 0 ? Math.min(600, parseInt(mins.value, 10)) : undefined });
     }
 
@@ -532,7 +587,7 @@ export function eventSheet(type, existing, { details = false } = {}) {
       const sel = h("select", h("option", { value: "" }, "General practice"), skills.map((s) => h("option", { value: s.id }, s.title)));
       sel.value = ev.skillId || "";
       const mins = h("input", { type: "number", inputmode: "numeric", min: "1", max: "180", value: ev.minutes || "" });
-      parts.push(field("Skill", sel), field(h("span", "Minutes", opt()), mins));
+      parts.push(field("Skill", sel), minuteTiles(mins, [1, 3, 5, 10, 15]), field(h("span", "Minutes", opt()), mins));
       collect = () => ({ skillId: sel.value || undefined, minutes: parseInt(mins.value, 10) > 0 ? parseInt(mins.value, 10) : undefined });
     }
 
@@ -568,7 +623,7 @@ export function eventSheet(type, existing, { details = false } = {}) {
 
     put(form,
       ...parts,
-      field("When", when),
+      wc.node,
       field(h("span", type === "vet" ? "What the vet said" : "Note", opt()), note),
       err,
       h("div.row-btns",
@@ -581,7 +636,7 @@ export function eventSheet(type, existing, { details = false } = {}) {
       e.preventDefault();
       const extra = collect();
       if (extra.error) { err.textContent = extra.error; return; }
-      const row = { ...ev, ...extra, id: ev.id || uid(), petId: ev.petId || p.id, type, at: fromLocalInput(when.value), note: note.value.trim() || undefined };
+      const row = { ...ev, ...extra, id: ev.id || uid(), petId: ev.petId || p.id, type, at: wc.at(), note: note.value.trim() || undefined };
       for (const k of Object.keys(row)) if (row[k] === undefined) delete row[k];
       if (p.sample && !existing) row.sample = true;
       const token = existing ? null : hookBefore();
@@ -612,12 +667,12 @@ export function unwellSheet(existing) {
     const mine = toxins.map((t) => (typeof t === "string" ? { name: t } : t)).filter((t) => !t.only || t.only.includes(p.species));
     const boxes = list.map((s) => check(s.label, { value: s.id, checked: picked.has(s.id) },
       s.id === "toxin" && mine.length ? `Common ones: ${mine.map((t) => t.name).join("; ")}.` : null));
-    const when = h("input", { type: "datetime-local", value: toLocalInput(ev.at || Date.now()), max: toLocalInput(Date.now() + 3600000), required: true });
+    const wc = whenControl(ev, !!existing, "When did you notice?");
     const note = h("textarea", { rows: "2", maxlength: "1000", value: ev.note || "", placeholder: "e.g. sick twice since lunch, still drinking" });
     put(form,
       h("p.sheet-intro", "Tick what you've noticed. If any of it needs a vet, I'll say so straight away. I don't diagnose: your vet does."),
-      h("fieldset.fs", h("legend", "What have you noticed?"), h("div.checks.sym-checks", boxes.map((b) => b.row))),
-      field("When did you notice?", when),
+      h("fieldset.fs", h("legend", "What have you noticed?"), h("div.checks.sym-checks.tile-checks", boxes.map((b) => b.row))),
+      wc.node,
       field(h("span", "Note", opt()), note),
       err,
       h("div.row-btns",
@@ -629,7 +684,7 @@ export function unwellSheet(existing) {
       e.preventDefault();
       const symptoms = boxes.filter((b) => b.input.checked).map((b) => b.input.value);
       if (!symptoms.length) { err.textContent = "Tick at least one thing you've noticed."; boxes[0].input.focus(); return; }
-      const row = { ...ev, id: ev.id || uid(), petId: ev.petId || p.id, type: "symptom", at: fromLocalInput(when.value), symptoms, note: note.value.trim() || undefined };
+      const row = { ...ev, id: ev.id || uid(), petId: ev.petId || p.id, type: "symptom", at: wc.at(), symptoms, note: note.value.trim() || undefined };
       if (!row.note) delete row.note;
       if (p.sample && !existing) row.sample = true;
       try { await save("events", row); } catch (ex) { err.textContent = saveError(ex); return; }

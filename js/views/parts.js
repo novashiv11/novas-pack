@@ -8,6 +8,13 @@ import { scaleFor, flagLabel, fmtWeight } from "../logic.js";
 
 export const NOVA = "img/brand/nova-head.svg";
 
+/** Nova with a speech bubble: one short line, never paragraphs. size = head width in px; mood tints the bubble (happy, proud, think). */
+export function novaSay(text, { size = 44, mood = "happy", k } = {}) {
+  return h(`div.nova-say.mood-${mood}`, k ? { "data-k": k } : null,
+    h("img.disc.nova-say-head", { src: NOVA, alt: "", width: String(size), height: String(size) }),
+    h("div.nova-say-bubble", h("p", text)));
+}
+
 export function avatar(p, size = 40) {
   if (p && p.photo) return h("img.avatar", { src: p.photo, alt: "", width: String(size), height: String(size) });
   if (p && p.sample && !p.icon) return h("img.avatar.disc", { src: NOVA, alt: "", width: String(size), height: String(size) });
@@ -100,7 +107,8 @@ export function moreBtn(what, items) {
 export function actionSheet(title, items) {
   sheet(title, (body, close) => {
     body.append(h("ul.action-list", items.filter(Boolean).map(([label, fn, o = {}]) =>
-      h("li", h(`button.action-row${o.danger ? ".danger" : ""}`, { type: "button", onclick: () => { close(); setTimeout(fn, 0); } }, label)))));
+      h("li", h(`button.action-row${o.danger ? ".danger" : ""}`, { type: "button", "data-k": o.k, onclick: () => { close(); setTimeout(fn, 0); } },
+        o.icon ? h("span.ar-ic", { "aria-hidden": "true" }, o.icon) : null, h("span.ar-t", label))))));
   });
 }
 /** A card title that opens the editor when the card is tapped (it stretches over the card). */

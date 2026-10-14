@@ -66,21 +66,21 @@ function changes(p, a, before, after) {
     const was = before.skills[id] || 0;
     if (L > was) {
       const sk = (S.content.SKILLS || []).find((s) => s.id === id) || { id, title: id };
-      items.push({ emoji: "⭐", title: `${skillName(sk)} reached level ${L}: ${placeFor(id, L).short}.`, text: "Nova approves.",
+      items.push({ emoji: "⭐", tag: "Skill level up", title: `${skillName(sk)} reached level ${L}: ${placeFor(id, L).short}.`, text: "Nova approves.",
         share: { kind: "level", title: `Level ${L}: ${skillName(sk)}`, sub: `Now ${placeFor(id, L).short}`, emoji: sk.emoji || "⭐" } });
     }
   }
   for (const b of a.badges) {
-    if (b.earned && !before.badges.has(b.id)) items.push({ emoji: b.emoji, badge: true, title: `New badge: ${b.name}`, text: b.kind === "skill" ? `${p.name} reached level ${G.SKILL_BADGE_LEVEL}: ${placeFor(b.skill, G.SKILL_BADGE_LEVEL).short}. Real progress.` : `${b.need}: done. That's showing up.`,
+    if (b.earned && !before.badges.has(b.id)) items.push({ emoji: b.emoji, badge: true, tag: "New badge", title: `New badge: ${b.name}`, text: b.kind === "skill" ? `${p.name} reached level ${G.SKILL_BADGE_LEVEL}: ${placeFor(b.skill, G.SKILL_BADGE_LEVEL).short}. Real progress.` : `${b.need}: done. That's showing up.`,
       share: { kind: "badge", title: b.name, sub: "New badge", emoji: b.emoji } });
   }
-  if (after.level > before.level) items.push({ emoji: "🎉", title: `${p.name} reached level ${after.level}`, text: "Small steps, adding up.",
+  if (after.level > before.level) items.push({ emoji: "🎉", tag: "Level up!", title: `${p.name} reached level ${after.level}`, text: "Small steps, adding up.",
     share: { kind: "level", title: `Partner level ${after.level}`, sub: "Small steps, adding up", emoji: "🎉" } });
-  if (after.weekAll && !before.weekAll) items.push({ emoji: "🗓️", title: "All 3 weekly quests done", text: `+${G.XP.weekBonus} bonus XP for ${p.name}. That's a good week.`,
+  if (after.weekAll && !before.weekAll) items.push({ emoji: "🗓️", tag: "Week won", title: "All 3 weekly quests done", text: `+${G.XP.weekBonus} bonus XP for ${p.name}. That's a good week.`,
     share: { kind: "week", title: "All 3 weekly quests", sub: "That's a good week", emoji: "🗓️" } });
   if (after.rank !== before.rank && G.RANKS.findIndex((r) => r.id === after.rank) > G.RANKS.findIndex((r) => r.id === before.rank)) {
     const r = G.RANKS.find((x) => x.id === after.rank);
-    items.push({ emoji: "🏅", title: `App rank: ${r.name}`, text: "A learning milestone in the app, not a qualification. Still: well done, you." });
+    items.push({ emoji: "🏅", tag: "Rank up", title: `App rank: ${r.name}`, text: "A learning milestone in the app, not a qualification. Still: well done, you." });
   }
   return items;
 }
@@ -102,18 +102,34 @@ export function shareWinBtn(p, win, k = "share-win") {
   } }, em("📸"), " Share this win");
 }
 
+// Celebrations never stack: while one is open, a second one waits and joins the next screen.
+const celeQueue = [];
+function flushCele() {
+  if (!celeQueue.length) return;
+  const q = celeQueue.splice(0);
+  setTimeout(() => celebrate(q.flatMap((x) => x.items), q[0].p), 250);
+}
+/** The wins as tiles (badge, level-up, quest week, rank), shared by the celebration sheet and Mission complete. */
+function achievementList(items, single = false) {
+  return h("ul.mc-ach", { "data-k": "cele-list" }, items.map((it, i) => h(`li${it.badge ? ".is-badge" : ""}`, { style: `--i:${i}` },
+    h("span.mc-ach-em", { "aria-hidden": "true" }, it.emoji),
+    h("span.mc-ach-t", it.tag ? h("small", it.tag) : null, !single ? h("b", it.title) : null, h("span", it.text)))));
+}
+function heroNova(size = 96) {
+  return h("div.mc-hero", h("div.mc-rays", { "aria-hidden": "true" }), h("img.disc.mc-nova", { src: NOVA, alt: "", width: String(size), height: String(size) }));
+}
+
 export function celebrate(items, p = null) {
-  if (document.querySelector("dialog.cele[open]")) return;
+  if (document.querySelector("dialog.cele[open]")) { celeQueue.push({ items, p }); return; }
   const title = items.length === 1 ? items[0].title : "Look at you two";
   const { dlg } = sheet(title, (body, close) => {
     put(body,
-      h("div.cele-top", h("img.disc.cele-nova", { src: NOVA, alt: "", width: "72", height: "72" })),
-      h("ul.cele-list", items.map((it) => h(`li${it.badge ? ".is-badge" : ""}`,
-        h("span.cele-em", { "aria-hidden": "true" }, it.emoji),
-        h("span", items.length > 1 ? h("b", it.title) : null, items.length > 1 ? " " : null, it.text)))),
-      h("button.btn.btn-gold.wide", { type: "button", autofocus: true, onclick: close }, "Carry on"),
-      shareWinBtn(p, (items.find((i) => i.share) || {}).share));
-  });
+      heroNova(88),
+      achievementList(items, items.length === 1),
+      h("div.mc-btns",
+        h("button.btn.btn-gold.wide", { type: "button", autofocus: true, "data-k": "cele-continue", onclick: close }, "Carry on"),
+        shareWinBtn(p, (items.find((i) => i.share) || {}).share)));
+  }, { onClose: flushCele });
   dlg.classList.add("cele");
   dlg.querySelector(".btn-gold").focus();
   buzz(20);
@@ -121,23 +137,34 @@ export function celebrate(items, p = null) {
 }
 
 /**
- * "Mission complete": the Duolingo-style moment after a session. Nova pops in, XP counts up, today's week dot fills
- * and (on the first log of the day) the sticker drops in. Then any level-up or badge celebration follows.
- * opts: { title, xp, firstToday, more } where more() starts 4 more minutes.
+ * "Mission complete": the Duolingo-style lesson-complete screen after a session. Nova pops in, then three stat
+ * tiles (XP counts up, time, mood), the week dots, and (first log of the day) the sticker. Any level-up, badge,
+ * quest week or rank-up from this session joins the SAME screen as extra tiles, so nothing stacks.
+ * opts: { title, name, line, minutes, mood, xp, bonus, firstToday, more, win } where more() starts 4 more minutes.
  */
-export async function missionComplete(p, before, after, { title, xp, bonus, firstToday, more, win } = {}) {
+export async function missionComplete(p, before, after, { title, name, line, minutes, mood, xp, bonus, firstToday, more, win } = {}) {
   if (S.settings.careOnly) { toast("Session logged. Nice one."); return; }
+  if (document.querySelector("dialog.cele[open]")) { celeQueue.push({ items: changes(p, gameOf(p), before, after), p }); return; }
   let D = null;
   try { D = await import("./doitnow.js"); } catch { /* fine: no dots */ }
   const ws = D ? D.weekAndSticker(p) : null;
+  const items = changes(p, gameOf(p), before, after);
   const moving = motionOK();
   const n = h("b.mc-xp-n", moving ? "0" : String(xp || 0));
+  const md = MOODS.find((m) => m[0] === mood);
+  const tiles = [
+    xp ? h("div.mc-tile.t-xp", { "aria-label": `Plus ${xp} XP`, style: "--i:0" }, h("span.mc-tile-h", "XP"), h("span.mc-tile-b", h("span.mc-ti", { "aria-hidden": "true" }, "⭐"), h("span", "+", n))) : null,
+    minutes ? h("div.mc-tile.t-time", { "aria-label": `${minutes} minute${minutes === 1 ? "" : "s"}`, style: "--i:1" }, h("span.mc-tile-h", "Time"), h("span.mc-tile-b", h("span.mc-ti", { "aria-hidden": "true" }, "⏱️"), h("span", `${minutes} min`))) : null,
+    md ? h("div.mc-tile.t-mood", { "aria-label": `Felt ${md[2]}`, style: "--i:2" }, h("span.mc-tile-h", "Felt"), h("span.mc-tile-b", h("span.mc-ti", { "aria-hidden": "true" }, md[1]), h("span", md[2]))) : null,
+  ].filter(Boolean);
   const { dlg } = sheet("Mission complete!", (body, close) => {
     put(body,
-      h("div.mc-hero", h("div.mc-rays", { "aria-hidden": "true" }), h("img.disc.mc-nova", { src: NOVA, alt: "", width: "96", height: "96" })),
-      h("p.mc-title", title || "One more good minute."),
-      xp ? h("p.mc-xp", { "aria-label": `Plus ${xp} XP` }, "+", n, " XP") : null,
+      heroNova(112),
+      name ? h("p.mc-name", name) : null,
+      line || title ? h("div.mc-say", h("p", line || title)) : null,
+      tiles.length ? h("div.mc-tiles", { "data-k": "mc-tiles" }, tiles) : null,
       bonus ? h("p.mc-bonus", `+${bonus} bonus XP (quest or level) 🎯`) : null,
+      items.length ? h("section.mc-wins", { "aria-label": "New wins", "data-k": "mc-wins" }, achievementList(items)) : null,
       ws ? h("div.mc-week", { "aria-label": `This week: ${ws.count} of 3 days` },
         h("span.wk-dots", { "aria-hidden": "true" }, ws.week.map((d) => h(`span.wk-dot${d.on ? ".on" : ""}${d.today ? ".today.pop" : ""}`, d.on ? "✓" : ""))),
         h("span.small", ws.count >= 3 ? "Week won 🏆" : `${ws.count} of 3 days wins the week`)) : null,
@@ -146,8 +173,8 @@ export async function missionComplete(p, before, after, { title, xp, bonus, firs
         h("button.btn.btn-gold.wide", { type: "button", "data-k": "mc-continue", onclick: close }, "Continue"),
         h("div.mc-second",
           more ? h("button.btn.btn-line.wide", { type: "button", "data-k": "mc-more", onclick: () => { close(); more(); } }, "4 more minutes") : null,
-          shareWinBtn(p, win, "mc-share"))));
-  }, { onClose: () => celebrateDiff(p, before, after) });
+          shareWinBtn(p, win || (items.find((i) => i.share) || {}).share, "mc-share"))));
+  }, { onClose: flushCele });
   dlg.classList.add("cele", "mission");
   buzz([20, 40, 20]);
   confetti();
@@ -185,7 +212,8 @@ export function confetti() {
   if (!motionOK()) return;
   const c = h("canvas.confetti", { "aria-hidden": "true" });
   c.width = innerWidth; c.height = innerHeight;
-  document.body.append(c);
+  // Inside the open celebration (a modal sits above the page), so the burst is not hidden under its backdrop.
+  (document.querySelector("dialog.cele[open]") || document.body).append(c);
   const g = c.getContext("2d");
   if (!g) { c.remove(); return; }
   const cols = ["#F2B544", "#1F4E6E", "#C27A3A", "#E0566E", "#8EC1E0"];
@@ -286,7 +314,7 @@ export async function logSession(p, sk, { minutes, mood, more, mission } = {}) {
       ? `Logged: ${name}. Only ${G.CAPS.sessions} sessions per skill count each day, so this one's just for fun. Give that skill a rest.`
       : `Logged: ${name}. Only ${G.CAPS.sessionsPerDay} sessions a day count, so this one's just for fun. Rest is training too.`;
   if (mission && counted) {
-    missionComplete(p, before, after, { title: `${name} · ${minutes || 1} min · ${MOOD_LINE[mood] || "I supervised."}`, xp: Math.min(G.XP.session, Math.max(0, after.trainerXp - before.trainerXp)) || G.XP.session, bonus: Math.max(0, after.trainerXp - before.trainerXp - G.XP.session), firstToday, more,
+    missionComplete(p, before, after, { title: `${name} · ${minutes || 1} min · ${MOOD_LINE[mood] || "I supervised."}`, name, line: MOOD_LINE[mood] || "I supervised.", minutes: minutes || 1, mood, xp: Math.min(G.XP.session, Math.max(0, after.trainerXp - before.trainerXp)) || G.XP.session, bonus: Math.max(0, after.trainerXp - before.trainerXp - G.XP.session), firstToday, more,
       win: { kind: "session", title: name, sub: `${minutes || 1} min together`, emoji: "🎯" } });
     return ev;
   }
@@ -317,7 +345,15 @@ export function startSession(p, sk, { seconds } = {}) {
     const arc = svgEl("circle", { class: "ring-fill", cx: "60", cy: "60", r: String(R), "stroke-dasharray": String(C), "stroke-dashoffset": String(C) });
     const ring = h("div.timer-ring", svgEl("svg", { viewBox: "0 0 120 120", "aria-hidden": "true" }, svgEl("circle", { class: "ring-track", cx: "60", cy: "60", r: String(R) }), arc), clock);
     const first = sk.steps && sk.steps.length ? sk.steps[0] : "";
-    const status = h("p.timer-status", { "aria-live": "polite" }, one ? `Just one minute, ${place}.${first ? ` Try: ${first}` : ""}` : `Practise ${place}. Short and happy. End on a win.`);
+    const status = h("p.timer-status", { "aria-live": "polite", "data-k": "timer-status" }, one ? `Just one minute, ${place}.${first ? ` Try: ${first}` : ""}` : `Practise ${place}. Short and happy. End on a win.`);
+    const say = h("div.timer-say", h("img.disc.timer-nova", { src: NOVA, alt: "", width: "44", height: "44" }), h("div.nova-say-bubble", status));
+    // Nova cheers once at 30 seconds in and again for the last 10 seconds (time only moves while it is running).
+    let c30 = false, c10 = false;
+    const cheer = (text, strong) => {
+      status.textContent = text;
+      say.classList.remove("cheer"); void say.offsetWidth; say.classList.add("cheer");
+      buzz(strong ? [30, 50, 30] : 15);
+    };
     const pauseBtn = h("button.btn.btn-line.timer-pause", { type: "button", "data-k": "timer-pause", onclick: () => {
       if (pausedAt) { pausedFor += Date.now() - pausedAt; pausedAt = 0; pauseBtn.textContent = "Pause"; status.textContent = "Back to it."; ring.classList.remove("paused"); }
       else { pausedAt = Date.now(); pauseBtn.textContent = "Resume"; status.textContent = "Paused. Take your time."; ring.classList.add("paused"); }
@@ -333,6 +369,7 @@ export function startSession(p, sk, { seconds } = {}) {
       clearInterval(timer);
       if (!pausedAt) pausedAt = Date.now();
       runRow.hidden = true;
+      ring.classList.remove("hurry");
       ring.classList.add("done");
       moodBox.hidden = false;
       moodBox.querySelector("button").focus();
@@ -347,6 +384,10 @@ export function startSession(p, sk, { seconds } = {}) {
       arc.setAttribute("stroke-dashoffset", String(C * (1 - Math.min(1, elapsed() / total))));
       if (!one && doneBtn.hidden && elapsed() >= 60000) { doneBtn.hidden = false; status.textContent = "1 minute in: that counts. Stop whenever you like."; }
       const min = Math.ceil(left / 60000);
+      if (!over && !pausedAt) {
+        if (!c30 && elapsed() >= 30000 && left > 12000) { c30 = true; cheer(one ? "Halfway there! Keep it short and happy." : "30 seconds in. Lovely. Keep it happy."); }
+        if (!c10 && left > 0 && left <= 10000) { c10 = true; ring.classList.add("hurry"); cheer("Last 10 seconds!", true); }
+      }
       if (!over && left <= 0) {
         over = true; buzz(200);
         status.textContent = one ? "Time! That's your minute. 🎉" : "Time! End on a win, then tell me how it went.";
@@ -357,7 +398,7 @@ export function startSession(p, sk, { seconds } = {}) {
       lastMin = min;
     };
     put(body,
-      h("div.timer", ring, status),
+      h("div.timer", ring, say),
       runRow,
       moodBox,
       EASY[sk.id] ? h("details.more-box", { open: one }, h("summary", "Simple steps"), h("ol.steps-list.timer-steps", EASY[sk.id].steps.map((s) => h("li", s))))

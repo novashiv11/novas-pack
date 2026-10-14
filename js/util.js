@@ -168,14 +168,16 @@ export function sheet(title, build, { onClose } = {}) {
   const dlg = h("dialog.sheet", { "aria-labelledby": headId });
   const close = () => dlg.close();
   const body = h("div.sheet-body");
-  dlg.append(
-    h("div.sheet-head",
-      h("h2", { id: headId }, title),
-      h("button.icon-btn", { type: "button", onclick: close }, h("span.vh", "Close"), closeIcon())),
-    body,
-  );
+  // v7: a drag handle, a centred title and a close X (the empty pad keeps the title truly centred).
+  const head = h("div.sheet-head",
+    h("span.sheet-grab", { "aria-hidden": "true" }),
+    h("span.sheet-pad", { "aria-hidden": "true" }),
+    h("h2", { id: headId }, title),
+    h("button.icon-btn", { type: "button", "data-k": "sheet-close", onclick: close }, h("span.vh", "Close"), closeIcon()));
+  dlg.append(head, body);
   build(body, close);
   dlg.addEventListener("click", (e) => { if (e.target === dlg) close(); });
+  swipeToClose(dlg, head, close);
   const sid = `s${uid()}`;
   dlg.addEventListener("close", () => {
     const i = openSheets.findIndex((x) => x.id === sid);
@@ -193,6 +195,29 @@ export function sheet(title, build, { onClose } = {}) {
   const first = body.querySelector("[autofocus]") || body.querySelector("input:not([type=hidden]),select,textarea,button");
   if (first && first.hasAttribute("autofocus")) first.focus();
   return { dlg, close };
+}
+/** Pull the handle (or the title bar) down to dismiss, like any phone sheet. Taps on the X are left alone. */
+function swipeToClose(dlg, head, close) {
+  let y0 = null, dy = 0;
+  head.addEventListener("pointerdown", (e) => {
+    if ((e.button || 0) > 0 || e.target.closest("button")) return;
+    y0 = e.clientY; dy = 0;
+    try { head.setPointerCapture(e.pointerId); } catch { /* fine */ }
+    dlg.style.transition = "none";
+  });
+  head.addEventListener("pointermove", (e) => {
+    if (y0 === null) return;
+    dy = Math.max(0, e.clientY - y0);
+    dlg.style.transform = `translateY(${dy}px)`;
+  });
+  const end = () => {
+    if (y0 === null) return;
+    const go = dy > 90;
+    y0 = null; dlg.style.transition = "";
+    if (go) close(); else dlg.style.transform = "";
+  };
+  head.addEventListener("pointerup", end);
+  head.addEventListener("pointercancel", end);
 }
 function closeIcon() {
   const s = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -216,10 +241,12 @@ export function confirmBox(title, text, yes = "Yes", danger = false) {
   });
 }
 
-// ---------- toast with Undo ----------
+// ---------- toast with Undo (v7: a pill with an icon) ----------
 let toastTimer = 0;
-/** toast(msg, [[label, fn], ...], { ms }) — ms overrides how long it stays (default 4.5 s, or 8 s with buttons). */
-export function toast(msg, actions = [], { ms } = {}) {
+const toastKind = (msg) => (/couldn'?t|can'?t|didn'?t|failed|error|not saved|try again/i.test(msg) ? "warn" : /^(undone|deleted)\b|\bdeleted\.?$/i.test(msg) ? "undo" : "ok");
+const TOAST_KINDS = { ok: 1, warn: 1, undo: 1 }; // the glyph is drawn by CSS, so the toast text stays clean
+/** toast(msg, [[label, fn], ...], { ms, icon }) — ms overrides how long it stays (default 4.5 s, or 8 s with buttons). icon: "ok" | "warn" | "undo". */
+export function toast(msg, actions = [], { ms, icon } = {}) {
   const box = document.getElementById("toast");
   if (!box) return;
   clearTimeout(toastTimer);
@@ -229,10 +256,14 @@ export function toast(msg, actions = [], { ms } = {}) {
     box.classList.remove("show");
     box.replaceChildren();
   };
-  const btns = actions.map(([label, fn]) => h("button.toast-btn", { type: "button", onclick: () => {
+  const btns = actions.map(([label, fn]) => h(`button.toast-btn${label === "Undo" ? ".undo" : ""}`, { type: "button", "data-k": label === "Undo" ? "toast-undo" : undefined, onclick: () => {
     box.classList.remove("show"); box.replaceChildren(); clearTimeout(toastTimer); fn();
   } }, label));
-  box.replaceChildren(h("p", msg), ...btns);
+  const kind = TOAST_KINDS[icon] ? icon : toastKind(String(msg));
+  // Re-trigger the pop when a new toast replaces one that is still showing.
+  box.classList.remove("show");
+  void box.offsetWidth;
+  box.replaceChildren(h(`span.toast-ic.${kind}`, { "aria-hidden": "true" }), h("p", msg), ...btns);
   box.classList.add("show");
   toastTimer = setTimeout(hide, ms || (actions.length ? 8000 : 4500));
 }
