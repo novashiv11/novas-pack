@@ -10,7 +10,7 @@ import { h, put, sheet, toast, isoDate, ago, buzz, motionOK, parseDate } from ".
 import { dueItems, skillsFor } from "../logic.js";
 import { logMeal, logTreat, logPoop, logWalk, logPlay, logEggs, logMed, markGiven, eventSheet, unwellSheet } from "../forms.js";
 import { eventList, NOVA } from "./parts.js";
-import { trainingPicker, confetti, shareWinBtn } from "./gameui.js";
+import { trainingPicker, confetti, shareWinBtn, xpProgress } from "./gameui.js";
 import { doNow, planSheet, planText, weekAndSticker } from "./doitnow.js";
 import * as G from "../game.js";
 
@@ -26,7 +26,7 @@ const ITEMS = {
   poop: { e: "💩", type: "poop", label: (p) => (p.species === "rabbit" ? "Droppings check" : "Poop check"), target: () => 1, tap: () => logPoop() },
   eggs: { e: "🥚", type: "eggs", label: () => "Collect eggs", target: () => 1, tap: () => logEggs(), for: ["chicken"] },
 };
-const countOf = (p, id, def) => { const n = ((S.settings.checklistN || {})[p.id] || {})[id]; return Number.isInteger(n) && n >= 1 && n <= 4 ? n : def; };
+const countOf = (p, id, def) => { const n = (p.__counts && p.__counts[id]) || ((S.settings.checklistN || {})[p.id] || {})[id]; return Number.isInteger(n) && n >= 1 && n <= 4 ? n : def; };
 const DEFAULTS = { dog: ["meals", "walk", "train"], cat: ["meals", "play", "train"], rabbit: ["meals", "poop", "play"], chicken: ["meals", "eggs"] };
 const allowed = (p, id) => { const it = ITEMS[id]; return it && (!it.for || it.for.includes(p.species)) && (!it.when || it.when(p)); };
 export function checklistOf(p) {
@@ -125,17 +125,17 @@ function popText(p, r) {
   return "✓";
 }
 
-function rowTile(p, r, prev) {
+function rowTile(p, r, prev, next = false) {
   const k = r.need ? Math.min(1, r.n / r.need) : r.done ? 1 : 0;
   const just = r.done && prev && !prev.done;
   const bump = !just && prev && r.n > prev.n;
   const pop = just ? popText(p, r) : null;
-  return h("li", h(`button.td-row${r.done ? ".done" : ""}${just ? ".just" : ""}${bump ? ".bump" : ""}`, { type: "button", "data-k": `td-${r.key}`, onclick: (e) => tapRow(e, r) },
+  return h("li", h(`button.td-row${r.done ? ".done" : ""}${just ? ".just" : ""}${bump ? ".bump" : ""}${next ? ".next" : ""}`, { type: "button", "data-k": `td-${r.key}`, onclick: (e) => tapRow(e, r) },
     h("span.td-node", nodeRing(k, prev ? (prev.done ? 1 : Math.min(1, prev.n / (prev.need || 1))) : null),
       h("span.td-e", { "aria-hidden": "true" }, r.done ? "✓" : r.e),
       pop ? h("span.td-pop", { "aria-hidden": "true" }, pop) : null),
     h("span.td-t", h("b", r.label), h("span.td-s", r.sub)),
-    h("span.td-plus", { "aria-hidden": "true" }, r.done ? "" : "+"),
+    next ? h("span.td-next", { "aria-hidden": "true" }, "Next") : h("span.td-plus", { "aria-hidden": "true" }, r.done ? "" : "+"),
     h("span.vh", r.done ? ", done" : ", tap to log")));
 }
 
@@ -175,7 +175,7 @@ export function todayCard(p) {
       h("div", h("h1.td-h", { id: "page-title", tabindex: "-1" }, "Today"), h("p.td-sub", total ? `${done} of ${total} done` : "Nothing on the list")),
       ring(done, total)),
     weekStrip(p),
-    h("ul.td-list", rows.map((r, i) => rowTile(p, r, prevs[i]))),
+    h("ul.td-list", rows.map((r, i) => rowTile(p, r, prevs[i], i === rows.findIndex((x) => !x.done)))),
     h("div.td-foot",
       h("button.linkish", { type: "button", "data-k": "td-edit", onclick: () => editList(p) }, "Edit list"),
       S.settings.plan && S.settings.plan.anchor
@@ -202,6 +202,7 @@ function dayComplete(p) {
     h("div.dd-hero", h("span.dd-rays", { "aria-hidden": "true" }), h("img.disc.dd-nova", { src: NOVA, alt: "", width: "132", height: "132" })),
     h("h2.dd-h", { id: "dd-h" }, "Day complete!"),
     h("p.dd-sub", `Everything on today's list. That's what ${p.name} needs from you.`),
+    S.settings.careOnly ? null : xpProgress(p),
     h("div.dd-tiles",
       h("div.dd-tile.dd-week",
         h("span.dd-tl", "This week"),

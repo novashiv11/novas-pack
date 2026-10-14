@@ -148,3 +148,9 @@ This doc is the brief for 5 parallel agents. Each one owns its own screens and f
 - One "Continue" next-step button on Today and Train, with the next node pulsing on the path.
 - Fold everything below Today on Home behind "More for Bran".
 - Ask "meals per day" in onboarding.
+
+## v7.1 (14 Oct)
+- The level bar fills on Mission complete and Day complete ("25 XP to level 2").
+- The next undone row on Today pulses with a "Next" chip.
+- Home's level card and extras fold behind one row ("Bran: level 1 · badges, art, journal").
+- Onboarding asks meals a day (1 to 3).

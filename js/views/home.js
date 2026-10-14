@@ -26,8 +26,7 @@ export function home(main) {
     todayCard(p),
     dueToday(p),
     todaySoFar(p),
-    care ? careLinks() : partnerCard(p, a, tr),
-    care ? null : extras(p, a, tr),
+    care ? careLinks() : homeMore(p, a, tr),
     nudge(p, a, tr),
   );
   // Once, right after the first thing they log: offer the daily reminder (the only trigger a no-server app has).
@@ -68,6 +67,19 @@ export function statPills(p) {
       sample,
       h("a.btn.btn-blue.wide", { href: "#/more/jar", "data-k": "pill-go-jar" }, "See the treat jar")))),
   ];
+}
+
+// Below Today, the game extras sit behind one row so Home stays short. Open/closed is remembered for this visit.
+let moreOpen = false;
+function homeMore(p, a, tr) {
+  const lv = a.level;
+  const d = h("details.home-more", { open: moreOpen, ontoggle: (e) => { moreOpen = e.currentTarget.open; } },
+    h("summary", { "data-k": "home-more" },
+      h("span.hm-av", { "aria-hidden": "true" }, avatar(p, 36)),
+      h("span.hm-t", h("b", `${p.name}: level ${lv.level}`), h("span", lv.max ? "Top level" : `${lv.need - lv.into} XP to level ${lv.level + 1} · badges, art, journal`))),
+    partnerCard(p, a, tr),
+    extras(p, a, tr));
+  return d;
 }
 
 function careLinks() {

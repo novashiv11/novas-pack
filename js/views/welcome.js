@@ -44,7 +44,7 @@ function optionCards(group, items, value, onpick, cls = "") {
 }
 
 function wizard(main, step) {
-  const draft = { id: "__new", name: wiz.name || "your pet", species: wiz.species || "dog" };
+  const draft = { id: "__new", name: wiz.name || "your pet", species: wiz.species || "dog", __counts: wiz.meals ? { meals: wiz.meals } : undefined };
   const sp = speciesOf(wiz.species || "dog");
   const from = Math.min(wiz.last || step, TOTAL), fill = h("span", { style: { width: `${(from / TOTAL) * 100}%` } });
   if (from !== step) requestAnimationFrame(() => requestAnimationFrame(() => { fill.style.width = `${(step / TOTAL) * 100}%`; }));
@@ -114,6 +114,8 @@ function wizard(main, step) {
       h("h1.ob-h", { id: "page-title", tabindex: "-1" }, `Here's ${wiz.name || "your pet"}'s day`),
       h("ul.ob-day", { "aria-label": "Daily checklist" }, rows.map((r) => h("li.ob-daytile",
         h("span.td-node", h("span.td-e", { "aria-hidden": "true" }, r.e)), h("span.td-t", h("b", r.label), h("span.td-s", r.sub))))),
+      h("div.ob-meals", { role: "group", "aria-label": "Meals a day" }, h("span", "Meals a day"),
+        [1, 2, 3].map((n) => h(`button.chip${(wiz.meals || (["dog", "cat"].includes(draft.species) ? 2 : 1)) === n ? ".on" : ""}`, { type: "button", "data-k": `ob-meals-${n}`, "aria-pressed": String((wiz.meals || (["dog", "cat"].includes(draft.species) ? 2 : 1)) === n), onclick: () => { wiz.meals = n; refresh(); } }, String(n)))),
       h("p.ob-note", "Medicines you add show up here when they're due. Change the list any time with Edit list."),
       h("div.ob-foot", next("Looks good", () => goStep(5))));
   } else {
@@ -154,6 +156,7 @@ async function finish(btn, err) {
     await setSetting("currentPet", row.id);
     if (!S.settings.firstUse) await setSetting("firstUse", Date.now());
     if (wiz.you && !S.settings.trainerName) await setSetting("trainerName", wiz.you).catch(() => {});
+    if (wiz.meals) await setSetting("checklistN", { ...(S.settings.checklistN || {}), [row.id]: { meals: wiz.meals } }).catch(() => {});
     if (wiz.anchor) await setSetting("plan", { anchor: wiz.anchor, time: wiz.time }).catch(() => {});
     else await setSetting("planAsked", Date.now()).catch(() => {}); // they've been asked; don't ask again after the first log
     if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});

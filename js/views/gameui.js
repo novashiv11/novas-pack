@@ -164,6 +164,7 @@ export async function missionComplete(p, before, after, { title, name, line, min
       line || title ? h("div.mc-say", h("p", line || title)) : null,
       tiles.length ? h("div.mc-tiles", { "data-k": "mc-tiles" }, tiles) : null,
       bonus ? h("p.mc-bonus", `+${bonus} bonus XP (quest or level) 🎯`) : null,
+      xp && !p.sample ? xpProgress(p, before) : null,
       items.length ? h("section.mc-wins", { "aria-label": "New wins", "data-k": "mc-wins" }, achievementList(items)) : null,
       ws ? h("div.mc-week", { "aria-label": `This week: ${ws.count} of 3 days` },
         h("span.wk-dots", { "aria-hidden": "true" }, ws.week.map((d) => h(`span.wk-dot${d.on ? ".on" : ""}${d.today ? ".today.pop" : ""}`, d.on ? "✓" : ""))),
@@ -184,6 +185,21 @@ export async function missionComplete(p, before, after, { title, name, line, min
   }
   const btn = dlg.querySelector('[data-k="mc-continue"]');
   if (btn) btn.focus();
+}
+
+/** The partner's level bar, filling from where it was to where it is now ("30 XP to level 2"). */
+export function xpProgress(p, before = null) {
+  const a = gameOf(p), lv = a.level;
+  const gained = before ? Math.max(0, a.xp - before.xp) : 0;
+  const up = before && lv.level > before.level;
+  const pct = (v) => (lv.max ? 100 : Math.max(0, Math.min(100, (v / lv.need) * 100)));
+  const from = up ? 0 : Math.max(0, lv.into - gained);
+  const fill = h("span", { style: { width: `${pct(motionOK() ? from : lv.into)}%` } });
+  const el = h("div.xpp", { "data-k": "xp-progress" },
+    h("div.xpp-top", h("b", up ? `Level ${lv.level}! 🎉` : `Level ${lv.level}`), h("span", lv.max ? "Top level" : `${lv.need - lv.into} XP to level ${lv.level + 1}`)),
+    h("div.gbar.gold.xpp-bar", { role: "progressbar", "aria-label": `Level ${lv.level} progress`, "aria-valuemin": "0", "aria-valuemax": String(lv.need || 1), "aria-valuenow": String(lv.into) }, fill));
+  if (motionOK()) setTimeout(() => { fill.style.width = `${pct(lv.into)}%`; }, 450);
+  return el;
 }
 
 /** Run an action that may level something up, then celebrate the difference. */

@@ -255,3 +255,23 @@ body:has(#tabbar:not([hidden])) .ready-foot{bottom:calc(var(--nav-h) + env(safe-
   .stat-pill:active,.tabbar a:active svg,.ls-tile:active,.td-row:active,.ob-opts label:active,.ready-item:active,.ex-tile:active,.pet-chip:active,.fab:active{transform:none}
 }
 @keyframes td-pop-still{0%{opacity:0}15%{opacity:1}80%{opacity:1}100%{opacity:0}}
+
+/* v7.1: next row pulses, Home extras folded, XP bar, meals a day */
+.td-row.next{border-color:var(--blue);box-shadow:0 3px 0 var(--blue-ledge),0 0 0 3px var(--blue-soft);animation:td-next 1.8s ease-in-out infinite}
+.td-next{justify-self:end;padding:4px 10px;border-radius:999px;background:var(--blue);color:var(--on-blue);font:800 var(--t12) var(--f-display);letter-spacing:.04em;text-transform:uppercase}
+@keyframes td-next{50%{box-shadow:0 3px 0 var(--blue-ledge),0 0 0 7px transparent}}
+.home-more{margin-top:18px;border:1px solid var(--line);border-radius:16px;background:var(--surface)}
+.home-more>summary{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:10px;min-height:64px;padding:8px 14px;cursor:pointer;list-style:none}
+.home-more>summary::-webkit-details-marker{display:none}
+.home-more>summary::before{display:none}
+.home-more>summary::after{content:"▾";font-weight:800;color:var(--blue);transition:transform .15s ease-out}
+.home-more[open]>summary::after{transform:rotate(180deg)}
+.hm-t{display:flex;flex-direction:column;min-width:0}
+.hm-t span{font-size:var(--t12);color:var(--muted);font-weight:600}
+.home-more[open]{padding-bottom:12px}
+.home-more .partner{margin:0 12px}
+.home-more .extras{margin:12px 12px 0}
+.ob-meals{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 0;font-weight:700}
+.ob-meals .chip{min-width:48px;justify-content:center;text-align:center}
+.ob-meals .chip.on{background:var(--blue);color:var(--on-blue);border-color:var(--blue)}
+@media (prefers-reduced-motion:reduce){.td-row.next{animation:none}.home-more>summary::after{transition:none}}

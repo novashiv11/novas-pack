@@ -216,3 +216,11 @@ dialog.cele:not(.mission) .mc-nova{width:76px;height:76px}
   .timer-say.cheer .nova-say-bubble,.timer-say.cheer .timer-nova,.timer-ring.hurry .timer-clock,.mood-box legend,.scale.pic-scale input:checked + label .pp-tick{animation:none}
   dialog.sheet .btn,.quick-fill .chip,.min-tile,.mood-btn,.pick-row,.action-row,.tile-checks .check,.scale.pic-scale label,.toast-btn,.tile-checks .check input::after{transition:none}
 }
+
+/* v7.1: level bar on Mission complete and Day complete */
+.xpp{display:flex;flex-direction:column;gap:6px;width:100%;margin:6px 0}
+.xpp-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:var(--t14)}
+.xpp-top span{color:var(--muted);font-weight:700;font-size:var(--t12)}
+.xpp-bar{height:14px;border-radius:999px}
+.xpp-bar>span{transition:width 1.1s cubic-bezier(.2,.8,.2,1)}
+@media (prefers-reduced-motion:reduce){.xpp-bar>span{transition:none}}
