@@ -1,10 +1,10 @@
 // Home: your Partner. The partner card (stage, level, XP, 5 stats), "1% today" (one tiny thing for your dog, one for
 // you, and Nova's line of the day), the trainer strip, this week's quests, quick logs, badges, and one gentle nudge.
 
-import { doItNowCard, planSheet } from "./doitnow.js";
+import { doItNowCard, planSheet, weekAndSticker, showUpDates } from "./doitnow.js";
 import { todayCard, todaySoFar } from "./today.js";
 import { S, pet, setSetting, save, logsOf, LOG_TYPES } from "../state.js";
-import { h, put, em, fmtDate, isoDate, ageText, sinceText, isAnniversary, DAY, toast } from "../util.js";
+import { h, put, em, fmtDate, isoDate, ageText, sinceText, isAnniversary, DAY, toast, sheet, parseDate } from "../util.js";
 import { healthAlerts, backupDue, dueItems, dueText } from "../logic.js";
 import { logWalk, logMeal, logTreat, logPoop, logEggs, eventSheet, speciesOf, openPetSheet, saveError, markGiven, doneRecord } from "../forms.js";
 import { sampleStrip, alertCard, avatar, chevron } from "./parts.js";
@@ -38,6 +38,36 @@ export function home(main) {
       planSheet(p);
     }, 2500);
   }
+}
+
+// ---------- the top bar's stat pills (app.js draws them): honest numbers, each one explained in a small sheet ----------
+/** The three pills on the right of the top bar: days this week, partner level, stickers. Real numbers only; none in care-diary mode. */
+export function statPills(p) {
+  if (!p || S.settings.careOnly) return [];
+  const ws = weekAndSticker(p), a = gameOf(p), stickers = showUpDates(p).length;
+  const pill = (k, e, text, label, fn) => h("button.stat-pill", { type: "button", "data-k": `pill-${k}`, "aria-label": `${label}. What's this?`, onclick: fn },
+    h("span.sp-e", { "aria-hidden": "true" }, e), h("b.sp-n", { "aria-hidden": "true" }, text));
+  const sample = p.sample ? h("p.small.muted.ss-note", "These are example numbers from Nova's sample.") : null;
+  const big = (e, title, text) => [h("div.ss-top", h("span.ss-e", { "aria-hidden": "true" }, e), h("p.ss-title", title)), h("p.ss-text", text)];
+  return [
+    pill("week", "🔥", `${ws.count}/7`, `${ws.count} of 7 days this week`, () => sheet("Days this week", (body, close) => put(body,
+      big("🔥", `${ws.count} of 7 days`, "A day counts when you spend time together: training, a walk, play or a care task like brushing. Meals and poop checks are care admin, so they don't. Three days wins the week."),
+      h("div.ss-week", { role: "img", "aria-label": `${ws.count} of 7 days this week` }, ws.week.map((d) => h(`span.ss-day${d.on ? ".on" : ""}${d.today ? ".today" : ""}`, { "aria-hidden": "true" },
+        h("i", "SMTWTFS"[parseDate(d.date).getDay()]), h("b", d.on ? "✓" : "")))),
+      h("p.ss-text", "Miss a day? Nothing is lost. Monday is a fresh start."),
+      sample,
+      h("button.btn.btn-blue.wide", { type: "button", onclick: close }, "Got it")))),
+    pill("level", "⭐", String(a.level.level), `${p.name} is level ${a.level.level}`, () => sheet(`${p.name}'s level`, (body) => put(body,
+      big("⭐", `Level ${a.level.level}`, a.level.max ? `The top level, with ${a.xp} XP.` : `${a.level.into} of ${a.level.need} XP to level ${a.level.level + 1}.`),
+      bar(a.level.max ? 1 : a.level.into, a.level.max ? 1 : a.level.need, "gold"),
+      h("p.ss-text", "XP comes from real minutes together: training sessions, walks, stamps and quests. Never from opening the app, likes or shares."),
+      sample,
+      h("a.btn.btn-blue.wide", { href: "#/train", "data-k": "pill-go-train" }, "Train for XP")))),
+    pill("stickers", "🍪", String(stickers), `${stickers} sticker${stickers === 1 ? "" : "s"}`, () => sheet("Stickers", (body) => put(body,
+      big("🍪", `${stickers} sticker${stickers === 1 ? "" : "s"}`, "One for every day you showed up with your pet. Never lost, never bought."),
+      sample,
+      h("a.btn.btn-blue.wide", { href: "#/more/jar", "data-k": "pill-go-jar" }, "See the treat jar")))),
+  ];
 }
 
 function careLinks() {

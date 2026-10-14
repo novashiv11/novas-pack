@@ -9,7 +9,8 @@ import { S, load, onChange, pet, setSetting, activePets } from "./state.js";
 import { h, ago, toast } from "./util.js";
 import { onQuotaError, QUOTA_MESSAGE, persist } from "./db.js";
 import { welcome } from "./views/welcome.js";
-import { home } from "./views/home.js";
+import { home, statPills } from "./views/home.js";
+import { dueItems } from "./logic.js";
 import { health, summary } from "./views/health.js";
 import { training } from "./views/training.js";
 import { adventures } from "./views/adventures.js";
@@ -125,39 +126,54 @@ function draw() {
   }
 }
 
+// v7 top bar (Duolingo-style): the pet chip(s) on the left, honest stat pills on the right (days this week, level,
+// stickers; each opens a small sheet that explains it). It shows on every main screen, so the numbers are always there.
+const statsBox = h("div.stat-pills", { id: "stats", role: "group", "aria-label": "Your numbers" });
+appbar.querySelector(".appbar-in").append(statsBox);
+
 function drawChrome(name) {
   const p = pet();
-  // pet switcher
+  // pet switcher: the current pet is a named chip, the others are avatar bubbles (names stay for screen readers)
   switcher.replaceChildren();
+  const pets = activePets();
   if (name !== "welcome" && p) {
-    for (const x of activePets()) {
+    for (const x of pets) {
       const on = x.id === p.id;
       switcher.append(h("button.pet-chip", { type: "button", "aria-pressed": String(on), onclick: () => switchTo(x.id) },
         avatar(x, 32), h("span.pet-chip-name", x.name), x.sample ? h("span.sample-dot", "SAMPLE") : null));
     }
-    switcher.append(h("button.pet-chip.add", { type: "button", "data-k": "bar-add-pet", onclick: () => openPetSheet() },
-      h("span.avatar.av-add", { "aria-hidden": "true" }, "+"), h("span.pet-chip-name", "Add pet")));
+    if (!S.settings.addBarHidden || pets.length > 1) {
+      switcher.append(h("button.pet-chip.add", { type: "button", "data-k": "bar-add-pet", onclick: () => openPetSheet() },
+        h("span.avatar.av-add", { "aria-hidden": "true" }, "+"), h("span.pet-chip-name", "Add pet")));
+    }
   }
-  // The bar shows with 2+ pets (to switch). With one real pet it shows until "Hide" (Add pet stays in More → Pets).
-  const real = activePets().filter((x) => !x.sample).length;
-  const show = name !== "welcome" && !!p && (activePets().length > 1 || (real === 1 && !S.settings.addBarHidden));
-  if (show && activePets().length === 1) {
-    switcher.append(h("button.pet-chip.bar-hide", { type: "button", "data-k": "bar-hide", onclick: async () => {
-      await setSetting("addBarHidden", true);
-      drawChrome(name);
-      main.setAttribute("tabindex", "-1"); main.focus({ preventScroll: true });
-      toast("Hidden. Add a pet any time in More → Pets.");
-    } }, h("span.vh", "Hide this bar"), h("span", { "aria-hidden": "true" }, "×")));
-  }
+  const show = name !== "welcome" && !!p;
+  statsBox.replaceChildren();
+  if (show) { try { statPills(p).forEach((el) => statsBox.append(el)); } catch (err) { console.warn(err); } }
+  statsBox.hidden = !statsBox.childElementCount;
   appbar.classList.toggle("show", show);
+  switcher.classList.toggle("multi", pets.length > 1);
+  if (show) { // with a few pets the row scrolls: keep the current pet in view
+    const on = switcher.querySelector('.pet-chip[aria-pressed="true"]');
+    if (on && switcher.scrollWidth > switcher.clientWidth) {
+      if (on.offsetLeft + on.offsetWidth > switcher.scrollLeft + switcher.clientWidth) switcher.scrollLeft = on.offsetLeft + on.offsetWidth - switcher.clientWidth + 8;
+      if (on.offsetLeft < switcher.scrollLeft) switcher.scrollLeft = Math.max(0, on.offsetLeft - 8);
+    }
+  }
   // bottom nav
   const tab = TAB_OF[name];
-  tabbar.hidden = name === "welcome" || !activePets().length;
+  tabbar.hidden = name === "welcome" || !pets.length;
   document.body.classList.toggle("care-only", !!S.settings.careOnly);
   fab.hidden = !p || !["home", "train", "health", "adventures"].includes(name);
   document.body.classList.toggle("has-fab", !fab.hidden);
+  // A small dot on Health when something real is due or overdue for this pet.
+  let due = false;
+  try { due = !!p && dueItems(p.id).some((it) => !(it.kind === "record" && it.st.state === "soon")); } catch { due = false; }
   tabbar.querySelectorAll("a").forEach((a) => {
     if (a.dataset.tab === tab) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
+    const dot = a.dataset.tab === "health" && due;
+    a.classList.toggle("has-dot", dot);
+    if (dot) a.setAttribute("aria-label", "Health, something is due"); else a.removeAttribute("aria-label");
   });
 }
 

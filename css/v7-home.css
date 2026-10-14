@@ -1,1 +1,257 @@
-/* v7 home area (docs/v7-duolingo-screens.md). Owned by one agent; loaded after app.css. */
+/* v7 home area (docs/v7-duolingo-screens.md, brief A): top bar with stat pills, tab bar, Today lesson-node tiles,
+   Nova's bubble, the "Day complete!" card, the "+" sheet, the add-pet flow and the welcome and get-ready screens.
+   Owned by one agent; loaded after app.css. Colours come from the brand tokens, so dark mode follows. */
+
+/* ---------- top bar: pet chip(s) on the left, honest stat pills on the right ---------- */
+.appbar{background:var(--surface);border-bottom:2px solid var(--line)}
+.appbar-in{gap:6px;padding-block:6px}
+.switcher{position:relative;gap:6px}
+.switcher.multi .pet-chip[aria-pressed="true"] .pet-chip-name{max-width:4.8em}
+.pet-chip{border-width:2px;box-shadow:0 2px 0 var(--line)}
+.pet-chip[aria-pressed="true"]{box-shadow:0 2px 0 var(--blue-ledge)}
+.pet-chip:active{transform:translateY(2px);box-shadow:none}
+.pet-chip-name{max-width:7em}
+/* the other pets (and "Add pet") are round avatar bubbles; their names stay for screen readers */
+.pet-chip[aria-pressed="false"],.pet-chip.add{width:44px;padding:0;justify-content:center;border-radius:50%}
+.pet-chip[aria-pressed="false"] .pet-chip-name,.pet-chip.add .pet-chip-name,.pet-chip[aria-pressed="false"] .sample-dot{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+@media (max-width:419px){.pet-chip .sample-dot{display:none}}
+@media (max-width:359px){
+  .pet-chip[aria-pressed="true"]{padding:0 6px}
+  .pet-chip[aria-pressed="true"] .pet-chip-name{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+}
+.stat-pills{flex:none;display:flex;align-items:center;gap:2px}
+.stat-pills[hidden]{display:none}
+.stat-pill{display:inline-flex;align-items:center;justify-content:center;gap:3px;min-height:44px;min-width:44px;padding:0 7px;border:0;border-radius:12px;background:transparent;color:var(--ink);font:800 var(--t14)/1 var(--f-body);font-variant-numeric:tabular-nums;cursor:pointer;transition:transform .1s ease-out,background .15s}
+.stat-pill:hover{background:var(--sunk)}
+.stat-pill:active{transform:scale(.92)}
+.sp-e{font-size:1.2rem;line-height:1}
+.stat-pill[data-k="pill-week"] .sp-n{color:var(--tan-text)}
+.stat-pill[data-k="pill-level"] .sp-n{color:var(--blue)}
+@media (max-width:359px){.stat-pill{padding:0 5px;gap:2px}}
+
+/* the small sheet a pill opens */
+.ss-top{display:flex;align-items:center;gap:12px}
+.ss-e{font-size:2.6rem;line-height:1}
+.ss-title{margin:0;font:800 var(--t22)/1.1 var(--f-display);color:var(--blue)}
+.ss-text{margin:0;font-size:var(--t14);line-height:1.5;color:var(--ink)}
+.ss-note{margin:0}
+.ss-week,.dd-dots{display:flex;justify-content:center;gap:5px}
+.ss-day,.dd-dot{display:grid;justify-items:center;gap:3px;font-weight:800}
+.ss-day i,.dd-dot i{font-style:normal;font-size:11px;color:var(--muted)}
+.ss-day b,.dd-dot b{display:grid;place-items:center;width:32px;height:32px;border-radius:50%;border:2.5px solid var(--ctl);font-size:14px;color:var(--ink)}
+.ss-day.on b,.dd-dot.on b{background:var(--gold);border-color:var(--gold);color:#1E1B17}
+.ss-day.today b,.dd-dot.today b{outline:2px dashed var(--blue);outline-offset:2px}
+
+/* ---------- bottom tab bar ---------- */
+.tabbar{border-top:2px solid var(--line)}
+.tabbar a{position:relative;font-weight:800;transition:transform .1s ease-out}
+.tabbar svg{width:48px;height:32px;padding:3px 12px;border:2px solid transparent;border-radius:14px;stroke-width:2;transition:background .15s,border-color .15s}
+.tabbar a:active svg{transform:scale(.9)}
+.tabbar a[aria-current="page"] svg{background:var(--blue-soft);border-color:var(--blue)}
+.tabbar a.has-dot::after{content:"";position:absolute;top:7px;left:calc(50% + 11px);width:12px;height:12px;border-radius:50%;background:var(--tan);box-shadow:0 0 0 2px var(--surface)}
+
+/* ---------- the "+" button and its sheet ---------- */
+.fab{width:64px;height:64px;font-size:2.3rem;box-shadow:0 5px 0 var(--blue-ledge),0 10px 22px rgba(0,0,0,.25);transition:transform .1s ease-out}
+.fab:active{transform:translateY(4px);box-shadow:0 1px 0 var(--blue-ledge)}
+.ls-grid{gap:10px;margin-bottom:6px}
+.ls-tile{min-height:108px;padding:12px 4px 10px;gap:4px;border-width:2px;border-radius:20px;box-shadow:0 4px 0 var(--line);transition:transform .1s ease-out,box-shadow .1s ease-out}
+.ls-tile:active{transform:translateY(4px);box-shadow:none}
+.ls-e{font-size:2.2rem}
+.ls-tile b{font-size:var(--t14)}
+.ls-tile.top{background:var(--blue-soft);border-color:var(--blue);box-shadow:0 4px 0 var(--blue-ledge)}
+.ls-tile.top:active{box-shadow:none}
+.ls-cap{margin:0;font:800 var(--t12)/1 var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.ls-note{margin:0;text-align:center}
+
+/* ---------- Nova with a speech bubble (Today, Get ready, empty states) ---------- */
+.nova-say{display:flex;align-items:flex-end;gap:12px;min-width:0}
+.ns-face{position:relative;flex:none;width:52px;height:52px}
+.ns-face .disc{display:block;width:52px;height:52px;padding:3px;box-shadow:0 3px 0 var(--blue-ledge);transition:transform .3s}
+.ns-bubble{position:relative;flex:1;min-width:0;background:var(--surface);border:2px solid var(--line);border-radius:16px 16px 16px 4px;padding:10px 14px;font-weight:700;font-size:var(--t14);line-height:1.4}
+.ns-bubble::before{content:"";position:absolute;left:-7px;bottom:12px;width:12px;height:12px;background:var(--surface);border-left:2px solid var(--line);border-bottom:2px solid var(--line);transform:rotate(45deg)}
+.ns-bubble p{margin:0}
+.mood-think .ns-face .disc{transform:rotate(-7deg)}
+.mood-happy .ns-face .disc{animation:ns-hop .6s cubic-bezier(.3,1.6,.5,1)}
+.mood-proud .ns-face .disc{box-shadow:0 0 0 3px var(--gold),0 5px 0 3px var(--gold-ledge);animation:ns-hop .7s cubic-bezier(.3,1.6,.5,1)}
+.mood-proud .ns-bubble{border-color:var(--gold);background:var(--gold-soft)}
+.mood-proud .ns-bubble::before{background:var(--gold-soft);border-color:var(--gold)}
+.mood-proud .ns-face::after{content:"✨";position:absolute;top:-8px;right:-10px;font-size:1.1rem;animation:ns-twinkle 1.6s ease-in-out infinite}
+.mood-sleepy .ns-face .disc{transform:rotate(9deg);filter:saturate(.6)}
+.ns-z{position:absolute;top:-8px;right:-8px;font:800 .8rem var(--f-display);color:var(--muted);letter-spacing:.1em;animation:ns-z 2.4s ease-in-out infinite}
+@keyframes ns-hop{0%{transform:translateY(8px) scale(.9)}60%{transform:translateY(-6px) scale(1.06)}100%{transform:none}}
+@keyframes ns-twinkle{0%,100%{transform:scale(.8) rotate(-10deg);opacity:.7}50%{transform:scale(1.15) rotate(10deg);opacity:1}}
+@keyframes ns-z{0%{transform:translate(0,4px);opacity:0}30%{opacity:1}100%{transform:translate(4px,-8px);opacity:0}}
+.td-log .nova-say{margin-top:2px}
+
+/* ---------- Today: lesson-node tiles ---------- */
+.td{background:transparent;border:0;border-radius:0;padding:0;margin-top:6px;gap:14px}
+.td-head{gap:12px}
+.td-h{font-size:var(--t30)}
+.td-sub{font-size:var(--t14)}
+.td-ring{width:68px;height:68px}
+.td-ring circle{stroke-width:6.5}
+.td-ring.full .td-fill{stroke:var(--gold)}
+.td-week{gap:8px 10px}
+.td-week .wk-dots{gap:4px}
+.td-week .wk-dot{width:32px;height:32px;font-size:12px;font-weight:800;color:var(--muted)}
+.td-week .wk-dot.on{color:#1E1B17;font-size:14px}
+.td-list{gap:12px}
+.td-row{position:relative;grid-template-columns:64px minmax(0,1fr) 44px;gap:12px;min-height:80px;padding:8px 12px 8px 8px;border-width:2px;border-radius:20px;background:var(--surface);box-shadow:0 4px 0 var(--line);transition:transform .1s ease-out,box-shadow .1s ease-out,background .2s}
+.td-row:active{transform:translateY(4px);box-shadow:none}
+.td-node{position:relative;width:64px;height:64px;display:grid;place-items:center}
+.td-node svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg);overflow:visible}
+.td-node circle{fill:none;stroke-width:5}
+.tn-track{stroke:var(--line)}
+.tn-fill{stroke:var(--gold);stroke-linecap:round;transition:stroke-dashoffset .7s cubic-bezier(.3,.9,.3,1)}
+.td-e{width:46px;height:46px;font-size:1.55rem;border:0;background:var(--bg)}
+.td-t b{font-size:var(--t16)}
+.td-s{font-size:var(--t12)}
+.td-plus{width:44px;height:44px;font-size:1.7rem;box-shadow:0 3px 0 var(--blue-ledge)}
+.td-row.done{background:var(--gold-soft);border-color:var(--gold);box-shadow:0 4px 0 var(--gold-ledge)}
+.td-row.done:active{box-shadow:none}
+.td-row.done .td-e{background:var(--gold);color:#1E1B17;font-size:1.5rem;font-weight:800}
+.td-row.done .td-plus{background:transparent;box-shadow:none}
+/* the tick: the node pops, the tile flashes gold, and a "+10 XP" (real XP) or a tick rises */
+.td-row.just{animation:td-flash .9s ease-out}
+.td-row.just .td-e{animation:td-tick .6s cubic-bezier(.2,1.5,.4,1)}
+.td-row.bump .td-node{animation:td-bump .45s cubic-bezier(.3,1.6,.5,1)}
+.td-pop{position:absolute;left:50%;top:-8px;z-index:3;transform:translate(-50%,0);padding:3px 9px;border-radius:99px;background:var(--gold);color:#1E1B17;font:800 .8rem/1.1 var(--f-display);white-space:nowrap;pointer-events:none;box-shadow:0 2px 0 var(--gold-ledge);animation:td-pop 1.3s ease-out forwards}
+@keyframes td-tick{0%{transform:scale(.4) rotate(-25deg)}60%{transform:scale(1.25) rotate(6deg)}100%{transform:none}}
+@keyframes td-bump{0%{transform:scale(1)}40%{transform:scale(1.12)}100%{transform:scale(1)}}
+@keyframes td-flash{0%{box-shadow:0 0 0 0 rgba(242,181,68,.75),0 4px 0 var(--gold-ledge)}100%{box-shadow:0 0 0 18px rgba(242,181,68,0),0 4px 0 var(--gold-ledge)}}
+@keyframes td-pop{0%{opacity:0;transform:translate(-50%,10px) scale(.6)}18%{opacity:1;transform:translate(-50%,-2px) scale(1.12)}70%{opacity:1;transform:translate(-50%,-14px) scale(1)}100%{opacity:0;transform:translate(-50%,-24px)}}
+.td-foot{padding-top:2px}
+.td-log .eventlist,.td-log ul{margin-top:0}
+
+/* ---------- "Day complete!": one full-screen end card ---------- */
+dialog.daydone{position:fixed;inset:0;margin:0;width:100%;height:100%;max-width:none;max-height:none;border:0;padding:0;background:var(--bg);color:var(--ink);overflow:auto;overscroll-behavior:contain}
+dialog.daydone::backdrop{background:var(--bg)}
+dialog.daydone[open]{display:block;animation:dd-in .35s ease-out}
+.dd-in{margin:0 auto;width:100%;max-width:440px;min-height:100%;display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px;padding:max(28px,env(safe-area-inset-top)) 20px 0}
+.dd-hero{position:relative;flex:none;width:196px;height:196px;display:grid;place-items:center;margin-top:auto}
+.dd-rays{position:absolute;inset:0;border-radius:50%;background:repeating-conic-gradient(var(--gold-soft) 0 12deg,transparent 12deg 24deg);animation:dd-spin 30s linear infinite}
+.dd-nova{position:relative;width:132px;height:132px;padding:6px;border:4px solid var(--gold);box-shadow:0 5px 0 var(--gold-ledge);animation:dd-pop .7s cubic-bezier(.3,1.5,.5,1) both}
+.dd-h{font-size:var(--t30);line-height:1.1;color:var(--blue)}
+.dd-sub{margin:-6px 0 0;font-size:var(--t16);color:var(--muted);font-weight:600;max-width:30ch}
+.dd-tiles{display:flex;flex-direction:column;gap:10px;width:100%}
+.dd-tile{display:flex;flex-direction:column;align-items:center;gap:8px;padding:12px;border:2px solid var(--line);border-radius:16px;background:var(--surface);box-shadow:0 3px 0 var(--line)}
+.dd-tl{font:800 var(--t12)/1 var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.dd-dot b{width:30px;height:30px}
+.dd-dots{gap:4px}
+.dd-sticker{background:var(--gold-soft);border-color:var(--gold);box-shadow:0 3px 0 var(--gold-ledge)}
+.dd-sticker.none{background:var(--surface);border-color:var(--line);box-shadow:0 3px 0 var(--line)}
+.dd-se{font-size:3rem;line-height:1;animation:dd-pop .7s .35s cubic-bezier(.3,1.5,.5,1) both}
+.dd-st{font-size:var(--t14);font-weight:600;line-height:1.4}
+.dd-foot{position:sticky;bottom:0;margin-top:auto;width:100%;display:flex;flex-direction:column;gap:10px;padding:14px 0 calc(16px + env(safe-area-inset-bottom));background:linear-gradient(to bottom,transparent,var(--bg) 28%)}
+@keyframes dd-in{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+@keyframes dd-pop{0%{transform:scale(.3);opacity:0}100%{transform:none;opacity:1}}
+@keyframes dd-spin{to{transform:rotate(360deg)}}
+@media (max-height:640px){.dd-hero{width:140px;height:140px}.dd-nova{width:96px;height:96px}}
+
+/* ---------- Add my pet: one question per screen ---------- */
+.ob{display:flex;flex-direction:column;min-height:calc(100dvh - 24px);overflow-x:clip}
+.ob-top{display:flex;align-items:center;gap:10px;padding:2px 0 14px}
+.ob-back{flex:none;display:grid;place-items:center;width:44px;height:44px;border-radius:12px;color:var(--muted)}
+.ob-back:hover{background:var(--sunk)}
+.ob-back .chev{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.ob-prog{position:relative;flex:1;height:16px;border-radius:99px;background:var(--line);overflow:hidden}
+.ob-prog span{position:relative;display:block;height:100%;min-width:16px;border-radius:99px;background:var(--blue);transition:width .5s cubic-bezier(.3,.9,.3,1)}
+.ob-prog span::after{content:"";position:absolute;top:4px;left:8px;right:8px;height:4px;border-radius:4px;background:rgba(255,255,255,.35)}
+.ob-card{display:flex;flex-direction:column;gap:18px;flex:1;animation:ob-in .3s ease-out both}
+.ob-h{font-size:var(--t30);line-height:1.1;color:var(--blue)}
+.ob-alt{margin:0;text-align:center}
+.ob-opts{display:grid;gap:10px}
+.ob-opts input{position:absolute;opacity:0;width:1px;height:1px;margin:0;pointer-events:none}
+.ob-opts label{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:96px;padding:10px 8px;border:2px solid var(--line);border-radius:20px;background:var(--surface);box-shadow:0 4px 0 var(--line);color:var(--ink);font-weight:800;text-align:center;cursor:pointer;transition:transform .1s ease-out,box-shadow .1s ease-out,background .15s}
+.ob-opts label:active{transform:translateY(4px);box-shadow:none}
+.ob-opts input:checked+label{border-color:var(--blue);background:var(--blue-soft);box-shadow:0 4px 0 var(--blue-ledge)}
+.ob-opts input:checked+label:active{box-shadow:none}
+.ob-opts input:focus-visible+label{outline:3px solid var(--focus);outline-offset:2px}
+.ob-e{font-size:2.9rem;line-height:1}
+.ob-sub{font-size:var(--t12);font-weight:700;color:var(--muted)}
+.ob-species{grid-template-columns:repeat(2,minmax(0,1fr))}
+.ob-species label:last-of-type{grid-column:1/-1;flex-direction:row;gap:12px;min-height:72px}
+.ob-species label:last-of-type .ob-e{font-size:2.2rem}
+.ob-times label{flex-direction:row;justify-content:flex-start;gap:14px;min-height:64px;padding:10px 16px;text-align:left}
+.ob-times .ob-e{font-size:1.9rem}
+.ob-times .ob-sub{margin-left:auto}
+.ob-icons{grid-template-columns:repeat(auto-fill,minmax(46px,1fr));gap:8px;max-height:176px;overflow-y:auto;overscroll-behavior:contain;padding:2px 2px 6px}
+.ob-icons label{min-height:50px;padding:0;border-radius:14px;box-shadow:0 3px 0 var(--line)}
+.ob-icons .ob-e{font-size:1.7rem}
+.ob-or{margin:0;text-align:center;font:800 var(--t12)/1 var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.ob-photo{display:flex;flex-direction:column;align-items:center;gap:8px}
+.ob-face .avatar{box-sizing:border-box;border:4px solid var(--gold);box-shadow:0 4px 0 var(--gold-ledge)}
+.ob-face .av-emoji{display:grid;place-items:center}
+.ob-choose{position:relative;cursor:pointer}
+.ob-choose:focus-within{outline:3px solid var(--focus);outline-offset:2px}
+.ob-msg{margin:0;text-align:center;min-height:1.4em}
+.ob-form{display:flex;flex-direction:column;gap:14px}
+.ob-form input[type="text"]{width:100%;min-height:64px;padding:0 16px;border:2px solid var(--ctl);border-radius:16px;background:var(--surface);color:var(--ink);font:800 1.6rem var(--f-display);text-align:center}
+.ob-form input[type="text"]:focus{border-color:var(--blue);outline:3px solid var(--blue-soft);outline-offset:0}
+.ob-you{display:flex;flex-direction:column;gap:6px;font-weight:700;font-size:var(--t14)}
+.ob-you input[type="text"]{min-height:52px;font:600 var(--t16) var(--f-body);text-align:left}
+.ob-you .hint{margin:0;font-weight:500;color:var(--muted)}
+.ob-day{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.ob-daytile{display:grid;grid-template-columns:64px minmax(0,1fr);align-items:center;gap:12px;min-height:80px;padding:8px 12px 8px 8px;border:2px solid var(--line);border-radius:20px;background:var(--surface);box-shadow:0 4px 0 var(--line)}
+.ob-daytile .td-node::before{content:"";position:absolute;inset:0;border-radius:50%;border:5px solid var(--line)}
+.ob-note{margin:0;font-size:var(--t14);color:var(--muted);text-align:center}
+.ob-cal{margin-top:-4px}
+.ob-cal[hidden]{display:none}
+.ob-foot{position:sticky;bottom:0;z-index:5;margin-top:auto;padding:14px 0 calc(8px + env(safe-area-inset-bottom));background:linear-gradient(to bottom,transparent,var(--bg) 26%)}
+.ob-next{min-height:56px;font-size:var(--t18);letter-spacing:.01em}
+.ob-next[aria-disabled="true"]{background:var(--sunk);color:var(--muted);box-shadow:0 3px 0 var(--line);opacity:1;cursor:not-allowed}
+@keyframes ob-in{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:none}}
+
+/* ---------- Welcome ---------- */
+.welcome{gap:12px;padding-top:8px}
+.welcome h1{font-size:clamp(1.6rem,8vw,2.1rem)}
+.welcome .lede{margin:-4px 0 0;color:var(--muted);font-weight:600}
+.welcome-ctas .btn{min-height:56px;font-size:var(--t18)}
+.welcome-how{gap:10px;margin-top:4px}
+.welcome-how li{border-width:2px;box-shadow:0 3px 0 var(--line)}
+
+/* ---------- Get ready (no pet yet) ---------- */
+.ready-say{margin:6px 0 14px}
+.ready-prog{margin:0 0 16px}
+.ready-prog .gbar{height:14px}
+.ready-count{margin:0 0 6px;font-size:var(--t14)}
+.ready-list{gap:10px;margin:0 0 12px}
+.ready-item{position:relative;grid-template-columns:34px minmax(0,1fr);gap:12px;align-items:center;padding:10px 14px;border:2px solid var(--line);border-radius:20px;background:var(--surface);box-shadow:0 4px 0 var(--line);transition:background .2s,border-color .2s,transform .1s}
+.ready-item input{position:relative;z-index:1;appearance:none;-webkit-appearance:none;display:grid;place-items:center;width:34px;height:34px;margin:0;border:3px solid var(--ctl);border-radius:50%;background:var(--bg);cursor:pointer}
+.ready-item input:checked{background:var(--gold);border-color:var(--gold)}
+.ready-item input:checked::after{content:"✓";font:800 18px/1 var(--f-body);color:#1E1B17}
+.ready-item input:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.ready-item label{align-items:center;min-height:56px}
+.ready-item label::after{content:"";position:absolute;inset:0;border-radius:20px}
+.ready-item:active{transform:translateY(3px)}
+.ready-item:has(input:checked){background:var(--gold-soft);border-color:var(--gold);box-shadow:0 4px 0 var(--gold-ledge)}
+.ready-item input:checked+label b{text-decoration:none;color:var(--ink)}
+.ready-e{font-size:1.7rem}
+.ready-t{display:flex;flex-direction:column;gap:2px;min-width:0}
+.ready-t b{font-size:var(--t16)}
+.ready-go{position:relative;z-index:2}
+.ready-vet{margin:0 0 8px;text-align:center}
+.ready-foot{position:sticky;bottom:0;z-index:5;display:flex;flex-direction:column;gap:10px;padding:14px 0 8px;background:linear-gradient(to bottom,transparent,var(--bg) 26%)}
+body:has(#tabbar:not([hidden])) .ready-foot{bottom:calc(var(--nav-h) + env(safe-area-inset-bottom))}
+.ready-foot .btn-blue{min-height:56px;font-size:var(--t18)}
+
+/* ---------- Home: partner card, quick tiles, due list ---------- */
+.sample-strip{height:calc(var(--strip-h) + 2px)} /* the button inside is a full 44 px tap target */
+.partner{border-width:2px;border-radius:20px;box-shadow:0 4px 0 var(--line)}
+.xp-row .gbar{height:12px}
+.extras{gap:8px}
+.ex-tile{border-width:2px;border-radius:18px;box-shadow:0 4px 0 var(--line)}
+.ex-tile:active{transform:translateY(4px);box-shadow:none}
+.due-today{background:var(--surface);border:2px solid var(--line);border-radius:20px;padding:12px 14px;box-shadow:0 4px 0 var(--line)}
+
+/* ---------- motion: respect the setting. Nothing moves, everything is still clear. ---------- */
+@media (prefers-reduced-motion:reduce){
+  .stat-pill,.tabbar a,.tabbar svg,.fab,.ls-tile,.td-row,.tn-fill,.ob-prog span,.ob-opts label,.ready-item,.pet-chip,.ex-tile,.ns-face .disc{transition:none}
+  .mood-happy .ns-face .disc,.mood-proud .ns-face .disc,.mood-proud .ns-face::after,.ns-z,
+  .td-row.just,.td-row.just .td-e,.td-row.bump .td-node,
+  .dd-rays,.dd-nova,.dd-se,dialog.daydone[open],.ob-card{animation:none}
+  .td-pop{animation:td-pop-still 1.6s ease-out forwards}
+  .ns-z{display:none}
+  .stat-pill:active,.tabbar a:active svg,.ls-tile:active,.td-row:active,.ob-opts label:active,.ready-item:active,.ex-tile:active,.pet-chip:active,.fab:active{transform:none}
+}
+@keyframes td-pop-still{0%{opacity:0}15%{opacity:1}80%{opacity:1}100%{opacity:0}}
