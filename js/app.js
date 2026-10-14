@@ -164,7 +164,8 @@ function drawChrome(name) {
   const tab = TAB_OF[name];
   tabbar.hidden = name === "welcome" || !pets.length;
   document.body.classList.toggle("care-only", !!S.settings.careOnly);
-  fab.hidden = !p || !["home", "train", "health", "adventures"].includes(name);
+  const onSkillPage = name === "train" && /^#\/train\/[^/]+/.test(location.hash); // the skill page has its own big Start button
+  fab.hidden = !p || !["home", "train", "health", "adventures"].includes(name) || onSkillPage;
   document.body.classList.toggle("has-fab", !fab.hidden);
   // A small dot on Health when something real is due or overdue for this pet.
   let due = false;
