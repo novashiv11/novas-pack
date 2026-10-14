@@ -8,9 +8,9 @@
 import { S, setSetting, eventsOf } from "../state.js";
 import { h, put, sheet, toast, isoDate, ago, buzz, motionOK, parseDate } from "../util.js";
 import { dueItems, skillsFor } from "../logic.js";
-import { logMeal, logTreat, logPoop, logWalk, logPlay, logEggs, logMed, markGiven, eventSheet, unwellSheet } from "../forms.js";
+import { logMeal, logTreat, logPoop, logWalk, logPlay, logEggs, logMed, markGiven, eventSheet, unwellSheet, quickLog } from "../forms.js";
 import { eventList, NOVA } from "./parts.js";
-import { trainingPicker, confetti, shareWinBtn, xpProgress } from "./gameui.js";
+import { trainingPicker, confetti, shareWinBtn, xpProgress, gameOf } from "./gameui.js";
 import { doNow, planSheet, planText, weekAndSticker } from "./doitnow.js";
 import * as G from "../game.js";
 
@@ -22,11 +22,14 @@ const ITEMS = {
   meals: { e: "🍽️", type: "meal", label: (p) => ({ rabbit: "Hay and greens", chicken: "Feed and water" }[p.species] || "Meals"), target: (p) => countOf(p, "meals", ["dog", "cat"].includes(p.species) ? 2 : 1), tap: () => logMeal(), counts: true },
   walk: { e: "🚶", type: "walk", label: (p) => (countOf(p, "walk", 1) > 1 ? "Walks" : "Walk"), target: (p) => countOf(p, "walk", 1), tap: () => logWalk(), for: ["dog"], counts: true },
   play: { e: "🧶", type: "play", label: () => "Play time", target: () => 1, tap: () => logPlay() },
-  train: { e: "🎯", type: "training", label: () => "1-minute training", target: () => 1, tap: (p) => doNow(p), when: (p) => skillsFor(p).length > 0 },
+  train: { e: "🎯", type: "training", label: (p) => { const q = p.id === "__new" ? null : gameOf(p).daily; return q ? `1-minute ${q.name}` : "1-minute training"; }, hint: () => "This week's skill · tap to start", target: () => 1, tap: (p) => doNow(p), when: (p) => skillsFor(p).length > 0 },
   poop: { e: "💩", type: "poop", label: (p) => (p.species === "rabbit" ? "Droppings check" : "Poop check"), target: () => 1, tap: () => logPoop() },
   eggs: { e: "🥚", type: "eggs", label: () => "Collect eggs", target: () => 1, tap: () => logEggs(), for: ["chicken"] },
 };
 const countOf = (p, id, def) => { const n = (p.__counts && p.__counts[id]) || ((S.settings.checklistN || {})[p.id] || {})[id]; return Number.isInteger(n) && n >= 1 && n <= 4 ? n : def; };
+/** The pet's own checklist items: [{ id, e, label }] in settings.customItems[petId]. */
+export const customsOf = (p) => ((S.settings.customItems || {})[p.id] || []).filter((c) => c && c.id && c.label);
+const CUSTOM_EMOJI = ["✅", "💧", "🪥", "👁️", "💊", "🧴", "🐾", "🧹"];
 const DEFAULTS = { dog: ["meals", "walk", "train"], cat: ["meals", "play", "train"], rabbit: ["meals", "poop", "play"], chicken: ["meals", "eggs"] };
 const allowed = (p, id) => { const it = ITEMS[id]; return it && (!it.for || it.for.includes(p.species)) && (!it.when || it.when(p)); };
 export function checklistOf(p) {
@@ -48,8 +51,14 @@ export function todayRows(p) {
     const it = ITEMS[id], list = todayOf(p, it.type), need = it.target(p), n = Math.min(list.length, need);
     const last = list[0] ? new Date(list[0].at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "";
     return { key: id, e: it.e, label: it.label(p), done: list.length >= need, n, need,
-      sub: list.length ? `${need > 1 ? `${n} of ${need} · ` : ""}${last}` : need > 1 ? `0 of ${need}` : "Tap when done", tap: () => it.tap(p) };
+      sub: list.length ? `${need > 1 ? `${n} of ${need} · ` : ""}${last}` : need > 1 ? `0 of ${need}` : it.hint ? it.hint(p) : "Tap when done", tap: () => it.tap(p) };
   });
+  // Your own items ("Eye drops", "Brush teeth"): one tap logs a task, no XP.
+  for (const c of customsOf(p)) {
+    const hit = todayOf(p, "task").find((e) => e.task === c.id);
+    rows.push({ key: `c-${c.id}`, e: c.e, label: c.label, done: !!hit, n: hit ? 1 : 0, need: 1,
+      sub: hit ? new Date(hit.at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Tap when done", tap: () => quickLog("task", { task: c.id, name: c.label }, c.label) });
+  }
   const dueIds = new Set();
   for (const it of dueItems(p.id)) {
     if (it.kind !== "med") continue;
@@ -238,6 +247,7 @@ export function todaySoFar(p) {
 function editList(p) {
   const cur = new Set(checklistOf(p));
   const counts = { ...((S.settings.checklistN || {})[p.id] || {}) };
+  let customs = customsOf(p).map((c) => ({ ...c }));
   sheet("Today's list", (body, close) => {
     const ids = Object.keys(ITEMS).filter((id) => allowed(p, id));
     put(body,
@@ -251,16 +261,43 @@ function editList(p) {
           [1, 2, 3, 4].map((n) => h("option", { value: String(n), selected: n === it.target(p) }, `${n} a day`)));
         return h("div.td-pick-row", box, sel);
       })),
+      ownBox(p, () => customs, (v) => { customs = v; }),
       h("div.row-btns", h("button.btn.btn-blue", { type: "button", "data-k": "td-save", onclick: async () => {
         const list = ids.filter((id) => cur.has(id));
         if (!list.length) { toast("Keep at least one thing on the list."); return; }
         try {
           await setSetting("checklistN", { ...(S.settings.checklistN || {}), [p.id]: counts });
+          await setSetting("customItems", { ...(S.settings.customItems || {}), [p.id]: customs });
           await setSetting("checklist", { ...(S.settings.checklist || {}), [p.id]: list }, { quiet: false });
         } catch { toast("Couldn't save on this device."); return; }
         close();
       } }, "Save")));
   });
+}
+
+/** "Your own" in Edit list: a list of your items with remove, and a small add form (max 6). */
+function ownBox(p, get, set) {
+  const list = h("ul.own-list");
+  const draw = () => list.replaceChildren(...get().map((c) => h("li.own-item", h("span", `${c.e} ${c.label}`),
+    h("button.mini-btn", { type: "button", "data-k": `own-del-${c.id}`, "aria-label": `Remove ${c.label}`, onclick: () => { set(get().filter((x) => x.id !== c.id)); draw(); } }, "✕"))));
+  let emoji = CUSTOM_EMOJI[0];
+  const name = h("input", { id: "own-name", type: "text", maxlength: "40", placeholder: "e.g. Eye drops, brush teeth", "data-k": "own-name" });
+  const pick = h("div.own-emoji", { role: "group", "aria-label": "Icon" }, CUSTOM_EMOJI.map((e) => h(`button.chip${e === emoji ? ".on" : ""}`, { type: "button", "aria-pressed": String(e === emoji), "aria-label": `Icon ${e}`, onclick: (ev) => {
+    emoji = e; pick.querySelectorAll(".chip").forEach((b) => { const on = b === ev.currentTarget; b.classList.toggle("on", on); b.setAttribute("aria-pressed", String(on)); });
+  } }, e)));
+  const add = () => {
+    const label = name.value.trim().slice(0, 40);
+    if (!label) { name.focus(); return; }
+    if (get().length >= 6) { toast("Six of your own is the limit. Keep the list short and doable."); return; }
+    set([...get(), { id: `c${Date.now().toString(36)}`, e: emoji, label }]); name.value = ""; draw();
+  };
+  draw();
+  return h("section.own", { "aria-labelledby": "own-h" },
+    h("h3.own-h", { id: "own-h" }, "Your own"),
+    list,
+    h("label.small", { for: "own-name" }, "Add something you do every day"),
+    h("div.own-add", name, h("button.btn.btn-line.sm", { type: "button", "data-k": "own-add", onclick: add }, "Add")),
+    pick);
 }
 
 // ---------- the "+" sheet ----------

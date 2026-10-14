@@ -24,7 +24,7 @@ export const SCHEMA = 2;
 export const STORES = ["pets", "events", "records", "meds", "foods", "settings", "adventures", "skillChecks", "academy", "journal", "daily"];
 /** Stores whose rows belong to one pet (they have a petId index and go when the pet is deleted). */
 const PET_STORES = ["events", "records", "meds", "foods", "adventures", "skillChecks"];
-const EVENT_TYPES = ["poop", "meal", "treat", "med", "walk", "training", "weight", "vet", "symptom", "care", "eggs", "play"];
+const EVENT_TYPES = ["poop", "meal", "treat", "med", "walk", "training", "weight", "vet", "symptom", "care", "eggs", "play", "task"];
 
 // ---------- storage health ----------
 

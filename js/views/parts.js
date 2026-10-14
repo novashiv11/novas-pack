@@ -128,6 +128,7 @@ export function eventText(e) {
     case "meal": case "treat": return [e.name, e.amount].filter(Boolean).join(" · ") || (e.type === "meal" ? "Meal" : "Treat");
     case "med": return e.name || "Medicine";
     case "walk": return e.minutes ? `${e.minutes} min` : "Walk";
+    case "task": return e.name || "Task";
     case "play": return e.minutes ? `${e.minutes} min` : "Play time";
     case "eggs": return `${e.count ?? 0} egg${e.count === 1 ? "" : "s"}`;
     case "training": {

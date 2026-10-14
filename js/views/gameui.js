@@ -324,13 +324,14 @@ export async function logSession(p, sk, { minutes, mood, more, mission } = {}) {
   buzz(10);
   const counted = G.sessionCounts(S.events.filter((e) => e.petId === p.id), ev);
   const name = sk ? skillName(sk) : "General practice";
+  const fullName = sk ? sk.title || name : name;
   const msg = counted
     ? more ? `That counts! ${name}.${xpText(before, after, ev)} Want 4 more minutes?` : `Session logged: ${name}.${xpText(before, after, ev)} ${MOOD_LINE[mood] || "I supervised."}`
     : S.events.filter((e) => e.petId === p.id && e.type === "training" && (e.skillId || "general") === (ev.skillId || "general") && G.dayKey(e.at) === G.dayKey(ev.at)).length > G.CAPS.sessions
       ? `Logged: ${name}. Only ${G.CAPS.sessions} sessions per skill count each day, so this one's just for fun. Give that skill a rest.`
       : `Logged: ${name}. Only ${G.CAPS.sessionsPerDay} sessions a day count, so this one's just for fun. Rest is training too.`;
   if (mission && counted) {
-    missionComplete(p, before, after, { title: `${name} · ${minutes || 1} min · ${MOOD_LINE[mood] || "I supervised."}`, name, line: MOOD_LINE[mood] || "I supervised.", minutes: minutes || 1, mood, xp: Math.min(G.XP.session, Math.max(0, after.trainerXp - before.trainerXp)) || G.XP.session, bonus: Math.max(0, after.trainerXp - before.trainerXp - G.XP.session), firstToday, more,
+    missionComplete(p, before, after, { title: `${name} · ${minutes || 1} min · ${MOOD_LINE[mood] || "I supervised."}`, name: fullName, line: MOOD_LINE[mood] || "I supervised.", minutes: minutes || 1, mood, xp: Math.min(G.XP.session, Math.max(0, after.trainerXp - before.trainerXp)) || G.XP.session, bonus: Math.max(0, after.trainerXp - before.trainerXp - G.XP.session), firstToday, more,
       win: { kind: "session", title: name, sub: `${minutes || 1} min together`, emoji: "🎯" } });
     return ev;
   }

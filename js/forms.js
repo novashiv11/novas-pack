@@ -36,6 +36,7 @@ export const TYPES = {
   vet: { emoji: "🩺", label: "Vet visit" },
   eggs: { emoji: "🥚", label: "Eggs" },
   play: { emoji: "🧶", label: "Play" },
+  task: { emoji: "✅", label: "Task" },
 };
 
 /** The Unwell checklist, in plain words. Ids are the shared contract with logic.js (healthAlerts). */
@@ -311,6 +312,7 @@ function profileFields(p, open, species, sex) {
 }
 
 export function openPetSheet(existing, { openProfile = false } = {}) {
+  if (!existing && !S.pets.some((x) => x.sample)) { location.hash = "#/welcome/add"; return; } // the one-question-a-screen flow
   sheet(existing ? `Edit ${existing.name}` : "Add a pet", (body, close) => {
     if (!existing) body.append(h("p.sheet-intro", "Only the name is needed. Free. No account to lose."));
     const sample = !existing && S.pets.find((x) => x.sample);

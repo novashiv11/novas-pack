@@ -275,3 +275,13 @@ body:has(#tabbar:not([hidden])) .ready-foot{bottom:calc(var(--nav-h) + env(safe-
 .ob-meals .chip{min-width:48px;justify-content:center;text-align:center}
 .ob-meals .chip.on{background:var(--blue);color:var(--on-blue);border-color:var(--blue)}
 @media (prefers-reduced-motion:reduce){.td-row.next{animation:none}.home-more>summary::after{transition:none}}
+/* v7.2: your own checklist items */
+.own{margin:10px 0 14px;padding-top:10px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
+.own-h{font-size:var(--t16);margin:0}
+.own-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.own-item{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:44px;padding:4px 4px 4px 12px;border-radius:12px;background:var(--surface);border:1px solid var(--line);font-weight:700}
+.own-add{display:flex;gap:8px}
+.own-add input{flex:1;min-width:0;min-height:44px;padding:8px 12px;border-radius:12px;border:1.5px solid var(--ctl);background:var(--surface);color:var(--ink);font:inherit}
+.own-emoji{display:flex;flex-wrap:wrap;gap:6px}
+.own-emoji .chip{min-width:44px;justify-content:center;font-size:1.1rem}
+.own-emoji .chip.on{background:var(--blue-soft);border-color:var(--blue)}

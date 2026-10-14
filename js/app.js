@@ -87,7 +87,7 @@ function draw() {
     history.replaceState(null, "", `#/${name}`);
   }
   if (!activePets().length && name !== "welcome" && name !== "ready") { pendingQuick = ""; name = "welcome"; arg = ""; if (location.hash !== "#/welcome") history.replaceState(null, "", "#/welcome"); }
-  if (activePets().length && name === "welcome") { name = "home"; arg = ""; history.replaceState(null, "", "#/home"); }
+  if (activePets().length && name === "welcome" && arg !== "add") { name = "home"; arg = ""; history.replaceState(null, "", "#/home"); }
   const key = `${name}/${arg}/${sub}`;
   const navigated = key !== lastRoute;
   lastRoute = key;

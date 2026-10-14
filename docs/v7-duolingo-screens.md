@@ -154,3 +154,9 @@ This doc is the brief for 5 parallel agents. Each one owns its own screens and f
 - The next undone row on Today pulses with a "Next" chip.
 - Home's level card and extras fold behind one row ("Bran: level 1 · badges, art, journal").
 - Onboarding asks meals a day (1 to 3).
+
+## v7.2 (14 Oct)
+- **Your own checklist items:** Edit list → "Your own" (e.g. 💧 Eye drops, 🪥 Brush teeth), up to 6 per pet. One tap logs a `task` event; no XP.
+- The training row names this week's skill ("1-minute Recall"). One skill a week is on purpose, so it actually levels up.
+- Adding a second pet uses the same step-by-step flow as the first.
+- Mission complete shows the full skill name.
