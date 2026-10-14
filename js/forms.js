@@ -35,6 +35,7 @@ export const TYPES = {
   weight: { emoji: "⚖️", label: "Weight" },
   vet: { emoji: "🩺", label: "Vet visit" },
   eggs: { emoji: "🥚", label: "Eggs" },
+  play: { emoji: "🧶", label: "Play" },
 };
 
 /** The Unwell checklist, in plain words. Ids are the shared contract with logic.js (healthAlerts). */
@@ -423,6 +424,8 @@ const treatsInUse = () => forPet("foods").filter((f) => f.kind === "treat" && f.
 
 export function logPoop() { return quickLog("poop", { score: 3 }, "a typical poop"); }
 /** Hens: how many eggs today (a number, so it opens the small form). */
+/** Play time together (no XP: it counts as showing up). */
+export function logPlay() { return quickLog("play", {}, "play time"); }
 export function logEggs() { eventSheet("eggs"); }
 export function logMeal() {
   const cur = currentFood();

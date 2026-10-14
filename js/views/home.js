@@ -2,6 +2,7 @@
 // you, and Nova's line of the day), the trainer strip, this week's quests, quick logs, badges, and one gentle nudge.
 
 import { doItNowCard } from "./doitnow.js";
+import { todayCard, todaySoFar } from "./today.js";
 import { S, pet, setSetting, save, logsOf, LOG_TYPES } from "../state.js";
 import { h, put, em, fmtDate, isoDate, ageText, sinceText, isAnniversary, DAY, toast } from "../util.js";
 import { healthAlerts, backupDue, dueItems, dueText } from "../logic.js";
@@ -16,41 +17,26 @@ import { installCard } from "../install.js";
 
 export function home(main) {
   const p = pet();
-  if (S.settings.careOnly) { careHome(main, p); return; }
-  const a = gameOf(p);
-  const tr = trainerFor(p);
+  const care = !!S.settings.careOnly;
+  const a = care ? null : gameOf(p);
+  const tr = care ? null : trainerFor(p);
   put(main,
     sampleStrip(p),
     alertCard(healthAlerts(p, Date.now()), p),
+    todayCard(p),
     dueToday(p),
-    doItNowCard(p),
-    quickLog(p),
-    partnerCard(p, a, tr),
-    forYou(p),
-    weekly(p, a),
-    extras(p, a, tr),
+    todaySoFar(p),
+    care ? careLinks() : partnerCard(p, a, tr),
+    care ? null : extras(p, a, tr),
     nudge(p, a, tr),
   );
 }
 
-/** Care diary only (More → Care diary only): no levels, quests or stickers. Due today, one-tap logs, and the diary. */
-function careHome(main, p) {
-  const a = { stage: null };
-  const st = stageText(p, a);
-  put(main,
-    sampleStrip(p),
-    h("section.care-head", { "aria-labelledby": "page-title" },
-      h("div.partner-av", avatar(p, 56)),
-      h("div", h("h1.partner-name", { tabindex: "-1", id: "page-title" }, p.name), st ? h("p.partner-stage", st) : null)),
-    alertCard(healthAlerts(p, Date.now()), p),
-    dueToday(p),
-    quickLog(p),
-    h("nav.extras.care-links", { "aria-label": "Care diary" },
-      h("a.ex-tile", { href: "#/health", "data-k": "care-health" }, h("span.ex-e", { "aria-hidden": "true" }, "🩺"), h("span.ex-l", "Health")),
-      h("a.ex-tile", { href: "#/health/food", "data-k": "care-food" }, h("span.ex-e", { "aria-hidden": "true" }, "🍽️"), h("span.ex-l", "Food")),
-      h("a.ex-tile", { href: "#/health/vet", "data-k": "care-vet" }, h("span.ex-e", { "aria-hidden": "true" }, "📋"), h("span.ex-l", "Vet summary")),
-      h("a.ex-tile", { href: "#/more/profile", "data-k": "care-profile" }, h("span.ex-e", { "aria-hidden": "true" }, "📇"), h("span.ex-l", "Contacts"))),
-    nudge(p, null, null));
+function careLinks() {
+  const tile = (href, e, label, k) => h("a.ex-tile", { href, "data-k": k }, h("span.ex-e", { "aria-hidden": "true" }, e), h("span.ex-l", label));
+  return h("nav.extras.care-links", { "aria-label": "Care diary" },
+    tile("#/health", "🩺", "Health", "care-health"), tile("#/health/food", "🍽️", "Food", "care-food"),
+    tile("#/health/vet", "📋", "Vet summary", "care-vet"), tile("#/more/profile", "📇", "Contacts", "care-profile"));
 }
 
 function stageText(p, a) {
@@ -65,12 +51,12 @@ function partnerCard(p, a, tr) {
   const st = stageText(p, a);
   const stats = a.stats.filter((s) => !s.na);
   const lv = a.level;
-  return h("section.partner", { "aria-labelledby": "page-title" },
+  return h("section.partner", { "aria-labelledby": "partner-name" },
     h("div.partner-top",
       h("div.partner-av", avatar(p, 72)),
       h("div.partner-id",
         h("p.partner-eyebrow", p.sample ? "Sample partner" : "Your partner"),
-        h("h1.partner-name", { tabindex: "-1", id: "page-title" }, p.name),
+        h("h2.partner-name", { id: "partner-name" }, p.name),
         st ? h("p.partner-stage", st)
           : h("button.linkish.partner-stage", { type: "button", "data-k": "add-bday", onclick: () => openPetSheet(p) }, "+ Add birthday")),
       h("div.lv-medal", h("span.lv-l", "Level"), h("b.lv-n", String(lv.level)))),
@@ -94,6 +80,7 @@ function dueToday(p) {
   for (const x of pets) {
     for (const it of dueItems(x.id)) {
       if (it.kind === "record" && it.st.state === "soon") continue;
+      if (it.kind === "med" && x.id === p.id) continue; // on the Today list
       if (it.kind === "med") {
         const st = it.st;
         rows.push(h("li.due-row",
@@ -215,7 +202,7 @@ function questHref(q) {
   if (q.id === "adventure" || q.id === "walks") return "#/adventures";
   return "#/health";
 }
-function weekly(p, a) {
+export function weekly(p, a) {
   const w = a.weekly;
   return h("section.sec.week-sec", { "aria-labelledby": "wk-h" },
     h("div.sec-row", h("h2.sec-title", { id: "wk-h" }, "This week's quests"), h("span.small.muted", `${w.doneCount} of ${w.quests.length} done`)),

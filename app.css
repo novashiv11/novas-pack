@@ -989,3 +989,43 @@ main .form > .row-btns:last-child .btn-blue{flex:1;min-height:56px;font-size:var
 @keyframes wh-boop{30%{transform:scale(1.15) rotate(-6deg)}60%{transform:scale(.95) rotate(4deg)}}
 @keyframes wh-up{0%{opacity:0;transform:translate(-50%,10px)}30%{opacity:1}100%{opacity:0;transform:translate(-50%,-30px)}}
 @media (prefers-reduced-motion:reduce){.wh-rays,.welcome-hero .welcome-nova,.welcome-hero.hi .welcome-nova,.welcome-hero.hi .wh-pop{animation:none}.welcome-grid li{transform:none}}
+
+/* ---------- v6 Today checklist, "+" button, log sheet ---------- */
+.td{background:var(--surface);border:2px solid var(--blue);border-radius:16px;padding:14px;margin-top:8px;display:flex;flex-direction:column;gap:10px}
+.td-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.td-h{font-size:var(--t30);line-height:1;color:var(--blue);margin:0}
+.td-sub{margin:4px 0 0;font-size:var(--t14);color:var(--muted);font-weight:600}
+.td-ring{position:relative;width:64px;height:64px;flex:none;display:grid;place-items:center}
+.td-ring svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+.td-ring circle{fill:none;stroke-width:6}
+.td-track{stroke:var(--line)}
+.td-fill{stroke:var(--gold);stroke-linecap:round;transition:stroke-dashoffset .4s ease-out}
+.td-ring b{position:relative;font:800 var(--t16) var(--f-display);font-variant-numeric:tabular-nums}
+.td-ring.full b{color:var(--tan-text)}
+.td-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.td-row{width:100%;display:grid;grid-template-columns:44px minmax(0,1fr) 32px;align-items:center;gap:10px;min-height:60px;padding:8px 10px;border-radius:14px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;text-align:left;cursor:pointer;box-shadow:0 3px 0 var(--line);transition:transform .1s ease-out,box-shadow .1s ease-out}
+.td-row:active{transform:translateY(3px);box-shadow:none}
+.td-e{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-size:1.4rem;background:var(--surface);border:1.5px solid var(--line)}
+.td-t{display:flex;flex-direction:column;min-width:0}
+.td-t b{font-size:var(--t16);line-height:1.2}
+.td-s{font-size:var(--t12);font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums}
+.td-plus{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--blue);color:var(--on-blue);font:800 1.2rem/1 var(--f-display)}
+.td-row.done{background:var(--gold-soft);border-color:var(--gold);box-shadow:0 3px 0 var(--gold-ledge)}
+.td-row.done .td-e{background:var(--gold);border-color:var(--gold);color:#1E1B17;font-weight:800;font-size:1.2rem}
+.td-row.done .td-plus{background:transparent}
+.td-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.td-foot .linkish{min-height:44px;font-size:var(--t14);font-weight:700}
+.td-pick{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+.td-log{margin-top:18px}
+.fab{position:fixed;right:max(16px,calc((100% - 640px)/2 + 16px));bottom:calc(var(--nav-h) + 16px + env(safe-area-inset-bottom));z-index:19;width:60px;height:60px;border-radius:50%;border:0;background:var(--blue);color:var(--on-blue);font:800 2rem/1 var(--f-display);box-shadow:0 4px 0 var(--blue-ledge),0 8px 20px rgba(0,0,0,.25);cursor:pointer;display:grid;place-items:center}
+.fab:active{transform:translateY(3px);box-shadow:0 1px 0 var(--blue-ledge)}
+.fab[hidden]{display:none}
+.first-run .fab{display:none}
+.ls-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:10px}
+.ls-tile{display:flex;flex-direction:column;align-items:center;gap:2px;min-height:92px;padding:8px 4px;border-radius:16px;border:1.5px solid var(--line);background:var(--surface);box-shadow:0 3px 0 var(--line);color:var(--ink);font:inherit;cursor:pointer}
+.ls-tile:active{transform:translateY(3px);box-shadow:none}
+.ls-e{font-size:1.7rem;line-height:1.1}
+.ls-tile b{font-size:var(--t14)}
+.ls-ago{font-size:var(--t12);color:var(--muted);font-weight:600;text-align:center}
+body.app main{padding-bottom:88px}
+@media (prefers-reduced-motion:reduce){.td-row,.td-fill{transition:none}}

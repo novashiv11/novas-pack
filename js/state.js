@@ -101,7 +101,7 @@ export async function wipe() {
 
 // ---------- v1.1 helpers ----------
 /** Diary entries that count as "a log" for onboarding and nudges (not weights or vet visits). */
-export const LOG_TYPES = ["poop", "meal", "treat", "med", "walk", "training", "symptom", "care", "eggs"];
+export const LOG_TYPES = ["poop", "meal", "treat", "med", "walk", "training", "symptom", "care", "eggs", "play"];
 /** Every real pet, archived ones too (their logs still count for the human's XP and stay in the diary). */
 export function realPets() { return S.pets.filter((p) => !p.sample); }
 /** Pets you can switch to and log for: everyone not archived (fosters gone home, rehomed, or remembered). */

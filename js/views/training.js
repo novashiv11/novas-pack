@@ -8,6 +8,7 @@ import { h, put, em, weeklyStreak, motionOK, fmtDay, fmtTime, toast, confirmBox,
 import { skillsFor, progressOf } from "../logic.js";
 import { pageHead, subBar, sampleStrip, NOVA, moreBtn } from "./parts.js";
 import { speciesOf, eventSheet } from "../forms.js";
+import { weekly } from "./home.js";
 import { gameOf, pips, bar, levelText, placeFor, skillName, startSession, selfCheck, logSession, trainingPicker, howTo } from "./gameui.js";
 import { LEVEL_REQ, CAPS, countedSessions, dayKey, weekBounds } from "../game.js";
 
@@ -50,7 +51,7 @@ export function training(main, arg, sub) {
   if (!p.sample && quizSkills(p).length) {
     put(main, h("p.lc-link", h("a.text-link", { href: "#/placement", "data-k": "lc-open" }, p.placement ? "Redo the level check" : "Already trained? Take the level check")));
   }
-  put(main, streakCard(p));
+  put(main, streakCard(p), weekly(p, a));
   for (const g of GROUPS) {
     const list = skills.filter((s) => s.level === g);
     if (!list.length) continue;

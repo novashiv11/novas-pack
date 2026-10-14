@@ -115,6 +115,7 @@ export function eventText(e) {
     case "meal": case "treat": return [e.name, e.amount].filter(Boolean).join(" · ") || (e.type === "meal" ? "Meal" : "Treat");
     case "med": return e.name || "Medicine";
     case "walk": return e.minutes ? `${e.minutes} min` : "Walk";
+    case "play": return e.minutes ? `${e.minutes} min` : "Play time";
     case "eggs": return `${e.count ?? 0} egg${e.count === 1 ? "" : "s"}`;
     case "training": {
       const sk = S.content.SKILLS.find((s) => s.id === e.skillId);
@@ -145,7 +146,7 @@ export function eventList(events, onEdit, { showDay = false, single = false } = 
         h("span.tl-body",
           h("span.tl-top", h("time.tl-time", { datetime: new Date(e.at).toISOString() }, when),
             single ? null : h("span.tl-type", t.label)),
-          h("span.tl-text", text),
+          text && text !== t.label ? h("span.tl-text", text) : null,
           e.note && e.type !== "vet" ? h("span.tl-note", e.note) : null),
         e.type === "poop" ? poopPill(e.score) : null,
         h("span.vh", ", edit")));

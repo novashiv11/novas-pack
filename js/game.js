@@ -22,7 +22,7 @@ export const QUEST_PLACE = ["at home", "at home", "at home", "in the garden", "o
 
 export const XP = { session: 10, levelUp: 50, walk: 5, stamp: 20, care: 5, lesson: 40, quest: 30, weekBonus: 50 };
 /** Logs that mean time together (they count as showing up). Meals, treats, poop and medicines are care admin, not a minute together. */
-export const TOGETHER = ["training", "walk", "care"];
+export const TOGETHER = ["training", "walk", "care", "play"];
 export const CAPS = { sessions: 3, sessionsPerDay: 10, walks: 2, carePerDay: 5, stampsPerDay: 2 };
 export const MAX_LEVEL = 50;
 export const RANKS = [

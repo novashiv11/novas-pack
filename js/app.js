@@ -29,6 +29,7 @@ function studio(main, ...args) {
   });
 }
 import { ready } from "./views/ready.js";
+import { logSheet } from "./views/today.js";
 import { more } from "./views/more.js";
 import { avatar } from "./views/parts.js";
 import { openPetSheet, eventSheet, medGivenSheet } from "./forms.js";
@@ -44,6 +45,9 @@ const main = document.getElementById("main");
 const switcher = document.getElementById("switcher");
 const appbar = document.querySelector(".appbar");
 const tabbar = document.getElementById("tabbar");
+// The "+" button: every log type in one sheet, from any main screen (v6).
+const fab = h("button.fab", { type: "button", "data-k": "fab", "aria-label": "Log something", hidden: true, onclick: () => logSheet(pet()) }, h("span", { "aria-hidden": "true" }, "+"));
+document.body.append(fab);
 
 function route() {
   let [name, arg, sub] = location.hash.replace(/^#\/?/, "").split("/").map((x) => { try { return decodeURIComponent(x || ""); } catch { return ""; } });
@@ -150,6 +154,7 @@ function drawChrome(name) {
   const tab = TAB_OF[name];
   tabbar.hidden = name === "welcome" || !activePets().length;
   document.body.classList.toggle("care-only", !!S.settings.careOnly);
+  fab.hidden = !p || !["home", "train", "health", "adventures"].includes(name);
   tabbar.querySelectorAll("a").forEach((a) => {
     if (a.dataset.tab === tab) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
   });
