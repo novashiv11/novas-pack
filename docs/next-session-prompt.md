@@ -25,7 +25,7 @@ Every request Shiv made is tracked in `docs/crq.md` and is either done, or waiti
    - Add `.well-known/assetlinks.json`: package `com.novaspack.app`, the SHA-256 from the `android` release notes.
    - Remind Shiv that a stable key needs the `ANDROID_KEYSTORE_PASSWORD` secret.
 6. **Ship.**
-   - Commit as Shiv (`git config user.name Shiv`; `user.email 340319757+novashiv11@users.noreply.github.com`), with the Claude co-author lines.
+   - Commit with Shiv as author and Claude as committer (needed for signing): `git config user.name Claude`, `user.email noreply@anthropic.com`, then `git commit --author="Shiv <340319757+novashiv11@users.noreply.github.com>"`, with the Claude co-author lines.
    - Push to `main` and the session branch.
    - Update `docs/STATUS.md` and `docs/crq.md`.
 7. **Reply:** at most 5 bullets, plus exactly what Shiv must do.
