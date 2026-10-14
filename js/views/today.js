@@ -98,10 +98,10 @@ export function novaSay(text, mood = "happy", extra = null) {
 }
 
 // One tap logs once: a short lock stops double taps, and a done row asks before logging another.
-let lockUntil = 0;
+const lockUntil = new Map(); // per row, so a quick tap on another row still works
 function tapRow(e, r) {
-  if (Date.now() < lockUntil) return;
-  lockUntil = Date.now() + 1200;
+  if (Date.now() < (lockUntil.get(r.key) || 0)) return;
+  lockUntil.set(r.key, Date.now() + 1200);
   buzz(12);
   if (r.done && !r.key.startsWith("med-")) { toast(`${r.label}: done for today.`, [["Log another", () => r.tap()]]); return; }
   r.tap();

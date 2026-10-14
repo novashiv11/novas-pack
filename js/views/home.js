@@ -50,8 +50,8 @@ export function statPills(p) {
   const sample = p.sample ? h("p.small.muted.ss-note", "These are example numbers from Nova's sample.") : null;
   const big = (e, title, text) => [h("div.ss-top", h("span.ss-e", { "aria-hidden": "true" }, e), h("p.ss-title", title)), h("p.ss-text", text)];
   return [
-    pill("week", "🔥", `${ws.count}/7`, `${ws.count} of 7 days this week`, () => sheet("Days this week", (body, close) => put(body,
-      big("🔥", `${ws.count} of 7 days`, "A day counts when you spend time together: training, a walk, play or a care task like brushing. Meals and poop checks are care admin, so they don't. Three days wins the week."),
+    pill("week", "🗓️", `${ws.count}/7`, `${ws.count} of 7 days this week`, () => sheet("Days this week", (body, close) => put(body,
+      big("🗓️", `${ws.count} of 7 days`, "A day counts when you spend time together: training, a walk, play or a care task like brushing. Meals and poop checks are care admin, so they don't. Three days wins the week."),
       h("div.ss-week", { role: "img", "aria-label": `${ws.count} of 7 days this week` }, ws.week.map((d) => h(`span.ss-day${d.on ? ".on" : ""}${d.today ? ".today" : ""}`, { "aria-hidden": "true" },
         h("i", "SMTWTFS"[parseDate(d.date).getDay()]), h("b", d.on ? "✓" : "")))),
       h("p.ss-text", "Miss a day? Nothing is lost. Monday is a fresh start."),

@@ -134,3 +134,17 @@ This doc is the brief for 5 parallel agents. Each one owns its own screens and f
 2. The co-captain merges A, then B, C, D and E, resolving conflicts and keeping both sides.
 3. Then one independent QA agent checks the whole app; fix every Critical and Major; push.
 4. Shiv gets before and after screenshots.
+
+## Shipped (14 Oct)
+- All 5 areas are merged.
+- QA found 0 Critical and 3 Major issues, all fixed:
+  - "Already did it today" now works once a day (no XP farming).
+  - Each Today row has its own tap lock.
+  - The Unwell page no longer shows the general "log a meal" nudge.
+- The days-this-week pill now uses 🗓️, not 🔥: it isn't a streak.
+
+**Next (from QA's "still not Duolingo-grade" list):**
+- An animated XP bar on Mission complete and Day complete ("30 XP to level 2").
+- One "Continue" next-step button on Today and Train, with the next node pulsing on the path.
+- Fold everything below Today on Home behind "More for Bran".
+- Ask "meals per day" in onboarding.

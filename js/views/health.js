@@ -24,7 +24,7 @@ export function health(main, arg) {
   const items = [...dueItems(p.id), ...careDue(p)].map((it, i) => [it, i]).sort((a, b) => late(b[0]) - late(a[0]) || a[1] - b[1]).map(([it]) => it);
   put(main,
     sampleStrip(p),
-    pageHead("Health", novaSays(p, items, logsOf(p.id))),
+    pageHead("Health", seg === "unwell" ? null : novaSays(p, items, logsOf(p.id))),
     alertCard(healthAlerts(p, now), p),
     h("nav.seg.seg-nav.hv-seg", { "aria-label": "Health sections" }, SEGS.map(([k, label, e]) =>
       h("a", { href: k === "care" ? "#/health" : `#/health/${k}`, "aria-current": k === seg ? "page" : null, "data-k": `seg-${k}` },
@@ -359,7 +359,7 @@ function unwellSection(main, p) {
           h("b", a.reason),
           a.advice ? h("p", a.advice) : null)))
         : h("p", `I don't have a specific warning for this. You know ${p.name}: if you're worried, or it carries on, call your vet.`),
-      calls.length ? h("div.hv-calls", calls) : h("a.text-link", { href: "#/more/profile", "data-k": "uw-add-vet" }, "Add your vet's number"),
+      calls.length ? h("div.hv-calls", calls) : h("a.text-link", { href: "#/more/profile", "data-k": "uw-add-vet-2" }, "Add your vet's number"),
       h("p.small.hv-disclaimer", "This is a diary, not a diagnosis. Your vet knows your pet. Out of hours, call an emergency vet."));
     root.replaceChildren(
       h("h2.vh", { id: "uw-h" }, `Result for ${p.name}`),
