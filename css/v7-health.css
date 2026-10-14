@@ -1,1 +1,237 @@
-/* v7 health area (docs/v7-duolingo-screens.md). Owned by one agent; loaded after app.css. */
+/* v7 health area (docs/v7-duolingo-screens.md). Owned by one agent; loaded after app.css.
+   Everything here is scoped to hv-* classes (plus the few app classes the Health views reuse). Tokens only, so dark mode follows. */
+
+/* ---------- shared bits ---------- */
+.hv-badge{display:grid;place-items:center;flex:none;width:44px;height:44px;border-radius:14px;background:var(--blue-soft);font-size:22px;line-height:1}
+.hv-badge.big{width:56px;height:56px;border-radius:16px;font-size:30px}
+.hv-bubble{align-items:center;gap:12px;margin-top:2px}
+.hv-bubble .nova-face{width:40px;height:40px;padding:3px;flex:none}
+.hv-say{position:relative;flex:1;min-width:0;padding:9px 12px;border-radius:14px;background:var(--surface);border:1.5px solid var(--line);color:var(--ink);font-weight:600}
+.hv-say::before{content:"";position:absolute;left:-6px;top:50%;width:10px;height:10px;background:var(--surface);border-left:1.5px solid var(--line);border-bottom:1.5px solid var(--line);transform:translateY(-50%) rotate(45deg)}
+.hv-listcard{padding:4px 8px}
+.hv-flags,.today-diary,.hv-guide{margin-top:20px}
+.hv-flags > summary{font-weight:800}
+
+/* ---------- the one segmented control ---------- */
+.hv-seg{margin-top:14px;gap:4px;padding:4px 4px 7px;background:var(--line)}
+.hv-seg a{flex-direction:column;gap:0;min-height:56px;padding:4px 2px;font-size:var(--t14);line-height:1.15;font-weight:800;color:var(--ink);transition:transform .08s ease-out}
+.hv-seg-e{font-size:20px;line-height:1.2}
+.hv-seg a[aria-current="page"]{background:var(--blue);color:var(--on-blue);box-shadow:0 3px 0 var(--blue-ledge)}
+.hv-seg a:active{transform:translateY(2px)}
+
+/* ---------- sub-pages (vaccines, medicines, weight, vet) ---------- */
+.hv-subhead{display:flex;align-items:center;gap:12px;margin-top:18px}
+.hv-back{display:inline-flex;align-items:center;gap:2px;min-height:44px;padding:0 14px 0 8px;border-radius:12px;background:var(--surface);border:1.5px solid var(--line);color:var(--blue);font-weight:800;font-size:var(--t14);text-decoration:none;flex:none}
+.hv-back .chev,.hv-tile .chev,.hv-report .chev,.hv-guide .chev,.hv-fulllink .chev{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.hv-subtitle{font-size:var(--t22);line-height:1.15;min-width:0;flex:1;color:var(--ink)}
+.hv-subhead + .top-actions{margin-top:12px}
+
+/* ---------- due soon ---------- */
+.hv-due{gap:8px;padding:12px 14px}
+.hv-due .due-top{grid-template-columns:44px minmax(0,1fr);gap:12px;align-items:center}
+.hv-due .card-actions .btn{flex:1}
+.hv-due.overdue .hv-badge{background:var(--tan-soft)}
+.hv-clear{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 14px;border-radius:16px;background:var(--blue-soft);border:1.5px solid var(--blue)}
+.hv-clear-tick{display:grid;place-items:center;flex:none;width:40px;height:40px;border-radius:50%;background:var(--blue);color:var(--on-blue);font-weight:800;font-size:20px}
+.hv-clear-body{flex:1 1 140px;min-width:0}
+.hv-clear-body b{color:var(--blue)}
+
+/* ---------- at a glance: dashboard tiles ---------- */
+.hv-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.hv-tile{position:relative;display:flex;flex-direction:column;gap:4px;min-width:0;padding:12px 14px 14px;border-radius:16px;background:var(--surface);border:1.5px solid var(--line);box-shadow:0 3px 0 var(--line);color:var(--ink);text-decoration:none;transition:transform .08s ease-out,box-shadow .08s ease-out}
+.hv-tile:hover{border-color:var(--blue)}
+.hv-tile:active{transform:translateY(3px);box-shadow:0 0 0 var(--line)}
+.hv-tile.hv-wide{grid-column:1/-1}
+.hv-tile-top{display:flex;align-items:center;gap:10px;min-width:0}
+.hv-tile-top .chev{margin-left:auto;color:var(--muted)}
+.hv-tile-l{font-family:var(--f-display);font-weight:800;font-size:var(--t16);line-height:1.2;min-width:0;overflow-wrap:anywhere}
+.hv-tile:not(.hv-wide) .hv-tile-l{margin-top:4px}
+.hv-tile-v{font-family:var(--f-display);font-weight:800;font-size:var(--t30);line-height:1.1;color:var(--blue);margin-top:2px}
+.hv-tile-v.hv-none{font-size:var(--t18);color:var(--muted)}
+.hv-tile-s{font-size:var(--t14);color:var(--muted);font-weight:600}
+.hv-tile .pill{align-self:flex-start;margin-top:2px;white-space:normal}
+.hv-spark-box{position:relative;display:block;height:44px;margin-top:6px}
+.hv-spark{display:block;width:100%;height:100%;overflow:visible}
+.hv-spark-area{fill:var(--blue-soft);stroke:none}
+.hv-spark-line{fill:none;stroke:var(--blue);stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round;vector-effect:non-scaling-stroke}
+.hv-spark-dot{position:absolute;width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;background:var(--blue);border:2px solid var(--surface);box-sizing:content-box}
+
+/* ---------- the poop week ---------- */
+.hv-week{gap:6px;margin-top:6px}
+.hv-week .ws-n{width:min(44px,100%);font-size:var(--t16)}
+.hv-week.mini .ws-n{width:min(34px,100%);font-size:var(--t14)}
+.hv-week .ws-day.today .ws-l{color:var(--blue);font-weight:800}
+.hv-week .ws-day.today .ws-n{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--blue)}
+.hv-week .ws-day.has .ws-n{background:var(--blue);color:var(--on-blue)}
+.hv-week .ws-day.off .ws-n{background:var(--tan-soft);color:var(--tan-text)}
+.hv-weekcard{gap:12px;padding:14px 16px}
+.hv-weekhead{display:flex;align-items:center;gap:12px}
+.hv-big{font-family:var(--f-display);font-size:var(--t22);line-height:1.1;display:block}
+
+/* ---------- care routine: a ring per task ---------- */
+.hv-care{gap:8px}
+.hv-carerow{flex-direction:row;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:10px 12px}
+.hv-ring{position:relative;flex:none;display:grid;place-items:center;width:52px;height:52px}
+.hv-ring svg{position:absolute;inset:0;width:100%;height:100%}
+.hv-ring-bg{fill:none;stroke:var(--sunk);stroke-width:5}
+.hv-ring-fg{fill:none;stroke:var(--blue);stroke-width:5;stroke-linecap:round}
+.hv-ring.soon .hv-ring-fg,.hv-ring.late .hv-ring-fg{stroke:var(--tan)}
+.hv-ring.none .hv-ring-bg{stroke:var(--ctl);stroke-dasharray:3 5}
+.hv-ring-t{position:relative;font-size:var(--t12);font-weight:800;color:var(--ink);line-height:1}
+.hv-ring.late .hv-ring-t{color:var(--tan-text)}
+.hv-care-body{flex:100 1 90px;min-width:0;display:flex;flex-direction:column;gap:2px;align-items:flex-start}
+.hv-care-body .card-h{width:100%}
+.hv-care-body .pill{margin-top:2px}
+.hv-care-act{flex:1 1 auto;display:flex;align-items:center;justify-content:flex-end;gap:8px}
+.hv-care-act:empty{display:none}
+.hv-care-act .more-btn{margin-left:0}
+.hv-carerow.overdue,.hv-carerow.today{border-color:var(--tan)}
+
+/* ---------- vaccines, medicines: record cards ---------- */
+.hv-rec{gap:8px;padding:12px 14px}
+.hv-rec .card-top{flex-wrap:wrap;align-items:center;gap:8px 10px}
+.hv-rec .card-top .card-h{flex:1 1 110px;min-width:0}
+.hv-rec .pill{white-space:normal}
+.hv-rec.overdue{border-left:6px solid var(--tan)}
+.hv-rec.today,.hv-rec.soon{border-left:6px solid var(--blue)}
+.hv-rec .card-actions .btn{flex:1}
+.hv-remind{gap:10px}
+.hv-remind .btn{align-self:flex-start}
+
+/* ---------- weight ---------- */
+.hv-weightcard{gap:12px;padding:14px 16px}
+.hv-weighthead{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 12px}
+.hv-weighthead .pill{align-self:center}
+.hv-weightcard .chart{border:0;background:transparent;border-radius:0}
+.hv-weightcard .inline-form{padding-top:4px;border-top:1px dashed var(--line)}
+ul.hv-listcard{list-style:none;margin:0}
+
+/* ---------- vet page ---------- */
+.hv-vetbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 12px;padding:10px 12px;border-radius:16px;background:var(--surface);border:1.5px solid var(--line);margin-top:14px}
+.hv-vetbar-body{flex:1 1 120px;min-width:0}
+.hv-vetbar-body b{display:block;font-family:var(--f-display)}
+.hv-vetbar-calls{display:flex;flex-wrap:wrap;gap:8px}
+.hv-report{display:flex;align-items:center;gap:12px;margin-top:12px;padding:14px;border-radius:16px;background:var(--blue-soft);border:2px solid var(--blue);color:var(--ink);text-decoration:none;transition:transform .08s ease-out}
+.hv-report:active{transform:translateY(2px)}
+.hv-report .hv-badge{background:var(--surface)}
+.hv-report-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.hv-report-body b{font-family:var(--f-display);font-size:var(--t18);color:var(--blue)}
+.hv-report .chev{color:var(--blue)}
+
+/* ---------- unwell: picker, then one calm result ---------- */
+.hv-uwtop{display:flex;flex-direction:column;gap:2px;margin-top:6px}
+.hv-uwtop .hv-vetbar{margin-top:10px}
+.hv-uw{display:flex;flex-direction:column;gap:12px;margin-top:20px;scroll-margin-top:12px}
+.hv-q{font-size:var(--t22);line-height:1.15}
+.hv-count{font-size:var(--t14);font-weight:700;color:var(--muted);margin-top:-6px}
+.hv-syms{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.hv-sym{position:relative;display:block;min-width:0;scroll-margin-bottom:170px}
+.hv-sym input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer;z-index:1}
+.hv-sym-box{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:92px;padding:10px 6px;border-radius:16px;background:var(--surface);border:2px solid var(--line);box-shadow:0 3px 0 var(--line);text-align:center;color:var(--ink);transition:transform .08s ease-out,box-shadow .08s ease-out,background .12s}
+.hv-sym-e{font-size:30px;line-height:1.1}
+.hv-sym-t{font-weight:800;font-size:var(--t14);line-height:1.2;overflow-wrap:anywhere}
+.hv-sym input:checked + .hv-sym-box{background:var(--blue-soft);border-color:var(--blue);box-shadow:0 3px 0 var(--blue-ledge)}
+.hv-sym input:checked + .hv-sym-box .hv-sym-t{color:var(--blue)}
+.hv-sym input:checked + .hv-sym-box::after{content:"✓";position:absolute;top:6px;right:6px;display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--blue);color:var(--on-blue);font-size:12px;font-weight:800;line-height:1}
+.hv-sym input:active + .hv-sym-box{transform:translateY(3px);box-shadow:0 0 0 transparent}
+.hv-sym input:focus-visible + .hv-sym-box{outline:3px solid var(--focus);outline-offset:2px}
+.hv-toxhint{padding:10px 12px;border-radius:12px;background:var(--tan-soft);color:var(--ink)}
+.hv-toxhint[hidden]{display:none}
+.hv-uw-cta .btn:disabled{background:var(--sunk);color:var(--muted);box-shadow:0 3px 0 var(--line);cursor:not-allowed}
+.hv-fulllink{align-self:flex-start;background:none;border:0;padding:0 4px;font:inherit;font-weight:800;font-size:var(--t14);cursor:pointer;text-align:left}
+.hv-result{display:flex;flex-direction:column;gap:12px;padding:16px;border-radius:16px;border:2px solid var(--blue);background:var(--blue-soft);animation:hv-up .22s ease-out}
+.hv-result.lv-today{background:var(--tan-soft);border-color:var(--tan)}
+.hv-result.lv-emergency{background:var(--danger-soft);border-color:var(--danger)}
+.hv-result:focus{outline:none}
+.hv-result:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+.hv-result-top{display:flex;align-items:center;gap:12px}
+.hv-result-e{display:grid;place-items:center;flex:none;width:52px;height:52px;border-radius:50%;background:var(--surface);font-size:28px;line-height:1}
+.hv-result-kicker{font-size:var(--t12);font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.hv-result-h{font-size:var(--t22);line-height:1.1;color:var(--blue)}
+.hv-result.lv-today .hv-result-h{color:var(--tan-text)}
+.hv-result.lv-emergency .hv-result-h{color:var(--danger-text)}
+.hv-result-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px}
+.hv-result-list b{display:block}
+.hv-result-list p{font-size:var(--t14);margin-top:2px}
+.hv-calls{display:flex;flex-direction:column;gap:8px}
+.hv-disclaimer{color:var(--muted)}
+.hv-picked{display:flex;flex-wrap:wrap;gap:6px}
+.hv-chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:var(--surface);border:1.5px solid var(--line);font-size:var(--t14);font-weight:700}
+.hv-notefield{margin-top:2px}
+@keyframes hv-up{from{transform:translateY(16px);opacity:0}to{transform:none;opacity:1}}
+
+/* ---------- food ---------- */
+.hv-food{padding:16px;gap:10px;border:2px solid var(--blue-soft);box-shadow:0 3px 0 var(--blue-soft)}
+.hv-food-top{display:flex;align-items:center;gap:12px}
+.hv-food-body{flex:1;min-width:0}
+.hv-food-body .card-h{font-size:var(--t18)}
+.hv-amount{font-size:var(--t14)}
+.hv-since{align-self:flex-start;white-space:normal}
+.hv-chips{list-style:none;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:8px}
+.hv-treat{display:inline-flex;align-items:stretch;max-width:100%;border-radius:14px;border:1.5px solid var(--line);background:var(--surface);overflow:hidden}
+.hv-treat.on{border-color:var(--blue);background:var(--blue-soft)}
+.hv-treat button{font:inherit;color:var(--ink);background:none;border:0;cursor:pointer}
+.hv-treat-sw{display:flex;align-items:center;gap:8px;min-width:0;min-height:44px;padding:6px 10px 6px 12px;text-align:left;font-weight:700;font-size:var(--t14)}
+.hv-treat-tick{display:grid;place-items:center;flex:none;width:22px;height:22px;border-radius:50%;background:var(--blue);color:var(--on-blue);font-size:13px;font-weight:800;line-height:1}
+.hv-treat.off .hv-treat-tick{background:var(--sunk);color:var(--muted)}
+.hv-treat.off .hv-treat-name{color:var(--muted);text-decoration:line-through}
+.hv-treat-txt{display:flex;flex-direction:column;min-width:0}
+.hv-treat-name{overflow-wrap:anywhere;font-weight:800}
+.hv-treat-note{font-size:var(--t12);font-weight:600;color:var(--muted);overflow-wrap:anywhere}
+.hv-treat-state{font-size:var(--t12);font-weight:700;color:var(--muted)}
+.hv-treat.on .hv-treat-state{display:none}
+.hv-treat-edit{display:grid;place-items:center;flex:none;width:44px;min-height:44px;border-left:1.5px solid var(--line) !important;color:var(--muted) !important;font-size:16px}
+.hv-treat.on .hv-treat-edit{border-left-color:var(--blue) !important}
+.hv-treat button:active{background:var(--sunk)}
+.hv-treat button:focus-visible{outline-offset:-3px}
+.hv-warn{display:flex;flex-direction:column;gap:12px;margin-top:22px;padding:14px 16px;border-radius:16px;border:2px solid var(--danger);background:var(--danger-soft)}
+.hv-warn-head{display:flex;align-items:flex-start;gap:12px}
+.hv-warn-e{font-size:28px;line-height:1.1;flex:none}
+.hv-warn h2{color:var(--danger-text);font-size:var(--t18)}
+.hv-warn .form{gap:10px}
+.hv-warn .btn{align-self:flex-start}
+.hv-guide{padding:0 16px}
+.hv-guide > summary{display:flex;align-items:center;gap:12px;min-height:68px;padding:10px 0;list-style:none;cursor:pointer}
+.hv-guide > summary::-webkit-details-marker{display:none}
+.hv-guide > summary::marker{content:""}
+.hv-guide-t{display:flex;flex-direction:column;flex:1;min-width:0}
+.hv-guide-t b{font-family:var(--f-display);font-size:var(--t16)}
+.hv-guide .chev{color:var(--muted);transition:transform .15s}
+.hv-guide[open] > summary .chev{transform:rotate(90deg)}
+.hv-guide .feed-tips{gap:8px}
+.hv-guide .feed-tips li{grid-template-columns:36px minmax(0,1fr);gap:10px;padding:10px 12px;border-radius:12px;background:var(--sunk);align-items:center}
+.hv-guide .ft-e{font-size:24px;line-height:1;text-align:center}
+.hv-guide .text-link{margin-top:6px}
+
+/* ---------- the vet summary: one clean page ---------- */
+.hv-sumhint{margin-top:10px}
+.hv-paper{gap:16px;padding:20px 18px;border-radius:12px;border:1px solid var(--line);border-top:6px solid var(--blue);box-shadow:0 10px 28px rgba(30,27,23,.10)}
+.hv-paper .sum-head{padding-bottom:14px;border-bottom:2px solid var(--line)}
+.sum-kicker{font-size:var(--t12);font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.hv-paper .sum-title{font-size:var(--t22);line-height:1.15;overflow-wrap:anywhere}
+.sum-sec{display:flex;flex-direction:column;gap:6px;break-inside:avoid}
+.summary .sum-sec h3{margin:0;padding-bottom:4px;border-bottom:1px solid var(--line);font-size:var(--t12);font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--blue)}
+.hv-paper .sum-table th{width:38%}
+.hv-paper .sum-table tr:first-child th,.hv-paper .sum-table tr:first-child td{border-top:0}
+.summary li{overflow-wrap:anywhere}
+
+/* ---------- motion, desktop, print ---------- */
+@media (min-width:520px){
+  .hv-syms{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .hv-grid .hv-tile:not(.hv-wide){grid-column:auto}
+}
+@media (prefers-reduced-motion:reduce){
+  .hv-seg a,.hv-tile,.hv-sym-box,.hv-report,.hv-guide .chev{transition:none}
+  .hv-tile:active,.hv-sym input:active + .hv-sym-box,.hv-seg a:active,.hv-report:active{transform:none}
+  .hv-result{animation:none}
+}
+@media print{
+  .hv-paper{border:0;border-radius:0;box-shadow:none;padding:0}
+  .summary .sum-sec h3{color:#000;border-bottom-color:#999}
+  .hv-sumhint{display:none}
+}
+.sum-table a{display:inline-flex;align-items:center;min-height:44px;font-weight:700}
+/* the "+" button floats bottom-right: keep the sticky action clear of it */
+.hv-cta{padding-right:max(92px,calc((100% - 608px)/2 + 92px))}
+.hv-guide > summary::before{display:none}
+.hv-unitsrow{justify-content:flex-end}

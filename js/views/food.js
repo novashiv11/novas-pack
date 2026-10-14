@@ -1,9 +1,10 @@
-// Food (a segment of the Health tab): current food and its history, treats in use, allergies, and the meal and treat log.
+// Food (a segment of the Health tab, v7 cards): current food as a card, treats as chips, "Don't feed" as a warning card,
+// the meal and treat log, and the feeding guide behind a "How to feed" card.
 
 import { S, forPet, save } from "../state.js";
 import { h, put, em, fmtDate, daysBetween, isoDate, toast, DAY } from "../util.js";
 import { foodSheet, treatSheet, eventSheet, logMeal, logTreat } from "../forms.js";
-import { emptyState, eventList, cardTitle } from "./parts.js";
+import { emptyState, eventList, cardTitle, chevron } from "./parts.js";
 import { GUIDE_PHOTOS } from "../../data/media.js";
 
 // How to feed: short, practical tips with a real photo. Vet first: amounts and special diets are your vet's call.
@@ -29,8 +30,9 @@ const FEED_TIPS = {
 function feedingGuide(p) {
   const tips = FEED_TIPS[p.species === "dog" ? "dog" : "other"];
   const ph = p.species === "dog" ? GUIDE_PHOTOS.feeding : null;
-  return h("details.more-box.feed-guide", { "data-k": "feed-guide" },
-    h("summary", `How to feed ${p.name}: tips with pictures`),
+  return h("details.more-box.feed-guide.hv-guide", { "data-k": "feed-guide" },
+    h("summary", h("span.hv-badge", { "aria-hidden": "true" }, "📖"),
+      h("span.hv-guide-t", h("b", `How to feed ${p.name}`), h("span.small.muted", "Tips with pictures")), chevron()),
     ph ? h("figure.feed-photo", h("img", { src: ph.src, alt: ph.alt, loading: "lazy", width: "640", height: "633" }), h("figcaption", "Nova's dinner: soaked kibble + a spoon of wet food")) : null,
     h("ul.feed-tips", tips.map(([e, t, d]) => h("li", h("span.ft-e", { "aria-hidden": "true" }, e), h("span", h("b", `${t}. `), d)))),
     h("p.small.muted", "Your vet knows your pet: ask them about amounts, special diets and any weight change."),
@@ -43,6 +45,7 @@ export function foodSection(main, p) {
   const past = foods.filter((f) => f.kind === "food" && f !== current).sort((a, b) => (b.since || "").localeCompare(a.since || ""));
   const treats = foods.filter((f) => f.kind === "treat").sort((a, b) => (b.inUse !== false) - (a.inUse !== false) || a.name.localeCompare(b.name));
   const log = S.events.filter((e) => e.petId === p.id && (e.type === "meal" || e.type === "treat") && Date.now() - e.at < 7 * DAY).sort((a, b) => b.at - a.at);
+  const meals = log.filter((e) => e.type === "meal").length, treatLogs = log.length - meals;
 
   const allergies = h("textarea", { id: "allergy", rows: "3", maxlength: "1000", value: p.allergies || "", placeholder: "e.g. chicken makes her itchy; no grapes" });
   const allergyForm = h("form.form", { novalidate: true, onsubmit: async (e) => {
@@ -50,18 +53,20 @@ export function foodSection(main, p) {
     await save("pets", { ...p, allergies: allergies.value.trim() || undefined });
     toast("Saved.");
   } },
-  h("div.field", h("label", { for: "allergy" }, "Allergies and don't-feed list"), allergies),
+  h("div.field", h("label", { for: "allergy" }, "Allergies and foods to avoid"), allergies),
   h("button.btn.btn-line.sm", { type: "submit", "data-k": "save-allergy" }, "Save list"));
   const foodTitle = (f) => [f.brand, f.product].filter(Boolean).join(" · ") || "Food";
 
   put(main,
-    feedingGuide(p),
     h("section.sec", { "aria-labelledby": "h-food" },
       h("h2.sec-title", { id: "h-food" }, "Current food"),
-      current ? h("div.card.food-card",
-        cardTitle(foodTitle(current), () => foodSheet(current), "edit-food"),
-        current.amount ? h("p", h("b", "Per day: "), current.amount) : null,
-        current.since ? h("p.small.muted", `Since ${fmtDate(current.since)} (${daysBetween(current.since, isoDate())} days)`) : null,
+      current ? h("div.card.food-card.hv-food",
+        h("div.hv-food-top",
+          h("span.hv-badge.big", { "aria-hidden": "true" }, "🥣"),
+          h("div.hv-food-body",
+            cardTitle(foodTitle(current), () => foodSheet(current), "edit-food"),
+            current.amount ? h("p.hv-amount", h("b", "Per day: "), current.amount) : null)),
+        current.since ? h("span.pill.ok.hv-since", `Since ${fmtDate(current.since)} · ${daysBetween(current.since, isoDate())} days`) : null,
         current.note ? h("p.small.muted", current.note) : null,
         h("div.card-actions",
           h("button.btn.btn-blue.sm", { type: "button", "data-k": "change-food", onclick: () => foodSheet() }, "Change food")))
@@ -69,23 +74,35 @@ export function foodSection(main, p) {
           h("button.btn.btn-blue.sm", { type: "button", "data-k": "change-food", onclick: () => foodSheet() }, "Add current food"))),
     h("section.sec", { "aria-labelledby": "h-treats" },
       h("div.sec-row", h("h2.sec-title", { id: "h-treats" }, "Treats"),
-        h("button.btn.btn-line.sm", { type: "button", "data-k": "add-treat", onclick: () => treatSheet() }, "Add a treat")),
-      treats.length ? h("ul.treat-list", treats.map((t) => h("li",
-        h("div", h("b", t.name), t.note ? h("p.small.muted", t.note) : null),
-        h("button.switch", { type: "button", role: "switch", "aria-checked": String(t.inUse !== false), "data-k": `sw-${t.id}`,
-          onclick: () => save("foods", { ...t, inUse: t.inUse === false }) },
-          h("span.switch-label", t.inUse !== false ? "In use" : "Stopped"), h("span.vh", `: ${t.name}`)),
-        h("button.mini-btn", { type: "button", "data-k": `edit-${t.id}`, onclick: () => treatSheet(t) }, "Edit", h("span.vh", ` ${t.name}`)))))
-        : emptyState("No treats listed. Add the ones you use, and switch them off when you stop.")),
-    h("section.sec", { "aria-labelledby": "h-allergy" },
-      h("h2.sec-title", { id: "h-allergy" }, "Don't feed"),
+        h("button.btn.btn-line.sm", { type: "button", "data-k": "add-treat", onclick: () => treatSheet() }, em("➕"), " Add a treat")),
+      treats.length ? h("ul.hv-chips", treats.map((t) => {
+        const on = t.inUse !== false;
+        return h(`li.hv-treat.${on ? "on" : "off"}`,
+          h("button.hv-treat-sw", { type: "button", role: "switch", "aria-checked": String(on), "data-k": `sw-${t.id}`,
+            onclick: () => save("foods", { ...t, inUse: t.inUse === false }) },
+          h("span.hv-treat-tick", { "aria-hidden": "true" }, on ? "✓" : "–"),
+          h("span.hv-treat-txt", h("span.hv-treat-name", t.name), t.note ? h("span.hv-treat-note", t.note) : null),
+          h("span.hv-treat-state", on ? "In use" : "Stopped"),
+          h("span.vh", `: ${on ? "in use" : "stopped"}. Tap to switch.`)),
+          h("button.hv-treat-edit", { type: "button", "data-k": `edit-${t.id}`, onclick: () => treatSheet(t) },
+            h("span", { "aria-hidden": "true" }, "✎"), h("span.vh", `Edit ${t.name}`)));
+      }))
+        : emptyState("No treats listed. Add the ones you use, and switch them off when you stop."),
+    ),
+    h("section.hv-warn", { "aria-labelledby": "h-allergy" },
+      h("div.hv-warn-head",
+        h("span.hv-warn-e", { "aria-hidden": "true" }, "⚠️"),
+        h("div", h("h2.sec-title", { id: "h-allergy" }, "Don't feed"), h("p.small", "Allergies and foods that don't agree with them. It goes on the vet summary."))),
       allergyForm),
     h("section.sec", { "aria-labelledby": "h-log" },
       h("div.sec-row", h("h2.sec-title", { id: "h-log" }, "Last 7 days"),
         h("div.row-btns",
           h("button.btn.btn-line.sm", { type: "button", "data-k": "f-meal", onclick: logMeal }, em("🍽️"), " Log meal"),
           h("button.btn.btn-line.sm", { type: "button", "data-k": "f-treat", onclick: logTreat }, em("🦴"), " Log treat"))),
-      log.length ? eventList(log, (e) => eventSheet(e.type, e), { showDay: true }) : emptyState("No meals or treats logged this week.")),
+      log.length ? [h("p.small.muted", `${meals} meal${meals === 1 ? "" : "s"} and ${treatLogs} treat${treatLogs === 1 ? "" : "s"} logged`),
+        h("div.card.hv-listcard", eventList(log, (e) => eventSheet(e.type, e), { showDay: true }))]
+        : emptyState("No meals or treats logged this week.")),
+    feedingGuide(p),
     past.length ? h("section.sec", { "aria-labelledby": "h-fh" },
       h("h2.sec-title", { id: "h-fh" }, "Food history"),
       h("ul.cards", past.map((f) => h("li.card",
