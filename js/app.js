@@ -155,6 +155,7 @@ function drawChrome(name) {
   tabbar.hidden = name === "welcome" || !activePets().length;
   document.body.classList.toggle("care-only", !!S.settings.careOnly);
   fab.hidden = !p || !["home", "train", "health", "adventures"].includes(name);
+  document.body.classList.toggle("has-fab", !fab.hidden);
   tabbar.querySelectorAll("a").forEach((a) => {
     if (a.dataset.tab === tab) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
   });

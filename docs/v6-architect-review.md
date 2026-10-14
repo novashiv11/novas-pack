@@ -31,3 +31,14 @@
 
 ## Usage rules
 Build directly (no research agents). Reuse `quickLog`, `doNow`, `eventList`, `dueItems` and `celebrate`. One smoke script per step. One QA agent at the end.
+
+## Shipped (14 Oct)
+Steps 1 to 6 are done. QA found 0 Critical and 4 Major issues, all fixed:
+- The toast now sits above "+".
+- A 1.2 s tap lock stops double taps, and a done row asks "Log another".
+- Medicines given today stay on the list, ticked.
+- The week strip is on Today.
+
+Also: meal and walk counts (1 to 4) in Edit list, "Already did it today" in the 1-minute timer, and at least one item must stay on the list.
+
+**Next ideas:** custom checklist items (e.g. "eye drops"), rotating the daily training skill, merging stacked celebrations into one, and showing Today before the level check.

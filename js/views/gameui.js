@@ -339,7 +339,8 @@ export function startSession(p, sk, { seconds } = {}) {
     };
     // Done shows up after a minute, so a session is a real one.
     const doneBtn = h("button.btn.btn-blue", { type: "button", "data-k": "timer-done", hidden: true, onclick: finish }, "Done");
-    const runRow = h("div.row-btns.timer-btns", pauseBtn, doneBtn);
+    const runRow = h("div.row-btns.timer-btns", pauseBtn, doneBtn,
+      one ? h("button.linkish", { type: "button", "data-k": "timer-already", onclick: () => { clearInterval(timer); close(); logSession(p, sk, { minutes: 1, mood: 2, mission: true }); } }, "Already did it today") : null);
     const tick = () => {
       const left = total - elapsed();
       clock.textContent = fmtClock(left);

@@ -1032,3 +1032,9 @@ body.app main{padding-bottom:88px}
 
 .train-nav{margin:6px 0 10px}
 .care-only .tabbar{grid-template-columns:repeat(3,minmax(0,1fr))}
+
+body.has-fab .toast{bottom:calc(var(--nav-h) + 92px + env(safe-area-inset-bottom))}
+.td-week{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.td-wk-t{font-size:var(--t12);font-weight:700;color:var(--muted)}
+.td-pick-row{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.td-pick-row select{min-height:44px;border-radius:12px;border:1.5px solid var(--ctl);background:var(--surface);color:var(--ink);font:inherit;padding:0 8px}

@@ -9,20 +9,21 @@ import { dueItems, skillsFor } from "../logic.js";
 import { logMeal, logTreat, logPoop, logWalk, logPlay, logEggs, logMed, markGiven, eventSheet, unwellSheet } from "../forms.js";
 import { eventList } from "./parts.js";
 import { celebrate, trainingPicker } from "./gameui.js";
-import { doNow, planSheet, planText } from "./doitnow.js";
+import { doNow, planSheet, planText, weekAndSticker } from "./doitnow.js";
 
 const startOfDay = () => { const d = new Date(); d.setHours(0, 0, 0, 0); return d.getTime(); };
 const todayOf = (p, type) => S.events.filter((e) => e.petId === p.id && e.type === type && e.at >= startOfDay()).sort((a, b) => b.at - a.at);
 
 /** Every item a checklist can hold. `for` limits it to some species; `target` is how many make it done. */
 const ITEMS = {
-  meals: { e: "🍽️", type: "meal", label: (p) => ({ rabbit: "Hay and greens", chicken: "Feed and water" }[p.species] || "Meals"), target: (p) => (["dog", "cat"].includes(p.species) ? 2 : 1), tap: () => logMeal() },
-  walk: { e: "🚶", type: "walk", label: () => "Walk", target: () => 1, tap: () => logWalk(), for: ["dog"] },
+  meals: { e: "🍽️", type: "meal", label: (p) => ({ rabbit: "Hay and greens", chicken: "Feed and water" }[p.species] || "Meals"), target: (p) => countOf(p, "meals", ["dog", "cat"].includes(p.species) ? 2 : 1), tap: () => logMeal(), counts: true },
+  walk: { e: "🚶", type: "walk", label: (p) => (countOf(p, "walk", 1) > 1 ? "Walks" : "Walk"), target: (p) => countOf(p, "walk", 1), tap: () => logWalk(), for: ["dog"], counts: true },
   play: { e: "🧶", type: "play", label: () => "Play time", target: () => 1, tap: () => logPlay() },
   train: { e: "🎯", type: "training", label: () => "1-minute training", target: () => 1, tap: (p) => doNow(p), when: (p) => skillsFor(p).length > 0 },
   poop: { e: "💩", type: "poop", label: (p) => (p.species === "rabbit" ? "Droppings check" : "Poop check"), target: () => 1, tap: () => logPoop() },
   eggs: { e: "🥚", type: "eggs", label: () => "Collect eggs", target: () => 1, tap: () => logEggs(), for: ["chicken"] },
 };
+const countOf = (p, id, def) => { const n = ((S.settings.checklistN || {})[p.id] || {})[id]; return Number.isInteger(n) && n >= 1 && n <= 4 ? n : def; };
 const DEFAULTS = { dog: ["meals", "walk", "train"], cat: ["meals", "play", "train"], rabbit: ["meals", "poop", "play"], chicken: ["meals", "eggs"] };
 const allowed = (p, id) => { const it = ITEMS[id]; return it && (!it.for || it.for.includes(p.species)) && (!it.when || it.when(p)); };
 export function checklistOf(p) {
@@ -38,11 +39,21 @@ export function todayRows(p) {
     return { key: id, e: it.e, label: it.label(p), done: list.length >= need,
       sub: list.length ? `${need > 1 ? `${n} of ${need} · ` : ""}${last}` : need > 1 ? `0 of ${need}` : "Tap when done", tap: () => it.tap(p) };
   });
+  const dueIds = new Set();
   for (const it of dueItems(p.id)) {
     if (it.kind !== "med") continue;
     const st = it.st;
+    dueIds.add(it.med.id);
     rows.push({ key: `med-${it.med.id}`, e: "💊", label: it.med.name, done: false,
       sub: st.daily ? `${st.given} of ${st.need} given today` : st.overdue ? "Overdue" : "Due today", tap: () => markGiven(it.med) });
+  }
+  // Medicines given today stay on the list, ticked (so the ring doesn't shrink).
+  const given = new Map();
+  for (const e of todayOf(p, "med")) if (e.medId && !dueIds.has(e.medId) && !given.has(e.medId)) given.set(e.medId, e);
+  for (const [id, e] of given) {
+    const m = S.meds.find((x) => x.id === id);
+    rows.push({ key: `med-${id}`, e: "💊", label: (m && m.name) || e.name || "Medicine", done: true,
+      sub: `Given ${new Date(e.at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`, tap: () => toast(`${(m && m.name) || "That medicine"} is done for today.`) });
   }
   return rows;
 }
@@ -53,6 +64,15 @@ function ring(done, total) {
   const svg = el("svg", { viewBox: "0 0 52 52", "aria-hidden": "true" });
   svg.append(el("circle", { class: "td-track", cx: "26", cy: "26", r: String(R) }), el("circle", { class: "td-fill", cx: "26", cy: "26", r: String(R), "stroke-dasharray": String(C), "stroke-dashoffset": String(C * (1 - k)) }));
   return h(`div.td-ring${done && done === total ? ".full" : ""}`, { role: "img", "aria-label": `${done} of ${total} done today` }, svg, h("b", `${done}/${total}`));
+}
+
+// One tap logs once: a short lock stops double taps, and a done row asks before logging another.
+let lockUntil = 0;
+function tapRow(e, r) {
+  if (Date.now() < lockUntil) return;
+  lockUntil = Date.now() + 1200;
+  if (r.done && !r.key.startsWith("med-")) { toast(`${r.label}: done for today.`, [["Log another", () => r.tap()]]); return; }
+  r.tap();
 }
 
 /** The Today card for Home. */
@@ -76,7 +96,8 @@ export function todayCard(p) {
     h("div.td-head",
       h("div", h("h1.td-h", { id: "page-title", tabindex: "-1" }, "Today"), h("p.td-sub", head)),
       ring(done, total)),
-    h("ul.td-list", rows.map((r) => h("li", h(`button.td-row${r.done ? ".done" : ""}`, { type: "button", "data-k": `td-${r.key}`, onclick: r.tap },
+    weekStrip(p),
+    h("ul.td-list", rows.map((r) => h("li", h(`button.td-row${r.done ? ".done" : ""}`, { type: "button", "data-k": `td-${r.key}`, onclick: (e) => tapRow(e, r) },
       h("span.td-e", { "aria-hidden": "true" }, r.done ? "✓" : r.e),
       h("span.td-t", h("b", r.label), h("span.td-s", r.sub)),
       h("span.td-plus", { "aria-hidden": "true" }, r.done ? "" : "+"),
@@ -86,6 +107,15 @@ export function todayCard(p) {
       S.settings.plan && S.settings.plan.anchor
         ? h("button.linkish", { type: "button", "data-k": "plan-edit", onclick: () => planSheet(p) }, `⏰ ${planText(S.settings.plan)}`)
         : h("button.linkish", { type: "button", "data-k": "plan-make", onclick: () => planSheet(p) }, "⏰ Daily reminder")));
+}
+
+/** This week: a dot for each day you spent time together, and "3 days wins the week". */
+function weekStrip(p) {
+  if (p.sample) return null;
+  const ws = weekAndSticker(p);
+  return h("div.td-week", { role: "img", "aria-label": `This week: ${ws.count} of 3 days to win the week` },
+    h("span.wk-dots", { "aria-hidden": "true" }, ws.week.map((d) => h(`span.wk-dot${d.on ? ".on" : ""}${d.today ? ".today" : ""}`, d.on ? "✓" : ""))),
+    h("span.td-wk-t", { "aria-hidden": "true" }, ws.count >= 3 ? "Week won 🏆" : ws.count === 2 ? "1 more day wins the week" : `${ws.count} of 3 days wins the week`));
 }
 
 /** "Today so far": everything logged today for this pet, newest first; tap to edit. */
@@ -99,18 +129,27 @@ export function todaySoFar(p) {
 
 function editList(p) {
   const cur = new Set(checklistOf(p));
+  const counts = { ...((S.settings.checklistN || {})[p.id] || {}) };
   sheet("Today's list", (body, close) => {
     const ids = Object.keys(ITEMS).filter((id) => allowed(p, id));
     put(body,
       h("p.sheet-intro", `Pick what ${p.name}'s day needs. Medicines due today are added for you.`),
       h("div.td-pick", ids.map((id) => {
         const it = ITEMS[id], fid = `tdp-${id}`;
-        return h("label.check", { for: fid }, h("input", { type: "checkbox", id: fid, checked: cur.has(id), onchange: (e) => { if (e.target.checked) cur.add(id); else cur.delete(id); } }),
-          h("span", `${it.e} ${it.label(p)}${it.target(p) > 1 ? ` (×${it.target(p)})` : ""}`));
+        const box = h("label.check", { for: fid }, h("input", { type: "checkbox", id: fid, checked: cur.has(id), onchange: (e) => { if (e.target.checked) cur.add(id); else cur.delete(id); } }),
+          h("span", `${it.e} ${it.label(p)}`));
+        if (!it.counts) return box;
+        const sel = h("select", { id: `${fid}-n`, "aria-label": `How many ${it.label(p).toLowerCase()} a day`, onchange: (e) => { counts[id] = Number(e.target.value); } },
+          [1, 2, 3, 4].map((n) => h("option", { value: String(n), selected: n === it.target(p) }, `${n} a day`)));
+        return h("div.td-pick-row", box, sel);
       })),
       h("div.row-btns", h("button.btn.btn-blue", { type: "button", "data-k": "td-save", onclick: async () => {
         const list = ids.filter((id) => cur.has(id));
-        try { await setSetting("checklist", { ...(S.settings.checklist || {}), [p.id]: list }, { quiet: false }); } catch { toast("Couldn't save on this device."); return; }
+        if (!list.length) { toast("Keep at least one thing on the list."); return; }
+        try {
+          await setSetting("checklistN", { ...(S.settings.checklistN || {}), [p.id]: counts });
+          await setSetting("checklist", { ...(S.settings.checklist || {}), [p.id]: list }, { quiet: false });
+        } catch { toast("Couldn't save on this device."); return; }
         close();
       } }, "Save")));
   });
