@@ -5,7 +5,8 @@
 import { S, pet, save, remove, eventsOf } from "../state.js";
 import { h, put, em, sheet, toast, confirmBox, isoDate, fmtDate, fmtDay, fmtTime, resizePhoto } from "../util.js";
 import { logWalk, eventSheet, saveError } from "../forms.js";
-import { pageHead, sampleStrip, NOVA, trainNav } from "./parts.js";
+import { pageHead, sampleStrip, trainNav } from "./parts.js";
+import { novaSay } from "./training.js";
 import { gameOf, withRewards, bar } from "./gameui.js";
 import { XP, CAPS, weekBounds } from "../game.js";
 import { stampsFor } from "../../data/adventures.js";
@@ -19,14 +20,17 @@ export function adventures(main) {
   const earned = new Map(a.stamps.map((s) => [s.stampId, s]));
   put(main,
     sampleStrip(p),
-    pageHead("Adventures"), trainNav("adv"), h("div", h("p.nova-line", h("img.disc.nova-face", { src: NOVA, alt: "", width: "28", height: "28" }),
-      h("span", h("span.vh", "Nova says: "), dog ? `${earned.size} of ${stamps.length} stamps. The world is big. Let's sniff it.` : `${earned.size} of ${stamps.length} stamps. Small brave firsts count.`))),
+    pageHead("Adventures"), trainNav("adv"),
+    novaSay(dog ? `${earned.size} of ${stamps.length} stamps. The world is big. Let's sniff it.` : `${earned.size} of ${stamps.length} stamps. Small brave firsts count.`, earned.size ? "proud" : ""),
+    h("section.alb-cover", { "aria-label": "Adventure Book progress" },
+      h("span.alb-emoji", { "aria-hidden": "true" }, "📖"),
+      h("div.alb-text", h("h2", "Adventure Book"), h("p.small", h("b", String(earned.size)), ` of ${stamps.length} stickers collected`), bar(earned.size, stamps.length, "gold"))),
     dog ? walkCard(p, a) : null,
     sets.map((set) => {
       const list = stamps.filter((s) => s.set === set.id);
       const got = list.filter((s) => earned.has(s.id)).length;
-      return h("section.sec", { "aria-labelledby": `set-${set.id}` },
-        h("div.sec-row", h("h2.sec-title", { id: `set-${set.id}` }, em(set.emoji), " ", set.title), h("span.small.muted", `${got} of ${list.length}`)),
+      return h(`section.sec.alb-page${got === list.length ? ".full" : ""}`, { "aria-labelledby": `set-${set.id}` },
+        h("div.sec-row.alb-tab", h("h2.sec-title", { id: `set-${set.id}` }, em(set.emoji), " ", set.title), h("span.alb-count", `${got} of ${list.length}`)),
         h("ul.stamp-grid", list.map((s) => stampTile(p, a, s, earned.get(s.id)))));
     }),
     h("p.note-line", em("🔒"), " Photos stay on this device. They're shrunk and their location data is removed. No places are ever saved."));
@@ -37,11 +41,12 @@ function walkCard(p, a) {
   const [w0, w1] = weekBounds(Date.now());
   const week = walks.filter((e) => e.at >= w0 && e.at < w1).length;
   const next = (S.content.STAMPS || []).filter((s) => s.auto && s.auto.walks > a.walks.length).sort((x, y) => x.auto.walks - y.auto.walks)[0];
-  return h("section.walk-card", { "aria-labelledby": "walk-h" },
+  return h("section.walk-card.wk7", { "aria-labelledby": "walk-h" },
     h("div.walk-top",
-      h("div", h("h2", { id: "walk-h" }, "Walks"),
+      h("span.wk-em", { "aria-hidden": "true" }, "🚶"),
+      h("div.wk-text", h("h2", { id: "walk-h" }, "Walks"),
         h("p.walk-n", h("b", String(a.walks.length)), " counted · ", `${week} this week`)),
-      h("button.btn.btn-blue", { type: "button", "data-k": "log-walk", onclick: logWalk }, em("🚶"), " Log a walk")),
+      h("button.btn.btn-blue.sm", { type: "button", "data-k": "log-walk", onclick: logWalk }, "Log a walk")),
     next ? [bar(a.walks.length, next.auto.walks, "gold"), h("p.small.muted", `${next.auto.walks - a.walks.length} more to the ${next.title} stamp.`)]
       : h("p.small.muted", "Every walk milestone stamped. Legendary. Keep sniffing."),
     walks.length ? h("details.more-box.walk-list",
@@ -59,7 +64,8 @@ function stampTile(p, a, s, got) {
   return h(`li.stamp${got ? ".got" : ""}`,
     h("button.stamp-btn", { type: "button", "data-k": `st-${s.id}`, "aria-label": label, onclick: () => stampSheet(p, s, got) },
       h("span.stamp-disc", { "aria-hidden": "true" },
-        got && got.row && got.row.photo ? h("img", { src: got.row.photo, alt: "" }) : h("span.stamp-em", s.emoji)),
+        got && got.row && got.row.photo ? h("img", { src: got.row.photo, alt: "" }) : h("span.stamp-em", s.emoji),
+        got ? h("span.stk-check", "✓") : null),
       h("span.stamp-title", { "aria-hidden": "true" }, s.title),
       h("span.stamp-meta", { "aria-hidden": "true" }, got ? fmtDate(got.date || got.at, { day: "numeric", month: "short" }) : s.auto ? `${Math.min(a.walks.length, s.auto.walks)} of ${s.auto.walks}` : `+${XP.stamp} XP`)));
 }
@@ -101,7 +107,7 @@ function viewStamp(p, s, row) {
 function stampForm(p, s, existing) {
   sheet(existing ? `Edit: ${s.title}` : `${s.emoji} ${s.title}`, (body, close) => {
     let photo = existing && existing.photo ? existing.photo : null;
-    const form = h("form.form", { novalidate: true });
+    const form = h("form.form.stamp-form", { novalidate: true });
     const err = h("p.form-error", { role: "alert" });
     const date = h("input", { type: "date", id: "st-date", required: true, max: isoDate(), value: existing ? existing.date || isoDate(new Date(existing.at)) : isoDate() });
     const note = h("input", { type: "text", id: "st-note", maxlength: "280", value: existing && existing.note ? existing.note : "", autocomplete: "off", placeholder: "e.g. she found a crab. Diplomacy followed." });
@@ -116,13 +122,14 @@ function stampForm(p, s, existing) {
       catch { msg.textContent = "Couldn't read that photo. Try a JPG or PNG."; }
     });
     put(form,
-      h("p.what", s.tip),
+      h("div.stk-hero", h(`span.stamp-disc.big${existing ? "" : ".locked"}`, { "aria-hidden": "true" }, h("span.stamp-em", s.emoji))),
+      novaSay(s.tip),
       h("div.field", h("label", { for: "st-date" }, "When"), date),
       h("div.field", h("label", { for: "st-photo" }, "Photo", h("span.opt", " (optional)")), h("div.photo-row", preview, h("div", file, drop)),
         h("p.hint", "Stays on this device. Shrunk, with location data removed."), msg),
       h("div.field", h("label", { for: "st-note" }, "A line about it", h("span.opt", " (optional)")), note),
       err,
-      h("div.row-btns", h("button.btn.btn-blue", { type: "submit", "data-k": "stamp-save" }, existing ? "Save" : `Add stamp (+${XP.stamp} XP)`)));
+      h("div.row-btns", h("button.btn.btn-blue", { type: "submit", "data-k": "stamp-save" }, existing ? "Save" : `I did it! (+${XP.stamp} XP)`)));
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       if (!date.value) { err.textContent = "Pick the date."; date.focus(); return; }
