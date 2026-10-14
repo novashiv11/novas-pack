@@ -4,12 +4,12 @@
 // A new version downloads every file in ASSETS in the background, all or nothing, then waits. The app shows
 // "Update ready"; tapping it sends SKIP_WAITING, this worker takes over and the page reloads. Until then the app keeps
 // running the version it started with, so old and new files are never mixed. ASSETS must list only files that exist.
-const VERSION = "2026-10-14-v6-3";
+const VERSION = "2026-10-14-v7-0";
 const CACHE = `novas-pack-${VERSION}`;
 const CLIPS = "novas-pack-clips";
 
 const ASSETS = [
-  "./", "index.html", "app.css", "site.css", "css/studio.css", "css/visuals.css", "manifest.webmanifest",
+  "./", "index.html", "app.css", "site.css", "css/studio.css", "css/visuals.css", "css/v7-ui.css", "css/v7-home.css", "css/v7-train.css", "css/v7-health.css", "css/v7-more.css", "manifest.webmanifest",
   "js/app.js", "js/install.js", "js/db.js", "js/ics.js", "js/util.js", "js/state.js", "js/logic.js", "js/forms.js", "js/sample.js",
   "js/game.js", "js/sharecard.js", "js/cartoon.js", "js/views/doitnow.js", "js/views/placement.js", "js/views/studio.js", "js/views/ready.js", "js/views/today.js", "data/stickers.js", "data/easysteps.js", "data/media.js", "data/scenes.js", "js/scenes.js",
   "js/views/parts.js", "js/views/welcome.js", "js/views/home.js", "js/views/gameui.js", "js/views/training.js", "js/views/adventures.js",
