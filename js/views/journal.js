@@ -1,15 +1,17 @@
-// The Growth Journal: private, on the device. One optional line in the evening ("What went 1% better today?"), and
-// a weekly view: "This week you…" in your own words, next to what you actually logged.
+// The Growth Journal (v7): private, on the device. Nova asks one question ("What went well today?"), you answer in a big
+// composer, and your lines sit in a chat-bubble timeline next to what you actually logged. Real data only.
 
 import { S, pet, remove, save } from "../state.js";
 import { h, put, em, isoDate, toast } from "../util.js";
-import { subBar } from "./parts.js";
+import { subBar, NOVA } from "./parts.js";
+import { saveError } from "../forms.js";
 import { gameOf, worldPets } from "./gameui.js";
 import { weekBounds } from "../game.js";
-import { journalPrompt } from "./home.js";
 import { heavy } from "./more.js";
 
 const dayLabel = (d) => d.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" });
+const novaFace = (size = 36) => h("img.disc.nova-face", { src: NOVA, alt: "", width: String(size), height: String(size) });
+const MAX = 280;
 
 function weekSummary(p, a0, a1) {
   const pets = worldPets(p);
@@ -43,19 +45,70 @@ function weekDays(a0, a1, untilToday) {
   return out;
 }
 
-function dayList(days) {
-  const shown = days.filter((d) => { const k = isoDate(d); const t = S.daily.find((x) => x.id === k); return S.journal.some((j) => j.id === k) || (t && (t.dogDone || t.youDone)); });
-  if (!shown.length) return h("p.small.muted", "Nothing this week yet. One line is plenty.");
-  return h("ul.jr-days", shown.map((d) => {
+const dayDone = (key) => { const t = S.daily.find((x) => x.id === key); return !!(t && (t.dogDone || t.youDone)); };
+const hasLine = (key) => S.journal.some((j) => j.id === key);
+
+/** The week as seven dots: a day is "on" when you wrote a line or ticked the 1% card. */
+function weekDots(days) {
+  const today = isoDate();
+  return h("ol.jr-dots", days.map((d) => {
+    const key = isoDate(d);
+    const on = hasLine(key) || dayDone(key);
+    return h(`li${on ? ".on" : ""}${key === today ? ".today" : ""}`,
+      h("span.jr-dot", { "aria-hidden": "true" }, on ? "✓" : ""),
+      h("span.jr-dl", { "aria-hidden": "true" }, d.toLocaleDateString(undefined, { weekday: "narrow" })),
+      h("span.vh", `${d.toLocaleDateString(undefined, { weekday: "long" })}: ${on ? "something done" : key > today ? "still to come" : "nothing yet"}`));
+  }));
+}
+
+/** Your lines as chat bubbles, newest first, with a date chip above each day. */
+function timeline(days, { past = false } = {}) {
+  const today = isoDate();
+  const yest = isoDate(new Date(Date.now() - 86400000));
+  const shown = days.filter((d) => { const k = isoDate(d); return hasLine(k) || dayDone(k); }).reverse();
+  if (!shown.length) {
+    if (past) return null;
+    return h("div.jr-empty", novaFace(40), h("p", "Nothing this week yet. One line is plenty."));
+  }
+  return h("ol.jr-feed", shown.map((d) => {
     const key = isoDate(d);
     const e = S.journal.find((j) => j.id === key);
     const t = S.daily.find((x) => x.id === key);
-    return h(`li${e ? ".has" : ""}`,
-      h("span.jr-day", dayLabel(d)),
-      h("span.jr-text", e ? e.text : h("span.muted", "Did it for them today.")),
-      t && (t.dogDone || t.youDone) ? h("span.jr-ticks", h("span", { "aria-hidden": "true" }, `${t.dogDone ? "🐾" : ""}${t.youDone ? "💛" : ""}`),
-        h("span.vh", `Done today: ${[t.dogDone ? "for your pet" : "", t.youDone ? "for you" : ""].filter(Boolean).join(" and ")}`)) : null);
+    const dog = !!(t && t.dogDone), you = !!(t && t.youDone);
+    return h(`li.jr-day${e ? ".has" : ""}`,
+      h("span.jr-date", key === today ? "Today" : key === yest ? "Yesterday" : dayLabel(d)),
+      h(`div.jb.jb-me${e ? "" : ".ghost"}`, e ? h("p", e.text) : h("p", dog && you ? "Did it for both of you." : dog ? "Did it for them." : "Did it for you.")),
+      dog || you ? h("span.jr-ticks", h("span", { "aria-hidden": "true" }, `${dog ? "🐾 for them" : ""}${dog && you ? " · " : ""}${you ? "💛 for you" : ""}`),
+        h("span.vh", `Done today: ${[dog ? "for your pet" : "", you ? "for you" : ""].filter(Boolean).join(" and ")}`)) : null);
   }));
+}
+
+/** Nova's question and your big answer box. One obvious button. */
+function composer(today, entry) {
+  const id = `jr-${today}`;
+  const ta = h("textarea", { id, name: "journal", rows: "4", maxlength: String(MAX), autocomplete: "off", "data-k": "jr-text", placeholder: "e.g. she waited at the door. I stayed calm.", value: entry ? entry.text : "" });
+  const count = h("span.jr-count", { "aria-hidden": "true" }, `${ta.value.length}/${MAX}`);
+  const err = h("p.form-error", { role: "alert" });
+  ta.addEventListener("input", () => { count.textContent = `${ta.value.length}/${MAX}`; err.textContent = ""; });
+  return h("form.jr-composer", { novalidate: true, onsubmit: async (e) => {
+    e.preventDefault();
+    const text = ta.value.trim();
+    if (!text) { err.textContent = "Write a few words first. Small is fine."; ta.focus(); return; }
+    try { await save("journal", { id: today, date: today, text: text.slice(0, MAX), at: Date.now() }); } catch (ex) { err.textContent = saveError(ex); return; }
+    try { navigator.vibrate && navigator.vibrate(15); } catch { /* not everywhere */ }
+    toast("Saved in your journal. Private, on this device.");
+  } },
+  h("div.jr-ask", novaFace(44),
+    h("div.jb.jb-nova",
+      h("label", { for: id }, "What went well today?"),
+      h("span.small", "1% better counts, for you or for your pet."))),
+  h("div.jr-box", ta, h("div.jr-box-foot", h("span.small.muted", em("🔒"), " Private, on this device"), count)),
+  err,
+  h("button.btn.btn-blue.wide", { type: "submit", "data-k": "jr-save" }, entry ? "Update today's line" : "Save my line"),
+  entry ? h("button.linkish.jr-del", { type: "button", "data-k": "jr-del", onclick: async () => {
+    await remove("journal", entry.id);
+    toast("Line deleted.", [["Undo", () => save("journal", entry)]]);
+  } }, "Delete today's line") : null);
 }
 
 export function journal(main) {
@@ -64,35 +117,32 @@ export function journal(main) {
   const entry = S.journal.find((j) => j.id === today);
   const [a0, a1] = weekBounds(Date.now());
   const sum = weekSummary(p, a0, a1);
+  const all = weekDays(a0, a1, false);
+  const on = all.filter((d) => hasLine(isoDate(d)) || dayDone(isoDate(d))).length;
   const past = [];
   for (let k = 1; k <= 8; k++) {
     const d = new Date(a0); d.setDate(d.getDate() - 7 * k);
     const [b0, b1] = weekBounds(d.getTime() + 36 * 3600000);
     const days = weekDays(b0, b1, false);
-    const any = days.some((x) => S.journal.some((j) => j.id === isoDate(x)));
+    const any = days.some((x) => hasLine(isoDate(x)));
     const s = weekSummary(p, b0, b1);
-    if (any || s) past.push({ b0, days, s });
+    if (any || s) past.push({ b0, days, s, lines: days.filter((x) => hasLine(isoDate(x))).length });
   }
   put(main,
     subBar("Growth Journal", "#/home", "Back to Home"),
-    h("p.small.muted.jr-private", em("🔒"), " Private. It stays on this device, like everything else."),
-    h("section.sec", { "aria-labelledby": "jt-h" },
-      h("h2.sec-title", { id: "jt-h" }, entry ? "Today's line" : "Tonight's line"),
-      journalPrompt(today, entry ? entry.text : ""),
-      entry ? h("button.linkish", { type: "button", "data-k": "jr-del", onclick: async () => {
-        await remove("journal", entry.id);
-        toast("Line deleted.", [["Undo", () => save("journal", entry)]]);
-      } }, "Delete today's line") : null),
-    h("section.week-sum", { "aria-labelledby": "jw-h" },
-      h("h2", { id: "jw-h" }, "This week you…"),
-      h("p.jr-sum", sum ? `${sum}.` : "…are just getting started. Today counts."),
-      dayList(weekDays(a0, a1, true))),
+    composer(today, entry),
+    h("section.jr-week", { "aria-labelledby": "jw-h" },
+      h("div.sec-row", h("h2.sec-title", { id: "jw-h" }, "This week"), h("span.pill", `${on} of 7 days`)),
+      weekDots(all),
+      h("div.jr-nova", novaFace(36), h("div.jb.jb-nova", h("p", h("b", "This week you… "), sum ? `${sum}.` : "…are just getting started. Today counts."))),
+      timeline(weekDays(a0, a1, true))),
     past.length ? h("section.sec", { "aria-labelledby": "jp-h" },
       h("h2.sec-title", { id: "jp-h" }, "Earlier weeks"),
-      past.map((w) => h("details.more-box",
-        h("summary", `Week of ${new Date(w.b0).toLocaleDateString(undefined, { day: "numeric", month: "short" })}`),
-        w.s ? h("p.small", `You ${w.s}.`) : null,
-        dayList(w.days)))) : null,
+      past.map((w) => h("details.jr-fold",
+        h("summary", h("span", `Week of ${new Date(w.b0).toLocaleDateString(undefined, { day: "numeric", month: "short" })}`),
+          h("span.small.muted", w.lines ? `${w.lines} line${w.lines === 1 ? "" : "s"}` : "")),
+        w.s ? h("div.jr-nova", novaFace(32), h("div.jb.jb-nova", h("p", `You ${w.s}.`))) : null,
+        timeline(w.days, { past: true })))) : null,
     h("p.note-line", em("💛"), " Effort, not perfection. A missed day is just a day. Welcome back whenever."),
     h("p.small", h("button.linkish", { type: "button", "data-k": "jr-heavy", onclick: heavy }, "If things feel heavy, talking helps →")));
 }
