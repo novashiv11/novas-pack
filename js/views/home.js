@@ -1,7 +1,7 @@
 // Home: your Partner. The partner card (stage, level, XP, 5 stats), "1% today" (one tiny thing for your dog, one for
 // you, and Nova's line of the day), the trainer strip, this week's quests, quick logs, badges, and one gentle nudge.
 
-import { doItNowCard } from "./doitnow.js";
+import { doItNowCard, planSheet } from "./doitnow.js";
 import { todayCard, todaySoFar } from "./today.js";
 import { S, pet, setSetting, save, logsOf, LOG_TYPES } from "../state.js";
 import { h, put, em, fmtDate, isoDate, ageText, sinceText, isAnniversary, DAY, toast } from "../util.js";
@@ -30,6 +30,14 @@ export function home(main) {
     care ? null : extras(p, a, tr),
     nudge(p, a, tr),
   );
+  // Once, right after the first thing they log: offer the daily reminder (the only trigger a no-server app has).
+  if (!p.sample && !S.settings.plan && !S.settings.planAsked && logsOf(p.id).length >= 1) {
+    setTimeout(() => {
+      if (document.querySelector("dialog[open]") || S.settings.planAsked) return;
+      setSetting("planAsked", Date.now()).catch(() => {});
+      planSheet(p);
+    }, 2500);
+  }
 }
 
 function careLinks() {

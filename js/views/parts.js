@@ -30,6 +30,11 @@ export function pageHead(title, ...extra) {
 }
 
 /** Sub-page bar: sticky, 52 px, a 44×44 back chevron and a centred title (the page's h1). */
+/** Train tab switcher (v6): Skills | Adventures | Academy share one tab. */
+export function trainNav(active) {
+  const a = (id, href, label) => h("a", { href, "data-k": `tn-${id}`, "aria-current": id === active ? "page" : null }, label);
+  return h("nav.seg.train-nav", { "aria-label": "Train" }, a("skills", "#/train", "Skills"), a("adv", "#/adventures", "Adventures"), a("academy", "#/trainer", "Academy"));
+}
 export function subBar(title, backHref, backLabel) {
   return h("div.subbar",
     h("a.sub-back", { href: backHref }, chevron("left"), h("span.vh", backLabel)),

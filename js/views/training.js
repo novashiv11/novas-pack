@@ -6,7 +6,7 @@ import { quizSkills } from "./placement.js";
 import { S, pet, eventsOf, save, remove, setSetting } from "../state.js";
 import { h, put, em, weeklyStreak, motionOK, fmtDay, fmtTime, toast, confirmBox, sheet, inIreland } from "../util.js";
 import { skillsFor, progressOf } from "../logic.js";
-import { pageHead, subBar, sampleStrip, NOVA, moreBtn } from "./parts.js";
+import { pageHead, subBar, sampleStrip, NOVA, moreBtn, trainNav } from "./parts.js";
 import { speciesOf, eventSheet } from "../forms.js";
 import { weekly } from "./home.js";
 import { gameOf, pips, bar, levelText, placeFor, skillName, startSession, selfCheck, logSession, trainingPicker, howTo } from "./gameui.js";
@@ -31,7 +31,7 @@ export function training(main, arg, sub) {
   const a = gameOf(p);
   const q = a.daily;
   put(main, sampleStrip(p),
-    pageHead("Train", h("p.nova-line", h("img.disc.nova-face", { src: NOVA, alt: "", width: "28", height: "28" }),
+    pageHead("Train"), trainNav("skills"), h("div", h("p.nova-line", h("img.disc.nova-face", { src: NOVA, alt: "", width: "28", height: "28" }),
       h("span", h("span.vh", "Nova says: "), q ? `Weakest link first: ${q.statLabel}. Five minutes. Go.` : "Short, happy sessions. Stop while it's still fun."))));
   if (!skills.length) {
     put(main, h("div.card.soon-card",

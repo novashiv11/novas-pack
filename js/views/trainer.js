@@ -6,7 +6,7 @@
 
 import { S, pet, save, setSetting } from "../state.js";
 import { h, put, em, fmtDate, toast } from "../util.js";
-import { subBar, sampleStrip, NOVA, chevron } from "./parts.js";
+import { subBar, sampleStrip, NOVA, chevron, trainNav, pageHead } from "./parts.js";
 import { gameOf, trainerFor, trainerName, worldPets, withRewards, bar } from "./gameui.js";
 import { RANKS, XP, curve } from "../game.js";
 import { saveError } from "../forms.js";
@@ -31,7 +31,7 @@ export function trainer(main, arg) {
   const isCoach = RANKS.findIndex((r) => r.id === tr.rank.id) >= 2;
   const P = tr.parts;
   put(main,
-    subBar("Trainer", "#/home", "Back to Home"),
+    pageHead("Academy"), trainNav("academy"),
     sampleStrip(p),
     h("section.rank-card", { "aria-labelledby": "rk-h" },
       h("p.eyebrow", trainerName() === "You" ? "Your trainer rank" : `${trainerName()}'s trainer rank`),

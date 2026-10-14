@@ -40,7 +40,7 @@ body.first-run .appbar{display:none}
 .av-add{display:inline-grid;place-items:center;width:32px;height:32px;font-weight:800;font-size:var(--t18);background:var(--sunk);color:var(--ink)}
 
 /* ---------- bottom nav ---------- */
-.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,minmax(0,1fr));padding:4px max(4px,calc((100% - 640px)/2)) env(safe-area-inset-bottom);view-transition-name:tabbar}
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,minmax(0,1fr));padding:4px max(4px,calc((100% - 640px)/2)) env(safe-area-inset-bottom);view-transition-name:tabbar}
 .tabbar a{min-height:var(--nav-h);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--muted);font-size:var(--t12);font-weight:700;text-decoration:none;border-radius:12px;min-width:0}
 .tabbar svg{width:44px;height:28px;padding:2px 10px;border-radius:12px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;overflow:visible}
 .tabbar a[aria-current="page"]{color:var(--blue)}
@@ -1029,3 +1029,6 @@ main .form > .row-btns:last-child .btn-blue{flex:1;min-height:56px;font-size:var
 .ls-ago{font-size:var(--t12);color:var(--muted);font-weight:600;text-align:center}
 body.app main{padding-bottom:88px}
 @media (prefers-reduced-motion:reduce){.td-row,.td-fill{transition:none}}
+
+.train-nav{margin:6px 0 10px}
+.care-only .tabbar{grid-template-columns:repeat(3,minmax(0,1fr))}
