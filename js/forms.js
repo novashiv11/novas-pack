@@ -458,7 +458,7 @@ function afterLog(ev, label, weekBefore, extra = "") {
   }
   toast(msg, [
     ["Undo", () => remove("events", ev.id).then(() => toast("Undone."))],
-    ["Details", () => eventSheet(ev.type, ev, { details: true })],
+    [PHOTO_TYPES.includes(ev.type) ? "📷 Photo" : "Details", () => eventSheet(ev.type, ev, { details: true })],
   ]);
 }
 
@@ -525,6 +525,9 @@ export function focusAlert() {
 }
 
 /** The form for any diary entry, new or existing. details: opened from a toast's "Add details". */
+/** Log types that can carry a photo (the fun ones; never poop or health). */
+export const PHOTO_TYPES = ["walk", "play", "training", "eggs", "task"];
+
 export function eventSheet(type, existing, { details = false } = {}) {
   if (type === "symptom") { unwellSheet(existing); return; }
   const p = pet();
@@ -627,8 +630,28 @@ export function eventSheet(type, existing, { details = false } = {}) {
       collect = () => ({ clinic: clinic.value.trim() || undefined });
     }
 
+    // v8.7 photo moment: a picture of the walk, the game or the session (stays on this phone, shrunk, location removed).
+    let photo = ev.photo || null;
+    let photoBox = null;
+    if (PHOTO_TYPES.includes(type)) {
+      const prev = h("img.ev-photo", { alt: "", hidden: !photo, src: photo || undefined, width: "96", height: "96" });
+      const msg = h("p.hint", { role: "status" });
+      const file = h("input", { type: "file", accept: "image/*", class: "vh", id: fid(), "data-k": "ev-photo-in" });
+      const rm = h("button.linkish", { type: "button", hidden: !photo, "data-k": "ev-photo-rm", onclick: () => { photo = null; prev.hidden = true; rm.hidden = true; msg.textContent = ""; } }, "Remove photo");
+      file.addEventListener("change", async () => {
+        const f = file.files && file.files[0];
+        if (!f) return;
+        msg.textContent = "Shrinking it on your phone…";
+        try { photo = await resizePhoto(f, 720); prev.src = photo; prev.hidden = false; rm.hidden = false; msg.textContent = "Photo ready. Location data removed."; }
+        catch { msg.textContent = "Couldn't read that photo. Try a JPG or PNG."; }
+      });
+      photoBox = h("div.field.ev-photo-field", h("span.lbl", "Photo", opt()),
+        h("div.ev-photo-row", prev, h("div", h("label.btn.btn-line.sm", { for: file.id, "data-k": "ev-photo" }, "📷 ", photo ? "Change photo" : "Add a photo"), rm), file), msg);
+    }
+
     put(form,
       ...parts,
+      photoBox,
       wc.node,
       field(h("span", type === "vet" ? "What the vet said" : "Note", opt()), note),
       err,
@@ -643,6 +666,7 @@ export function eventSheet(type, existing, { details = false } = {}) {
       const extra = collect();
       if (extra.error) { err.textContent = extra.error; return; }
       const row = { ...ev, ...extra, id: ev.id || uid(), petId: ev.petId || p.id, type, at: wc.at(), note: note.value.trim() || undefined };
+      if (PHOTO_TYPES.includes(type)) row.photo = photo || undefined;
       for (const k of Object.keys(row)) if (row[k] === undefined) delete row[k];
       if (p.sample && !existing) row.sample = true;
       const token = existing ? null : hookBefore();
@@ -652,7 +676,7 @@ export function eventSheet(type, existing, { details = false } = {}) {
         toast("Saved. Please read Nova's note about calling your vet.");
         focusAlert();
       } else if (!existing) {
-        toast(`Logged. I supervised.${hookAfter(row, token)}`, [["Undo", () => remove("events", row.id)]]);
+        toast(`${t.emoji} ${t.label} logged.${hookAfter(row, token)}`, [["Undo", () => remove("events", row.id)]]);
       } else toast("Saved.");
     });
     put(body, form);

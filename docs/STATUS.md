@@ -2,7 +2,7 @@
 
 The **co-captain** (Claude, the main session) updates this file after every step and commits it, so no work is lost when a session stops or hits a usage limit. The full backlog is in `docs/crq.md` and decisions are in `docs/decisions.md`.
 
-**Last updated:** 15 Oct 2026 (v8.6 live; all buildable work done).
+**Last updated:** 15 Oct 2026 (v8.7 live; all buildable work done).
 
 ## How we never lose work
 1. Every request from Shiv goes into `docs/crq.md` first, with an ID, before any work starts.
@@ -11,7 +11,7 @@ The **co-captain** (Claude, the main session) updates this file after every step
 4. Agents write into files in the repo (never only into chat), and the co-captain commits their work as soon as each agent finishes.
 5. If an agent dies at a limit, its CRQ goes back to "Planned" here, along with whatever partial files it left.
 
-## Now (15 Oct): v8.6 live, nothing buildable left
+## Now (15 Oct): v8.7 live, nothing buildable left
 
 | Version | What shipped |
 |---|---|
@@ -25,6 +25,7 @@ The **co-captain** (Claude, the main session) updates this file after every step
 | v8.4 (15 Oct) | Juice: a soft tick sound on logs, a little tune for wins (Sounds switch in More), sparks from a finished row; Welcome in the same sky as Today |
 | v8.5 (15 Oct) | Tap a done Today row (or long-press any row) to see today's entries, change one, or log another; medicines show no "log another" |
 | v8.6 (15 Oct) | "Bran's week" recap: a Home card on Sunday and Monday, More → This week, real numbers only, share as a Story |
+| v8.7 (15 Oct) | Photo moments: a photo on walks, play, training and eggs (shrunk, location removed, stays on the phone); a polaroid on Today; photos in the week recap |
 
 Tests: 27 game tests pass; smoke runs at 320 px light and 390 px dark with no errors, no sideways scroll and no small targets.
 

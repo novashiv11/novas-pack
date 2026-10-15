@@ -89,6 +89,13 @@ const LOG_CAT = { meal: "meals", treat: "meals", walk: "walk", play: "play", tra
 export const timeOfDay = (hr = new Date().getHours()) => (hr < 5 || hr >= 21 ? "night" : hr < 11 ? "morning" : hr < 17 ? "day" : "evening");
 const stageSeen = new Map(); // where the big ring was last time, so it slides on instead of jumping
 
+/** Today's latest photo (from a walk, game or session) as a little polaroid in the sky. Tap it to open that entry. */
+function todaysPhoto(p) {
+  const e = S.events.filter((x) => x.petId === p.id && x.photo && x.at >= startOfDay()).sort((a, b) => b.at - a.at)[0];
+  if (!e) return null;
+  return h("button.st-polaroid", { type: "button", "data-k": "stage-polaroid", "aria-label": "Today's photo", onclick: () => eventSheet(e.type, e) }, h("img", { src: e.photo, alt: "", width: "64", height: "64" }));
+}
+
 /** The pet as the hero of Today (Finch-style): their photo big, the day's ring round them, their name, Nova's line, the week. */
 function petStage(p, done, total, line, mood) {
   const k = total ? done / total : 0;
@@ -107,6 +114,7 @@ function petStage(p, done, total, line, mood) {
   const moodE = total && done === total ? "🥰" : done ? "😊" : tod === "night" ? "😴" : "👋";
   return h(`section.stage.tod-${tod}${total && done === total ? ".all" : ""}${k > from ? ".up" : ""}`, { "aria-labelledby": "page-title" },
     h("span.st-sky", { "aria-hidden": "true" }, h("span.st-sun"), h("span.st-cloud.c1"), h("span.st-cloud.c2")),
+    todaysPhoto(p),
     h("div.st-pet", h("span.st-pic", { role: "img", "aria-label": total ? `${done} of ${total} done today` : "Nothing on the list yet" }, svg, face),
       h("span.st-mood", { "aria-hidden": "true" }, moodE),
       p.photo || p.sample ? null : h("button.st-cam", { type: "button", "data-k": "stage-photo", "aria-label": `Add a photo of ${p.name}`, onclick: () => openPetSheet(p) }, "📷")),

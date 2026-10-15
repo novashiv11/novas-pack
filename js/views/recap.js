@@ -21,7 +21,9 @@ export function weekRecap(p, offset = 0) {
   const days = new Set([...ev.map((e) => isoDate(new Date(e.at))), ...stamps.map((s) => s.date)]);
   let badges = [];
   if (!S.settings.careOnly) { try { badges = gameOf(p).badges.filter((x) => x.earned && x.at && x.at >= a && x.at < b); } catch { badges = []; } }
-  return { key: `${p.id}|${isoWeek(a)}`, start: a, end: b - 1, days: days.size, walks: count("walk"), meals: count("meal"), play: count("play"),
+  const photos = [...ev.filter((e) => e.photo).map((e) => ({ src: e.photo, at: e.at })), ...stamps.filter((s) => s.photo).map((s) => ({ src: s.photo, at: s.at || 0 }))]
+    .sort((x, y) => y.at - x.at).slice(0, 6).map((x) => x.src);
+  return { photos, key: `${p.id}|${isoWeek(a)}`, start: a, end: b - 1, days: days.size, walks: count("walk"), meals: count("meal"), play: count("play"),
     sessions: count("training"), care: count("care") + count("task") + count("med"), stamps: stamps.length, badges, total: ev.length + stamps.length };
 }
 
@@ -45,6 +47,7 @@ export function recapSheet(p, offset = 0) {
       h("div.rc-hero", avatar(p, 72), h("p.rc-range", range(r))),
       r.total ? h("ul.rc-tiles", tiles(r).map(([e, n, l]) => h("li.rc-tile", h("span.rc-e", { "aria-hidden": "true" }, e), h("b", String(n)), h("span", l))))
         : h("p.muted", "Nothing logged this week yet. One tap on Today starts it."),
+      r.photos.length ? h("div.rc-photos", { role: "group", "aria-label": "Photos this week" }, r.photos.map((src, i) => h("img", { src, alt: "", width: "120", height: "120", style: `--r:${[-3, 2, -1, 3, -2, 1][i]}deg` }))) : null,
       r.badges.length ? h("p.rc-badges", "New: ", r.badges.map((x) => `${x.emoji} ${x.name}`).join(", ")) : null,
       r.days ? h("p.rc-line", LINE(r.days, p.name)) : null,
       r.total && !p.sample ? h("button.btn.btn-blue.wide", { type: "button", "data-k": "rc-share", onclick: async () => {

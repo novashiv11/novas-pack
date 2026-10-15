@@ -271,3 +271,15 @@ details.howto,.sk-steps .howto{border:0;background:color-mix(in srgb,var(--blue)
 .rc-line{margin:12px 0;padding:10px 14px;border-radius:16px;background:var(--gold-soft);font-weight:700;font-size:var(--t14)}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .rc-card{background:linear-gradient(150deg,#1D3446 0%,var(--surface) 75%)}}
 :root[data-theme="dark"] .rc-card{background:linear-gradient(150deg,#1D3446 0%,var(--surface) 75%)}
+
+/* ================= v8.7: photo moments ================= */
+.ev-photo-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.ev-photo{width:96px;height:96px;object-fit:cover;border-radius:16px;box-shadow:var(--elev)}
+.ev-photo-row label.btn{display:inline-flex;align-items:center;min-height:44px;cursor:pointer}
+.tl-photo{display:block;width:56px;height:56px;object-fit:cover;border-radius:12px;margin-top:6px}
+.rc-photos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}
+.rc-photos img{width:100%;height:auto;aspect-ratio:1;object-fit:cover;border:5px solid #fff;border-radius:6px;box-shadow:0 4px 14px rgba(30,20,10,.18);transform:rotate(var(--r))}
+.st-polaroid{position:absolute;top:14px;left:14px;z-index:1;width:72px;height:80px;padding:4px 4px 12px;border:0;border-radius:4px;background:#fff;box-shadow:0 6px 16px rgba(30,20,10,.22);transform:rotate(-6deg);cursor:pointer}
+.st-polaroid img{display:block;width:64px;height:64px;object-fit:cover;border-radius:2px}
+.st-polaroid:active{transform:rotate(-6deg) scale(.96)}
+@media (max-width:359px){.st-polaroid{width:58px;height:66px}.st-polaroid img{width:50px;height:50px}}

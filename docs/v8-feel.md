@@ -92,3 +92,12 @@ Minor issues, also fixed:
   - "📸 Share the week" makes the Story trophy card.
 - **Empty weeks show nothing** on Home, so there's no guilt. The sample pet gets no card.
 - Code: `js/views/recap.js`.
+
+## v8.7 (15 Oct): photo moments
+- **Add a photo** to a walk, play, training session, eggs or one of your own items. After a one-tap log, the toast's "📷 Photo" button opens the form, or you can add one when editing any of those entries.
+  - The photo is shrunk to 720 px on the phone, which removes location data, and it never leaves the device.
+  - Poop and health entries never take photos.
+- **On Today:** the day's latest photo sits as a small polaroid in the sky. Tap it to open that entry.
+- **In the timeline:** entries show a thumbnail.
+- **In "Bran's week":** up to six photos from the week (walks, games and stamps) appear as a polaroid grid.
+- **The privacy notice** now names walk, play and training photos.

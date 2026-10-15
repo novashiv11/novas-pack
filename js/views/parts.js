@@ -161,6 +161,7 @@ export function eventList(events, onEdit, { showDay = false, single = false } = 
           h("span.tl-top", h("time.tl-time", { datetime: new Date(e.at).toISOString() }, when),
             single ? null : h("span.tl-type", t.label)),
           text && text !== t.label ? h("span.tl-text", text) : null,
+          e.photo ? h("img.tl-photo", { src: e.photo, alt: "", width: "56", height: "56", loading: "lazy" }) : null,
           e.note && e.type !== "vet" ? h("span.tl-note", e.note) : null),
         e.type === "poop" ? poopPill(e.score) : null,
         h("span.vh", ", edit")));
