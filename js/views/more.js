@@ -12,6 +12,7 @@ import { openPetSheet, speciesOf, segmented, deletePetFlow, adoptSampleFlow, una
 import { subBar, avatar, chevron, sampleStrip, emptyState, NOVA } from "./parts.js";
 import { gameOf, trainerFor } from "./gameui.js";
 import { openPartnerCard } from "../sharecard.js";
+import { sound } from "../sound.js";
 
 export const APP_VERSION = "2.0";
 const CARD_SPECIES = { dog: "dog", cat: "cat", rabbit: "small", bird: "bird", other: "other" };
@@ -113,7 +114,13 @@ export function more(main, arg) {
         buzz();
         await setSetting("careOnly", on, { quiet: false });
         toast(on ? "Care diary only: levels, quests and stickers are hidden. Your logs keep counting if you switch back." : "The game is back. Everything you logged still counts.");
-      } }, ...inner("🧺", "t-blue", "Care diary only", "", "Hide levels, quests and stickers"), h("span.set-sw", { "aria-hidden": "true" })))),
+      } }, ...inner("🧺", "t-blue", "Care diary only", "", "Hide levels, quests and stickers"), h("span.set-sw", { "aria-hidden": "true" }))),
+      h("li", h("button.set-row", { type: "button", role: "switch", "aria-checked": String(S.settings.sound !== false), "data-k": "m-sound", onclick: async () => {
+        const on = S.settings.sound === false;
+        buzz();
+        await setSetting("sound", on, { quiet: false });
+        if (on) sound("tick");
+      } }, ...inner("🔔", "t-gold", "Sounds", "", "A soft tick when you log, a little tune for wins"), h("span.set-sw", { "aria-hidden": "true" })))),
     group("g-app", "App",
       row("⚖️", "t-blue", "Units", u, "#/more/units", "m-units"),
       row("💾", "t-tan", "Backup", S.settings.lastBackup ? fmtDate(S.settings.lastBackup, { day: "numeric", month: "short" }) : "Never", "#/more/backup", "m-backup"),

@@ -7,6 +7,7 @@ import { h, put, em, uid, sheet, toast, confirmBox, isoDate, addDays, addMonths,
 import { ALSO_NOTICED, scaleFor, poopScale, skillsFor, medStatus, fromUnit, toUnit, medIsActive, recordStatus, currentRecords, healthAlerts, recordDoneCheck } from "./logic.js";
 import { saveErrorText } from "./db.js";
 import * as ics from "./ics.js";
+import { sound } from "./sound.js";
 
 export const SPECIES = [
   { id: "dog", label: "Dog", emoji: "🐶" },
@@ -447,6 +448,7 @@ function celebrate(type) {
 /** After any one-tap log: bounce, then a short "🍽️ Meal logged" with Undo and Details. */
 function afterLog(ev, label, weekBefore, extra = "") {
   celebrate(ev.type);
+  sound("tick");
   const t = TYPES[ev.type] || {};
   const what = label || t.label || "That";
   let msg = `${t.emoji ? `${t.emoji} ` : ""}${what[0].toUpperCase()}${what.slice(1)} logged.${extra}`;

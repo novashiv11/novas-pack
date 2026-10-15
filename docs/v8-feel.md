@@ -73,3 +73,9 @@ Minor issues, also fixed:
 - **More's profile header** has the same sky as Today, and the four stat tiles are tinted (orange, blue, green, purple).
 - **The remaining outlined containers** are soft cards (an audit script found 20 of them). Folds keep a hairline. The trainer rank and practice-week cards use a gold tint. The "Don't feed" warning has a red side accent.
 - **Checks:** 27 game tests, the persona scripts at 320 light and 390 dark (no errors, no overflow, no small targets) and fast tab taps all pass. This was CSS plus one emoji, so there was no separate QA agent this time.
+
+## v8.4 (15 Oct): juice and the welcome sky
+- **Sounds,** made on the phone (Web Audio, no files): a soft two-note tick on every log, and a short four-note tune for real wins (Day complete, Mission complete, badges and level-ups). They're quiet and never play on a timer. More → "Sounds" turns them off (`settings.sound`).
+- **Sparks:** a ring of sparks in the row's care colour bursts from a row you just finished. There are none with reduced motion.
+- **Welcome:** Nova sits in the same time-of-day sky as Today, with the buttons right under it. The how-it-works cards and the restore fold are soft cards.
+- **Checks:** sound off plays nothing (verified), and there are no errors, overflow or small targets on Welcome at 320 and 390, light and dark, morning and night. Game tests and persona scripts pass.

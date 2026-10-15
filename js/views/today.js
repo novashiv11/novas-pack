@@ -13,6 +13,7 @@ import { eventList, NOVA } from "./parts.js";
 import { trainingPicker, confetti, shareWinBtn, xpProgress, gameOf } from "./gameui.js";
 import { doNow, planSheet, planText, weekAndSticker } from "./doitnow.js";
 import * as G from "../game.js";
+import { sound } from "../sound.js";
 
 const startOfDay = () => { const d = new Date(); d.setHours(0, 0, 0, 0); return d.getTime(); };
 const todayOf = (p, type) => S.events.filter((e) => e.petId === p.id && e.type === type && e.at >= startOfDay()).sort((a, b) => b.at - a.at);
@@ -85,7 +86,7 @@ const svgEl = (t, a) => { const x = document.createElementNS(SVGNS, t); for (con
 const LOG_CAT = { meal: "meals", treat: "meals", walk: "walk", play: "play", training: "train", poop: "poop", eggs: "eggs", med: "med", symptom: "med", vet: "train", weight: "own", care: "own" };
 
 /** v8 "pet stage": the time of day as a sky (morning, day, evening, night) behind the pet. */
-const timeOfDay = (hr = new Date().getHours()) => (hr < 5 || hr >= 21 ? "night" : hr < 11 ? "morning" : hr < 17 ? "day" : "evening");
+export const timeOfDay = (hr = new Date().getHours()) => (hr < 5 || hr >= 21 ? "night" : hr < 11 ? "morning" : hr < 17 ? "day" : "evening");
 const stageSeen = new Map(); // where the big ring was last time, so it slides on instead of jumping
 
 /** The pet as the hero of Today (Finch-style): their photo big, the day's ring round them, their name, Nova's line, the week. */
@@ -169,7 +170,8 @@ function rowTile(p, r, prev, next = false) {
   return h("li", h(`button.td-row${r.done ? ".done" : ""}${just ? ".just" : ""}${bump ? ".bump" : ""}${next ? ".next" : ""}`, { type: "button", "data-k": `td-${r.key}`, "data-cat": cat, onclick: (e) => tapRow(e, r) },
     h("span.td-node", nodeRing(k, prev ? (prev.done ? 1 : Math.min(1, prev.n / (prev.need || 1))) : null),
       h("span.td-e", { "aria-hidden": "true" }, r.done ? "✓" : r.e),
-      pop ? h("span.td-pop", { "aria-hidden": "true" }, pop) : null),
+      pop ? h("span.td-pop", { "aria-hidden": "true" }, pop) : null,
+      just ? h("span.td-burst", { "aria-hidden": "true" }, [0, 45, 90, 135, 180, 225, 270, 315].map((a) => h("i", { style: `--a:${a}deg` }))) : null),
     h("span.td-t", h("b", r.label), h("span.td-s", r.sub)),
     next ? h("span.td-next", { "aria-hidden": "true" }, "Next") : h("span.td-plus", { "aria-hidden": "true" }, r.done ? "" : "+"),
     h("span.vh", r.done ? ", done" : ", tap to log")));
@@ -229,6 +231,7 @@ function weekStrip(p) {
 /** "Day complete!": one full-screen end card (Nova, the week, today's sticker, Continue) instead of stacked dialogs. */
 function dayComplete(p) {
   if (document.querySelector("dialog.daydone[open]")) return;
+  sound("win");
   const ws = weekAndSticker(p);
   const dlg = h("dialog.daydone", { "aria-labelledby": "dd-h" });
   const close = () => dlg.close();

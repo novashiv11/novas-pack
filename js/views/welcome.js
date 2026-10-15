@@ -11,7 +11,7 @@ import { importForm } from "./more.js";
 import { inAppBanner, installCard } from "../install.js";
 import { trainingPicker, confetti } from "./gameui.js";
 import { ANCHORS } from "./doitnow.js";
-import { dayPreview, novaSay } from "./today.js";
+import { dayPreview, novaSay, timeOfDay } from "./today.js";
 import { scene } from "../scenes.js";
 import { SCENES } from "../../data/scenes.js";
 import * as ics from "../ics.js";
@@ -202,9 +202,11 @@ export function welcome(main, arg, sub) {
     ["3", "Share the win", SCENES.stay && SCENES.stay[3]],
   ];
   put(main, h("section.welcome",
-    nova, hint,
-    h("h1", { tabindex: "-1", id: "page-title" }, "Tiny daily wins with your pet."),
-    h("p.lede", "One minute a day. Free, private, no account."),
+    h(`div.stage.wel-stage.tod-${timeOfDay()}`,
+      h("span.st-sky", { "aria-hidden": "true" }, h("span.st-sun"), h("span.st-cloud.c1"), h("span.st-cloud.c2")),
+      nova, hint,
+      h("h1", { tabindex: "-1", id: "page-title" }, "Tiny daily wins with your pet."),
+      h("p.lede", "One minute a day. Free, private, no account.")),
     h("div.welcome-ctas",
       h("a.btn.btn-blue.wide", { href: "#/welcome/add", "data-k": "wel-add" }, "Add my pet"),
       h("a.btn.btn-line.wide", { href: "#/ready", "data-k": "wel-ready" }, "No pet yet? Get ready")),

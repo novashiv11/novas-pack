@@ -13,6 +13,7 @@ import { skillsFor } from "../logic.js";
 import { setLogHooks, eventSheet, saveError } from "../forms.js";
 import * as G from "../game.js";
 import { NOVA } from "./parts.js";
+import { sound } from "../sound.js";
 
 // ---------- derived game state (cached until the next change or a new day) ----------
 export function ctxFor(p) {
@@ -124,6 +125,7 @@ function heroNova(size = 96) {
 
 export function celebrate(items, p = null) {
   if (document.querySelector("dialog.cele[open]")) { celeQueue.push({ items, p }); return; }
+  sound("win");
   const title = items.length === 1 ? items[0].title : "Look at you two";
   const { dlg } = sheet(title, (body, close) => {
     put(body,
@@ -148,6 +150,7 @@ export function celebrate(items, p = null) {
 export async function missionComplete(p, before, after, { title, name, line, minutes, mood, xp, bonus, firstToday, more, win } = {}) {
   if (S.settings.careOnly) { toast("Session logged. Nice one."); return; }
   if (document.querySelector("dialog.cele[open]")) { celeQueue.push({ items: changes(p, gameOf(p), before, after), p }); return; }
+  sound("win");
   let D = null;
   try { D = await import("./doitnow.js"); } catch { /* fine: no dots */ }
   const ws = D ? D.weekAndSticker(p) : null;
