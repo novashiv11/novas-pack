@@ -65,3 +65,11 @@ Minor issues, also fixed:
 - The camera button's icon is bigger and visible in dark mode.
 - Slides follow depth: a deeper screen slides forward; switching to another screen fades.
 - Toast labels start with a capital letter, and focus goes to the page title after Undo.
+
+## v8.3 (15 Oct): the same feel on Train, Health and More
+- **Nova's line on every screen** is now one compact pill: a small face and a tinted bubble, with no outline or tail.
+- **Segmented controls** (Skills / Adventures / Academy, and the Health sections) are a light track with a raised pill, iOS style, instead of a dark block.
+- **Today's quest** is a featured card: a soft blue sky, with the skill's picture in a circle.
+- **More's profile header** has the same sky as Today, and the four stat tiles are tinted (orange, blue, green, purple).
+- **The remaining outlined containers** are soft cards (an audit script found 20 of them). Folds keep a hairline. The trainer rank and practice-week cards use a gold tint. The "Don't feed" warning has a red side accent.
+- **Checks:** 27 game tests, the persona scripts at 320 light and 390 dark (no errors, no overflow, no small targets) and fast tab taps all pass. This was CSS plus one emoji, so there was no separate QA agent this time.

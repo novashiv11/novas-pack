@@ -70,6 +70,7 @@ export function training(main, arg, sub) {
   }
   if (q) {
     put(main, h("section.quest-card.tq", { "aria-labelledby": "dq-h" },
+      h("span.tq-em", { "aria-hidden": "true" }, skillEmoji(q.skillId)),
       h("p.eyebrow", { id: "dq-h" }, "Today's quest · optional"),
       howTo(q.skillId, q.text, { k: "quest-howto" }),
       q.done ? h("p.small", em("✅"), " Done today. Nova approves.")

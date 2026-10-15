@@ -177,3 +177,58 @@ html[data-nav="back"]::view-transition-new(page){animation-name:v8-in-left}
   .st-fill{transition:none}
   .td-row,.td-row:active,.st-cam:active{transition:none;transform:none}
 }
+
+/* ================= v8.3: the same feel on Train, Health and More ================= */
+/* Nova's line on every screen: one compact pill (small face, tinted bubble, no outline or tail) */
+.nova-say{align-items:center;gap:10px;margin:8px 0 12px}
+.nova-say .ns-head,.nova-say .ns-face{width:38px;height:38px}
+.nova-say .ns-head .nova-face,.nova-say .ns-face .disc{width:38px;height:38px;padding:2px;box-shadow:none}
+.nova-say .bubble,.nova-say .ns-bubble,.nova-say-bubble{border:0;border-radius:18px;background:color-mix(in srgb,var(--blue) 8%,var(--surface));box-shadow:none;padding:9px 14px;font-weight:700;font-size:var(--t14);line-height:1.4}
+.nova-say .bubble::before,.nova-say .ns-bubble::before,.nova-say-bubble::before{display:none}
+.mood-proud .ns-bubble,.nova-say.mood-proud .nova-say-bubble,.timer-say.cheer .nova-say-bubble{background:var(--gold-soft)}
+.mood-proud .ns-face .disc{box-shadow:0 0 0 2px var(--gold)}
+.hv-bubble{gap:10px}
+.hv-bubble .nova-face{width:38px;height:38px;padding:2px}
+.hv-say{display:block;padding:9px 14px;border-radius:18px;background:color-mix(in srgb,var(--blue) 8%,var(--surface));font-weight:700;font-size:var(--t14);line-height:1.4}
+
+/* segmented controls: a light track with a raised pill (iOS style), not a dark block */
+.seg,.hv-seg{background:var(--sunk);border-radius:14px;padding:4px;gap:2px}
+.seg a,.seg label,.hv-seg a{border-radius:11px;color:var(--muted);font-weight:800;transition:background .2s,color .2s,box-shadow .2s}
+.seg input:checked + label,.seg a[aria-current="page"],.hv-seg a[aria-current="page"],
+.seg input:checked + label:hover,.seg a[aria-current="page"]:hover{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(30,27,23,.08),0 3px 10px rgba(30,27,23,.1)}
+.hv-seg a:active{transform:scale(.97)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .seg input:checked + label,:root:not([data-theme="light"]) .seg a[aria-current="page"],:root:not([data-theme="light"]) .hv-seg a[aria-current="page"]{background:#3A332C;color:var(--ink);box-shadow:0 2px 8px rgba(0,0,0,.4)}}
+:root[data-theme="dark"] .seg input:checked + label,:root[data-theme="dark"] .seg a[aria-current="page"],:root[data-theme="dark"] .hv-seg a[aria-current="page"]{background:#3A332C;color:var(--ink);box-shadow:0 2px 8px rgba(0,0,0,.4)}
+
+/* Train: today's quest as a featured card with the skill's picture */
+.quest-card.tq{position:relative;overflow:hidden;border:0;border-radius:24px;padding:18px 16px 16px;background:linear-gradient(150deg,#D5E7F5 0%,#EEF5FA 55%,var(--surface) 100%);box-shadow:var(--elev)}
+.tq .eyebrow{color:var(--c-train);padding-right:64px}
+.tq h3,.tq .howto-title{padding-right:64px}
+.tq-em{position:absolute;top:14px;right:14px;width:56px;height:56px;display:grid;place-items:center;border-radius:50%;background:var(--surface);font-size:30px;box-shadow:var(--elev)}
+.tq .howto{background:transparent;border:0}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .quest-card.tq{background:linear-gradient(150deg,#1D3446 0%,#1F2A33 55%,var(--surface) 100%)}}
+:root[data-theme="dark"] .quest-card.tq{background:linear-gradient(150deg,#1D3446 0%,#1F2A33 55%,var(--surface) 100%)}
+
+/* More: the profile header gets the same sky as Today; containers lose their bottom ledge */
+.mh,.bd-sum,.stk-sum,.set-list,.pf-for,.pf-list,.un-card,.bk-status,.jr-week,.album,.install-steps li,.pc,.medal-cell{border:0;box-shadow:var(--elev)}
+.mh{border-radius:26px;overflow:hidden}
+.mh-banner{height:84px;background:linear-gradient(165deg,#BFDDF2 0%,#E4F0F7 60%,#FBF2DF 100%);background-image:linear-gradient(165deg,#BFDDF2 0%,#E4F0F7 60%,#FBF2DF 100%)}
+.mh-banner::after{content:"";position:absolute;top:16px;right:22px;width:34px;height:34px;border-radius:50%;background:radial-gradient(circle at 40% 40%,#FFE9A8,#F2B544);box-shadow:0 0 30px rgba(242,181,68,.5)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .mh-banner{background-image:linear-gradient(165deg,#1D3446 0%,#1E2830 60%,#2A241D 100%)}}
+:root[data-theme="dark"] .mh-banner{background-image:linear-gradient(165deg,#1D3446 0%,#1E2830 60%,#2A241D 100%)}
+.mh > .avatar{border:4px solid var(--surface);box-shadow:var(--elev-2)}
+.mh-stat{border:0;background:color-mix(in srgb,var(--sc,var(--c-train)) 10%,var(--surface));box-shadow:none}
+.mh-stats li:nth-child(1) .mh-stat{--sc:var(--c-meals)}
+.mh-stats li:nth-child(2) .mh-stat{--sc:var(--c-train)}
+.mh-stats li:nth-child(3) .mh-stat{--sc:var(--c-walk)}
+.mh-stats li:nth-child(4) .mh-stat{--sc:var(--c-own)}
+.mh-stat:hover{border:0;box-shadow:0 0 0 2px color-mix(in srgb,var(--sc) 40%,transparent)}
+@media (prefers-reduced-motion: reduce){.seg a,.seg label,.hv-seg a{transition:none}.hv-seg a:active{transform:none}}
+
+/* the remaining outlined containers: soft cards; folds keep a hairline; accent cards use a tint, not a border */
+.card,.partner,.home-more,.walk-card,.sk-hero,.alb-page,.hv-weekcard,.care-card,.hv-vetbar,.jr-box{border:0;box-shadow:var(--elev)}
+details.fold,details.more-box{border:1px solid var(--hair)}
+details.howto,.sk-steps .howto{border:0;background:color-mix(in srgb,var(--blue) 7%,var(--surface))}
+.streak-card,.rank-card{border:0;background:linear-gradient(160deg,var(--gold-soft) 0%,var(--surface) 70%);box-shadow:var(--elev)}
+.hv-clear{border:0;background:color-mix(in srgb,var(--blue) 9%,var(--surface));box-shadow:none}
+.hv-warn{border:0;border-left:4px solid var(--danger);background:var(--danger-soft);box-shadow:none}
