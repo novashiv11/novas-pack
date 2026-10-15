@@ -13,6 +13,7 @@ import { subBar, avatar, chevron, sampleStrip, emptyState, NOVA } from "./parts.
 import { gameOf, trainerFor } from "./gameui.js";
 import { openPartnerCard } from "../sharecard.js";
 import { sound } from "../sound.js";
+import { recapSheet } from "./recap.js";
 
 export const APP_VERSION = "2.0";
 const CARD_SPECIES = { dog: "dog", cat: "cat", rabbit: "small", bird: "bird", other: "other" };
@@ -97,6 +98,7 @@ export function more(main, arg) {
       h("div.row-btns.left", h("button.btn.btn-blue.sm", { type: "button", onclick: () => UI.applyUpdate() }, "Update now"))) : null,
     hero(p),
     a ? group("g-lvl", "Level up",
+      p ? btnRow("🗓️", "t-blue", "This week", "Recap", () => recapSheet(p, 0), "m-recap") : null,
       row("🍪", "t-gold", "Nova's treat jar", "Stickers", "#/more/jar", "m-jar"),
       row("🎨", "t-tan", "Art studio", "Play", "#/studio", "m-studio"),
       row("🏅", "t-gold", "Badges", `${earned} of ${a.badges.length}`, "#/more/badges", "m-badges"),

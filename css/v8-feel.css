@@ -252,3 +252,22 @@ details.howto,.sk-steps .howto{border:0;background:color-mix(in srgb,var(--blue)
 /* ================= v8.5: a row's entries for today ================= */
 .td-row{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
 .rs-sub{margin:0 0 8px;font-weight:700;color:var(--muted);font-size:var(--t14)}
+
+/* ================= v8.6: the week recap ================= */
+.rc-card{position:relative;display:flex;align-items:stretch;border-radius:22px;background:linear-gradient(150deg,#D5E7F5 0%,var(--surface) 75%);box-shadow:var(--elev)}
+.rc-open{flex:1;min-width:0;display:flex;align-items:center;gap:12px;min-height:72px;padding:12px 8px 12px 14px;border:0;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.rc-open .rc-e{flex:none;width:48px;height:48px;display:grid;place-items:center;border-radius:16px;background:var(--surface);font-size:1.5rem;box-shadow:var(--elev)}
+.rc-t{display:flex;flex-direction:column;min-width:0;font-size:var(--t14);color:var(--muted);font-weight:600}
+.rc-t b{font-family:var(--f-display);font-size:var(--t18);color:var(--ink)}
+.rc-x{flex:none;width:44px;min-height:44px;border:0;background:none;color:var(--muted);font-size:1rem;cursor:pointer;border-radius:12px}
+.rc-hero{display:flex;flex-direction:column;align-items:center;gap:6px;padding:4px 0 10px}
+.rc-range{margin:0;font-weight:800;color:var(--muted);font-size:var(--t14)}
+.rc-tiles{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px}
+.rc-tile{display:flex;flex-direction:column;align-items:center;gap:2px;padding:12px 4px;border-radius:16px;background:color-mix(in srgb,var(--blue) 7%,var(--surface));text-align:center}
+.rc-tile .rc-e{font-size:1.5rem;line-height:1.1}
+.rc-tile b{font-family:var(--f-display);font-size:1.4rem;line-height:1.1}
+.rc-tile span:last-child{font-size:var(--t12);font-weight:700;color:var(--muted)}
+.rc-badges{margin:12px 0 0;font-weight:700}
+.rc-line{margin:12px 0;padding:10px 14px;border-radius:16px;background:var(--gold-soft);font-weight:700;font-size:var(--t14)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .rc-card{background:linear-gradient(150deg,#1D3446 0%,var(--surface) 75%)}}
+:root[data-theme="dark"] .rc-card{background:linear-gradient(150deg,#1D3446 0%,var(--surface) 75%)}

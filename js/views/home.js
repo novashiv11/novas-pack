@@ -12,6 +12,7 @@ import { gameOf, trainerFor, bar, ring } from "./gameui.js";
 import { openPartnerCard } from "../sharecard.js";
 import { exportBackup } from "./more.js";
 import { installCard } from "../install.js";
+import { recapCard } from "./recap.js";
 
 export function home(main) {
   const p = pet();
@@ -22,6 +23,7 @@ export function home(main) {
     sampleStrip(p),
     alertCard(healthAlerts(p, Date.now()), p),
     todayCard(p),
+    recapCard(p),
     dueToday(p),
     todaySoFar(p),
     care ? careLinks() : homeMore(p, a, tr),

@@ -84,3 +84,11 @@ Minor issues, also fixed:
 - **Tap a done row on Today** to open its entries for today, e.g. "🚶 Walk · 08:00". Tap an entry to change it, or press "Log another". This replaces the old "done for today" toast.
 - **Long-press any row** (about half a second) to open the same sheet, so you can fix the first meal before logging the second. A long-press never logs anything.
 - **Medicines:** a medicine that's done shows what was given, with "Questions about doses go to your vet" and no "Log another" button. That keeps it vet-first and avoids nudging toward a second dose.
+
+## v8.6 (15 Oct): "Bran's week" recap
+- **On Sunday** a card on Home shows this week, Monday to Sunday. **On Monday** it shows last week. ✕ hides it for that week. More → "This week" opens it on any day.
+- **The recap** lists days together (x/7), walks, meals, play, training, care, stamps and new badges. Only real numbers appear, and zeros are left out.
+  - Nova adds one line: 6+ days, 3+ days ("a week won"), or "small weeks count too".
+  - "📸 Share the week" makes the Story trophy card.
+- **Empty weeks show nothing** on Home, so there's no guilt. The sample pet gets no card.
+- Code: `js/views/recap.js`.
