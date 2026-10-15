@@ -257,7 +257,10 @@ export function toast(msg, actions = [], { ms, icon } = {}) {
     box.replaceChildren();
   };
   const btns = actions.map(([label, fn]) => h(`button.toast-btn${label === "Undo" ? ".undo" : ""}`, { type: "button", "data-k": label === "Undo" ? "toast-undo" : undefined, onclick: () => {
-    box.classList.remove("show"); box.replaceChildren(); clearTimeout(toastTimer); fn();
+    const t = document.getElementById("page-title"); // focus doesn't fall to the page body when the toast goes
+    box.classList.remove("show"); box.replaceChildren(); clearTimeout(toastTimer);
+    if (t) t.focus({ preventScroll: true });
+    fn();
   } }, label));
   const kind = TOAST_KINDS[icon] ? icon : toastKind(String(msg));
   // Re-trigger the pop when a new toast replaces one that is still showing.

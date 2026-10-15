@@ -448,7 +448,8 @@ function celebrate(type) {
 function afterLog(ev, label, weekBefore, extra = "") {
   celebrate(ev.type);
   const t = TYPES[ev.type] || {};
-  let msg = `${t.emoji ? `${t.emoji} ` : ""}${label || t.label || "That"} logged.${extra}`;
+  const what = label || t.label || "That";
+  let msg = `${t.emoji ? `${t.emoji} ` : ""}${what[0].toUpperCase()}${what.slice(1)} logged.${extra}`;
   if (weekBefore && !weekBefore.thisWeek) {
     const st = weeklyStreak(eventsOf("training", ev.petId).map((e) => e.at));
     if (st.thisWeek) { UI.weekPulse = isoWeek(ev.at); msg = `Week ${st.weeks}. Acceptable.${extra}`; }

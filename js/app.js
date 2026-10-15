@@ -99,16 +99,16 @@ function draw() {
 
   // v8: moving between screens feels like an app. Another tab cross-fades; deeper screens slide in from the right,
   // and going back slides them out. No motion when the phone asks for less, or when the browser can't do it.
-  const depth = [arg, sub].filter(Boolean).length, tab = TAB_OF[name] || name;
-  const dir = !navigated || !started ? "" : tab !== lastNav.tab ? "tab" : depth > lastNav.depth ? "fwd" : depth < lastNav.depth ? "back" : "tab";
-  lastNav = { tab, depth };
+  const depth = [arg, sub].filter(Boolean).length;
+  const dir = !navigated || !started ? "" : depth > lastNav.depth ? "fwd" : depth < lastNav.depth && name === lastNav.name ? "back" : "tab";
+  lastNav = { name, depth };
   const paint = () => paintRoute(name, arg, sub, navigated, focusKey, y);
   if (dir && document.startViewTransition && motionOK()) {
     document.documentElement.dataset.nav = dir;
     try { document.startViewTransition(paint); } catch { paint(); }
   } else paint();
 }
-let lastNav = { tab: "", depth: 0 };
+let lastNav = { name: "", depth: 0 };
 
 function paintRoute(name, arg, sub, navigated, focusKey, y) {
   document.body.classList.toggle("first-run", name === "welcome");

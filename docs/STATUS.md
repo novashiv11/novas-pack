@@ -2,7 +2,7 @@
 
 The **co-captain** (Claude, the main session) updates this file after every step and commits it, so no work is lost when a session stops or hits a usage limit. The full backlog is in `docs/crq.md` and decisions are in `docs/decisions.md`.
 
-**Last updated:** 15 Oct 2026 (v7.3 live; all buildable work done).
+**Last updated:** 15 Oct 2026 (v8.2 "feel" live; all buildable work done).
 
 ## How we never lose work
 1. Every request from Shiv goes into `docs/crq.md` first, with an ID, before any work starts.
@@ -11,7 +11,7 @@ The **co-captain** (Claude, the main session) updates this file after every step
 4. Agents write into files in the repo (never only into chat), and the co-captain commits their work as soon as each agent finishes.
 5. If an agent dies at a limit, its CRQ goes back to "Planned" here, along with whatever partial files it left.
 
-## Now (15 Oct): v7.3 live, nothing buildable left
+## Now (15 Oct): v8.2 live, nothing buildable left
 
 | Version | What shipped |
 |---|---|
@@ -20,6 +20,7 @@ The **co-captain** (Claude, the main session) updates this file after every step
 | v7.1 | The XP bar fills, the next row pulses, Home extras folded, meals a day in onboarding |
 | v7.2 | Your own checklist items (e.g. eye drops), the training row names this week's skill, a step-by-step flow for the 2nd pet |
 | v7.3 (15 Oct) | "Do it for them" replaces the old 1% wording (CRQ-001); the pet row fades at the edge when it scrolls; Train for hens, horses and other pets with no skills yet points to stamps and lessons; a stamp and its badge or level-up share one screen; old Home code removed |
+| v8.2 (15 Oct) | "Feel" pass (CRQ-052, `docs/v8-feel.md`): the pet is the hero of Today (time-of-day sky, ring, mood), a colour per kind of care, soft depth, glass bars, app-like slides, a compact toast. QA: 2 Major fixed |
 
 Tests: 27 game tests pass; smoke runs at 320 px light and 390 px dark with no errors, no sideways scroll and no small targets.
 

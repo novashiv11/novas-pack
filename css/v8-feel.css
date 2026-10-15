@@ -5,7 +5,7 @@
   --hair:rgba(30,27,23,.09);
   --elev:0 1px 2px rgba(40,30,15,.06),0 4px 14px rgba(40,30,15,.07);
   --elev-2:0 2px 4px rgba(40,30,15,.06),0 14px 32px rgba(40,30,15,.13);
-  --glass:color-mix(in srgb,var(--surface) 80%,transparent);
+  --glass:color-mix(in srgb,var(--surface) 92%,transparent);
   --spring:cubic-bezier(.3,1.5,.5,1);
   /* one colour per kind of care (icons, rings, done rows); --on-cat is the tick on a filled chip */
   --c-meals:#D9702A; --c-walk:#2E8B57; --c-play:#C8457C; --c-train:#2A6FA8; --c-poop:#8C6239; --c-eggs:#A0710A; --c-med:#C2413A; --c-own:#6E55C2;
@@ -37,6 +37,7 @@
 
 /* ---------- screen transitions: tabs cross-fade, deeper screens slide (app.js sets html[data-nav]) ---------- */
 #main{view-transition-name:page}
+::view-transition{pointer-events:none} /* taps during the slide reach the new screen */
 ::view-transition-old(page),::view-transition-new(page){animation-duration:.28s;animation-timing-function:cubic-bezier(.2,.8,.2,1);animation-fill-mode:both}
 html[data-nav="tab"]::view-transition-old(page){animation-name:v8-fade-out;animation-duration:.12s}
 html[data-nav="tab"]::view-transition-new(page){animation-name:v8-fade-up}
@@ -113,12 +114,16 @@ html[data-nav="back"]::view-transition-new(page){animation-name:v8-in-left}
 .stage .td-week .wk-dot{background:rgba(255,255,255,.55);border-color:transparent;color:#1E1B17}
 .stage .td-week .wk-dot.on{background:var(--gold);color:#1E1B17}
 .stage .td-week .wk-dot.today{outline-color:currentColor}
-.stage .td-wk-t{font-weight:700;font-size:var(--t12);opacity:.85}
+.stage .td-wk-t{color:inherit;font-weight:700;font-size:var(--t12)}
+.st-cam{font-size:20px;line-height:1}
 .tod-night .st-say,.tod-night .st-cam{background:rgba(255,255,255,.14);color:#F5EEE4}
 .tod-night .td-week .wk-dot:not(.on){background:rgba(255,255,255,.14);color:#F5EEE4}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .st-say,:root:not([data-theme="light"]) .st-cam{background:rgba(255,255,255,.12);color:#F5EEE4}
   :root:not([data-theme="light"]) .stage .td-week .wk-dot:not(.on){background:rgba(255,255,255,.12);color:#F5EEE4}}
 :root[data-theme="dark"] .st-say,:root[data-theme="dark"] .st-cam{background:rgba(255,255,255,.12);color:#F5EEE4}
+.tod-night .st-cam{background:rgba(255,255,255,.24);box-shadow:0 0 0 1px rgba(255,255,255,.3)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .st-cam{background:rgba(255,255,255,.24);box-shadow:0 0 0 1px rgba(255,255,255,.3)}}
+:root[data-theme="dark"] .st-cam{background:rgba(255,255,255,.24);box-shadow:0 0 0 1px rgba(255,255,255,.3)}
 :root[data-theme="dark"] .stage .td-week .wk-dot:not(.on){background:rgba(255,255,255,.12);color:#F5EEE4}
 
 /* ---------- Today's list: a colour per kind of care ---------- */
@@ -143,7 +148,8 @@ html[data-nav="back"]::view-transition-new(page){animation-name:v8-in-left}
 .td-row.done{background:color-mix(in srgb,var(--cat) 10%,var(--surface));border:0;box-shadow:none}
 .td-row.done .td-e{background:var(--cat);color:var(--on-cat)}
 .td-row.done .td-t b{text-decoration:none}
-.td-row.next{box-shadow:var(--elev),0 0 0 2px color-mix(in srgb,var(--cat) 55%,transparent)}
+.td-row.next{box-shadow:var(--elev),0 0 0 2px color-mix(in srgb,var(--cat) 55%,transparent);animation:v8-next 2s ease-in-out infinite}
+@keyframes v8-next{50%{box-shadow:var(--elev),0 0 0 6px color-mix(in srgb,var(--cat) 18%,transparent)}}
 
 /* the "+" sheet and Health's quick tiles use the same colours */
 .ls-tile{--cat:var(--c-own);border:0}
@@ -167,7 +173,7 @@ html[data-nav="back"]::view-transition-new(page){animation-name:v8-in-left}
 @media (max-width:359px){.toast{flex-wrap:wrap}}
 
 @media (prefers-reduced-motion: reduce){
-  .tabbar a[aria-current="page"] svg,.stage.up .st-face,.stage.up .st-mood{animation:none}
+  .tabbar a[aria-current="page"] svg,.stage.up .st-face,.stage.up .st-mood,.td-row.next{animation:none}
   .st-fill{transition:none}
   .td-row,.td-row:active,.st-cam:active{transition:none;transform:none}
 }

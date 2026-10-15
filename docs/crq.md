@@ -58,6 +58,6 @@ The CEO (Claude, the main session) owns this list: it adds new requests, sets th
 | CRQ-049 | Credit Shiv: CREDITS.md, README, future commits under Shiv's name | Shiv | P1 | Co-captain | Done (12 Oct) |
 | CRQ-051 | QA minors: Academy and badges dog-centric for other pets; adventures generic for hens/rabbits; hen-specific Unwell signs; Train opens by URL in care-only mode | QA | P3 | Co-captain | Mostly done (13 Oct): hen Unwell signs, rabbit and hen stamps, care-only guard. Academy lessons for cats, rabbits and hens added 13 Oct (sources cited; Mentor now 6 lessons) |
 | CRQ-050 | Reddit/community launch post (copy drafted in chat): link the website, not the APK; hide email on GitHub | Shiv | P2 | **Shiv** | Shiv to post |
-| CRQ-052 | "The app has no feel": research modern GUI and functionality, then improve (pet as the hero, colour per care type, soft depth, glass bars, screen transitions, compact toast) | Shiv | P1 | Co-captain + QA | In QA (15 Oct, `docs/v8-feel.md`) |
+| CRQ-052 | "The app has no feel": research modern GUI and functionality, then improve (pet as the hero, colour per care type, soft depth, glass bars, screen transitions, compact toast) | Shiv | P1 | Co-captain + QA | Done (15 Oct, v8.2, `docs/v8-feel.md`): QA 0 Critical, 2 Major fixed |
 
 Done earlier on 11 Oct: Do it now (spec v3); simple steps; persona-test batch 1 (decision 48); cartoon photos; pet icons; Add-pet bar; Android APK.

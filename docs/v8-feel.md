@@ -53,3 +53,15 @@ Shiv (15 Oct): "Yaar, app mein feel nahi aa raha. Research modern GUI and functi
   - It clears when you change screen, unless it appeared in the last 1.5 s.
 
 Files: `css/v8-feel.css` (new, loaded last), `js/views/today.js`, `js/app.js`, `js/util.js`, `js/forms.js`, plus the shadow and border swap in `app.css` and `css/v7-*.css`.
+
+## QA (15 Oct)
+An independent agent found 0 Critical and 2 Major issues, both fixed:
+- Taps were dropped for about 0.35 s during a screen slide. `::view-transition` now passes taps through.
+- The week label in the hero was too faint at night in light mode. It now uses the hero's text colour.
+
+Minor issues, also fixed:
+- The v7 navy pulse on the Next row was replaced by a soft colour pulse.
+- The glass bars are now 92% opaque, so text no longer shows through.
+- The camera button's icon is bigger and visible in dark mode.
+- Slides follow depth: a deeper screen slides forward; switching to another screen fades.
+- Toast labels start with a capital letter, and focus goes to the page title after Undo.
