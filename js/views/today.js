@@ -51,13 +51,13 @@ export function todayRows(p) {
   const rows = checklistOf(p).map((id) => {
     const it = ITEMS[id], list = todayOf(p, it.type), need = it.target(p), n = Math.min(list.length, need);
     const last = list[0] ? new Date(list[0].at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "";
-    return { key: id, e: it.e, label: it.label(p), done: list.length >= need, n, need,
+    return { key: id, e: it.e, label: it.label(p), done: list.length >= need, n, need, events: () => todayOf(p, it.type),
       sub: list.length ? `${need > 1 ? `${n} of ${need} · ` : ""}${last}` : need > 1 ? `0 of ${need}` : it.hint ? it.hint(p) : "Tap when done", tap: () => it.tap(p) };
   });
   // Your own items ("Eye drops", "Brush teeth"): one tap logs a task, no XP.
   for (const c of customsOf(p)) {
     const hit = todayOf(p, "task").find((e) => e.task === c.id);
-    rows.push({ key: `c-${c.id}`, e: c.e, label: c.label, done: !!hit, n: hit ? 1 : 0, need: 1,
+    rows.push({ key: `c-${c.id}`, e: c.e, label: c.label, done: !!hit, n: hit ? 1 : 0, need: 1, events: () => todayOf(p, "task").filter((e) => e.task === c.id),
       sub: hit ? new Date(hit.at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Tap when done", tap: () => quickLog("task", { task: c.id, name: c.label }, c.label) });
   }
   const dueIds = new Set();
@@ -65,7 +65,7 @@ export function todayRows(p) {
     if (it.kind !== "med") continue;
     const st = it.st;
     dueIds.add(it.med.id);
-    rows.push({ key: `med-${it.med.id}`, e: "💊", label: it.med.name, done: false, n: st.daily ? st.given : 0, need: st.daily ? st.need : 1,
+    rows.push({ key: `med-${it.med.id}`, e: "💊", label: it.med.name, done: false, n: st.daily ? st.given : 0, need: st.daily ? st.need : 1, events: () => todayOf(p, "med").filter((e) => e.medId === it.med.id),
       sub: st.daily ? `${st.given} of ${st.need} given today` : st.overdue ? "Overdue" : "Due today", tap: () => markGiven(it.med) });
   }
   // Medicines given today stay on the list, ticked (so the ring doesn't shrink).
@@ -73,7 +73,7 @@ export function todayRows(p) {
   for (const e of todayOf(p, "med")) if (e.medId && !dueIds.has(e.medId) && !given.has(e.medId)) given.set(e.medId, e);
   for (const [id, e] of given) {
     const m = S.meds.find((x) => x.id === id);
-    rows.push({ key: `med-${id}`, e: "💊", label: (m && m.name) || e.name || "Medicine", done: true, n: 1, need: 1,
+    rows.push({ key: `med-${id}`, e: "💊", label: (m && m.name) || e.name || "Medicine", done: true, n: 1, need: 1, events: () => todayOf(p, "med").filter((x) => x.medId === id),
       sub: `Given ${new Date(e.at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`, tap: () => toast(`${(m && m.name) || "That medicine"} is done for today.`) });
   }
   return rows;
@@ -136,11 +136,35 @@ export function novaSay(text, mood = "happy", extra = null) {
 // One tap logs once: a short lock stops double taps, and a done row asks before logging another.
 const lockUntil = new Map(); // per row, so a quick tap on another row still works
 function tapRow(e, r) {
+  if (pressed === r.key) { pressed = ""; return; } // the long-press already opened the sheet
   if (Date.now() < (lockUntil.get(r.key) || 0)) return;
   lockUntil.set(r.key, Date.now() + 1200);
   buzz(12);
-  if (r.done && !r.key.startsWith("med-")) { toast(`${r.label}: done for today.`, [["Log another", () => r.tap()]]); return; }
+  if (r.done) { rowSheet(r); return; }
   r.tap();
+}
+
+// v8.5: a done row (or a long-press on any row) opens today's entries for it: tap one to edit it, or log another.
+let pressed = "";
+function holdToOpen(btn, r) {
+  let timer = 0;
+  const cancel = () => clearTimeout(timer);
+  btn.addEventListener("pointerdown", () => { cancel(); timer = setTimeout(() => { pressed = r.key; setTimeout(() => { if (pressed === r.key) pressed = ""; }, 800); buzz(20); rowSheet(r); }, 500); });
+  ["pointerup", "pointerleave", "pointercancel", "pointermove"].forEach((t) => btn.addEventListener(t, (ev) => { if (t !== "pointermove" || Math.abs(ev.movementY) > 4) cancel(); }));
+  btn.addEventListener("contextmenu", (ev) => ev.preventDefault());
+}
+
+function rowSheet(r) {
+  const list = r.events ? r.events() : [];
+  const med = r.key.startsWith("med-");
+  sheet(`${r.e} ${r.label}`, (body, close) => {
+    const later = (fn) => { close(); setTimeout(fn, 60); };
+    put(body,
+      h("p.rs-sub", list.length ? `Today · ${list.length} ${list.length === 1 ? "entry" : "entries"}. Tap one to change it.` : "Nothing logged for this today."),
+      list.length ? eventList(list, (e) => later(() => eventSheet(e.type, e)), { single: true }) : null,
+      med && r.done ? h("p.small.muted", "Given today. Questions about doses go to your vet.")
+        : h("button.btn.btn-blue.wide", { type: "button", "data-k": "rs-more", onclick: () => later(() => r.tap()) }, list.length ? "Log another" : "Log it now"));
+  });
 }
 
 // What each row looked like the last time it was drawn, so a row that has just been completed can pop (and slide its ring).
@@ -167,14 +191,16 @@ function rowTile(p, r, prev, next = false) {
   const bump = !just && prev && r.n > prev.n;
   const pop = just ? popText(p, r) : null;
   const cat = r.key.startsWith("med-") ? "med" : r.key.startsWith("c-") ? "own" : r.key;
-  return h("li", h(`button.td-row${r.done ? ".done" : ""}${just ? ".just" : ""}${bump ? ".bump" : ""}${next ? ".next" : ""}`, { type: "button", "data-k": `td-${r.key}`, "data-cat": cat, onclick: (e) => tapRow(e, r) },
+  const btn = h(`button.td-row${r.done ? ".done" : ""}${just ? ".just" : ""}${bump ? ".bump" : ""}${next ? ".next" : ""}`, { type: "button", "data-k": `td-${r.key}`, "data-cat": cat, onclick: (e) => tapRow(e, r) },
     h("span.td-node", nodeRing(k, prev ? (prev.done ? 1 : Math.min(1, prev.n / (prev.need || 1))) : null),
       h("span.td-e", { "aria-hidden": "true" }, r.done ? "✓" : r.e),
       pop ? h("span.td-pop", { "aria-hidden": "true" }, pop) : null,
       just ? h("span.td-burst", { "aria-hidden": "true" }, [0, 45, 90, 135, 180, 225, 270, 315].map((a) => h("i", { style: `--a:${a}deg` }))) : null),
     h("span.td-t", h("b", r.label), h("span.td-s", r.sub)),
     next ? h("span.td-next", { "aria-hidden": "true" }, "Next") : h("span.td-plus", { "aria-hidden": "true" }, r.done ? "" : "+"),
-    h("span.vh", r.done ? ", done" : ", tap to log")));
+    h("span.vh", r.done ? ", done, tap to see or change" : ", tap to log"));
+  holdToOpen(btn, r);
+  return h("li", btn);
 }
 
 /** Nova's line for the top of Today: 0 done, some done, all done. */

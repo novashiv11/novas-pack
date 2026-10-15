@@ -248,3 +248,7 @@ details.howto,.sk-steps .howto{border:0;background:color-mix(in srgb,var(--blue)
 .welcome-how li,.welcome .restore{border:0;box-shadow:var(--elev)}
 
 @media (prefers-reduced-motion: reduce){.td-burst{display:none}}
+
+/* ================= v8.5: a row's entries for today ================= */
+.td-row{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+.rs-sub{margin:0 0 8px;font-weight:700;color:var(--muted);font-size:var(--t14)}

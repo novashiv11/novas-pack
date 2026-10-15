@@ -79,3 +79,8 @@ Minor issues, also fixed:
 - **Sparks:** a ring of sparks in the row's care colour bursts from a row you just finished. There are none with reduced motion.
 - **Welcome:** Nova sits in the same time-of-day sky as Today, with the buttons right under it. The how-it-works cards and the restore fold are soft cards.
 - **Checks:** sound off plays nothing (verified), and there are no errors, overflow or small targets on Welcome at 320 and 390, light and dark, morning and night. Game tests and persona scripts pass.
+
+## v8.5 (15 Oct): see and change a row's entries
+- **Tap a done row on Today** to open its entries for today, e.g. "🚶 Walk · 08:00". Tap an entry to change it, or press "Log another". This replaces the old "done for today" toast.
+- **Long-press any row** (about half a second) to open the same sheet, so you can fix the first meal before logging the second. A long-press never logs anything.
+- **Medicines:** a medicine that's done shows what was given, with "Questions about doses go to your vet" and no "Log another" button. That keeps it vet-first and avoids nudging toward a second dose.
