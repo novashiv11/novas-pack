@@ -29,7 +29,7 @@ body.first-run .appbar{display:none}
 .appbar-in{max-width:640px;margin:0 auto;display:flex;align-items:center;padding:6px max(16px,env(safe-area-inset-right)) 6px max(16px,env(safe-area-inset-left))}
 .switcher{display:flex;gap:6px;overflow-x:auto;min-width:0;flex:1;padding:3px;scrollbar-width:none;overscroll-behavior-x:contain}
 .switcher::-webkit-scrollbar{display:none}
-.pet-chip{flex:none;display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:4px 14px 4px 5px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-weight:700;font-size:var(--t14);cursor:pointer}
+.pet-chip{flex:none;display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:4px 14px 4px 5px;border-radius:12px;border:1px solid var(--hair);background:var(--surface);color:var(--ink);font:inherit;font-weight:700;font-size:var(--t14);cursor:pointer}
 .pet-chip[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:var(--on-blue)}
 .pet-chip-name{max-width:9.5em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pet-chip.add{color:var(--muted);border-style:dashed}
@@ -127,7 +127,7 @@ body.first-run .appbar{display:none}
 
 /* action sheet */
 .action-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
-.action-row{width:100%;min-height:52px;padding:10px 16px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-weight:800;font-size:var(--t16);text-align:left;cursor:pointer}
+.action-row{width:100%;min-height:52px;padding:10px 16px;border-radius:12px;border:1px solid var(--hair);background:var(--surface);color:var(--ink);font:inherit;font-weight:800;font-size:var(--t16);text-align:left;cursor:pointer}
 .action-row.danger{color:var(--danger-text);border-color:var(--danger)}
 
 /* nudges: backup, install, Pack Card, in-app browser */
@@ -168,7 +168,7 @@ body.first-run .appbar{display:none}
 /* ---------- Today ---------- */
 .ql-sec{margin-top:16px}
 .ql-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
-.ql{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:84px;min-width:0;padding:8px 2px;border-radius:16px;background:var(--surface);border:1.5px solid var(--line);box-shadow:0 3px 0 var(--line);color:var(--ink);font:inherit;cursor:pointer;transition:transform .1s ease-out,box-shadow .1s ease-out}
+.ql{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:84px;min-width:0;padding:8px 2px;border-radius:16px;background:var(--surface);border:1px solid var(--hair);box-shadow:var(--elev);color:var(--ink);font:inherit;cursor:pointer;transition:transform .1s ease-out,box-shadow .1s ease-out}
 .ql:active{transform:translateY(3px);box-shadow:0 0 0 transparent}
 .ql-em{font-size:var(--t30);line-height:1.1}
 .ql-l{font-weight:800;font-size:var(--t14);line-height:1.2;text-align:center;max-width:100%;overflow-wrap:anywhere}
@@ -183,7 +183,7 @@ body.first-run .appbar{display:none}
 .ql.bounce{animation:ql-bounce .14s ease-out}
 @keyframes ql-bounce{50%{transform:scale(.93)}}
 .due-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px}
-.due-card{border:1.5px solid var(--line);border-left:6px solid var(--blue);padding:12px 14px}
+.due-card{border:1px solid var(--hair);border-left:6px solid var(--blue);padding:12px 14px}
 .due-card.overdue{border-left-color:var(--tan);background:color-mix(in srgb,var(--tan-soft) 45%,var(--surface))}
 .due-card.today{border-left-color:var(--gold)}
 .due-top{display:grid;grid-template-columns:32px minmax(0,1fr);gap:4px 10px;align-items:start}
@@ -257,7 +257,7 @@ dialog .form > .row-btns:last-child{position:sticky;bottom:0;z-index:2;margin-bo
 .chips-row{display:flex;flex-wrap:wrap;gap:6px}
 .chip{min-height:44px;padding:6px 12px;border-radius:12px;border:1.5px solid var(--ctl);background:var(--surface);color:var(--ink);font:inherit;font-weight:700;font-size:var(--t14);text-align:left;cursor:pointer;line-height:1.25;max-width:100%}
 .choice-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-.choice{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:72px;padding:10px;border-radius:16px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-weight:800;font-size:var(--t14);cursor:pointer;text-align:center}
+.choice{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:72px;padding:10px;border-radius:16px;border:1px solid var(--hair);background:var(--surface);color:var(--ink);font:inherit;font-weight:800;font-size:var(--t14);cursor:pointer;text-align:center}
 .course-note{margin-top:0;color:var(--ink);background:var(--tan-soft)}
 .care-name{font-size:var(--t16)}
 /* folds: "Add details (optional)" and the profile groups */
@@ -368,7 +368,7 @@ details.mini summary{font-size:var(--t14)}
 .week-dots li.pulse{animation:dot-ring 1s ease-out 1}
 @keyframes dot-ring{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--gold) 70%,transparent);transform:scale(.6)}40%{transform:scale(1.1)}100%{box-shadow:0 0 0 12px transparent;transform:none}}
 .skill-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
-.skill-card{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"t p" "m p";gap:2px 10px;align-items:center;min-height:64px;padding:12px 14px;border-radius:16px;background:var(--surface);border:1.5px solid var(--line);box-shadow:0 3px 0 var(--line);color:var(--ink);text-decoration:none}
+.skill-card{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"t p" "m p";gap:2px 10px;align-items:center;min-height:64px;padding:12px 14px;border-radius:16px;background:var(--surface);border:1px solid var(--hair);box-shadow:var(--elev);color:var(--ink);text-decoration:none}
 .skill-card:hover{border-color:var(--blue)}
 .skill-title{grid-area:t;font-weight:800;font-size:var(--t16);line-height:1.25}
 .skill-meta{grid-area:m;font-size:var(--t14);color:var(--muted)}
@@ -492,7 +492,7 @@ button.partner-stage{color:var(--blue);min-height:44px}
 .journal-form label{font-weight:800;font-size:var(--t14)}
 
 /* Home: trainer strip, weekly quests, quick log, badges */
-.trainer-strip{display:grid;grid-template-columns:40px minmax(0,1fr) 18px;gap:12px;align-items:center;margin-top:16px;padding:12px 14px;border-radius:16px;background:var(--surface);border:1.5px solid var(--line);box-shadow:0 3px 0 var(--line);color:var(--ink);text-decoration:none}
+.trainer-strip{display:grid;grid-template-columns:40px minmax(0,1fr) 18px;gap:12px;align-items:center;margin-top:16px;padding:12px 14px;border-radius:16px;background:var(--surface);border:1px solid var(--hair);box-shadow:var(--elev);color:var(--ink);text-decoration:none}
 .trainer-strip:hover{border-color:var(--blue)}
 .trainer-strip .chev{width:18px;height:18px;fill:none;stroke:var(--muted);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
 .ts-ico{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:var(--gold-soft);font-size:var(--t22)}
@@ -555,7 +555,7 @@ dialog.cele .sheet-body{align-items:stretch;text-align:center}
 .timer-steps{margin-top:8px;font-size:var(--t14)}
 .check-q{font-size:var(--t18);font-weight:700;line-height:1.35}
 .pick-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
-.pick-row{display:grid;grid-template-columns:minmax(0,1fr) 44px;grid-template-areas:"t g" "m g";gap:0 10px;align-items:center;width:100%;min-height:60px;padding:8px 6px 8px 14px;border-radius:16px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;text-align:left;cursor:pointer}
+.pick-row{display:grid;grid-template-columns:minmax(0,1fr) 44px;grid-template-areas:"t g" "m g";gap:0 10px;align-items:center;width:100%;min-height:60px;padding:8px 6px 8px 14px;border-radius:16px;border:1px solid var(--hair);background:var(--surface);color:var(--ink);font:inherit;text-align:left;cursor:pointer}
 .pick-row:hover{border-color:var(--blue)}
 .pick-title{grid-area:t;font-weight:800;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .pick-meta{grid-area:m;font-size:var(--t14);color:var(--muted)}
@@ -630,7 +630,7 @@ dialog.cele .sheet-body{align-items:stretch;text-align:center}
 .sp-tip{position:absolute;top:8px;right:12px;background:var(--ink);color:var(--bg);font-size:var(--t12);font-weight:700;border-radius:12px;padding:2px 8px;pointer-events:none}
 .sp-tip:empty{display:none}
 .lesson-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
-.lesson-row{display:grid;grid-template-columns:36px minmax(0,1fr) 18px;gap:10px;align-items:center;min-height:60px;padding:8px 12px;border-radius:16px;background:var(--surface);border:1.5px solid var(--line);box-shadow:0 3px 0 var(--line);color:var(--ink);text-decoration:none}
+.lesson-row{display:grid;grid-template-columns:36px minmax(0,1fr) 18px;gap:10px;align-items:center;min-height:60px;padding:8px 12px;border-radius:16px;background:var(--surface);border:1px solid var(--hair);box-shadow:var(--elev);color:var(--ink);text-decoration:none}
 .lesson-row:hover{border-color:var(--blue)}
 .lesson-row .chev{width:18px;height:18px;fill:none;stroke:var(--muted);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
 .ls-em{font-size:var(--t22);text-align:center}
@@ -763,7 +763,7 @@ legend{max-width:100%;overflow-wrap:anywhere}
 .jar-n{position:absolute;top:8px;right:10px;font-weight:800;color:var(--muted)}
 
 /* simple steps (tap a quest) */
-.howto{border-radius:12px;background:var(--surface);border:1.5px solid var(--line);margin:8px 0}
+.howto{border-radius:12px;background:var(--surface);border:1px solid var(--hair);margin:8px 0}
 .howto summary{display:flex;flex-direction:column;gap:2px;min-height:44px;padding:10px 12px;cursor:pointer;list-style:none}
 .howto summary::-webkit-details-marker{display:none}
 .howto summary::before{display:none}
@@ -781,7 +781,7 @@ legend{max-width:100%;overflow-wrap:anywhere}
 .quest-card .howto{background:transparent;border-color:transparent;margin:4px -12px}
 
 /* due today on Home (all pets) */
-.due-today{background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:12px 14px;margin-bottom:14px}
+.due-today{background:var(--surface);border:1px solid var(--hair);border-radius:16px;padding:12px 14px;margin-bottom:14px}
 .due-today .sec-title{margin:0 0 6px}
 .due-rows{list-style:none;padding:0;margin:0;display:flex;flex-direction:column}
 .due-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
@@ -815,7 +815,7 @@ legend{max-width:100%;overflow-wrap:anywhere}
 /* feeding guide */
 .feed-guide summary{font-size:var(--t16)}
 /* Real photos as "photo stickers": white frame, soft shadow, a slight tilt (CRQ-036) */
-.feed-photo,.step-photo{margin:10px 0 12px;width:fit-content;max-width:100%;padding:8px 8px 6px;background:#fff;border-radius:14px;box-shadow:0 2px 0 var(--line),0 6px 18px rgba(30,27,23,.14);transform:rotate(-1.2deg)}
+.feed-photo,.step-photo{margin:10px 0 12px;width:fit-content;max-width:100%;padding:8px 8px 6px;background:#fff;border-radius:14px;box-shadow:var(--elev),0 6px 18px rgba(30,27,23,.14);transform:rotate(-1.2deg)}
 .step-photo{transform:rotate(1deg);margin-top:8px}
 .feed-photo img,.step-photo img{display:block;width:100%;max-width:300px;height:auto;border-radius:9px;filter:saturate(1.05)}
 .feed-photo figcaption{margin-top:6px;font-size:var(--t12);font-weight:700;color:#5C544B;text-align:center}
@@ -866,8 +866,8 @@ dialog.mission .sheet-head h2{width:100%;text-align:center;font-size:var(--t22)}
 @media (max-width:359px){.ex-l{font-size:.6875rem}}
 /* Nudge time (CRQ-035) */
 .nudge-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-.nudge-opt{display:flex;flex-direction:column;align-items:center;gap:2px;min-height:88px;padding:10px 6px;border-radius:16px;border:1.5px solid var(--line);background:var(--surface);box-shadow:0 3px 0 var(--line);color:var(--ink);font:inherit;cursor:pointer;transition:transform .1s ease-out,box-shadow .1s ease-out}
-.nudge-opt:active{transform:translateY(3px);box-shadow:none}
+.nudge-opt{display:flex;flex-direction:column;align-items:center;gap:2px;min-height:88px;padding:10px 6px;border-radius:16px;border:1px solid var(--hair);background:var(--surface);box-shadow:var(--elev);color:var(--ink);font:inherit;cursor:pointer;transition:transform .1s ease-out,box-shadow .1s ease-out}
+.nudge-opt:active{transform:scale(.98);box-shadow:none}
 .nudge-opt.on{border-color:var(--blue);box-shadow:0 3px 0 var(--blue-ledge),0 0 0 2px var(--blue-soft)}
 .nudge-e{font-size:1.6rem;line-height:1.1}
 .nudge-own{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px;font-weight:700;font-size:var(--t14)}
@@ -896,7 +896,7 @@ button.doit-plan{min-height:44px;text-align:left;font-size:var(--t14);font-weigh
 .empty-body{display:flex;flex-direction:column;gap:10px;min-width:0;flex:1}
 
 /* one tile style: 16px, 1.5px line, 3px ledge, presses down */
-.ex-tile{min-height:72px;border-radius:16px;border:1.5px solid var(--line);box-shadow:0 3px 0 var(--line)}
+.ex-tile{min-height:72px;border-radius:16px;border:1px solid var(--hair);box-shadow:var(--elev)}
 .ex-tile:active{transform:translateY(3px);box-shadow:0 0 0 transparent}
 .lc2-opt{border-radius:16px}
 .top-actions .btn{width:100%}
@@ -915,7 +915,7 @@ button.doit-plan{min-height:44px;text-align:left;font-size:var(--t14);font-weigh
 
 /* timer sheet: a dial with a face, a pop when time is up */
 .timer{gap:14px}
-.timer-ring::before{content:"";position:absolute;inset:18px;border-radius:50%;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line),0 3px 0 var(--line)}
+.timer-ring::before{content:"";position:absolute;inset:18px;border-radius:50%;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line),var(--elev)}
 .timer-ring.done::before{background:var(--gold-soft)}
 .timer-ring.done{animation:t-pop .5s cubic-bezier(.2,1.5,.4,1)}
 @keyframes t-pop{0%{transform:scale(.94)}60%{transform:scale(1.04)}100%{transform:none}}
@@ -981,7 +981,7 @@ main .form > .row-btns:last-child .btn-blue{flex:1;min-height:56px;font-size:var
 .wh-pic{margin:0;width:100%}
 .wh-pic svg{display:block;width:100%;height:auto;border-radius:10px}
 .wh-n{position:absolute;top:-8px;left:-6px;width:26px;height:26px;border-radius:50%;background:var(--blue);color:var(--on-blue);display:grid;place-items:center;font-weight:800;font-size:var(--t14)}
-.welcome-grid li{transform:rotate(-1deg);border:0;box-shadow:0 3px 0 var(--line)}
+.welcome-grid li{transform:rotate(-1deg);border:0;box-shadow:var(--elev)}
 .welcome-grid li:nth-child(2n){transform:rotate(1deg)}
 .wg-blue{background:var(--blue-soft)!important}.wg-gold{background:var(--gold-soft)!important}.wg-tan{background:var(--tan-soft)!important}.wg-pink{background:color-mix(in srgb,#E0566E 18%,var(--surface))!important}
 @keyframes wh-spin{to{transform:rotate(360deg)}}
@@ -1003,9 +1003,9 @@ main .form > .row-btns:last-child .btn-blue{flex:1;min-height:56px;font-size:var
 .td-ring b{position:relative;font:800 var(--t16) var(--f-display);font-variant-numeric:tabular-nums}
 .td-ring.full b{color:var(--tan-text)}
 .td-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
-.td-row{width:100%;display:grid;grid-template-columns:44px minmax(0,1fr) 32px;align-items:center;gap:10px;min-height:60px;padding:8px 10px;border-radius:14px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;text-align:left;cursor:pointer;box-shadow:0 3px 0 var(--line);transition:transform .1s ease-out,box-shadow .1s ease-out}
-.td-row:active{transform:translateY(3px);box-shadow:none}
-.td-e{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-size:1.4rem;background:var(--surface);border:1.5px solid var(--line)}
+.td-row{width:100%;display:grid;grid-template-columns:44px minmax(0,1fr) 32px;align-items:center;gap:10px;min-height:60px;padding:8px 10px;border-radius:14px;border:1px solid var(--hair);background:var(--bg);color:var(--ink);font:inherit;text-align:left;cursor:pointer;box-shadow:var(--elev);transition:transform .1s ease-out,box-shadow .1s ease-out}
+.td-row:active{transform:scale(.98);box-shadow:none}
+.td-e{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-size:1.4rem;background:var(--surface);border:1px solid var(--hair)}
 .td-t{display:flex;flex-direction:column;min-width:0}
 .td-t b{font-size:var(--t16);line-height:1.2}
 .td-s{font-size:var(--t12);font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums}
@@ -1022,8 +1022,8 @@ main .form > .row-btns:last-child .btn-blue{flex:1;min-height:56px;font-size:var
 .fab[hidden]{display:none}
 .first-run .fab{display:none}
 .ls-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:10px}
-.ls-tile{display:flex;flex-direction:column;align-items:center;gap:2px;min-height:92px;padding:8px 4px;border-radius:16px;border:1.5px solid var(--line);background:var(--surface);box-shadow:0 3px 0 var(--line);color:var(--ink);font:inherit;cursor:pointer}
-.ls-tile:active{transform:translateY(3px);box-shadow:none}
+.ls-tile{display:flex;flex-direction:column;align-items:center;gap:2px;min-height:92px;padding:8px 4px;border-radius:16px;border:1px solid var(--hair);background:var(--surface);box-shadow:var(--elev);color:var(--ink);font:inherit;cursor:pointer}
+.ls-tile:active{transform:scale(.98);box-shadow:none}
 .ls-e{font-size:1.7rem;line-height:1.1}
 .ls-tile b{font-size:var(--t14)}
 .ls-ago{font-size:var(--t12);color:var(--muted);font-weight:600;text-align:center}

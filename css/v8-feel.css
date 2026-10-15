@@ -1,0 +1,173 @@
+/* v8 "feel" (docs/v8-feel.md): the pet as the hero of Today, soft depth instead of outlines, a colour per kind of care,
+   glass bars, app-like screen transitions and a compact toast. Loaded last; overrides v7 and app.css. */
+
+:root{
+  --hair:rgba(30,27,23,.09);
+  --elev:0 1px 2px rgba(40,30,15,.06),0 4px 14px rgba(40,30,15,.07);
+  --elev-2:0 2px 4px rgba(40,30,15,.06),0 14px 32px rgba(40,30,15,.13);
+  --glass:color-mix(in srgb,var(--surface) 80%,transparent);
+  --spring:cubic-bezier(.3,1.5,.5,1);
+  /* one colour per kind of care (icons, rings, done rows); --on-cat is the tick on a filled chip */
+  --c-meals:#D9702A; --c-walk:#2E8B57; --c-play:#C8457C; --c-train:#2A6FA8; --c-poop:#8C6239; --c-eggs:#A0710A; --c-med:#C2413A; --c-own:#6E55C2;
+  --on-cat:#FFFFFF;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --hair:rgba(245,238,228,.09);
+  --elev:0 1px 0 rgba(255,255,255,.04) inset,0 4px 16px rgba(0,0,0,.35);
+  --elev-2:0 1px 0 rgba(255,255,255,.05) inset,0 16px 36px rgba(0,0,0,.5);
+  --c-meals:#F2A066; --c-walk:#6CC48A; --c-play:#F08AB2; --c-train:#8EC1E0; --c-poop:#C9A27A; --c-eggs:#F2C14E; --c-med:#F08A86; --c-own:#B5A2F2;
+  --on-cat:#14120F;
+}}
+:root[data-theme="dark"]{
+  --hair:rgba(245,238,228,.09);
+  --elev:0 1px 0 rgba(255,255,255,.04) inset,0 4px 16px rgba(0,0,0,.35);
+  --elev-2:0 1px 0 rgba(255,255,255,.05) inset,0 16px 36px rgba(0,0,0,.5);
+  --c-meals:#F2A066; --c-walk:#6CC48A; --c-play:#F08AB2; --c-train:#8EC1E0; --c-poop:#C9A27A; --c-eggs:#F2C14E; --c-med:#F08A86; --c-own:#B5A2F2;
+  --on-cat:#14120F;
+}
+
+/* ---------- glass bars ---------- */
+.appbar{background:var(--glass);-webkit-backdrop-filter:saturate(1.6) blur(16px);backdrop-filter:saturate(1.6) blur(16px);border-bottom:1px solid var(--hair);view-transition-name:appbar}
+.tabbar{background:var(--glass);-webkit-backdrop-filter:saturate(1.6) blur(18px);backdrop-filter:saturate(1.6) blur(18px);border-top:1px solid var(--hair)}
+.tabbar svg{border:0;transition:background .2s,transform .2s var(--spring)}
+.tabbar a[aria-current="page"] svg{background:var(--blue-soft);border:0;animation:v8-tab .4s var(--spring)}
+.tabbar a[aria-current="page"] span{color:var(--blue)}
+@keyframes v8-tab{0%{transform:scale(.8)}60%{transform:scale(1.08)}100%{transform:scale(1)}}
+.fab{view-transition-name:fab}
+
+/* ---------- screen transitions: tabs cross-fade, deeper screens slide (app.js sets html[data-nav]) ---------- */
+#main{view-transition-name:page}
+::view-transition-old(page),::view-transition-new(page){animation-duration:.28s;animation-timing-function:cubic-bezier(.2,.8,.2,1);animation-fill-mode:both}
+html[data-nav="tab"]::view-transition-old(page){animation-name:v8-fade-out;animation-duration:.12s}
+html[data-nav="tab"]::view-transition-new(page){animation-name:v8-fade-up}
+html[data-nav="fwd"]::view-transition-old(page){animation-name:v8-out-left}
+html[data-nav="fwd"]::view-transition-new(page){animation-name:v8-in-right}
+html[data-nav="back"]::view-transition-old(page){animation-name:v8-out-right}
+html[data-nav="back"]::view-transition-new(page){animation-name:v8-in-left}
+@keyframes v8-fade-out{to{opacity:0}}
+@keyframes v8-fade-up{from{opacity:0;transform:translateY(10px)}}
+@keyframes v8-in-right{from{opacity:0;transform:translateX(30%)}}
+@keyframes v8-out-left{to{opacity:0;transform:translateX(-14%)}}
+@keyframes v8-in-left{from{opacity:0;transform:translateX(-30%)}}
+@keyframes v8-out-right{to{opacity:0;transform:translateX(14%)}}
+
+/* ---------- the pet stage (Today's hero) ---------- */
+.td-wrap{display:grid;gap:18px;margin-top:4px}
+.stage{position:relative;isolation:isolate;overflow:hidden;display:grid;justify-items:center;gap:2px;padding:16px 14px 14px;border-radius:28px;text-align:center;color:#1E1B17;box-shadow:var(--elev)}
+.stage.tod-morning{background:linear-gradient(165deg,#FFD9B0 0%,#FDEFD9 48%,#DCEBF5 100%)}
+.stage.tod-day{background:linear-gradient(165deg,#BFDDF2 0%,#E4F0F7 52%,#FBF2DF 100%)}
+.stage.tod-evening{background:linear-gradient(165deg,#F7BE95 0%,#F4D3C2 45%,#D4C6EA 100%)}
+.stage.tod-night{background:linear-gradient(165deg,#1B2A4A 0%,#27305A 55%,#3A2D52 100%);color:#F5EEE4}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .stage{color:#F5EEE4}
+  :root:not([data-theme="light"]) .stage.tod-morning{background:linear-gradient(165deg,#4A3324 0%,#2C2520 55%,#1D2833 100%)}
+  :root:not([data-theme="light"]) .stage.tod-day{background:linear-gradient(165deg,#1D3446 0%,#1E2830 55%,#2A241D 100%)}
+  :root:not([data-theme="light"]) .stage.tod-evening{background:linear-gradient(165deg,#4A2A22 0%,#33252A 50%,#2A2340 100%)}}
+:root[data-theme="dark"] .stage{color:#F5EEE4}
+:root[data-theme="dark"] .stage.tod-morning{background:linear-gradient(165deg,#4A3324 0%,#2C2520 55%,#1D2833 100%)}
+:root[data-theme="dark"] .stage.tod-day{background:linear-gradient(165deg,#1D3446 0%,#1E2830 55%,#2A241D 100%)}
+:root[data-theme="dark"] .stage.tod-evening{background:linear-gradient(165deg,#4A2A22 0%,#33252A 50%,#2A2340 100%)}
+
+/* the sky: a sun (or moon) and two soft clouds, drawn in CSS */
+.st-sky{position:absolute;inset:0;z-index:-1;pointer-events:none}
+.st-sun{position:absolute;top:18px;right:22px;width:46px;height:46px;border-radius:50%;background:radial-gradient(circle at 40% 40%,#FFE9A8,#F2B544);box-shadow:0 0 0 10px rgba(242,181,68,.16),0 0 40px rgba(242,181,68,.45)}
+.tod-morning .st-sun{top:auto;bottom:46%;right:18px}
+.tod-evening .st-sun{background:radial-gradient(circle at 40% 40%,#FFD08A,#E8743B);box-shadow:0 0 0 12px rgba(232,116,59,.16),0 0 46px rgba(232,116,59,.4)}
+.tod-night .st-sun{width:34px;height:34px;background:transparent;box-shadow:-9px 7px 0 0 #F5E6B8;transform:rotate(-20deg);top:20px;right:30px}
+.tod-night .st-sky::before,.tod-night .st-sky::after{content:"";position:absolute;width:3px;height:3px;border-radius:50%;background:#fff;box-shadow:40px 30px 0 #fff,90px 70px 0 rgba(255,255,255,.7),230px 20px 0 #fff,280px 90px 0 rgba(255,255,255,.6),150px 14px 0 rgba(255,255,255,.8)}
+.tod-night .st-sky::before{top:16px;left:18px}
+.tod-night .st-sky::after{top:110px;left:10px;opacity:.6}
+.st-cloud{position:absolute;height:22px;border-radius:22px;background:rgba(255,255,255,.65)}
+.st-cloud::before{content:"";position:absolute;left:18%;bottom:8px;width:44%;height:26px;border-radius:50%;background:inherit}
+.st-cloud.c1{top:34px;left:-14px;width:96px}
+.st-cloud.c2{top:118px;right:-22px;width:80px;opacity:.75}
+.tod-night .st-cloud{display:none}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .st-cloud{background:rgba(255,255,255,.08)}}
+:root[data-theme="dark"] .st-cloud{background:rgba(255,255,255,.08)}
+
+.st-pet{position:relative;width:128px;height:128px;display:grid;place-items:center}
+.st-pic{position:absolute;inset:0;display:grid;place-items:center}
+.st-ring{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg);overflow:visible}
+.st-ring circle{fill:none;stroke-width:9;stroke-linecap:round}
+.st-track{stroke:rgba(255,255,255,.65)}
+.tod-night .st-track{stroke:rgba(255,255,255,.18)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .st-track{stroke:rgba(255,255,255,.14)}}
+:root[data-theme="dark"] .st-track{stroke:rgba(255,255,255,.14)}
+.st-fill{stroke:var(--c-walk);transition:stroke-dashoffset .9s cubic-bezier(.2,.8,.2,1)}
+.stage.all .st-fill{stroke:var(--gold)}
+.st-face{width:100px;height:100px;border-radius:50%;object-fit:cover;background:var(--surface);box-shadow:0 8px 22px rgba(30,20,10,.18)}
+.st-emoji{display:grid;place-items:center;font-size:54px;line-height:1}
+.st-mood{position:absolute;right:0;bottom:4px;width:38px;height:38px;display:grid;place-items:center;border-radius:50%;background:var(--surface);font-size:22px;box-shadow:0 3px 10px rgba(30,20,10,.2)}
+.stage.up .st-face,.stage.up .st-mood{animation:v8-hop .7s var(--spring)}
+@keyframes v8-hop{0%{transform:scale(1)}35%{transform:scale(1.08) translateY(-4px)}100%{transform:scale(1)}}
+.st-cam{position:absolute;left:-2px;bottom:2px;display:grid;place-items:center;width:44px;height:44px;padding:0;border:0;border-radius:50%;font-size:20px;background:rgba(255,255,255,.75);color:#1E1B17;font:inherit;font-weight:800;font-size:var(--t14);cursor:pointer;box-shadow:0 2px 8px rgba(30,20,10,.12)}
+.st-cam:active{transform:scale(.96)}
+.st-name{margin:4px 0 0;font-family:var(--f-display);font-size:1.9rem;font-weight:800;line-height:1.05;letter-spacing:-.02em;color:inherit;overflow-wrap:anywhere}
+.st-name:focus{outline:none}
+.st-count{margin:0;font-weight:700;font-size:var(--t14);opacity:.85}
+.st-say{display:flex;align-items:center;gap:8px;max-width:100%;margin-top:8px;padding:6px 14px 6px 6px;border-radius:999px;background:rgba(255,255,255,.72);color:#1E1B17;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);text-align:left;font-weight:700;font-size:var(--t14);line-height:1.35}
+.st-say img{flex:none;width:30px;height:30px}
+.st-say p{margin:0;min-width:0}
+.st-say.mood-proud{background:rgba(251,235,198,.92)}
+.stage .td-week{justify-content:center;margin-top:6px}
+.stage .td-week .wk-dot{width:28px;height:28px}
+.stage .td-week .wk-dot{background:rgba(255,255,255,.55);border-color:transparent;color:#1E1B17}
+.stage .td-week .wk-dot.on{background:var(--gold);color:#1E1B17}
+.stage .td-week .wk-dot.today{outline-color:currentColor}
+.stage .td-wk-t{font-weight:700;font-size:var(--t12);opacity:.85}
+.tod-night .st-say,.tod-night .st-cam{background:rgba(255,255,255,.14);color:#F5EEE4}
+.tod-night .td-week .wk-dot:not(.on){background:rgba(255,255,255,.14);color:#F5EEE4}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .st-say,:root:not([data-theme="light"]) .st-cam{background:rgba(255,255,255,.12);color:#F5EEE4}
+  :root:not([data-theme="light"]) .stage .td-week .wk-dot:not(.on){background:rgba(255,255,255,.12);color:#F5EEE4}}
+:root[data-theme="dark"] .st-say,:root[data-theme="dark"] .st-cam{background:rgba(255,255,255,.12);color:#F5EEE4}
+:root[data-theme="dark"] .stage .td-week .wk-dot:not(.on){background:rgba(255,255,255,.12);color:#F5EEE4}
+
+/* ---------- Today's list: a colour per kind of care ---------- */
+.td{gap:10px;margin-top:0}
+.td-sec{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.td-sec h2{margin:0;font-family:var(--f-display);font-size:var(--t22);font-weight:800}
+.td-sec .linkish{min-height:44px;font-size:var(--t14);font-weight:800}
+.td-row{--cat:var(--c-train);border:0;box-shadow:var(--elev);border-radius:22px;transition:transform .18s var(--spring),box-shadow .18s}
+.td-row:active{transform:scale(.98);box-shadow:var(--elev)}
+.td-row[data-cat="meals"]{--cat:var(--c-meals)}
+.td-row[data-cat="walk"]{--cat:var(--c-walk)}
+.td-row[data-cat="play"]{--cat:var(--c-play)}
+.td-row[data-cat="train"]{--cat:var(--c-train)}
+.td-row[data-cat="poop"]{--cat:var(--c-poop)}
+.td-row[data-cat="eggs"]{--cat:var(--c-eggs)}
+.td-row[data-cat="med"]{--cat:var(--c-med)}
+.td-row[data-cat="own"]{--cat:var(--c-own)}
+.td-row .td-e{background:color-mix(in srgb,var(--cat) 14%,var(--surface));border-radius:50%}
+.td-row .tn-fill{stroke:var(--cat)}
+.td-row .tn-track{stroke:color-mix(in srgb,var(--cat) 16%,transparent)}
+.td-row .td-plus{background:var(--cat);color:var(--on-cat);box-shadow:0 3px 0 color-mix(in srgb,var(--cat) 60%,#000)}
+.td-row.done{background:color-mix(in srgb,var(--cat) 10%,var(--surface));border:0;box-shadow:none}
+.td-row.done .td-e{background:var(--cat);color:var(--on-cat)}
+.td-row.done .td-t b{text-decoration:none}
+.td-row.next{box-shadow:var(--elev),0 0 0 2px color-mix(in srgb,var(--cat) 55%,transparent)}
+
+/* the "+" sheet and Health's quick tiles use the same colours */
+.ls-tile{--cat:var(--c-own);border:0}
+.ls-tile[data-cat="meals"],.ql-meal,.ql-treat{--cat:var(--c-meals)}
+.ls-tile[data-cat="walk"]{--cat:var(--c-walk)}
+.ls-tile[data-cat="play"]{--cat:var(--c-play)}
+.ls-tile[data-cat="train"]{--cat:var(--c-train)}
+.ls-tile[data-cat="poop"],.ql-poop{--cat:var(--c-poop)}
+.ls-tile[data-cat="eggs"]{--cat:var(--c-eggs)}
+.ls-tile[data-cat="med"],.ql-med{--cat:var(--c-med)}
+.ls-e,.ql-em{display:grid;place-items:center;width:54px;height:54px;border-radius:18px;background:color-mix(in srgb,var(--cat,var(--c-own)) 14%,var(--surface));font-size:1.9rem;line-height:1}
+.ls-tile.top{background:var(--surface);border:0;box-shadow:var(--elev),0 0 0 2px color-mix(in srgb,var(--cat) 55%,transparent)}
+.ql{border:0;box-shadow:var(--elev)}
+.ql-em{width:44px;height:44px;border-radius:14px;font-size:1.5rem}
+
+/* ---------- toast: one compact line ---------- */
+.toast{flex-wrap:nowrap;gap:4px;padding:6px;border-radius:20px;max-width:min(440px,calc(100% - 24px));box-shadow:var(--elev-2)}
+.toast p{flex:1 1 auto;min-width:0;padding:4px 6px;font-size:var(--t14)}
+.toast-ic{display:none}
+.toast-btn{min-height:44px;padding:0 12px;border:0;font-size:var(--t14)}
+@media (max-width:359px){.toast{flex-wrap:wrap}}
+
+@media (prefers-reduced-motion: reduce){
+  .tabbar a[aria-current="page"] svg,.stage.up .st-face,.stage.up .st-mood{animation:none}
+  .st-fill{transition:none}
+  .td-row,.td-row:active,.st-cam:active{transition:none;transform:none}
+}

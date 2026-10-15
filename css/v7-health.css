@@ -6,8 +6,8 @@
 .hv-badge.big{width:56px;height:56px;border-radius:16px;font-size:30px}
 .hv-bubble{align-items:center;gap:12px;margin-top:2px}
 .hv-bubble .nova-face{width:40px;height:40px;padding:3px;flex:none}
-.hv-say{position:relative;flex:1;min-width:0;padding:9px 12px;border-radius:14px;background:var(--surface);border:1.5px solid var(--line);color:var(--ink);font-weight:600}
-.hv-say::before{content:"";position:absolute;left:-6px;top:50%;width:10px;height:10px;background:var(--surface);border-left:1.5px solid var(--line);border-bottom:1.5px solid var(--line);transform:translateY(-50%) rotate(45deg)}
+.hv-say{position:relative;flex:1;min-width:0;padding:9px 12px;border-radius:14px;background:var(--surface);border:1px solid var(--hair);color:var(--ink);font-weight:600}
+.hv-say::before{content:"";position:absolute;left:-6px;top:50%;width:10px;height:10px;background:var(--surface);border-left:1px solid var(--hair);border-bottom:1px solid var(--hair);transform:translateY(-50%) rotate(45deg)}
 .hv-listcard{padding:4px 8px}
 .hv-flags,.today-diary,.hv-guide{margin-top:20px}
 .hv-flags > summary{font-weight:800}
@@ -21,7 +21,7 @@
 
 /* ---------- sub-pages (vaccines, medicines, weight, vet) ---------- */
 .hv-subhead{display:flex;align-items:center;gap:12px;margin-top:18px}
-.hv-back{display:inline-flex;align-items:center;gap:2px;min-height:44px;padding:0 14px 0 8px;border-radius:12px;background:var(--surface);border:1.5px solid var(--line);color:var(--blue);font-weight:800;font-size:var(--t14);text-decoration:none;flex:none}
+.hv-back{display:inline-flex;align-items:center;gap:2px;min-height:44px;padding:0 14px 0 8px;border-radius:12px;background:var(--surface);border:1px solid var(--hair);color:var(--blue);font-weight:800;font-size:var(--t14);text-decoration:none;flex:none}
 .hv-back .chev,.hv-tile .chev,.hv-report .chev,.hv-guide .chev,.hv-fulllink .chev{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;flex:none}
 .hv-subtitle{font-size:var(--t22);line-height:1.15;min-width:0;flex:1;color:var(--ink)}
 .hv-subhead + .top-actions{margin-top:12px}
@@ -38,7 +38,7 @@
 
 /* ---------- at a glance: dashboard tiles ---------- */
 .hv-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.hv-tile{position:relative;display:flex;flex-direction:column;gap:4px;min-width:0;padding:12px 14px 14px;border-radius:16px;background:var(--surface);border:1.5px solid var(--line);box-shadow:0 3px 0 var(--line);color:var(--ink);text-decoration:none;transition:transform .08s ease-out,box-shadow .08s ease-out}
+.hv-tile{position:relative;display:flex;flex-direction:column;gap:4px;min-width:0;padding:12px 14px 14px;border-radius:16px;background:var(--surface);border:1px solid var(--hair);box-shadow:var(--elev);color:var(--ink);text-decoration:none;transition:transform .08s ease-out,box-shadow .08s ease-out}
 .hv-tile:hover{border-color:var(--blue)}
 .hv-tile:active{transform:translateY(3px);box-shadow:0 0 0 var(--line)}
 .hv-tile.hv-wide{grid-column:1/-1}
@@ -107,7 +107,7 @@
 ul.hv-listcard{list-style:none;margin:0}
 
 /* ---------- vet page ---------- */
-.hv-vetbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 12px;padding:10px 12px;border-radius:16px;background:var(--surface);border:1.5px solid var(--line);margin-top:14px}
+.hv-vetbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 12px;padding:10px 12px;border-radius:16px;background:var(--surface);border:1px solid var(--hair);margin-top:14px}
 .hv-vetbar-body{flex:1 1 120px;min-width:0}
 .hv-vetbar-body b{display:block;font-family:var(--f-display)}
 .hv-vetbar-calls{display:flex;flex-wrap:wrap;gap:8px}
@@ -127,7 +127,7 @@ ul.hv-listcard{list-style:none;margin:0}
 .hv-syms{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .hv-sym{position:relative;display:block;min-width:0;scroll-margin-bottom:170px}
 .hv-sym input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer;z-index:1}
-.hv-sym-box{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:92px;padding:10px 6px;border-radius:16px;background:var(--surface);border:2px solid var(--line);box-shadow:0 3px 0 var(--line);text-align:center;color:var(--ink);transition:transform .08s ease-out,box-shadow .08s ease-out,background .12s}
+.hv-sym-box{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:92px;padding:10px 6px;border-radius:16px;background:var(--surface);border:1px solid var(--hair);box-shadow:var(--elev);text-align:center;color:var(--ink);transition:transform .08s ease-out,box-shadow .08s ease-out,background .12s}
 .hv-sym-e{font-size:30px;line-height:1.1}
 .hv-sym-t{font-weight:800;font-size:var(--t14);line-height:1.2;overflow-wrap:anywhere}
 .hv-sym input:checked + .hv-sym-box{background:var(--blue-soft);border-color:var(--blue);box-shadow:0 3px 0 var(--blue-ledge)}
@@ -156,7 +156,7 @@ ul.hv-listcard{list-style:none;margin:0}
 .hv-calls{display:flex;flex-direction:column;gap:8px}
 .hv-disclaimer{color:var(--muted)}
 .hv-picked{display:flex;flex-wrap:wrap;gap:6px}
-.hv-chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:var(--surface);border:1.5px solid var(--line);font-size:var(--t14);font-weight:700}
+.hv-chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:var(--surface);border:1px solid var(--hair);font-size:var(--t14);font-weight:700}
 .hv-notefield{margin-top:2px}
 @keyframes hv-up{from{transform:translateY(16px);opacity:0}to{transform:none;opacity:1}}
 
@@ -168,7 +168,7 @@ ul.hv-listcard{list-style:none;margin:0}
 .hv-amount{font-size:var(--t14)}
 .hv-since{align-self:flex-start;white-space:normal}
 .hv-chips{list-style:none;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:8px}
-.hv-treat{display:inline-flex;align-items:stretch;max-width:100%;border-radius:14px;border:1.5px solid var(--line);background:var(--surface);overflow:hidden}
+.hv-treat{display:inline-flex;align-items:stretch;max-width:100%;border-radius:14px;border:1px solid var(--hair);background:var(--surface);overflow:hidden}
 .hv-treat.on{border-color:var(--blue);background:var(--blue-soft)}
 .hv-treat button{font:inherit;color:var(--ink);background:none;border:0;cursor:pointer}
 .hv-treat-sw{display:flex;align-items:center;gap:8px;min-width:0;min-height:44px;padding:6px 10px 6px 12px;text-align:left;font-weight:700;font-size:var(--t14)}
@@ -180,7 +180,7 @@ ul.hv-listcard{list-style:none;margin:0}
 .hv-treat-note{font-size:var(--t12);font-weight:600;color:var(--muted);overflow-wrap:anywhere}
 .hv-treat-state{font-size:var(--t12);font-weight:700;color:var(--muted)}
 .hv-treat.on .hv-treat-state{display:none}
-.hv-treat-edit{display:grid;place-items:center;flex:none;width:44px;min-height:44px;border-left:1.5px solid var(--line) !important;color:var(--muted) !important;font-size:16px}
+.hv-treat-edit{display:grid;place-items:center;flex:none;width:44px;min-height:44px;border-left:1px solid var(--hair) !important;color:var(--muted) !important;font-size:16px}
 .hv-treat.on .hv-treat-edit{border-left-color:var(--blue) !important}
 .hv-treat button:active{background:var(--sunk)}
 .hv-treat button:focus-visible{outline-offset:-3px}
@@ -206,7 +206,7 @@ ul.hv-listcard{list-style:none;margin:0}
 /* ---------- the vet summary: one clean page ---------- */
 .hv-sumhint{margin-top:10px}
 .hv-paper{gap:16px;padding:20px 18px;border-radius:12px;border:1px solid var(--line);border-top:6px solid var(--blue);box-shadow:0 10px 28px rgba(30,27,23,.10)}
-.hv-paper .sum-head{padding-bottom:14px;border-bottom:2px solid var(--line)}
+.hv-paper .sum-head{padding-bottom:14px;border-bottom:1px solid var(--hair)}
 .sum-kicker{font-size:var(--t12);font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .hv-paper .sum-title{font-size:var(--t22);line-height:1.15;overflow-wrap:anywhere}
 .sum-sec{display:flex;flex-direction:column;gap:6px;break-inside:avoid}

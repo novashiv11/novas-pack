@@ -119,5 +119,5 @@
 }
 
 /* the figure inside a how-to step (same grid cell as .step-photo) */
-.step-pic{margin:4px 0 6px;width:100%;max-width:260px;border-radius:12px;overflow:hidden;box-shadow:0 2px 0 var(--line)}
+.step-pic{margin:4px 0 6px;width:100%;max-width:260px;border-radius:12px;overflow:hidden;box-shadow:var(--elev)}
 .howto-steps li .step-pic{grid-column:2}

@@ -8,7 +8,7 @@
 import { S, setSetting, eventsOf } from "../state.js";
 import { h, put, sheet, toast, isoDate, ago, buzz, motionOK, parseDate } from "../util.js";
 import { dueItems, skillsFor } from "../logic.js";
-import { logMeal, logTreat, logPoop, logWalk, logPlay, logEggs, logMed, markGiven, eventSheet, unwellSheet, quickLog } from "../forms.js";
+import { logMeal, logTreat, logPoop, logWalk, logPlay, logEggs, logMed, markGiven, eventSheet, unwellSheet, quickLog, openPetSheet, speciesOf } from "../forms.js";
 import { eventList, NOVA } from "./parts.js";
 import { trainingPicker, confetti, shareWinBtn, xpProgress, gameOf } from "./gameui.js";
 import { doNow, planSheet, planText, weekAndSticker } from "./doitnow.js";
@@ -81,12 +81,38 @@ export function todayRows(p) {
 const SVGNS = "http://www.w3.org/2000/svg";
 const svgEl = (t, a) => { const x = document.createElementNS(SVGNS, t); for (const [n, v] of Object.entries(a)) x.setAttribute(n, v); return x; };
 
-/** The big ring in the Today header. */
-function ring(done, total) {
-  const R = 22, C = 2 * Math.PI * R, k = total ? done / total : 0;
-  const svg = svgEl("svg", { viewBox: "0 0 52 52", "aria-hidden": "true" });
-  svg.append(svgEl("circle", { class: "td-track", cx: "26", cy: "26", r: String(R) }), svgEl("circle", { class: "td-fill", cx: "26", cy: "26", r: String(R), "stroke-dasharray": String(C), "stroke-dashoffset": String(C * (1 - k)) }));
-  return h(`div.td-ring${done && done === total ? ".full" : ""}`, { role: "img", "aria-label": `${done} of ${total} done today` }, svg, h("b", `${done}/${total}`));
+/** The colour family of each log type in the "+" sheet (matches the Today rows). */
+const LOG_CAT = { meal: "meals", treat: "meals", walk: "walk", play: "play", training: "train", poop: "poop", eggs: "eggs", med: "med", symptom: "med", vet: "train", weight: "own", care: "own" };
+
+/** v8 "pet stage": the time of day as a sky (morning, day, evening, night) behind the pet. */
+const timeOfDay = (hr = new Date().getHours()) => (hr < 5 || hr >= 21 ? "night" : hr < 11 ? "morning" : hr < 17 ? "day" : "evening");
+const stageSeen = new Map(); // where the big ring was last time, so it slides on instead of jumping
+
+/** The pet as the hero of Today (Finch-style): their photo big, the day's ring round them, their name, Nova's line, the week. */
+function petStage(p, done, total, line, mood) {
+  const k = total ? done / total : 0;
+  const key = `${p.id}|${isoDate()}`;
+  const from = stageSeen.has(key) ? stageSeen.get(key) : k;
+  stageSeen.set(key, k);
+  const R = 62, C = 2 * Math.PI * R;
+  const fill = svgEl("circle", { class: "st-fill", cx: "68", cy: "68", r: String(R), "stroke-dasharray": String(C), "stroke-dashoffset": String(C * (1 - from)) });
+  const svg = svgEl("svg", { class: "st-ring", viewBox: "0 0 136 136", "aria-hidden": "true" });
+  svg.append(svgEl("circle", { class: "st-track", cx: "68", cy: "68", r: String(R) }), fill);
+  if (from !== k) requestAnimationFrame(() => requestAnimationFrame(() => fill.setAttribute("stroke-dashoffset", String(C * (1 - k)))));
+  const tod = timeOfDay();
+  const face = p.photo ? h("img.st-face", { src: p.photo, alt: "", width: "112", height: "112" })
+    : p.sample && !p.icon ? h("img.st-face.disc", { src: NOVA, alt: "", width: "112", height: "112" })
+      : h("span.st-face.st-emoji", { "aria-hidden": "true" }, p.icon || speciesOf(p.species).emoji);
+  const moodE = total && done === total ? "🥰" : done ? "😊" : tod === "night" ? "😴" : "👋";
+  return h(`section.stage.tod-${tod}${total && done === total ? ".all" : ""}${k > from ? ".up" : ""}`, { "aria-labelledby": "page-title" },
+    h("span.st-sky", { "aria-hidden": "true" }, h("span.st-sun"), h("span.st-cloud.c1"), h("span.st-cloud.c2")),
+    h("div.st-pet", h("span.st-pic", { role: "img", "aria-label": total ? `${done} of ${total} done today` : "Nothing on the list yet" }, svg, face),
+      h("span.st-mood", { "aria-hidden": "true" }, moodE),
+      p.photo || p.sample ? null : h("button.st-cam", { type: "button", "data-k": "stage-photo", "aria-label": `Add a photo of ${p.name}`, onclick: () => openPetSheet(p) }, "📷")),
+    h("h1.st-name", { id: "page-title", tabindex: "-1" }, p.name, h("span.vh", ", today")),
+    h("p.st-count", total ? (done === total ? "All done today" : `${done} of ${total} done today`) : "Nothing on the list yet"),
+    h(`div.st-say.mood-${mood}`, h("img.disc", { src: NOVA, alt: "", width: "30", height: "30" }), h("p", h("span.vh", "Nova says: "), line)),
+    weekStrip(p));
 }
 
 /** The ring round a row's round node. It slides from where it was last time to where it is now. */
@@ -139,7 +165,8 @@ function rowTile(p, r, prev, next = false) {
   const just = r.done && prev && !prev.done;
   const bump = !just && prev && r.n > prev.n;
   const pop = just ? popText(p, r) : null;
-  return h("li", h(`button.td-row${r.done ? ".done" : ""}${just ? ".just" : ""}${bump ? ".bump" : ""}${next ? ".next" : ""}`, { type: "button", "data-k": `td-${r.key}`, onclick: (e) => tapRow(e, r) },
+  const cat = r.key.startsWith("med-") ? "med" : r.key.startsWith("c-") ? "own" : r.key;
+  return h("li", h(`button.td-row${r.done ? ".done" : ""}${just ? ".just" : ""}${bump ? ".bump" : ""}${next ? ".next" : ""}`, { type: "button", "data-k": `td-${r.key}`, "data-cat": cat, onclick: (e) => tapRow(e, r) },
     h("span.td-node", nodeRing(k, prev ? (prev.done ? 1 : Math.min(1, prev.n / (prev.need || 1))) : null),
       h("span.td-e", { "aria-hidden": "true" }, r.done ? "✓" : r.e),
       pop ? h("span.td-pop", { "aria-hidden": "true" }, pop) : null),
@@ -178,18 +205,16 @@ export function todayCard(p) {
   const prevs = rows.map((r) => seen.get(`${key}|${r.key}`));
   rows.forEach((r) => seen.set(`${key}|${r.key}`, { done: r.done, n: r.n, need: r.need }));
   const [line, mood] = greeting(p, done, total);
-  return h("section.td", { "aria-labelledby": "page-title" },
-    novaSay(line, mood),
-    h("div.td-head",
-      h("div", h("h1.td-h", { id: "page-title", tabindex: "-1" }, "Today"), h("p.td-sub", total ? `${done} of ${total} done` : "Nothing on the list")),
-      ring(done, total)),
-    weekStrip(p),
+  return h("div.td-wrap",
+    petStage(p, done, total, line, mood),
+    h("section.td", { "aria-labelledby": "td-sec-h" },
+    h("div.td-sec", h("h2", { id: "td-sec-h" }, "Today"),
+      h("button.linkish", { type: "button", "data-k": "td-edit", onclick: () => editList(p) }, "Edit list")),
     h("ul.td-list", rows.map((r, i) => rowTile(p, r, prevs[i], i === rows.findIndex((x) => !x.done)))),
     h("div.td-foot",
-      h("button.linkish", { type: "button", "data-k": "td-edit", onclick: () => editList(p) }, "Edit list"),
       S.settings.plan && S.settings.plan.anchor
         ? h("button.linkish", { type: "button", "data-k": "plan-edit", onclick: () => planSheet(p) }, `⏰ ${planText(S.settings.plan)}`)
-        : h("button.linkish", { type: "button", "data-k": "plan-make", onclick: () => planSheet(p) }, "⏰ Daily reminder")));
+        : h("button.linkish", { type: "button", "data-k": "plan-make", onclick: () => planSheet(p) }, "⏰ Daily reminder"))));
 }
 
 /** This week: a dot for each day you spent time together, and "3 days wins the week". */
@@ -318,7 +343,7 @@ export function logSheet(p) {
     .sort((a, b) => b.n - a.n || a.i - b.i);  // most used first; ties keep the usual order
   const topN = Math.min(3, tiles.filter((x) => x.n > 0).length); // highlight only what this pet really logs
   sheet(`Log for ${p.name}`, (body, close) => {
-    const tile = ([type, e, label, fn], top) => h(`button.ls-tile${top ? ".top" : ""}`, { type: "button", "data-k": `ls-${type}`, onclick: () => { buzz(12); close(); setTimeout(fn, 60); } },
+    const tile = ([type, e, label, fn], top) => h(`button.ls-tile${top ? ".top" : ""}`, { type: "button", "data-k": `ls-${type}`, "data-cat": LOG_CAT[type] || "own", onclick: () => { buzz(12); close(); setTimeout(fn, 60); } },
       h("span.ls-e", { "aria-hidden": "true" }, e), h("b", label), h("span.ls-ago", `Last: ${last(type)}`));
     put(body,
       topN ? h("p.ls-cap", `${p.name}'s most used`) : null,

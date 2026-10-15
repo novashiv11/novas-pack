@@ -265,7 +265,18 @@ export function toast(msg, actions = [], { ms, icon } = {}) {
   void box.offsetWidth;
   box.replaceChildren(h(`span.toast-ic.${kind}`, { "aria-hidden": "true" }), h("p", msg), ...btns);
   box.classList.add("show");
+  box.dataset.at = String(Date.now());
   toastTimer = setTimeout(hide, ms || (actions.length ? 8000 : 4500));
+}
+
+/** Hide the toast, unless it appeared less than `keepMs` ago (route changes call this). */
+export function clearToast(keepMs = 0) {
+  const box = document.getElementById("toast");
+  if (!box || !box.classList.contains("show") || Date.now() - Number(box.dataset.at || 0) < keepMs) return;
+  if (box.contains(document.activeElement)) return;
+  clearTimeout(toastTimer);
+  box.classList.remove("show");
+  box.replaceChildren();
 }
 
 // ---------- photo: resize on the device and re-encode (drops EXIF, including location) ----------

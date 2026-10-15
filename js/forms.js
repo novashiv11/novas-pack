@@ -444,17 +444,18 @@ function celebrate(type) {
   tile.addEventListener("animationend", () => tile.classList.remove("bounce"), { once: true });
 }
 
-/** After any one-tap log: bounce, then "Logged. I supervised." with Undo and Add details. */
+/** After any one-tap log: bounce, then a short "🍽️ Meal logged" with Undo and Details. */
 function afterLog(ev, label, weekBefore, extra = "") {
   celebrate(ev.type);
-  let msg = (label ? `Logged: ${label}. I supervised.` : "Logged. I supervised.") + extra;
+  const t = TYPES[ev.type] || {};
+  let msg = `${t.emoji ? `${t.emoji} ` : ""}${label || t.label || "That"} logged.${extra}`;
   if (weekBefore && !weekBefore.thisWeek) {
     const st = weeklyStreak(eventsOf("training", ev.petId).map((e) => e.at));
     if (st.thisWeek) { UI.weekPulse = isoWeek(ev.at); msg = `Week ${st.weeks}. Acceptable.${extra}`; }
   }
   toast(msg, [
     ["Undo", () => remove("events", ev.id).then(() => toast("Undone."))],
-    ["Add details", () => eventSheet(ev.type, ev, { details: true })],
+    ["Details", () => eventSheet(ev.type, ev, { details: true })],
   ]);
 }
 

@@ -6,7 +6,7 @@
 import { doNow } from "./views/doitnow.js";
 import { isStandalone } from "./install.js";
 import { S, load, onChange, pet, setSetting, activePets } from "./state.js";
-import { h, ago, toast } from "./util.js";
+import { h, ago, toast, clearToast, motionOK } from "./util.js";
 import { onQuotaError, QUOTA_MESSAGE, persist } from "./db.js";
 import { welcome } from "./views/welcome.js";
 import { home, statPills } from "./views/home.js";
@@ -97,6 +97,20 @@ function draw() {
   const focusKey = act && main.contains(act) ? (act.dataset.k ? `[data-k="${CSS.escape(act.dataset.k)}"]` : act.id ? `#${CSS.escape(act.id)}` : null) : null;
   const y = window.scrollY;
 
+  // v8: moving between screens feels like an app. Another tab cross-fades; deeper screens slide in from the right,
+  // and going back slides them out. No motion when the phone asks for less, or when the browser can't do it.
+  const depth = [arg, sub].filter(Boolean).length, tab = TAB_OF[name] || name;
+  const dir = !navigated || !started ? "" : tab !== lastNav.tab ? "tab" : depth > lastNav.depth ? "fwd" : depth < lastNav.depth ? "back" : "tab";
+  lastNav = { tab, depth };
+  const paint = () => paintRoute(name, arg, sub, navigated, focusKey, y);
+  if (dir && document.startViewTransition && motionOK()) {
+    document.documentElement.dataset.nav = dir;
+    try { document.startViewTransition(paint); } catch { paint(); }
+  } else paint();
+}
+let lastNav = { tab: "", depth: 0 };
+
+function paintRoute(name, arg, sub, navigated, focusKey, y) {
   document.body.classList.toggle("first-run", name === "welcome");
   drawChrome(name);
   main.replaceChildren();
@@ -256,6 +270,7 @@ async function start() {
   window.addEventListener("hashchange", () => {
     // A sheet belongs to the screen it was opened on: Back (or any route change) closes it.
     document.querySelectorAll("dialog.sheet[open]").forEach((d) => { if (d.dataset.hash !== location.hash) d.close(); });
+    clearToast(1500); // a toast belongs to its screen too (one made just now, e.g. "Saved" before a jump, stays)
     draw();
   });
   draw();
