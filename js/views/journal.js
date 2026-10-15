@@ -48,7 +48,7 @@ function weekDays(a0, a1, untilToday) {
 const dayDone = (key) => { const t = S.daily.find((x) => x.id === key); return !!(t && (t.dogDone || t.youDone)); };
 const hasLine = (key) => S.journal.some((j) => j.id === key);
 
-/** The week as seven dots: a day is "on" when you wrote a line or ticked the 1% card. */
+/** The week as seven dots: a day is "on" when you wrote a line or ticked a daily card. */
 function weekDots(days) {
   const today = isoDate();
   return h("ol.jr-dots", days.map((d) => {
@@ -101,7 +101,7 @@ function composer(today, entry) {
   h("div.jr-ask", novaFace(44),
     h("div.jb.jb-nova",
       h("label", { for: id }, "What went well today?"),
-      h("span.small", "1% better counts, for you or for your pet."))),
+      h("span.small", "Small counts. Do it for them, and for you."))),
   h("div.jr-box", ta, h("div.jr-box-foot", h("span.small.muted", em("🔒"), " Private, on this device"), count)),
   err,
   h("button.btn.btn-blue.wide", { type: "submit", "data-k": "jr-save" }, entry ? "Update today's line" : "Save my line"),

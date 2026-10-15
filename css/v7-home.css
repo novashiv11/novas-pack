@@ -6,6 +6,10 @@
 .appbar{background:var(--surface);border-bottom:2px solid var(--line)}
 .appbar-in{gap:6px;padding-block:6px}
 .switcher{position:relative;gap:6px}
+/* many pets: fade the edge that has more, so the row reads as scrollable */
+.switcher.fade-r{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent)}
+.switcher.fade-l{-webkit-mask-image:linear-gradient(90deg,transparent,#000 28px);mask-image:linear-gradient(90deg,transparent,#000 28px)}
+.switcher.fade-l.fade-r{-webkit-mask-image:linear-gradient(90deg,transparent,#000 28px,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(90deg,transparent,#000 28px,#000 calc(100% - 28px),transparent)}
 .switcher.multi .pet-chip[aria-pressed="true"] .pet-chip-name{max-width:4.8em}
 .pet-chip{border-width:2px;box-shadow:0 2px 0 var(--line)}
 .pet-chip[aria-pressed="true"]{box-shadow:0 2px 0 var(--blue-ledge)}

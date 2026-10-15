@@ -160,3 +160,9 @@ This doc is the brief for 5 parallel agents. Each one owns its own screens and f
 - The training row names this week's skill ("1-minute Recall"). One skill a week is on purpose, so it actually levels up.
 - Adding a second pet uses the same step-by-step flow as the first.
 - Mission complete shows the full skill name.
+
+## v7.3 (15 Oct)
+- "Do it for them" replaces the old 1% wording (journal, Nova's lines, privacy page).
+- The pet row fades at the edge when there are more pets to scroll to.
+- Train for pets with no skills yet (hens, horses, birds): "Skills for chickens: coming soon", with Adventures and lessons; no empty practice box.
+- A stamp that earns a badge or a level-up shows one screen, with the stamp as its first tile (no toast behind it).

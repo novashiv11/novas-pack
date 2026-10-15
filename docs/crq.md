@@ -6,7 +6,7 @@ The CEO (Claude, the main session) owns this list: it adds new requests, sets th
 
 | ID | Request | Source | Priority | Owner | Status |
 |---|---|---|---|---|---|
-| CRQ-001 | Our own take on "1% better every day": a name and concept that's ours, not a borrowed slogan | Shiv | P1 | **Shiv picks** | Waiting on Shiv (recommended: "Nova's Nudge") |
+| CRQ-001 | Our own take on "1% better every day": a name and concept that's ours, not a borrowed slogan | Shiv | P1 | Co-captain | Done (15 Oct): Shiv picked "Do it for them"; the app's 1% wording is renamed |
 | CRQ-002 | Psychology research: what makes people actually change, and how to apply it ethically in the app | Shiv | P1 | Research agent | Done (`docs/research-psych.md`) |
 | CRQ-003 | More visuals: picture steps for every skill ("a picture is worth 1,000 words"), visual everywhere it helps | Shiv | P1 | Co-captain | Planned (the builder died at the usage limit; `js/scenes.js` is partial) |
 | CRQ-004 | Starting-level quiz: find the dog's current level per skill at the start (no XP for the quiz) | Shiv | P1 | CEO (game engine) | Done (level check after adding a pet; redo from Train) |

@@ -140,8 +140,10 @@ function stampForm(p, s, existing) {
       close();
       try {
         if (existing) { await save("adventures", row); toast("Saved."); return; }
-        await withRewards(p, () => save("adventures", row));
-        toast(`Stamp earned: ${s.title}. +${XP.stamp} XP. Good adventure.`, [["Undo", () => remove("adventures", row.id)]]);
+        // A badge or level-up from this stamp: one screen with the stamp as its first tile (Undo stays in the stamp's sheet).
+        const { celebrated } = await withRewards(p, () => save("adventures", row),
+          { emoji: s.emoji, tag: "Stamp earned", title: s.title, text: `+${XP.stamp} XP. Good adventure.` });
+        if (!celebrated) toast(`Stamp earned: ${s.title}. +${XP.stamp} XP. Good adventure.`, [["Undo", () => remove("adventures", row.id)]]);
       } catch (ex) { toast(saveError(ex)); }
     });
     put(body, form);

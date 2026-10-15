@@ -131,6 +131,15 @@ function draw() {
 const statsBox = h("div.stat-pills", { id: "stats", role: "group", "aria-label": "Your numbers" });
 appbar.querySelector(".appbar-in").append(statsBox);
 
+// With many pets the row scrolls sideways: a soft fade on the side that has more shows there's more to see.
+function switcherFade() {
+  const more = switcher.scrollWidth - switcher.clientWidth > 2;
+  switcher.classList.toggle("fade-l", more && switcher.scrollLeft > 2);
+  switcher.classList.toggle("fade-r", more && switcher.scrollLeft < switcher.scrollWidth - switcher.clientWidth - 2);
+}
+switcher.addEventListener("scroll", switcherFade, { passive: true });
+addEventListener("resize", switcherFade, { passive: true });
+
 function drawChrome(name) {
   const p = pet();
   // pet switcher: the current pet is a named chip, the others are avatar bubbles (names stay for screen readers)
@@ -160,6 +169,7 @@ function drawChrome(name) {
       if (on.offsetLeft < switcher.scrollLeft) switcher.scrollLeft = Math.max(0, on.offsetLeft - 8);
     }
   }
+  switcherFade();
   // bottom nav
   const tab = TAB_OF[name];
   tabbar.hidden = name === "welcome" || !pets.length;

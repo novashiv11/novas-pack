@@ -8,7 +8,7 @@ import { S, pet, eventsOf, save, remove, setSetting } from "../state.js";
 import { h, put, em, weeklyStreak, motionOK, fmtDay, fmtTime, toast, confirmBox, sheet, inIreland } from "../util.js";
 import { skillsFor, progressOf } from "../logic.js";
 import { pageHead, subBar, sampleStrip, NOVA, moreBtn, trainNav, chevron } from "./parts.js";
-import { speciesOf, eventSheet } from "../forms.js";
+import { eventSheet } from "../forms.js";
 import { weekly } from "./home.js";
 import { gameOf, pips, bar, levelText, placeFor, skillName, startSession, selfCheck, logSession, trainingPicker, howTo } from "./gameui.js";
 import { LEVEL_REQ, CAPS, countedSessions, dayKey, weekBounds } from "../game.js";
@@ -23,6 +23,9 @@ export const skillEmoji = (id) => SKILL_EM[id] || "⭐";
 // Winding path: each node sits this many % left (-) or right (+) of the centre.
 const WIND = [0, 16, 26, 16, 0, -16, -26, -16];
 const ROW = 144, PAD = 36; // px per node row, and room above the first node for its "Start" tip
+
+/** "chickens", "horses", "birds" for the coming-soon wording (the species label is singular for most). */
+const kindOf = (p) => ({ chicken: "chickens", horse: "horses", bird: "birds", rabbit: "rabbits", cat: "cats", dog: "dogs" }[p.species] || "your kind of pet");
 
 /** Nova with a speech bubble (v7). mood: proud | think | sleepy adds a tiny badge on her head. */
 export function novaSay(text, mood = "", ...extra) {
@@ -55,13 +58,15 @@ export function training(main, arg, sub) {
     : (ordered.find((s) => ((a.progress[s.id] || {}).level || 0) < 3) || ordered[0] || {}).id;
   put(main, sampleStrip(p),
     pageHead("Train"), trainNav("skills"),
-    novaSay(q && q.done ? "Today's quest is done. Proud of you both." : q ? `Weakest link first: ${q.statLabel}. Five minutes. Go.` : "Short, happy sessions. Stop while it's still fun.", q && q.done ? "proud" : ""));
+    novaSay(!skills.length ? `Skills for ${kindOf(p)} are coming. Stamps and lessons are open now.` : q && q.done ? "Today's quest is done. Proud of you both." : q ? `Weakest link first: ${q.statLabel}. Five minutes. Go.` : "Short, happy sessions. Stop while it's still fun.", !skills.length ? "think" : q && q.done ? "proud" : ""));
   if (!skills.length) {
     put(main, h("div.card.soon-card",
       h("img.disc", { src: NOVA, alt: "", width: "56", height: "56" }),
-      h("div", h("h2", `${speciesOf(p.species).label} skills: coming soon`),
-        h("p", "Skills for your kind of pet are on their way. You can still log practice, and every log counts."),
-        h("button.btn.btn-line.sm", { type: "button", onclick: () => eventSheet("training") }, "Log practice"))));
+      h("div", h("h2", `Skills for ${kindOf(p)}: coming soon`),
+        h("p", "Until then, collect Adventure stamps and take Academy lessons. Every care log still counts."),
+        h("div.row-btns.left",
+          h("a.btn.btn-line.sm", { href: "#/adventures", "data-k": "soon-adv" }, "Adventures"),
+          p.species === "chicken" ? null : h("button.linkish", { type: "button", "data-k": "soon-log", onclick: () => eventSheet("training") }, "Log practice")))));
   }
   if (q) {
     put(main, h("section.quest-card.tq", { "aria-labelledby": "dq-h" },
@@ -81,7 +86,7 @@ export function training(main, arg, sub) {
   }
   const other = skills.filter((s) => !GROUPS.includes(s.level));
   if (other.length) put(main, pathSection("More", ++secN, other, a, curId));
-  put(main, streakCard(p), weekly(p, a));
+  put(main, skills.length ? streakCard(p) : null, weekly(p, a));
   put(main, h("details.fold.how-levels", h("summary", "How levels work"),
     h("p.small", `Levels need ${LEVEL_REQ.slice(1).join(", ")} sessions, each with a self-check at a harder place: home, garden, street, park (or, for skills like stay and alone time, a little longer each time). Up to ${CAPS.sessions} sessions per skill, and ${CAPS.sessionsPerDay} in total, count each day.`),
     h("p.small", "Every 4 weeks of practice earns a grace week (up to 2), so one busy week won't break your practice weeks."),

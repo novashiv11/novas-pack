@@ -1,4 +1,4 @@
-// Nova's treat jar: one sticker for each day you show up (any real log, a 1% tick or a journal line).
+// Nova's treat jar: one sticker for each day you show up (any real log, a daily tick or a journal line).
 // They come in this order, so the first 30 days each bring a new one; then they repeat. Original lines.
 export const STICKERS = [
   { e: "🦴", t: "First bone. You showed up." },

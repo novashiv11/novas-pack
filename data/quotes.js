@@ -1,14 +1,14 @@
-// Nova's Pack: "1% better every day" (spec v2, part D). One line a day, the same for everyone.
+// Nova's Pack: "Do it for them" (was "1% better every day", spec v2 part D; renamed by Shiv, CRQ-001). One line a day, the same for everyone.
 //
 // NOVA_LINES   original lines in Nova's voice (warm, witty, adult; effort, not perfection; never shaming)
 // FAMOUS       a few well-known quotes, ONLY with attribution we're sure of. If in doubt, it's not here.
 //              (For example, "We are what we repeatedly do" is Will Durant summarising Aristotle, not Aristotle.)
 // YOU_ACTIONS  tiny daily actions for the human (no therapy language, no health claims)
-// REPLIES      what Nova says when both of today's 1% actions are ticked
+// REPLIES      what Nova says when both of today's small actions are ticked
 // lineOfDay()  picks today's line from the mixed pool, by the local date
 
 export const NOVA_LINES = [
-  "1% better today is still better. I checked.",
+  "A little better today is still better. I checked.",
   "Progress is a walk, not a sprint. Mostly a sniff.",
   "You showed up. That's the hardest trick.",
   "Small steps. Big sniffs. Good days.",
@@ -104,7 +104,7 @@ export const YOU_ACTIONS = [
 ];
 
 export const REPLIES = [
-  "Both done. That's 1% each. I'm proud. Don't let it go to your head.",
+  "Both done. A little better, both of you. I'm proud. Don't let it go to your head.",
   "Look at the two of you. Better than yesterday.",
   "Done and done. Today counts.",
   "One for the dog, one for the human. Balanced, like a good biscuit ratio.",

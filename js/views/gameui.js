@@ -85,12 +85,15 @@ function changes(p, a, before, after) {
   return items;
 }
 
-/** Show the calm celebration for whatever changed. Confetti only for badges, and only if motion is OK. */
-export function celebrateDiff(p, before, after) {
-  if (!p || S.settings.careOnly) return;
+/** Show the calm celebration for whatever changed. Confetti only for badges, and only if motion is OK.
+ *  lead: the thing just done (e.g. a stamp) as the first tile, so it and its badge share one screen. True if shown. */
+export function celebrateDiff(p, before, after, lead = null) {
+  if (!p || S.settings.careOnly) return false;
   const items = changes(p, gameOf(p), before, after);
-  if (!items.length) return;
+  if (!items.length) return false;
+  if (lead) items.unshift(lead);
   setTimeout(() => celebrate(items, p), 250);
+  return true;
 }
 
 /** "📸 Share this win": the trophy card (Story size) for a real pet. Never for the sample, which isn't anyone's win. */
@@ -203,12 +206,12 @@ export function xpProgress(p, before = null) {
 }
 
 /** Run an action that may level something up, then celebrate the difference. */
-export async function withRewards(p, fn) {
+export async function withRewards(p, fn, lead = null) {
   const before = snap(p);
   const out = await fn();
   const after = snap(p);
-  celebrateDiff(p, before, after);
-  return { out, before, after };
+  const celebrated = celebrateDiff(p, before, after, lead);
+  return { out, before, after, celebrated };
 }
 
 // One-tap logs (walks, care tasks, general practice) and "Log" forms get "+N XP" and celebrations through forms.js.
