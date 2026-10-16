@@ -220,3 +220,24 @@
 /* The lesson player and level check are full-screen flows. Since v8, #main's view-transition-name makes it a stacking
    context, so the tab bar (z 20) sat on top of the player (z 25 inside #main) and swallowed taps on its bottom button. */
 body:has(.lp) .tabbar,body:has(.lp) .fab{display:none}
+
+/* v10 challenge */
+/* Challenge mode on a skill page (js/views/challenge.js): one D changes at a time. Training colour, soft card. */
+.ch-card{margin:14px 0 4px;padding:14px 14px 10px;border-radius:20px;background:var(--surface);box-shadow:var(--elev);color:var(--ink)}
+.ch-head{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:center}
+.ch-head h2{margin:0;font-family:var(--f-display);font-size:var(--t18,1.125rem);line-height:1.2}
+.ch-head .small{margin:2px 0 0;color:var(--muted)}
+.ch-ico{display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:var(--tr-tint);font-size:1.4rem}
+.ch-body{margin:12px 0 10px;padding:12px 14px;border-radius:16px;background:var(--tr-tint);border-left:4px solid var(--c-train)}
+.ch-d{margin:0;font-size:var(--t12,.75rem);font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--ink)}
+.ch-text{margin:4px 0 6px;font-family:var(--f-display);font-size:var(--t18,1.125rem);font-weight:800;line-height:1.3;overflow-wrap:anywhere}
+.ch-note{margin:0 0 6px;font-size:var(--t14,.875rem);font-weight:700;color:var(--ink)}
+.ch-body .small{margin:0}
+.ch-btns{display:flex;flex-wrap:wrap;gap:8px}
+.ch-btns .btn{flex:1 1 110px;min-height:44px;white-space:nowrap;padding-inline:12px;justify-content:center;transition:transform .25s var(--spring)}
+.ch-btns .btn:active,.ch-roll:active{transform:scale(.96)}
+.ch-card > .ch-roll{margin-top:12px;min-height:44px}
+.ch-easy{display:block;margin:4px auto 0;padding:0 8px;min-height:44px;font-size:var(--t14,.875rem)}
+.ch-text{animation:ch-pop .35s var(--spring)}
+@keyframes ch-pop{from{transform:scale(.96);opacity:.4}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion: reduce){.ch-text{animation:none}.ch-btns .btn,.ch-roll{transition:none}}

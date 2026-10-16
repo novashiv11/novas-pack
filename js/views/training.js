@@ -4,6 +4,7 @@
 // Sessions, XP and levels all come from the diary (js/game.js); nothing here stores anything.
 
 import { quizSkills } from "./placement.js";
+import { challengeCard } from "./challenge.js";
 import { S, pet, eventsOf, save, remove, setSetting } from "../state.js";
 import { h, put, em, weeklyStreak, motionOK, fmtDay, fmtTime, toast, confirmBox, sheet, inIreland } from "../util.js";
 import { skillsFor, progressOf } from "../logic.js";
@@ -210,6 +211,7 @@ function skillPage(main, p, sk) {
       h("button.btn.btn-line.sm", { type: "button", "data-k": "log-skill", onclick: () => logSession(p, sk, { minutes: sk.minutes }) }, "Already did one? Log it"),
       lastCheck ? moreBtn(`${sk.title} level`, [[`Undo the level ${pr.level} check`, () => undoCheck(p, sk, pr.level, lastCheck)]]) : null,
       h("p.small.muted", `Today: ${today} of ${CAPS.sessions} counted sessions for this skill.`)),
+    challengeCard(p, sk, pr.level),
     old !== "none" && pr.level === 0 ? h("p.note-line", em("📒"), ` In the old diary you marked this "${old === "got" ? "Got it" : "Practising"}". Levels start fresh: log sessions and do the self-checks.`) : null,
     clipBox,
     h("section.sec.skill-sec.sk-steps", { "aria-labelledby": "steps-h" }, h("h2", { id: "steps-h" }, "Steps"),
