@@ -7,12 +7,12 @@
 // so dark mode works. Parts are drawn in array order. Shared options: x, y (feet, default y 90), s (scale), flip (face left).
 // No network, no libraries. Specs live in data/scenes.js. bg: room (default) | grass | hall | plain.
 // Parts (t, then options):
-//   dog      v stand|walk|run|sit|down|jump|sniff|look-up|nose-in|spin; look up|down, mouth open|yawn, calm, worried, muzzle, strap, coat cream
+//   dog      v stand|walk|run|sit|down|jump|sniff|look-up|nose-in|spin|lean|belly; look up|down, mouth open|yawn, calm, worried, muzzle, strap, coat cream
 //   cat      v sit|stand|carrier; mood calm|happy|upset, swish          carrier  door open|closed, cat, mood
 //   person   v stand|walk|crouch|kneel; arm/arm2 down|out|low|up|point|lead|reach|back or [dx,dy,bend]; hold/hold2 treat|fist|cloth|handle;
 //            shirt blue|pink|gold|green|grey, skin 0-3, hair 0-3, kid, badge cross
 //   hand     (close-up, from the left, tip at x,y) v open|fist|pinch; treat, hold muzzle|cloth, rot
-//   props    door (v closed|ajar|open), mat, toy, treat (n, gap), muzzle (treat), puddle, clock (text), paw (claw false), button (on), bowl, ball, brush,
+//   props    door (v closed|ajar|open), mat, toy, treat (n, gap), muzzle (treat), puddle, clock (text), paw (claw false), button (on), bowl, ball, brush, cup (lift, rot),
 //            icon (v sleep|eat|play|vet|garden), lead (v loose|tight; person's hand to dog's collar; p, d pick which)
 //   marks    bubble (text, to [x,y], c gold), label (text), arrow (from, to, bend, both, dash, c blue|gold|pink|green|red), spin (x, y, rx, ry, c),
 //            motion, spark (pts), check, pause, stop, no (r), tally (n, s), ring (r, ry, text), drop
@@ -87,6 +87,14 @@ const DOG = {
     far: ["M12,-5.5 L36,-5.5"], near: ["M8,-3 L32,-3"],
     neck: [10, -16], head: [25, -17, 8],
   },
+  belly: { // rolled onto their back, paws up (roll over); the dark saddle is on the floor side
+    tail: "M-23,-5 C-30,-5 -36,-4 -41,-2 C-43,0 -41,2 -38,2 C-33,1 -28,0 -22,-1 Z",
+    body: "M-24,-10 C-24,-19 -13,-23 -2,-23 C9,-23 19,-21 21,-13 C23,-6 17,-2 12,-2 L-17,-2 C-22,-2 -24,-5 -24,-10 Z",
+    saddle: "M-30,-9 C-16,-6 6,-6 30,-9 L30,4 L-30,4 Z",
+    haunch: [-3, -16, 12, 4.5],
+    far: ["M13,-20 L17,-31 L21,-34", "M-12,-21 L-16,-32 L-13,-36"], near: ["M8,-21 L10,-33 L14,-36", "M-16,-20 L-22,-30 L-20,-35"],
+    neck: [14, -9], head: [27, -10, 14],
+  },
 };
 // Names that reuse a body with a different head or twist.
 const DOG_ALIAS = {
@@ -95,6 +103,7 @@ const DOG_ALIAS = {
   "look-up": ["sit", { head: [22, -49, -38] }],
   "nose-in": ["sit", { head: [26, -45, 6], muzzle: true }],
   spin: ["walk", { head: [23, -34, 26], tail: DOG.walk.tail }],
+  lean: ["down", { head: [20, -14, 58], near: ["M8,-3 L32,-3", "M-16,-6 L-3,-4 L8,-6"] }], // tipping onto one hip, nose to the shoulder
 };
 const TUCKED = "M-20,-16 C-23,-9 -20,-3 -14,-2 C-11,-2 -11,-5 -13,-6 C-15,-8 -16,-11 -16,-16 Z";
 
@@ -323,6 +332,11 @@ function ball(o) {
   const s = o.s ?? 1;
   return `<g transform="${xf(o, s)}"><ellipse class="sc-motion" cx="0" cy="0" rx="6" ry="1.5" opacity=".5"/><circle class="sc-ball" cy="-6" r="6"/><path class="sc-ballline" d="M-5.6,-8 Q0,-3 5.6,-8"/></g>`;
 }
+function cup(o) { // an upside-down cup for scent games; lift raises it (to hide or show a treat), rot tips it over
+  const s = o.s ?? 1, y = (o.y ?? 90) - (o.lift ?? 0);
+  return `<g transform="${xf({ ...o, y }, s)} rotate(${o.rot ?? 0})"><path class="sc-shell" d="M-9,0 L-6.5,-15 Q0,-16.6 6.5,-15 L9,0 Z"/>` +
+    '<rect class="sc-mat2" x="-9.6" y="-2.8" width="19.2" height="3.2" rx="1.4"/><path class="sc-shine" opacity=".45" d="M-4.4,-12.6 L-5.8,-4.6 L-3.8,-4.6 L-2.6,-12.6 Z"/></g>';
+}
 function brush(o) {
   return `<g transform="${xf(o, o.s ?? 1)}"><rect class="sc-fur" x="-3.5" y="-14" width="7" height="16" rx="3"/><rect class="sc-bowl" x="-9" y="-22" width="18" height="9" rx="3"/><path class="sc-fline" d="M-6,-22 v-4 M-2,-22 v-4 M2,-22 v-4 M6,-22 v-4"/></g>`;
 }
@@ -433,7 +447,7 @@ function lead(o, A) {
 }
 
 const DRAW = {
-  dog, person, cat, carrier, hand, door, mat, toy, treat, muzzle: muzzleProp, puddle, clock, paw, icon, button, bowl, ball, brush,
+  dog, person, cat, carrier, hand, door, mat, toy, treat, muzzle: muzzleProp, puddle, clock, paw, icon, button, bowl, ball, brush, cup,
   bubble, arrow, spin, motion, spark, check, pause, stop, no, tally, label, ring, drop,
 };
 

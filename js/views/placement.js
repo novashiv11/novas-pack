@@ -20,6 +20,13 @@ export const QUIZ = {
   handling: { e: "🖐️", q: "You touch {name}'s paws and ears…", a: ["Pulls away", "OK with treats", "Relaxed at home", "Relaxed with visitors", "Relaxed at the vet"] },
   "cat-carrier": { e: "🧳", q: "The carrier comes out. {name}…", a: ["Hides", "Sniffs from afar", "Goes in for treats", "Calm when carried", "Calm at the vet"] },
   "cat-handling": { e: "🐾", q: "You touch {name}'s paws…", a: ["Pulls away", "OK with treats", "Relaxed at home", "Lets me see a claw", "Calm for a trim"] },
+  // Advanced (v10): answers 1–4 read back each skill's own ladder in data/skills.js (heel uses the default one).
+  heel: { e: "🎖️", q: "You say \"heel\" and set off. {name}…", a: ["Wanders off or pulls", "Stays by my leg indoors, for a few steps", "Stays by my leg at home, with life going on", "Stays by my leg in the garden", "Stays by my leg on the street"] },
+  "distance-down": { e: "📡", q: "You ask for \"down\" from a few steps away. {name}…", a: ["Walks over to me first", "Lies down from one step away", "Lies down from three steps away", "Lies down from metres away, in the garden", "Lies down from metres away, in a quiet park"] },
+  "emergency-stop": { e: "🛑", q: "You say \"stop!\". {name}…", a: ["Keeps going", "Stops when standing, at home", "Stops when walking towards me", "Stops when trotting in the garden", "Stops when running, in a safe space"] },
+  place: { e: "🛏️", q: "You say \"bed\". {name}…", a: ["Doesn't go yet", "Goes when I stand by the bed", "Goes from a few steps away", "Goes from across the room", "Goes from another room"] },
+  "find-it": { e: "👃", q: "You hide a treat and say \"find it!\". {name}…", a: ["Doesn't search yet", "Finds it under cups, watching me hide it", "Finds it under cups, hidden out of sight", "Finds it around one room", "Finds it across two rooms"] },
+  "roll-over": { e: "🌀", q: "You lure {name} from a down on a soft rug…", a: ["Stays put", "Leans onto one hip", "Goes onto their side", "Rolls all the way over", "Rolls over for a small hand signal"] },
 };
 const DOTS = ["·", "L1", "L2", "L3", "L4"];
 

@@ -134,4 +134,41 @@ export const SCENES = {
     { bg: "room", parts: [{ t: "dog", v: "sniff", x: 44, s: 1.3 }, { t: "button", x: 100, y: 90, s: 1.2, on: true }, { t: "bubble", text: "snack please", x: 64, y: 16, c: "gold", to: [100, 72] }, { t: "person", v: "kneel", x: 142, flip: true, arm: "low", hold: "treat", hair: 1 }, { t: "bubble", text: "yes!", x: 136, y: 36, to: [138, 44] }] },
     { bg: "room", parts: [{ t: "label", text: "snack times only", x: 80, y: 16 }, { t: "button", x: 50, y: 90, s: 1.4 }, { t: "icon", v: "sleep", x: 50, y: 50 }, { t: "bowl", x: 116, y: 90, s: 1.3 }] },
   ],
+  // ---------- Advanced (v10) ----------
+  heel: [
+    { bg: "room", parts: [{ t: "person", x: 52, arm: "down", hold: "treat", hair: 1 }, { t: "ring", x: 57, y: 62, r: 9 }, { t: "dog", v: "stand", x: 124, s: 1.2, flip: true, look: "up" }, { t: "label", text: "by your leg", x: 104, y: 16 }] },
+    { bg: "room", parts: [{ t: "person", x: 66, arm: "down", hold: "treat", hair: 1 }, { t: "dog", v: "stand", x: 54, s: 1.2, look: "up", mouth: "open" }, { t: "bubble", text: "yes!", x: 120, y: 26, c: "gold", to: [84, 54] }, { t: "spark", x: 134, y: 58 }] },
+    { bg: "room", parts: [{ t: "person", v: "walk", x: 76, arm: "down", hold: "treat", hair: 1 }, { t: "dog", v: "walk", x: 64, s: 1.2, look: "up" }, { t: "arrow", from: [56, 96], to: [104, 96], c: "gold" }, { t: "label", text: "1 step", x: 130, y: 20 }] },
+    { bg: "grass", parts: [{ t: "person", v: "walk", x: 76, arm: "down", hold: "treat", hair: 1 }, { t: "dog", v: "walk", x: 64, s: 1.2, look: "up", mouth: "open" }, { t: "tally", x: 128, y: 18, n: 3, s: 1.3 }, { t: "check", x: 140, y: 46 }] },
+  ],
+  "distance-down": [
+    { bg: "room", parts: [{ t: "mat", x: 98, y: 92, s: 1.5 }, { t: "dog", v: "down", x: 100, y: 88, s: 1.3, flip: true }, { t: "person", x: 50, arm: "low", hold: "treat", hair: 1 }, { t: "bubble", text: "down", x: 46, y: 16, c: "gold", to: [52, 30] }] },
+    { bg: "room", parts: [{ t: "mat", x: 106, y: 92, s: 1.5 }, SHOW(108, { y: 88 }), { t: "person", x: 30, arm: "out", hair: 1 }, { t: "arrow", from: [62, 70], to: [40, 70], c: "gold", dash: true }, { t: "bubble", text: "down", x: 46, y: 16, to: [32, 30] }] },
+    { bg: "room", parts: [{ t: "mat", x: 112, y: 92, s: 1.5 }, { t: "dog", v: "down", x: 114, y: 88, s: 1.3, flip: true, mouth: "open" }, { t: "person", x: 28, arm: "up", hair: 1 }, { t: "arrow", from: [42, 24], to: [84, 82], c: "gold", bend: -14, dash: true }, { t: "treat", x: 78, y: 89 }, { t: "bubble", text: "yes!", x: 76, y: 16, c: "gold", to: [36, 28] }] },
+    { bg: "room", parts: [{ t: "mat", x: 118, y: 92, s: 1.5 }, { t: "dog", v: "down", x: 120, y: 88, s: 1.3, flip: true, calm: true }, { t: "person", x: 26, arm: "out", hair: 1 }, { t: "arrow", from: [44, 74], to: [86, 74], c: "gold", both: true, dash: true }, { t: "label", text: "2 steps", x: 66, y: 16 }, { t: "check", x: 140, y: 26 }] },
+  ],
+  "emergency-stop": [
+    { bg: "grass", parts: [{ t: "person", x: 28, arm: "up", hair: 1 }, { t: "dog", v: "stand", x: 94, s: 1.2, flip: true }, { t: "arrow", from: [44, 30], to: [140, 82], c: "gold", bend: -18, dash: true }, { t: "treat", x: 142, y: 89 }, { t: "bubble", text: "stop!", x: 64, y: 16, c: "gold", to: [36, 28] }] },
+    { bg: "grass", parts: [{ t: "person", x: 28, arm: "down", hair: 1 }, { t: "dog", v: "sniff", x: 100, s: 1.2 }, { t: "treat", x: 128, y: 89 }, { t: "spark", pts: [[138, 30, 1.6], [112, 22, 1.2]] }, { t: "label", text: "yay!", x: 60, y: 16 }] },
+    { bg: "grass", parts: [{ t: "person", x: 28, arm: "up", hair: 1 }, { t: "dog", v: "stand", x: 98, s: 1.2, flip: true, mouth: "open" }, { t: "treat", x: 140, y: 89 }, { t: "tally", x: 104, y: 16, n: 5, s: 1.3 }] },
+    { bg: "grass", parts: [{ t: "person", x: 28, arm: "out", hair: 1 }, { t: "dog", v: "walk", x: 104, s: 1.2, flip: true }, { t: "motion", x: 128, y: 64, len: 11, dir: -1 }, { t: "bubble", text: "stop!", x: 62, y: 16, c: "gold", to: [36, 28] }, { t: "stop", x: 140, y: 22, s: 1.1 }] },
+  ],
+  place: [
+    { bg: "room", parts: [{ t: "mat", x: 100, y: 92, s: 1.5 }, { t: "person", x: 64, arm: "point", hair: 1 }, { t: "dog", v: "sit", x: 138, s: 1, flip: true, look: "up" }, { t: "bubble", text: "bed", x: 52, y: 16, c: "gold", to: [62, 30] }] },
+    { bg: "room", parts: [{ t: "mat", x: 98, y: 92, s: 1.5 }, { t: "person", x: 30, arm: "up", hair: 1 }, { t: "arrow", from: [44, 28], to: [94, 84], c: "gold", bend: -14, dash: true }, { t: "treat", x: 98, y: 89 }, { t: "dog", v: "walk", x: 136, s: 1, flip: true, mouth: "open" }] },
+    { bg: "room", parts: [{ t: "mat", x: 98, y: 92, s: 1.5 }, { t: "dog", v: "down", x: 100, y: 88, s: 1.3, flip: true, calm: true }, { t: "person", x: 34, arm: "low", hold: "treat", hair: 1 }, { t: "bubble", text: "yes!", x: 40, y: 16, c: "gold", to: [38, 30] }] },
+    { bg: "room", parts: [{ t: "mat", x: 114, y: 92, s: 1.5 }, { t: "dog", v: "down", x: 116, y: 88, s: 1.3, flip: true, calm: true }, { t: "person", x: 28, arm: "point", hair: 1 }, { t: "arrow", from: [64, 70], to: [42, 70], c: "gold", dash: true }, { t: "label", text: "1 step away", x: 96, y: 16 }] },
+  ],
+  "find-it": [
+    { bg: "room", parts: [{ t: "person", v: "kneel", x: 28, arm: "reach", hair: 1 }, { t: "cup", x: 70, s: 1.3 }, { t: "cup", x: 104, s: 1.3 }, { t: "cup", x: 138, s: 1.3 }, { t: "label", text: "3 cups", x: 104, y: 22 }] },
+    { bg: "room", parts: [SHOW(138, { s: 1, look: "down" }), { t: "cup", x: 54, s: 1.2 }, { t: "treat", x: 82, y: 88 }, { t: "cup", x: 82, s: 1.2, lift: 22 }, { t: "cup", x: 110, s: 1.2 }, { t: "hand", v: "open", x: 74, y: 44, s: .8 }, { t: "ring", x: 82, y: 86, r: 9, ry: 6 }] },
+    { bg: "room", parts: [{ t: "person", x: 24, arm: "out", hair: 1 }, { t: "cup", x: 62, s: 1.2 }, { t: "cup", x: 88, s: 1.2 }, { t: "cup", x: 114, s: 1.2 }, SHOW(140, { s: 1, mouth: "open" }), { t: "bubble", text: "find it!", x: 66, y: 16, c: "gold", to: [30, 28] }] },
+    { bg: "room", parts: [{ t: "cup", x: 34, s: 1.2 }, { t: "cup", x: 60, s: 1.2, rot: -70 }, { t: "dog", v: "sniff", x: 102, s: 1.2, flip: true, mouth: "open" }, { t: "treat", x: 72, y: 90 }, { t: "spark", pts: [[132, 30, 1.6], [70, 40, 1.3], [24, 30, 1.1]] }, { t: "bubble", text: "yay!", x: 100, y: 16, c: "gold" }] },
+  ],
+  "roll-over": [
+    { bg: "room", parts: [{ t: "mat", x: 104, y: 92, s: 1.7 }, { t: "dog", v: "down", x: 106, y: 88, s: 1.3, flip: true }, { t: "person", x: 34, arm: "out", hair: 1 }, { t: "bubble", text: "down", x: 44, y: 16, c: "gold", to: [38, 30] }, { t: "label", text: "soft rug", x: 120, y: 18 }] },
+    { bg: "room", parts: [{ t: "mat", x: 108, y: 92, s: 1.7 }, { t: "dog", v: "down", x: 110, y: 88, s: 1.4, flip: true, look: "down" }, { t: "hand", v: "pinch", treat: true, x: 66, y: 66, s: .85 }, { t: "arrow", from: [70, 52], to: [102, 58], c: "gold", bend: -12 }, { t: "label", text: "nose → shoulder", x: 80, y: 16 }] },
+    { bg: "room", parts: [{ t: "mat", x: 104, y: 92, s: 1.7 }, { t: "dog", v: "lean", x: 106, y: 88, s: 1.4, flip: true }, { t: "ring", x: 119, y: 80, r: 13, ry: 9 }, { t: "person", v: "kneel", x: 30, arm: "reach", hold: "treat", hair: 1 }, { t: "bubble", text: "yes!", x: 54, y: 16, c: "gold", to: [40, 38] }] },
+    { bg: "room", parts: [{ t: "mat", x: 100, y: 92, s: 1.7 }, { t: "dog", v: "belly", x: 100, y: 89, s: 1.35, flip: true, mouth: "open" }, { t: "spin", x: 100, y: 64, rx: 38, ry: 22, c: "gold", from: 190, sweep: 160 }, { t: "tally", x: 50, y: 16, n: 3, s: 1.3 }, { t: "label", text: "max 3 tries", x: 50, y: 38 }] },
+  ],
 };
