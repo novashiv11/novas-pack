@@ -90,7 +90,10 @@ export function placement(main) {
     if (Object.keys(placementRow).length) row.placement = placementRow; else delete row.placement;
     try { await save("pets", row, { quiet: true }); } catch (ex) { stage.replaceChildren(h("p.form-error", saveError(ex))); return; }
     // The first win practises the skill that needs it most (lowest level; the first one on a tie).
-    const weakest = skills.reduce((m, s) => ((picked[s.id] || 0) < (picked[m.id] || 0) ? s : m), skills[0]).id;
+    // Advanced skills are a choice, not a first win: they count only when every other skill is past level 2.
+    const basics = skills.filter((s) => s.level !== "Advanced");
+    const pool = basics.some((s) => (picked[s.id] || 0) < 3) ? basics : skills;
+    const weakest = pool.reduce((m, s) => ((picked[s.id] || 0) < (picked[m.id] || 0) ? s : m), pool[0]).id;
     if (motionOK()) confetti();
     close.querySelector(".vh").textContent = "Back to Home";
     stage.replaceChildren(h(`section.lc2-card.lc2-done${motionOK() ? ".in" : ""}`, { "aria-labelledby": "lc2-done-h" },
