@@ -8,7 +8,7 @@ import { SCENES } from "../../data/scenes.js";
 import { scene } from "../scenes.js";
 import { stampsFor } from "../../data/adventures.js";
 import { S, pet, save, remove, refresh, realPets } from "../state.js";
-import { h, put, em, uid, sheet, toast, motionOK, buzz, isoDate } from "../util.js";
+import { h, put, em, uid, sheet, toast, motionOK, buzz, isoDate, todNow, skyLayer } from "../util.js";
 import { skillsFor } from "../logic.js";
 import { setLogHooks, eventSheet, saveError } from "../forms.js";
 import * as G from "../game.js";
@@ -119,8 +119,11 @@ function achievementList(items, single = false) {
     h("span.mc-ach-em", { "aria-hidden": "true" }, it.emoji),
     h("span.mc-ach-t", it.tag ? h("small", it.tag) : null, !single ? h("b", it.title) : null, h("span", it.text)))));
 }
-function heroNova(size = 96) {
-  return h("div.mc-hero", h("div.mc-rays", { "aria-hidden": "true" }), h("img.disc.mc-nova", { src: NOVA, alt: "", width: String(size), height: String(size) }));
+/** v9: Nova in the time-of-day sky (the same sky as Today's hero), with rays behind her; extra lines sit under her. */
+function heroNova(size = 96, ...under) {
+  return h(`div.stage.ui-sky.mc-sky.tod-${todNow()}`, skyLayer(),
+    h("div.mc-hero", h("div.mc-rays", { "aria-hidden": "true" }), h("img.disc.mc-nova", { src: NOVA, alt: "", width: String(size), height: String(size) })),
+    ...under);
 }
 
 export function celebrate(items, p = null) {
@@ -165,9 +168,9 @@ export async function missionComplete(p, before, after, { title, name, line, min
   ].filter(Boolean);
   const { dlg } = sheet("Mission complete!", (body, close) => {
     put(body,
-      heroNova(112),
-      name ? h("p.mc-name", name) : null,
-      line || title ? h("div.mc-say", h("p", line || title)) : null,
+      heroNova(112,
+        name ? h("p.mc-name", name) : null,
+        line || title ? h("div.mc-say", h("p", line || title)) : null),
       tiles.length ? h("div.mc-tiles", { "data-k": "mc-tiles" }, tiles) : null,
       bonus ? h("p.mc-bonus", `+${bonus} bonus XP (quest or level) 🎯`) : null,
       xp && !p.sample ? xpProgress(p, before) : null,
@@ -421,7 +424,7 @@ export function startSession(p, sk, { seconds } = {}) {
       lastMin = min;
     };
     put(body,
-      h("div.timer", ring, say),
+      h(`div.timer.stage.ui-sky.tod-${todNow()}`, skyLayer(), ring, say),
       runRow,
       moodBox,
       EASY[sk.id] ? h("details.more-box", { open: one }, h("summary", "Simple steps"), h("ol.steps-list.timer-steps", EASY[sk.id].steps.map((s) => h("li", s))))

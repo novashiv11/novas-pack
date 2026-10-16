@@ -3,7 +3,7 @@
 // first-run pet form, which sits on the page.
 
 import { S, pet, save, remove, removePet, adoptSample, setSetting, eventsOf, forPet, units, refresh, UI } from "./state.js";
-import { h, put, em, uid, sheet, toast, confirmBox, isoDate, addDays, addMonths, daysBetween, toLocalInput, fromLocalInput, resizePhoto, fmtDate, fmtDay, fmtTime, weeklyStreak, isoWeek, motionOK, buzz } from "./util.js";
+import { h, put, em, uid, sheet, toast, confirmBox, isoDate, addDays, addMonths, daysBetween, toLocalInput, fromLocalInput, resizePhoto, fmtDate, fmtDay, fmtTime, weeklyStreak, isoWeek, motionOK, buzz, todNow, skyLayer } from "./util.js";
 import { ALSO_NOTICED, scaleFor, poopScale, skillsFor, medStatus, fromUnit, toUnit, medIsActive, recordStatus, currentRecords, healthAlerts, recordDoneCheck } from "./logic.js";
 import { saveErrorText } from "./db.js";
 import * as ics from "./ics.js";
@@ -145,10 +145,10 @@ export function petForm(box, existing, onSaved, { openProfile = false, extra = n
     const cur = iconFor();
     iconBox.replaceChildren(...PET_ICONS.flatMap((e) => {
       const id = fid();
-      return [h("input", { type: "radio", name: iconName, id, value: e, checked: e === cur, onchange: () => { icon = e; } }), h("label", { for: id, title: ICON_NAMES[e] || "", "aria-label": ICON_NAMES[e] || "Icon" }, h("span", { "aria-hidden": "true" }, e))];
+      return [h("input", { type: "radio", name: iconName, id, value: e, checked: e === cur, onchange: () => { icon = e; drawFace(); } }), h("label", { for: id, title: ICON_NAMES[e] || "", "aria-label": ICON_NAMES[e] || "Icon" }, h("span", { "aria-hidden": "true" }, e))];
     }));
   };
-  speciesBox.addEventListener("change", () => { if (!p.icon && !iconTouched()) drawIcons(); });
+  speciesBox.addEventListener("change", () => { if (!p.icon && !iconTouched()) drawIcons(); drawFace(); });
   const iconTouched = () => icon !== null && icon !== (p.icon || null);
   const birthday = h("input", { type: "date", name: "birthday", max: isoDate(), value: p.birthday || "" });
   const homeSince = h("input", { type: "date", name: "homeSince", max: isoDate(), value: p.homeSince || "" });
@@ -176,10 +176,24 @@ export function petForm(box, existing, onSaved, { openProfile = false, extra = n
     } catch { if (run === styleRun) photoMsg.textContent = "Couldn't make a cartoon of that photo. The photo is kept as it is."; }
   };
   const runStyle = () => { pending = applyStyle().finally(() => { pending = null; }); return pending; };
-  const styleSeg = segmented(`style-${fid()}`, "Style", [["photo", "Photo"], ["cartoon", "Cartoon"]], style, (v) => { style = v; runStyle(); });
+  const styleSeg = segmented(`style-${fid()}`, "Style", [["photo", "Photo"], ["cartoon", "Cartoon"]], style, (v) => { style = v; runStyle().then(drawFace); });
   styleSeg.classList.add("photo-style");
   styleSeg.hidden = !photo;
-  const removePhoto = h("button.linkish", { type: "button", hidden: !photo, onclick: () => { photo = null; original = null; shown = "photo"; preview.hidden = true; removePhoto.hidden = true; styleSeg.hidden = true; file.value = ""; photoMsg.textContent = ""; } }, "Remove photo");
+  const removePhoto = h("button.linkish", { type: "button", hidden: !photo, onclick: () => { photo = null; original = null; shown = "photo"; preview.hidden = true; removePhoto.hidden = true; styleSeg.hidden = true; file.value = ""; photoMsg.textContent = ""; drawFace(); } }, "Remove photo");
+  // v9: the pet as the hero of its own sheet: the photo (or icon) in a ring, with one button to add or change the photo.
+  const face = h("span.pf-face", { "aria-hidden": "true" });
+  const photoBtn = h("button.btn.btn-line.sm.pf-photo", { type: "button", "data-k": "pf-photo", onclick: () => {
+    const fold = file.closest("details");
+    if (fold) fold.open = true;
+    file.click();
+  } });
+  const drawFace = () => {
+    face.replaceChildren(photo ? h("img", { src: photo, alt: "", width: "96", height: "96" })
+      : p.sample && !icon ? h("img.disc", { src: "img/brand/nova-head.svg", alt: "", width: "96", height: "96" })
+        : h("span.pf-emoji", iconFor()));
+    photoBtn.replaceChildren(em("📷"), " ", photo ? "Change photo" : "Add a photo");
+  };
+  const hero = h(`div.pf-hero.stage.ui-sky.tod-${todNow()}`, skyLayer(), h("span.pf-ring", face), photoBtn);
   file.addEventListener("change", async () => {
     const f = file.files && file.files[0];
     if (!f) return;
@@ -187,7 +201,8 @@ export function petForm(box, existing, onSaved, { openProfile = false, extra = n
       original = photo = await resizePhoto(f, 512); shown = "photo";
       preview.src = photo; preview.hidden = false; removePhoto.hidden = false; styleSeg.hidden = false;
       photoMsg.textContent = "Photo ready. Resized on your phone, location data removed.";
-      if (style === "cartoon") await runStyle();
+      drawFace();
+      if (style === "cartoon") { await runStyle(); drawFace(); }
     } catch { photoMsg.textContent = "Couldn't read that photo. Try a JPG or PNG."; }
   });
   const weight = h("input", { type: "number", name: "weight", inputmode: "decimal", min: "0", max: "2000", step: "0.01" });
@@ -212,6 +227,7 @@ export function petForm(box, existing, onSaved, { openProfile = false, extra = n
   const dropSample = sampleNow ? check("Remove Nova's sample (recommended)", { checked: true }, "The example pet and all its example logs. Your own pet starts clean.") : null;
 
   put(form,
+    hero,
     field("Name", name),
     h("fieldset.fs", h("legend", "Species"), speciesBox),
     h("fieldset.fs", h("legend", "Icon", opt()), iconBox, h("p.hint", "Shown when there's no photo.")),
@@ -223,6 +239,7 @@ export function petForm(box, existing, onSaved, { openProfile = false, extra = n
     speciesBox.addEventListener("change", profile.sync);
   }
   drawIcons();
+  drawFace();
   put(form, dropSample ? dropSample.row : null, extra, err,
     h("div.row-btns",
       existing && !p.sample ? h("button.btn.btn-line", { type: "button", "data-k": "archive-pet", onclick: () => archivePetFlow(p) }, "Archive") : null,
@@ -387,13 +404,15 @@ function whenControl(ev, existing, label = "When") {
   const input = h("input", { type: "datetime-local", value: toLocalInput(ev.at || Date.now()), max: toLocalInput(Date.now() + 3600000), required: true });
   let changed = false;
   const pick = h("div.when-pick", { hidden: true }, field(label, input));
+  // v9: one quiet line, "🕐 Now · Change" (the label is read out, not shown).
   const row = h("div.when-row", { "data-k": "when-row" },
     h("span.when-ic", { "aria-hidden": "true" }, "🕐"),
-    h("span.when-txt", h("small", label), h("b", existing ? `${fmtDay(ev.at)}, ${fmtTime(ev.at)}` : "Now")),
+    h("span.when-txt", h("span.vh", `${label}: `), h("b", existing ? `${fmtDay(ev.at)}, ${fmtTime(ev.at)}` : "Now")),
+    h("span.when-dot", { "aria-hidden": "true" }, "·"),
     h("button.linkish.when-change", { type: "button", "data-k": "when-change", "aria-expanded": "false", onclick: () => {
       if (!existing) input.value = toLocalInput(Date.now());
       changed = true; row.hidden = true; pick.hidden = false; input.focus();
-    } }, "Change time"));
+    } }, "Change", h("span.vh", " time")));
   return { node: h("div.when", row, pick), input, at: () => (existing || changed ? fromLocalInput(input.value) : Date.now()) };
 }
 
@@ -527,6 +546,8 @@ export function focusAlert() {
 /** The form for any diary entry, new or existing. details: opened from a toast's "Add details". */
 /** Log types that can carry a photo (the fun ones; never poop or health). */
 export const PHOTO_TYPES = ["walk", "play", "training", "eggs", "task"];
+/** The v8 care colour family of each log form (weight and vet visits keep the app blue). */
+const FORM_CAT = { meal: "meals", treat: "meals", walk: "walk", play: "play", training: "train", poop: "poop", eggs: "eggs", med: "med", task: "own", care: "own" };
 
 export function eventSheet(type, existing, { details = false } = {}) {
   if (type === "symptom") { unwellSheet(existing); return; }
@@ -536,7 +557,8 @@ export function eventSheet(type, existing, { details = false } = {}) {
   const t = TYPES[type];
   const title = details ? `${t.label}: add details` : existing ? `Edit ${t.label.toLowerCase()}` : `Log ${type === "poop" ? "a poop" : t.label.toLowerCase()}`;
   sheet(title, (body, close) => {
-    const form = h("form.form", { novalidate: true });
+    // v9: the form takes its kind's care colour (chosen tiles, chips and the poop scale), like Today's rows.
+    const form = h("form.form.ev-form", { novalidate: true, "data-cat": FORM_CAT[type] || undefined });
     const err = errorLine();
     const wc = whenControl(ev, !!existing);
     const note = h("textarea", { rows: "2", maxlength: "1000", value: ev.note || "" });

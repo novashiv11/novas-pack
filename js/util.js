@@ -176,7 +176,10 @@ export function sheet(title, build, { onClose } = {}) {
     h("button.icon-btn", { type: "button", "data-k": "sheet-close", onclick: close }, h("span.vh", "Close"), closeIcon()));
   dlg.append(head, body);
   build(body, close);
-  dlg.addEventListener("click", (e) => { if (e.target === dlg) close(); });
+  // A tap on the backdrop closes it; a press that started inside the sheet and ended outside (a drag) does not.
+  let downOut = false;
+  dlg.addEventListener("pointerdown", (e) => { downOut = e.target === dlg; });
+  dlg.addEventListener("click", (e) => { if (e.target === dlg && downOut) close(); });
   swipeToClose(dlg, head, close);
   const sid = `s${uid()}`;
   dlg.addEventListener("close", () => {
@@ -196,28 +199,60 @@ export function sheet(title, build, { onClose } = {}) {
   if (first && first.hasAttribute("autofocus")) first.focus();
   return { dlg, close };
 }
-/** Pull the handle (or the title bar) down to dismiss, like any phone sheet. Taps on the X are left alone. */
+/**
+ * v9: pull the handle (or the title bar) down to dismiss, like any phone sheet. The sheet follows the finger and the
+ * backdrop fades with it; let go past a third of the sheet (max 140 px) or with a quick flick and it slides away,
+ * otherwise it springs back. Taps on the X are left alone. Reduced motion: it still follows the finger (that is direct
+ * control), but closes and resets without animation. Full-screen sheets (Mission complete) don't swipe.
+ */
 function swipeToClose(dlg, head, close) {
-  let y0 = null, dy = 0;
+  let y0 = null, dy = 0, pid = null, lastY = 0, lastT = 0, v = 0;
+  const set = (y) => {
+    dlg.style.transform = y ? `translateY(${Math.round(y)}px)` : "";
+    dlg.style.setProperty("--drag", y > 0 ? String(Math.min(1, y / Math.max(1, dlg.offsetHeight))) : "0");
+  };
   head.addEventListener("pointerdown", (e) => {
-    if ((e.button || 0) > 0 || e.target.closest("button")) return;
-    y0 = e.clientY; dy = 0;
-    try { head.setPointerCapture(e.pointerId); } catch { /* fine */ }
-    dlg.style.transition = "none";
+    if ((e.button || 0) > 0 || e.target.closest("button,a,input,select,textarea") || dlg.classList.contains("mission")) return;
+    y0 = e.clientY; dy = 0; pid = e.pointerId; lastY = e.clientY; lastT = e.timeStamp; v = 0;
+    try { head.setPointerCapture(pid); } catch { /* fine */ }
+    dlg.classList.add("dragging");
   });
   head.addEventListener("pointermove", (e) => {
-    if (y0 === null) return;
-    dy = Math.max(0, e.clientY - y0);
-    dlg.style.transform = `translateY(${dy}px)`;
+    if (y0 === null || e.pointerId !== pid) return;
+    const raw = e.clientY - y0;
+    dy = raw >= 0 ? raw : -Math.min(14, Math.sqrt(-raw) * 2); // a little resistance upwards
+    const dt = e.timeStamp - lastT;
+    if (dt > 0) v = (e.clientY - lastY) / dt;
+    lastY = e.clientY; lastT = e.timeStamp;
+    set(dy);
   });
-  const end = () => {
-    if (y0 === null) return;
-    const go = dy > 90;
-    y0 = null; dlg.style.transition = "";
-    if (go) close(); else dlg.style.transform = "";
+  const end = (e) => {
+    if (y0 === null || (e && pid !== null && e.pointerId !== pid)) return;
+    const up = e && e.type === "pointerup";
+    y0 = null; pid = null;
+    dlg.classList.remove("dragging");
+    const tall = dlg.offsetHeight || 400;
+    if (!(up && (dy > Math.min(140, tall * 0.33) || (dy > 24 && v > 0.55)))) { set(0); return; }
+    buzz(8);
+    if (!motionOK()) { close(); return; }
+    dlg.classList.add("leaving");
+    let done = false;
+    const fin = () => { if (!done) { done = true; close(); } };
+    dlg.addEventListener("transitionend", fin, { once: true });
+    setTimeout(fin, 320);
+    set(tall + 40);
   };
   head.addEventListener("pointerup", end);
   head.addEventListener("pointercancel", end);
+  head.addEventListener("lostpointercapture", end);
+}
+
+// ---------- the time-of-day sky (v8 .stage.tod-*), for sheet heroes like the timer and Mission complete ----------
+/** "morning" | "day" | "evening" | "night", the same hours as Today's hero. */
+export function todNow(hr = new Date().getHours()) { return hr < 5 || hr >= 21 ? "night" : hr < 11 ? "morning" : hr < 17 ? "day" : "evening"; }
+/** The sun (or moon) and two clouds that sit behind a `.stage` hero. */
+export function skyLayer() {
+  return h("span.st-sky", { "aria-hidden": "true" }, h("span.st-sun"), h("span.st-cloud.c1"), h("span.st-cloud.c2"));
 }
 function closeIcon() {
   const s = document.createElementNS("http://www.w3.org/2000/svg", "svg");

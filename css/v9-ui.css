@@ -1,1 +1,158 @@
-/* v9 ui area (docs/v9-agents.md). Loaded after v8-feel.css. */
+/* v9 ui area (docs/v9-agents.md). Loaded after v8-feel.css. Shared components in the v8 look: bottom sheets you can
+   swipe down, log forms in the care colours, the timer and Mission complete in the time-of-day sky, the pet sheet.
+   Tap targets 44 px+, AA contrast in light and dark, reduced motion at the bottom. */
+
+/* ---------- bottom sheets: soft top, glass head and action bar, swipe down to close (util.js swipeToClose) ---------- */
+dialog.sheet{border-radius:28px 28px 0 0;box-shadow:var(--elev-2);transition:transform .45s cubic-bezier(.2,1.25,.4,1)}
+dialog.sheet.dragging{transition:none}
+dialog.sheet.leaving{transition:transform .24s cubic-bezier(.4,0,1,1)}
+dialog.sheet::backdrop{background:rgba(20,18,15,.5);opacity:calc(1 - var(--drag,0) * .9)}
+dialog.sheet .sheet-head{background:color-mix(in srgb,var(--bg) 90%,transparent);-webkit-backdrop-filter:saturate(1.4) blur(14px);backdrop-filter:saturate(1.4) blur(14px);border-bottom:1px solid var(--hair);border-radius:28px 28px 0 0;padding-bottom:8px;-webkit-user-select:none;user-select:none}
+dialog.sheet .sheet-grab{width:40px;height:5px;margin:10px 0 6px;background:var(--ctl);opacity:.45;transition:opacity .15s,width .2s var(--spring)}
+dialog.sheet .sheet-head:hover .sheet-grab,dialog.sheet.dragging .sheet-grab{opacity:.85;width:52px}
+dialog.sheet.dragging .sheet-head{cursor:grabbing}
+dialog.sheet .sheet-head h2{font-family:var(--f-display);font-weight:800;letter-spacing:-.01em}
+dialog.sheet .sheet-head .icon-btn{background:color-mix(in srgb,var(--ink) 7%,transparent);transition:transform .2s var(--spring)}
+
+/* the sticky action bar: frosted, a hairline instead of a hard rule */
+dialog.sheet .form > .row-btns:last-child,
+dialog.sheet .sheet-body > .row-btns:last-child,
+dialog.sheet .sheet-body > .mc-btns{background:color-mix(in srgb,var(--bg) 88%,transparent);-webkit-backdrop-filter:saturate(1.4) blur(14px);backdrop-filter:saturate(1.4) blur(14px);border-top:0;box-shadow:0 -1px 0 var(--hair)}
+dialog.sheet .btn{transition:transform .18s var(--spring),box-shadow .12s ease-out}
+
+/* action sheets (parts.js) and the skill picker: soft rows */
+.action-row,.pick-row{border:0;border-radius:18px;background:var(--surface);box-shadow:var(--elev);transition:transform .18s var(--spring),box-shadow .18s}
+.action-row:active,.pick-row:active{transform:scale(.98);box-shadow:none}
+.action-row.danger{box-shadow:var(--elev),inset 4px 0 0 var(--danger)}
+.ar-ic{background:color-mix(in srgb,var(--blue) 10%,var(--surface))}
+
+/* ---------- log forms: one care colour per form (forms.js sets data-cat), consistent fields ---------- */
+.ev-form{--cat:var(--blue)}
+.ev-form[data-cat="meals"]{--cat:var(--c-meals)}
+.ev-form[data-cat="walk"]{--cat:var(--c-walk)}
+.ev-form[data-cat="play"]{--cat:var(--c-play)}
+.ev-form[data-cat="train"]{--cat:var(--c-train)}
+.ev-form[data-cat="poop"]{--cat:var(--c-poop)}
+.ev-form[data-cat="eggs"]{--cat:var(--c-eggs)}
+.ev-form[data-cat="med"]{--cat:var(--c-med)}
+.ev-form[data-cat="own"]{--cat:var(--c-own)}
+
+dialog.sheet .field > .lbl{display:block;margin-bottom:8px;font-family:var(--f-display);font-size:var(--t18);font-weight:800}
+dialog.sheet .field input:not([type=checkbox]):not([type=radio]):not([type=file]),dialog.sheet .field select,dialog.sheet .field textarea{min-height:52px;border-radius:14px;background:var(--surface);transition:border-color .15s,box-shadow .15s}
+dialog.sheet .field input:not([type=checkbox]):not([type=radio]):not([type=file]):focus,dialog.sheet .field select:focus,dialog.sheet .field textarea:focus{border-color:var(--blue);box-shadow:0 0 0 4px color-mix(in srgb,var(--blue) 20%,transparent)}
+dialog.sheet .field .hint{margin-top:6px}
+
+/* the time row: "🕐 Now · Change" */
+.when-row{display:inline-flex;align-items:center;gap:6px;max-width:100%;min-height:48px;padding:2px 2px 2px 14px;border:0;border-radius:999px;background:var(--sunk)}
+.when-ic{font-size:1.15rem}
+.when-txt{flex:0 1 auto;display:block}
+.when-txt b{font-size:var(--t16);font-weight:800}
+.when-dot{color:var(--muted);font-weight:800}
+.when-change{min-height:44px;padding:0 14px;border-radius:999px;font-weight:800;color:var(--blue);text-decoration:none}
+.when-change:hover{background:color-mix(in srgb,var(--blue) 10%,transparent)}
+
+/* minutes as chips */
+.min-tiles{display:flex;flex-wrap:wrap;gap:8px}
+.min-tile{flex:1 0 auto;flex-direction:row;align-items:center;justify-content:center;gap:4px;min-height:48px;padding:0 14px;border:0;border-radius:999px;background:var(--surface);box-shadow:var(--elev);transition:transform .18s var(--spring),box-shadow .15s,background .15s}
+.min-tile b{font-size:var(--t18)}
+.min-tile span{font-size:var(--t14)}
+.min-tile:active{transform:scale(.95);box-shadow:none}
+.min-tile[aria-pressed="true"]{border:0;background:color-mix(in srgb,var(--cat,var(--blue)) 16%,var(--surface));box-shadow:inset 0 0 0 2px var(--cat,var(--blue))}
+
+/* quick fills ("same as last time") and suggestion chips */
+.quick-fill .chip,dialog.sheet .chips-row .chip{border:0;box-shadow:var(--elev);transition:transform .18s var(--spring),box-shadow .15s,background .15s}
+.quick-fill .chip.same{border:0;background:color-mix(in srgb,var(--cat,var(--blue)) 10%,var(--surface));box-shadow:var(--elev)}
+.quick-fill .chip.same small{color:var(--muted)}
+.quick-fill .chip[aria-pressed="true"]{border:0;background:color-mix(in srgb,var(--cat,var(--blue)) 18%,var(--surface));color:var(--ink);box-shadow:inset 0 0 0 2px var(--cat,var(--blue))}
+.quick-fill .chip[aria-pressed="true"] small{color:var(--muted)}
+.quick-fill .chip:active,dialog.sheet .chips-row .chip:active{transform:scale(.97)}
+
+/* the poop scale as picture tiles, brown when chosen */
+.scale.pic-scale label{border:0;border-radius:18px;background:var(--surface);box-shadow:var(--elev);transition:transform .18s var(--spring),box-shadow .15s,background .15s}
+.pp-pic{background:color-mix(in srgb,var(--c-poop) 12%,var(--surface))}
+.pp-tick{border:1.5px solid var(--ctl)}
+.scale.pic-scale input:checked + label{border:0;background:color-mix(in srgb,var(--c-poop) 13%,var(--surface));box-shadow:inset 0 0 0 2px var(--c-poop)}
+.scale.pic-scale input:checked + label .sc-n{color:var(--c-poop)}
+.scale.pic-scale input:checked + label .pp-tick{background:var(--c-poop);border-color:var(--c-poop);color:var(--on-cat)}
+.scale-hint{border-left:0;border-radius:14px;background:color-mix(in srgb,var(--c-poop) 10%,var(--surface))}
+
+/* tick-box tiles (unusual signs, symptoms) */
+.tile-checks .check{border:0;border-radius:18px;box-shadow:var(--elev)}
+.tile-checks .check input:checked{background:var(--cat,var(--blue));border-color:var(--cat,var(--blue))}
+.tile-checks .check input::after{color:var(--on-cat)}
+.ev-form:not([data-cat]) .tile-checks .check input::after,form:not(.ev-form) .tile-checks .check input::after{color:var(--on-blue)}
+.tile-checks .check:has(input:checked){border:0;background:color-mix(in srgb,var(--cat,var(--blue)) 12%,var(--surface));box-shadow:inset 0 0 0 2px var(--cat,var(--blue))}
+.sym-checks.tile-checks .check,.sym-checks.tile-checks .check:has(input:checked){border:0}
+
+/* photo field */
+.ev-photo{border-radius:18px}
+
+/* ---------- pet sheet: the pet as the hero, photo in a ring of the care colours ---------- */
+.pf-hero{padding:18px 14px 16px;gap:12px}
+.pf-ring{display:grid;place-items:center;width:116px;height:116px;padding:5px;border-radius:50%;background:conic-gradient(from -90deg,var(--c-walk),var(--c-train),var(--c-play),var(--c-meals),var(--c-walk));box-shadow:0 8px 22px rgba(30,20,10,.18)}
+.pf-face{display:grid;place-items:center;width:100%;height:100%;border-radius:50%;overflow:hidden;background:var(--surface);border:3px solid var(--surface)}
+.pf-face img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.pf-emoji{font-size:54px;line-height:1}
+.pf-hero .pf-photo{min-height:44px;background:var(--surface);color:var(--ink)}
+.species.pick label,.icon-pick label{border:0;background:var(--surface);box-shadow:var(--elev);transition:transform .18s var(--spring),box-shadow .15s,background .15s}
+.species.pick label:active,.icon-pick label:active{transform:scale(.95)}
+.species.pick input:checked + label,.icon-pick input:checked + label{background:var(--blue-soft);color:var(--ink);box-shadow:inset 0 0 0 2px var(--blue)}
+.photo-preview{box-shadow:var(--elev)}
+
+/* ---------- the sky behind Nova (timer, Mission complete, celebrations, pet sheet) ---------- */
+.stage.ui-sky{box-shadow:none}
+.ui-sky .nova-say-bubble,.ui-sky .mc-say{border:0;background:rgba(255,255,255,.74);color:#1E1B17;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.ui-sky .nova-say-bubble::before,.ui-sky .mc-say::before{display:none}
+.tod-night.ui-sky .nova-say-bubble,.tod-night.ui-sky .mc-say{background:rgba(255,255,255,.14);color:#F5EEE4}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .ui-sky .nova-say-bubble,:root:not([data-theme="light"]) .ui-sky .mc-say{background:rgba(255,255,255,.12);color:#F5EEE4}}
+:root[data-theme="dark"] .ui-sky .nova-say-bubble,:root[data-theme="dark"] .ui-sky .mc-say{background:rgba(255,255,255,.12);color:#F5EEE4}
+.ui-sky .timer-say.cheer .nova-say-bubble{background:rgba(251,235,198,.95);color:#1E1B17}
+
+/* timer: the ring in the training colour, Nova in the sky */
+.timer.ui-sky{padding:18px 14px 16px;gap:14px}
+.timer.ui-sky .timer-ring .ring-track{stroke:rgba(255,255,255,.65)}
+.tod-night.timer .timer-ring .ring-track{stroke:rgba(255,255,255,.18)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .timer.ui-sky .timer-ring .ring-track{stroke:rgba(255,255,255,.14)}}
+:root[data-theme="dark"] .timer.ui-sky .timer-ring .ring-track{stroke:rgba(255,255,255,.14)}
+.timer-ring .ring-fill{stroke:var(--c-train)}
+.tod-night.timer .timer-ring .ring-fill{stroke:#8EC1E0}
+.timer-ring.paused .ring-fill{stroke:var(--ctl)}
+.timer-ring.done .ring-fill{stroke:var(--gold)}
+.timer-ring.hurry .ring-fill{stroke:var(--tan)}
+.timer.ui-sky .timer-clock,.timer.ui-sky .timer-ring.hurry .timer-clock{color:inherit}
+.timer-ring::before{content:"";position:absolute;inset:16%;border-radius:50%;background:rgba(255,255,255,.55);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.tod-night .timer-ring::before{background:rgba(255,255,255,.08)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .timer-ring::before{background:rgba(255,255,255,.06)}}
+:root[data-theme="dark"] .timer-ring::before{background:rgba(255,255,255,.06)}
+.timer-nova{border:0;box-shadow:0 3px 10px rgba(30,20,10,.18);background:var(--surface)}
+.mood-btn{border:0;border-radius:20px;background:var(--surface);box-shadow:var(--elev);transition:transform .18s var(--spring),box-shadow .15s}
+.mood-btn:hover,.mood-btn:focus-visible{border:0;box-shadow:var(--elev),inset 0 0 0 2px var(--c-train)}
+.mood-btn:active{transform:scale(.95);box-shadow:none}
+
+/* ---------- Mission complete and celebrations: Nova in the sky, tiles in the care colours ---------- */
+.mc-sky{padding:6px 14px 16px;gap:6px}
+dialog.cele .mc-sky .mc-hero{margin:0}
+.mc-sky .mc-rays{opacity:.42}
+.mc-sky .mc-nova{border:4px solid #fff;box-shadow:0 8px 22px rgba(30,20,10,.22);background:var(--surface)}
+.mc-sky .mc-name{color:inherit}
+.mc-sky .mc-say{margin-top:4px}
+dialog.mission .sheet-head h2{color:var(--ink)}
+.mc-tile{--c:var(--gold);--ct:var(--tan-text);border:0;border-radius:18px;background:color-mix(in srgb,var(--c) 15%,var(--surface));box-shadow:none}
+.mc-tile.t-time{--c:var(--c-train);--ct:color-mix(in srgb,var(--c-train) 72%,var(--ink))}
+.mc-tile.t-mood{--c:var(--c-play);--ct:color-mix(in srgb,var(--c-play) 66%,var(--ink))}
+.mc-tile-h{background:transparent;color:var(--ct);padding:10px 4px 0}
+.mc-tile-b{color:var(--ink);min-height:60px;padding:2px 4px 10px}
+.mc-tile .mc-ti{display:grid;place-items:center;width:36px;height:36px;margin-bottom:2px;border-radius:50%;background:var(--surface);font-size:1.15rem;box-shadow:var(--elev)}
+.mc-ach li{border:0;border-radius:18px;box-shadow:var(--elev)}
+.mc-ach li.is-badge{border:0;background:linear-gradient(160deg,var(--gold-soft) 0%,var(--surface) 80%);box-shadow:var(--elev)}
+.mc-week{border:0;border-radius:18px;box-shadow:var(--elev)}
+.mc-sticker{border:0;border-radius:18px;background:var(--gold-soft)}
+.xpp{padding:12px 14px;border-radius:18px;background:var(--surface);box-shadow:var(--elev)}
+.xpp-bar{background:color-mix(in srgb,var(--gold) 20%,var(--sunk))}
+
+/* ---------- reduced motion: same look, no movement ---------- */
+@media (prefers-reduced-motion:reduce){
+  dialog.sheet,dialog.sheet.leaving,dialog.sheet .sheet-grab,dialog.sheet .btn,.action-row,.pick-row,.min-tile,.quick-fill .chip,dialog.sheet .chips-row .chip,
+  .scale.pic-scale label,.species.pick label,.icon-pick label,.mood-btn,dialog.sheet .field input,dialog.sheet .field select,dialog.sheet .field textarea{transition:none}
+  .action-row:active,.pick-row:active,.min-tile:active,.quick-fill .chip:active,dialog.sheet .chips-row .chip:active,.species.pick label:active,.icon-pick label:active,.mood-btn:active{transform:none}
+}
