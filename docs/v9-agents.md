@@ -146,3 +146,29 @@ Five builders work at the same time, each in its own git worktree and on its own
 - **Day complete (today.js):** describe what you'd change; don't edit `today.js`.
 - **Toasts:** keep v8 (compact).
 - **Pet sheet (`openPetSheet`):** v8 look; the photo in a ring.
+
+## Shipped (16 Oct)
+All five areas were built in parallel and merged with no conflicts, thanks to per-area files.
+
+- **A. Home and onboarding:**
+  - Onboarding steps sit on a time-of-day sky, with tinted species cards and care-coloured day preview rows.
+  - The photo step shows the photo or icon in the stage ring.
+  - A new "Welcome to the pack" screen (#/welcome/add/done) plays the win sound, fills a ring and shows confetti.
+  - Home: "Due today" is a soft card, "Today so far" is a care-coloured timeline, and "More for Bran" and the nudges have the v8 look. Get ready has a sky hero.
+- **B. Train:**
+  - The path uses the training colour (gold from L3), with a "Bran · Level N" strip.
+  - The skill page has a sky hero with a ring. The Academy is a ring path, and Adventures has die-cut stickers with silhouettes.
+  - Fix: the tab bar no longer catches taps on full-screen lesson buttons.
+- **C. Health:**
+  - A calm sky hero ("All caught up" / "N things due").
+  - One-tap Done/Given rows, and a weight sparkline spaced by real dates.
+  - The poop week in the poop colour.
+  - Unwell result card: shows "Find an emergency vet" (a map search) when there's no emergency number. The vet summary has a print button.
+- **D. More:**
+  - **Memories** (#/more/memories): every photo, grouped by month as polaroids.
+  - Shiny medals, treat jar album pages, pet cards, and journal polish.
+- **E. Shared:**
+  - **Swipe down to close sheets.** Releasing outside a sheet no longer closes it.
+  - Forms take their care colour, and the time row reads "Now · Change".
+  - The timer and Mission complete sit in the sky, and the pet sheet has a sky hero.
+- **Co-captain:** Day complete in the time-of-day sky, with tinted tiles.
