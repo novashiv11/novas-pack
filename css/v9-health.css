@@ -1,1 +1,135 @@
-/* v9 health area (docs/v9-agents.md). Loaded after v8-feel.css. */
+/* v9 health area (docs/v9-agents.md). Loaded after v8-feel.css. Health home hero, v8 cards, food, unwell, vet summary. */
+
+/* ---------- the health hero: the pet in a calm sky ---------- */
+.hv-hero{justify-items:stretch;text-align:left;gap:12px;margin-top:6px;padding:16px 16px 14px;border-radius:26px}
+.hv-hero.tod-morning{background:linear-gradient(160deg,#FCE6D2 0%,#F4F1EA 52%,#DDEEF0 100%)}
+.hv-hero.tod-day{background:linear-gradient(160deg,#CFE6F0 0%,#E9F3F1 55%,#F6F2E6 100%)}
+.hv-hero.tod-evening{background:linear-gradient(160deg,#F4D6C4 0%,#EFE2DA 50%,#DCD8EE 100%)}
+.hv-hero .st-sun{top:14px;bottom:auto;right:16px;transform:scale(.7)}
+.hv-hero.tod-night .st-sun{transform:rotate(-20deg) scale(.8)}
+.hv-hero .st-cloud.c1{top:auto;bottom:22px;left:auto;right:-26px;width:90px}
+.hh-row{display:flex;align-items:center;gap:14px;min-width:0}
+.hh-pic{position:relative;flex:none;width:72px;height:72px}
+.hh-face{display:block;width:72px;height:72px;border-radius:50%;object-fit:cover;background:var(--surface);box-shadow:0 6px 18px rgba(30,20,10,.16)}
+.hh-emoji{display:grid;place-items:center;font-size:40px;line-height:1}
+.hh-badge{position:absolute;right:-4px;bottom:-2px;display:grid;place-items:center;min-width:28px;height:28px;padding:0 6px;border-radius:999px;font-weight:800;font-size:var(--t14);line-height:1;box-shadow:0 0 0 3px var(--surface)}
+.hv-hero.clear .hh-badge{background:var(--c-walk);color:var(--on-cat)}
+.hv-hero.due .hh-badge{background:var(--surface);color:var(--ink);box-shadow:0 0 0 3px var(--surface),0 0 0 5px var(--tan)}
+.hh-t{flex:1;min-width:0;padding-right:28px}
+.hh-title{margin:0;font-family:var(--f-body);font-size:var(--t14);font-weight:800;line-height:1.25;color:inherit;opacity:.9;overflow-wrap:anywhere}
+.hh-title:focus{outline:none}
+.hh-status{margin:2px 0 0;font-family:var(--f-display);font-size:1.65rem;font-weight:800;line-height:1.05;letter-spacing:-.01em}
+.hh-sub{margin:4px 0 0;font-size:var(--t14);font-weight:600;line-height:1.35;opacity:.9;overflow-wrap:anywhere}
+.hv-hero .nova-line{margin:0;color:inherit}
+.hv-hero .hv-say{background:rgba(255,255,255,.72);color:#1E1B17;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.hv-hero .nova-face{background:var(--surface)}
+.hv-hero .hv-say::before{display:none}
+.hv-hero.tod-night .hv-say{background:rgba(255,255,255,.14);color:#F5EEE4}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .hv-hero .hv-say{background:rgba(255,255,255,.12);color:#F5EEE4}}
+:root[data-theme="dark"] .hv-hero .hv-say{background:rgba(255,255,255,.12);color:#F5EEE4}
+.hv-hero + .alert,.hv-hero ~ .hv-seg{margin-top:14px}
+
+/* ---------- quick log and dashboard tiles: soft cards, spring presses, a tint per kind ---------- */
+.ql{transition:transform .18s var(--spring),box-shadow .18s}
+.ql:active{transform:scale(.96)}
+.hv-tile{border:0;transition:transform .18s var(--spring),box-shadow .18s}
+.hv-tile:hover{border:0;box-shadow:var(--elev-2)}
+.hv-tile:active{transform:scale(.98);box-shadow:var(--elev)}
+.hv-tile .hv-badge{background:color-mix(in srgb,var(--blue) 12%,var(--surface))}
+.hv-tile[data-k="hv-poop"] .hv-badge{background:color-mix(in srgb,var(--c-poop) 18%,var(--surface))}
+.hv-tile[data-k="hv-meds"] .hv-badge{background:color-mix(in srgb,var(--c-med) 14%,var(--surface))}
+.hv-tile[data-k="hv-vet"] .hv-badge{background:color-mix(in srgb,var(--c-walk) 14%,var(--surface))}
+.hv-hint{font-style:normal}
+
+/* weight sparkline: the real weights, spaced by date */
+.hv-spark-box{height:52px;margin-top:8px}
+.hv-spark-area{fill:color-mix(in srgb,var(--blue) 14%,transparent)}
+.hv-spark-line{stroke-width:2.5}
+.hv-spark-dot{width:12px;height:12px;margin:-6px 0 0 -6px;border-width:3px;box-shadow:0 0 0 4px color-mix(in srgb,var(--blue) 20%,transparent)}
+.hv-spark-cap{font-size:var(--t12);font-weight:700;color:var(--muted)}
+
+/* the poop week in the poop colour */
+.hv-week .ws-day.has .ws-n{background:var(--c-poop);color:var(--on-cat)}
+.hv-week .ws-day.off .ws-n{background:var(--tan-soft);color:var(--tan-text)}
+.hv-week .ws-day.today .ws-l{color:var(--c-poop)}
+.hv-week .ws-day.today .ws-n{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--c-poop)}
+.hv-weekcard .hv-badge{background:color-mix(in srgb,var(--c-poop) 18%,var(--surface))}
+
+/* ---------- due soon: one row each, one tap to Done or Given ---------- */
+.hv-due{--cat:var(--blue);--on:var(--on-blue);display:flex;flex-direction:row;flex-wrap:wrap;align-items:center;gap:10px 12px;padding:12px 12px 12px 14px;border:0;border-radius:20px;background:var(--surface);box-shadow:var(--elev)}
+.hv-due.k-med{--cat:var(--c-med);--on:var(--on-cat)}
+.hv-due.k-care{--cat:var(--c-own);--on:var(--on-cat)}
+.hv-due.overdue{background:var(--surface);box-shadow:var(--elev),inset 4px 0 0 var(--tan)}
+.hv-due .hv-badge{background:color-mix(in srgb,var(--cat) 14%,var(--surface));border-radius:50%}
+.hv-due .due-body{flex:1 1 130px;min-width:0}
+.hv-due .due-when{margin:2px 0 0;font-size:var(--t14);color:var(--muted)}
+.hv-due .due-when b{color:var(--ink)}
+.hv-due.overdue .due-when b{color:var(--tan-text)}
+.hv-due-act{display:flex;align-items:center;gap:8px;margin-left:auto}
+.hv-done{min-width:92px;background:var(--cat);color:var(--on);box-shadow:0 3px 0 color-mix(in srgb,var(--cat) 60%,#000);transition:transform .18s var(--spring)}
+.hv-done:active{transform:translateY(2px) scale(.98);box-shadow:0 1px 0 color-mix(in srgb,var(--cat) 60%,#000)}
+.hv-due-act .more-btn,.hv-care-act .more-btn,.hv-rec .more-btn{border:0;background:var(--sunk)}
+.hv-clear{border-radius:20px}
+
+/* care routine and record cards: soft, with an inset accent instead of a thick border */
+.hv-carerow,.hv-carerow.overdue,.hv-carerow.today{border:0}
+.hv-rec{border:0;border-radius:20px}
+.hv-rec.overdue{border-left:0;box-shadow:var(--elev),inset 4px 0 0 var(--tan)}
+.hv-rec.today,.hv-rec.soon{border-left:0;box-shadow:var(--elev),inset 4px 0 0 var(--blue)}
+.hv-back{border:0;box-shadow:var(--elev)}
+.hv-report{border:0;border-radius:20px;background:linear-gradient(150deg,var(--blue-soft) 0%,var(--surface) 85%);box-shadow:var(--elev);transition:transform .18s var(--spring)}
+.hv-report:active{transform:scale(.98)}
+.hv-vetbar{border-radius:20px}
+
+/* ---------- food ---------- */
+.hv-food{border:0;border-radius:22px;background:linear-gradient(150deg,color-mix(in srgb,var(--c-meals) 16%,var(--surface)) 0%,var(--surface) 72%);box-shadow:var(--elev)}
+.hv-food .hv-badge{background:var(--surface);box-shadow:var(--elev)}
+.hv-treat{border:0;border-radius:16px;box-shadow:var(--elev);transition:transform .18s var(--spring)}
+.hv-treat.on{border:0;background:color-mix(in srgb,var(--c-meals) 12%,var(--surface))}
+.hv-treat.on .hv-treat-tick{background:var(--c-meals);color:var(--on-cat)}
+.hv-treat-edit,.hv-treat.on .hv-treat-edit{border-left:1px solid var(--hair) !important}
+.hv-treat:active{transform:scale(.97)}
+.hv-warn{border-radius:20px;padding:16px}
+details.hv-guide{border:0;border-radius:20px;background:var(--surface);box-shadow:var(--elev)}
+.hv-guide .hv-badge{background:color-mix(in srgb,var(--c-meals) 14%,var(--surface))}
+.hv-guide .feed-tips li{border-radius:14px}
+
+/* ---------- unwell: big symptom tiles, one calm result ---------- */
+.hv-syms{gap:12px}
+.hv-sym-box{min-height:116px;gap:8px;padding:12px 6px;border:0;border-radius:20px;box-shadow:var(--elev);transition:transform .18s var(--spring),box-shadow .18s,background .15s}
+.hv-sym-e{display:grid;place-items:center;width:54px;height:54px;border-radius:50%;background:var(--sunk);font-size:30px}
+.hv-sym input:checked + .hv-sym-box{border:0;background:color-mix(in srgb,var(--blue) 10%,var(--surface));box-shadow:var(--elev),0 0 0 2.5px var(--blue)}
+.hv-sym input:checked + .hv-sym-box .hv-sym-e{background:var(--surface)}
+.hv-sym input:checked + .hv-sym-box::after{top:8px;right:8px;width:24px;height:24px;font-size:14px}
+.hv-sym input:active + .hv-sym-box{transform:scale(.96);box-shadow:var(--elev)}
+.hv-chip{border:0;background:var(--sunk)}
+.hv-result{gap:12px;padding:0 0 16px;border:0;border-radius:24px;background:var(--surface);box-shadow:var(--elev-2);overflow:hidden}
+.hv-result.lv-today,.hv-result.lv-emergency{background:var(--surface);border:0}
+.hv-result-top{padding:16px;background:var(--blue-soft)}
+.hv-result.lv-today .hv-result-top{background:var(--tan-soft)}
+.hv-result.lv-emergency .hv-result-top{background:var(--danger-soft)}
+.hv-result > :not(.hv-result-top){margin-left:16px;margin-right:16px}
+.hv-result-e{box-shadow:var(--elev)}
+.hv-result-list li{padding:10px 12px;border-radius:14px;background:var(--sunk)}
+.hv-calls .btn{min-height:52px}
+
+/* ---------- vet summary: a clean report on paper ---------- */
+.hv-sumbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-top:10px}
+.hv-sumbar .hv-sumhint{flex:1 1 180px;margin:0}
+.hv-paper{padding:0 18px 20px;border:0;border-radius:18px;box-shadow:var(--elev-2);overflow:hidden}
+.hv-paper .sum-head{margin:0 -18px;padding:18px;background:linear-gradient(150deg,var(--blue-soft) 0%,var(--surface) 90%);border-bottom:1px solid var(--hair)}
+.hv-paper .sum-head .avatar{box-shadow:0 0 0 3px var(--surface),var(--elev)}
+.hv-paper .sum-sec h3{border-bottom-color:var(--hair)}
+.hv-paper .sum-table th{color:var(--muted);font-weight:700}
+.hv-paper .sum-table th,.hv-paper .sum-table td{border-top-color:var(--hair)}
+.hv-paper .sum-note{padding:10px 12px;border-radius:12px;background:var(--sunk)}
+
+@media (prefers-reduced-motion: reduce){
+  .ql,.hv-tile,.hv-done,.hv-report,.hv-treat,.hv-sym-box{transition:none}
+  .ql:active,.hv-tile:active,.hv-done:active,.hv-report:active,.hv-treat:active,.hv-sym input:active + .hv-sym-box{transform:none}
+}
+@media print{
+  .hv-paper{padding:0;box-shadow:none}
+  .hv-paper .sum-head{margin:0;padding:0 0 12px;background:none}
+  .hv-paper .sum-note{background:none;padding:0}
+}

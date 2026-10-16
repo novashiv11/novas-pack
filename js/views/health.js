@@ -11,6 +11,7 @@ import { recordSheet, medSheet, markGiven, eventSheet, speciesOf, doneRecord, de
   editRecord, careDue, SYMPTOMS, focusAlert } from "../forms.js";
 import { pageHead, subBar, sampleStrip, emptyState, vetFirst, eventList, avatar, moreBtn, cardTitle, alertCard, agoSpan, chevron, NOVA } from "./parts.js";
 import { foodSection } from "./food.js";
+import { timeOfDay } from "./today.js";
 
 const SEGS = [["care", "Health", "🩺"], ["food", "Food", "🥣"], ["poop", "Poop", "💩"], ["unwell", "Unwell", "🤒"]];
 const SUBS = [["vaccines", "Vaccines and preventives"], ["meds", "Medicines"], ["weight", "Weight"], ["vet", "Vet"]];
@@ -22,9 +23,10 @@ export function health(main, arg) {
   const sub = SUBS.some(([k]) => k === arg) ? arg : "";
   const late = (it) => (it.kind === "med" ? it.st.overdue : it.st.state === "overdue");
   const items = [...dueItems(p.id), ...careDue(p)].map((it, i) => [it, i]).sort((a, b) => late(b[0]) - late(a[0]) || a[1] - b[1]).map(([it]) => it);
+  const home = seg === "care" && !sub;
   put(main,
     sampleStrip(p),
-    pageHead("Health", seg === "unwell" ? null : novaSays(p, items, logsOf(p.id))),
+    home ? healthHero(p, items, logsOf(p.id)) : pageHead("Health", seg === "unwell" ? null : novaSays(p, items, logsOf(p.id))),
     alertCard(healthAlerts(p, now), p),
     h("nav.seg.seg-nav.hv-seg", { "aria-label": "Health sections" }, SEGS.map(([k, label, e]) =>
       h("a", { href: k === "care" ? "#/health" : `#/health/${k}`, "aria-current": k === seg ? "page" : null, "data-k": `seg-${k}` },
@@ -64,6 +66,32 @@ function novaSays(p, items, logs) {
   return line("Nothing due. I checked twice.");
 }
 
+const isLate = (it) => (it.kind === "med" ? it.st.overdue : it.st.state === "overdue");
+
+/** The health home's hero: the pet in a calm sky, with one line on what's due (real data only). */
+function healthHero(p, items, logs) {
+  const n = items.length, lateN = items.filter(isLate).length;
+  const today = isoDate();
+  const next = currentRecords(p.id).filter((r) => r.nextDue && r.nextDue > today && !isDueish(recordStatus(r)))
+    .sort((a, b) => a.nextDue.localeCompare(b.nextDue))[0];
+  const face = p.photo ? h("img.hh-face", { src: p.photo, alt: "", width: "72", height: "72" })
+    : p.sample && !p.icon ? h("img.hh-face.disc", { src: NOVA, alt: "", width: "72", height: "72" })
+      : h("span.hh-face.hh-emoji", { "aria-hidden": "true" }, p.icon || speciesOf(p.species).emoji);
+  const status = n ? (n === 1 ? "1 thing due" : `${n} things due`) : "All caught up";
+  const sub = n ? (lateN ? `${lateN === 1 ? "1 is" : `${lateN} are`} past the date. One tap each below.` : "One tap each below.")
+    : next ? `Next: ${next.name}, ${fmtDate(next.nextDue, { day: "numeric", month: "short" })}`
+      : S.records.some((r) => r.petId === p.id) ? "Nothing coming up soon." : "Add vaccines to see what's due.";
+  return h(`section.stage.hv-hero.tod-${timeOfDay()}${n ? ".due" : ".clear"}`, { "aria-labelledby": "page-title" },
+    h("span.st-sky", { "aria-hidden": "true" }, h("span.st-sun"), h("span.st-cloud.c1")),
+    h("div.hh-row",
+      h("span.hh-pic", face, h("span.hh-badge", { "aria-hidden": "true" }, n ? String(n) : "✓")),
+      h("div.hh-t",
+        h("h1.hh-title", { id: "page-title", tabindex: "-1" }, h("span.vh", "Health: "), `${p.name}${/s$/i.test(p.name) ? "'" : "'s"} health`),
+        h("p.hh-status", status),
+        h("p.hh-sub", sub))),
+    novaSays(p, items, logs));
+}
+
 function dashboard(main, p, items, now) {
   const u = units(p);
   const weights = eventsOf("weight");
@@ -87,8 +115,8 @@ function dashboard(main, p, items, now) {
           weights.length
             ? [h("span.hv-tile-v", fmtWeight(weights[0].kg, u)),
               h("span.hv-tile-s", change || `Weighed ${fmtDate(weights[0].at, { day: "numeric", month: "short" })}`),
-              weights.length > 1 ? sparkline(weights.slice(0, 12).reverse().map((e) => toUnit(e.kg, u))) : h("span.hv-tile-s", "Add another weight to see a trend.")]
-            : [h("span.hv-tile-v.hv-none", "Not weighed yet"), h("span.hv-tile-s", "Once a month is plenty.")]),
+              weights.length > 1 ? sparkline(weights.slice(0, 12).reverse(), u) : h("span.hv-tile-s.hv-hint", "Weigh in once a month to see a trend.")]
+            : [h("span.hv-tile-v.hv-none", "Not weighed yet"), h("span.hv-tile-s", "Weigh in once a month.")]),
         h("a.hv-tile.hv-wide", { href: "#/health/poop", "data-k": "hv-poop" },
           h("span.hv-tile-top", h("span.hv-badge", { "aria-hidden": "true" }, "💩"), h("span.hv-tile-l", "Poop this week"), chevron()),
           h("span.hv-tile-s", weekTotal ? `${weekTotal} poop${weekTotal === 1 ? "" : "s"} in 7 days` : "Nothing logged this week"),
@@ -123,18 +151,23 @@ const svgEl = (tag, attrs = {}) => {
   return e;
 };
 
-/** A tiny trend line (decorative: the number and the change are in the text beside it). */
-function sparkline(vals) {
-  const W = 120, H = 36, pad = 3;
-  const lo = Math.min(...vals), hi = Math.max(...vals), span = hi - lo || 1;
-  const xy = vals.map((v, i) => [pad + (i / (vals.length - 1)) * (W - 2 * pad), pad + (1 - (v - lo) / span) * (H - 2 * pad)]);
+/** A tiny trend line of the real weights, spaced by date (decorative: the number and the change are in the text beside it). */
+function sparkline(pts, u) {
+  const W = 120, H = 36, pad = 4;
+  const vals = pts.map((e) => toUnit(e.kg, u));
+  const t0 = pts[0].at, t1 = pts[pts.length - 1].at, tspan = t1 - t0;
+  let lo = Math.min(...vals), hi = Math.max(...vals);
+  if (hi - lo < 0.5) { const m = (hi + lo) / 2; lo = m - 0.25; hi = m + 0.25; }
+  const span = hi - lo;
+  const xy = vals.map((v, i) => [pad + (tspan ? (pts[i].at - t0) / tspan : i / (vals.length - 1)) * (W - 2 * pad), pad + (1 - (v - lo) / span) * (H - 2 * pad)]);
   const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, preserveAspectRatio: "none", class: "hv-spark", "aria-hidden": "true", focusable: "false" });
   svg.append(
     svgEl("path", { d: `M${xy[0][0]},${H} ${xy.map(([x, y]) => `L${x},${y}`).join(" ")} L${xy[xy.length - 1][0]},${H} Z`, class: "hv-spark-area" }),
     svgEl("polyline", { points: xy.map(([x, y]) => `${x},${y}`).join(" "), class: "hv-spark-line" }));
   const [lx, ly] = xy[xy.length - 1];
-  return h("span.hv-spark-box", { "aria-hidden": "true" }, svg,
-    h("span.hv-spark-dot", { style: { left: `${(lx / W) * 100}%`, top: `${(ly / H) * 100}%` } }));
+  return [h("span.hv-spark-box", { "aria-hidden": "true" }, svg,
+    h("span.hv-spark-dot", { style: { left: `${(lx / W) * 100}%`, top: `${(ly / H) * 100}%` } })),
+  h("span.hv-spark-cap", `${pts.length} weigh-ins since ${fmtDate(t0, { day: "numeric", month: "short" })}`)];
 }
 
 /** A progress ring (decorative); the text inside says the same thing in words. */
@@ -171,39 +204,36 @@ function dueSection(items, noRecords, p) {
 function dueCard(p, it) {
   if (it.kind === "care") {
     const t = it.task;
-    return h(`li.card.due-card.hv-due.${it.st.state}`,
-      h("div.due-top",
-        h("span.hv-badge", { "aria-hidden": "true" }, "✨"),
-        h("div.due-body",
-          cardTitle(t.name, () => careSheet(t), `due-care-${t.id}`),
-          h("p.due-when", h("b", dueText(it.st)), ` · ${everyText(t).toLowerCase()}`))),
-      h("div.card-actions",
-        h("button.btn.btn-blue.sm", { type: "button", "data-k": `cdone-${t.id}`, onclick: () => markCareDone(p, t) }, "Mark done", h("span.vh", `: ${t.name}`)),
+    return h(`li.card.due-card.hv-due.k-care.${it.st.state}`,
+      h("span.hv-badge", { "aria-hidden": "true" }, "✨"),
+      h("div.due-body",
+        cardTitle(t.name, () => careSheet(t), `due-care-${t.id}`),
+        h("p.due-when", h("b", dueText(it.st)), ` · ${everyText(t).toLowerCase()}`)),
+      h("div.hv-due-act",
+        h("button.btn.btn-blue.sm.hv-done", { type: "button", "data-k": `cdone-${t.id}`, onclick: () => markCareDone(p, t) }, em("✓"), " Done", h("span.vh", `: ${t.name}`)),
         moreBtn(t.name, [["Change last done", () => careSheet(t)], ["Add to calendar", () => calCare(p, t, it.nextDue)]])));
   }
   if (it.kind === "record") {
     const r = it.rec;
-    return h(`li.card.due-card.hv-due.${it.st.state}`,
-      h("div.due-top",
-        h("span.hv-badge", { "aria-hidden": "true" }, r.kind === "vaccine" ? "💉" : "🛡️"),
-        h("div.due-body",
-          cardTitle(r.name, () => editRecord(r), `due-edit-${r.id}`),
-          h("p.due-when", h("b", dueText(it.st)), ` · ${fmtDate(r.nextDue, { day: "numeric", month: "short" })}`))),
-      h("div.card-actions",
-        h("button.btn.btn-blue.sm", { type: "button", "data-k": `due-done-${r.id}`, onclick: () => doneRecord(r) }, "Mark done", h("span.vh", `: ${r.name}`)),
+    return h(`li.card.due-card.hv-due.k-rec.${it.st.state}`,
+      h("span.hv-badge", { "aria-hidden": "true" }, r.kind === "vaccine" ? "💉" : "🛡️"),
+      h("div.due-body",
+        cardTitle(r.name, () => editRecord(r), `due-edit-${r.id}`),
+        h("p.due-when", h("b", dueText(it.st)), ` · ${fmtDate(r.nextDue, { day: "numeric", month: "short" })}`)),
+      h("div.hv-due-act",
+        h("button.btn.btn-blue.sm.hv-done", { type: "button", "data-k": `due-done-${r.id}`, onclick: () => doneRecord(r) }, em("✓"), " Done", h("span.vh", `: ${r.name}`)),
         moreBtn(r.name, [["Edit", () => editRecord(r)], ["Add to calendar", () => calRecord(p, r)], ["Delete", () => deleteRecord(r), { danger: true }]])));
   }
   const m = it.med, st = it.st;
-  return h(`li.card.due-card.hv-due.${st.overdue ? "overdue" : "today"}`,
-    h("div.due-top",
-      h("span.hv-badge", { "aria-hidden": "true" }, "💊"),
-      h("div.due-body",
-        cardTitle(m.name, () => medSheet(m), `due-edit-${m.id}`),
-        h("p.due-when", h("b", st.daily ? `${st.given} of ${st.need} given today` : dueText({ state: st.overdue ? "overdue" : "today", days: -st.days })),
-          st.daily && st.next ? ` · next ${st.next}` : "", ` · ${freqText(m)}`),
-        m.dose ? h("p.due-dose", "Dose (from your vet): ", m.dose) : null)),
-    h("div.card-actions",
-      h("button.btn.btn-blue.sm", { type: "button", "data-k": `due-give-${m.id}`, onclick: () => markGiven(m) }, "Mark given", h("span.vh", `: ${m.name}`)),
+  return h(`li.card.due-card.hv-due.k-med.${st.overdue ? "overdue" : "today"}`,
+    h("span.hv-badge", { "aria-hidden": "true" }, "💊"),
+    h("div.due-body",
+      cardTitle(m.name, () => medSheet(m), `due-edit-${m.id}`),
+      h("p.due-when", h("b", st.daily ? `${st.given} of ${st.need} given today` : dueText({ state: st.overdue ? "overdue" : "today", days: -st.days })),
+        st.daily && st.next ? ` · next ${st.next}` : "", ` · ${freqText(m)}`),
+      m.dose ? h("p.due-dose", "Dose (from your vet): ", m.dose) : null),
+    h("div.hv-due-act",
+      h("button.btn.btn-blue.sm.hv-done", { type: "button", "data-k": `due-give-${m.id}`, onclick: () => markGiven(m) }, em("✓"), " Given", h("span.vh", `: ${m.name}`)),
       moreBtn(m.name, [["Edit", () => medSheet(m)], ["Add to calendar", () => calMed(p, m)], ["Delete", () => deleteMed(m), { danger: true }]])));
 }
 
@@ -241,7 +271,7 @@ function poopSection(main, p) {
           h("span.hv-badge", { "aria-hidden": "true" }, "💩"),
           h("div", h("b.hv-big", total ? `${total} poop${total === 1 ? "" : "s"}` : "None yet"), h("p.small.muted", "in the last 7 days"))),
         weekStrip(p, week),
-        h("p.small.muted", "Tan means something wasn't typical (looser, harder or flagged).")),
+        h("p.small.muted", "Brown days had a poop. Tan days had something that wasn't typical (looser, harder or flagged).")),
       ),
     h("div.sticky-cta.hv-cta", h("button.btn.btn-blue.wide", { type: "button", "data-k": "log-poop", onclick: () => eventSheet("poop") }, em("💩"), " Log a poop")),
     h("section.sec", { "aria-labelledby": "ph-h" },
@@ -336,7 +366,8 @@ function unwellSection(main, p) {
     const tel = telHref(v.phone), emTel = telHref(v.emergencyPhone);
     const calls = [];
     if (top === "emergency" && emTel) calls.push(h("a.btn.btn-danger", { href: emTel, "data-k": "uw-call-em" }, "Call emergency vet"));
-    if (tel) calls.push(h(`a.btn.${calls.length ? "btn-line" : top === "emergency" ? "btn-danger" : "btn-blue"}`, { href: tel, "data-k": "uw-call" }, `Call ${v.name || "your vet"}`));
+    if (tel) calls.push(h(`a.btn.${calls.length ? "btn-line" : top === "emergency" ? "btn-danger" : "btn-blue"}`, { href: tel, "data-k": "uw-call" }, em("📞"), ` Call ${v.name || "your vet"}`));
+    if (top === "emergency" && !emTel) calls.push(h(`a.btn.${calls.length ? "btn-line" : "btn-danger"}`, { href: "https://www.google.com/maps/search/emergency+vet", target: "_blank", rel: "noopener", "data-k": "uw-find-em" }, em("🗺️"), " Find an emergency vet"));
     const note = h("input", { type: "text", id: "uw-note", maxlength: "300", placeholder: "e.g. sick twice since lunch, still drinking" });
     const saveNote = async (btn) => {
       btn.disabled = true;
@@ -348,7 +379,7 @@ function unwellSection(main, p) {
       if (healthAlerts(p, Date.now()).length) { toast("Saved. Please read my note about calling your vet."); focusAlert(); }
       else toast(`Noted. Keep an eye on ${p.name}, and call your vet if you're worried.`, [["Undo", () => remove("events", row.id)]]);
     };
-    const saveBtn = h(`button.btn.${calls.length ? "btn-line" : "btn-blue"}`, { type: "button", "data-k": "uw-save", onclick: (e) => saveNote(e.currentTarget) }, "Save a note in the diary");
+    const saveBtn = h("button.btn.btn-line", { type: "button", "data-k": "uw-save", onclick: (e) => saveNote(e.currentTarget) }, "Save a note in the diary");
     const card = h(`div.hv-result.lv-${top}`, { tabindex: "-1", role: "region", "aria-labelledby": "uw-r-h" },
       h("div.hv-result-top",
         h("span.hv-result-e", { "aria-hidden": "true" }, LV[top].emoji),
@@ -359,7 +390,7 @@ function unwellSection(main, p) {
           h("b", a.reason),
           a.advice ? h("p", a.advice) : null)))
         : h("p", `I don't have a specific warning for this. You know ${p.name}: if you're worried, or it carries on, call your vet.`),
-      calls.length ? h("div.hv-calls", calls) : h("a.text-link", { href: "#/more/profile", "data-k": "uw-add-vet-2" }, "Add your vet's number"),
+      h("div.hv-calls", calls, tel ? null : h(`a.btn.${calls.length ? "btn-line" : "btn-blue"}`, { href: "#/more/profile", "data-k": "uw-add-vet-2" }, em("☎️"), " Add your vet's number")),
       h("p.small.hv-disclaimer", "This is a diary, not a diagnosis. Your vet knows your pet. Out of hours, call an emergency vet."));
     root.replaceChildren(
       h("h2.vh", { id: "uw-h" }, `Result for ${p.name}`),
@@ -639,7 +670,9 @@ export function summary(main) {
   const sec = (title, ...kids) => h("section.sum-sec", h("h3", title), ...kids);
   put(main,
     subBar("Vet summary", "#/health/vet", "Back to Health"),
-    h("p.small.muted.no-print.hv-sumhint", "Show this page at the vet. To keep a paper copy, print it from your browser's menu."),
+    h("div.no-print.hv-sumbar",
+      h("p.small.muted.hv-sumhint", "Show this page at the vet, or keep a copy. If Print does nothing, use your browser's menu."),
+      h("button.btn.btn-line.sm", { type: "button", "data-k": "sum-print", onclick: () => window.print() }, em("🖨️"), " Print or save as PDF")),
     h("article.summary.hv-paper", { "aria-labelledby": "sum-h" },
       h("div.sum-head", avatar(p, 56), h("div",
         h("p.sum-kicker", "Vet summary"),
