@@ -2,7 +2,7 @@
 
 The **co-captain** (Claude, the main session) updates this file after every step and commits it, so no work is lost when a session stops or hits a usage limit. The full backlog is in `docs/crq.md` and decisions are in `docs/decisions.md`.
 
-**Last updated:** 15 Oct 2026 (v9.1 live; all buildable work done).
+**Last updated:** 15 Oct 2026 (v10 live; all buildable work done).
 
 ## How we never lose work
 1. Every request from Shiv goes into `docs/crq.md` first, with an ID, before any work starts.
@@ -11,7 +11,7 @@ The **co-captain** (Claude, the main session) updates this file after every step
 4. Agents write into files in the repo (never only into chat), and the co-captain commits their work as soon as each agent finishes.
 5. If an agent dies at a limit, its CRQ goes back to "Planned" here, along with whatever partial files it left.
 
-## Now (16 Oct): v9.1 live, nothing buildable left
+## Now (16 Oct): v10 live, nothing buildable left
 
 | Version | What shipped |
 |---|---|
@@ -28,6 +28,7 @@ The **co-captain** (Claude, the main session) updates this file after every step
 | v8.7 (15 Oct) | Photo moments: a photo on walks, play, training and eggs (shrunk, location removed, stays on the phone); a polaroid on Today; photos in the week recap |
 | v9 (16 Oct) | 5 agents in parallel (`docs/v9-agents.md`): sky onboarding and Welcome-to-the-pack, Train path/skill/Academy/sticker album, Health hero with weight sparkline, Memories photo page, swipe-down sheets, sky Mission/Day complete |
 | v9.1 (16 Oct) | Advanced training: 6 new dog skills (heel, distance down, emergency stop, go to bed, find it, roll over) with ladders and badges; the + tucks away on scroll |
+| v10 (16 Oct) | Pro training: pictures and level-check questions for the Advanced skills, Challenge mode (the 3 Ds) from level 2, 3 new Academy lessons |
 
 Tests: 27 game tests pass; smoke runs at 320 px light and 390 px dark with no errors, no sideways scroll and no small targets.
 

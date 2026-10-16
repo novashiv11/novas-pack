@@ -45,3 +45,15 @@ The shared rules are the same as in `docs/v9-agents.md`: the look and feel, hone
 - Sources: reputable, reward-based ones only (AVSAB, Dogs Trust, RSPCA, PDSA, and similar). Reuse the existing source constants where they fit. Don't invent URLs; if you can't verify one, use the organisation's advice home page that's already in the file.
 - Tag the species as dog.
 - Keep the rank thresholds unchanged. Check the trainer test expectations in `/tmp/claude-0/-home-user-novas-pack/10b23907-acdb-5d78-8db3-158421021835/scratchpad/v2/game.test.mjs`. If a test counts lessons, say so in your report rather than editing the test.
+
+## Shipped (16 Oct, v10)
+- **F:**
+  - 24 drawn step pictures for the 6 Advanced skills, with new `cup`, `lean` and `belly` drawings.
+  - 6 Advanced questions in the level check, so it now has 12 for a dog.
+  - Co-captain fix: the level check's first win comes from the basics. Advanced skills only count when every basic is past level 2.
+- **G:** Challenge mode (`js/views/challenge.js`).
+  - A "🎯 Challenge" card on a skill page from level 2. It changes one of distance, duration or distraction; the numbers scale with level.
+  - Safety notes, and an easier version.
+  - Start opens the normal timer. No extra XP.
+  - `settings.challenge` remembers the last challenge.
+- **H:** 3 dog lessons: "Fading the treats", "Cues that work" and "Proofing: from home to the park". That makes 16 lessons in total, and rank thresholds are unchanged. The game test now expects 16.
