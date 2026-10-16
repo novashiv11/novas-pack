@@ -7,7 +7,7 @@ import { quizSkills } from "./placement.js";
 import { S, pet, eventsOf, save, remove, setSetting } from "../state.js";
 import { h, put, em, weeklyStreak, motionOK, fmtDay, fmtTime, toast, confirmBox, sheet, inIreland } from "../util.js";
 import { skillsFor, progressOf } from "../logic.js";
-import { pageHead, subBar, sampleStrip, NOVA, moreBtn, trainNav, chevron } from "./parts.js";
+import { pageHead, subBar, sampleStrip, NOVA, moreBtn, trainNav, chevron, avatar } from "./parts.js";
 import { eventSheet } from "../forms.js";
 import { weekly } from "./home.js";
 import { gameOf, pips, bar, levelText, placeFor, skillName, startSession, selfCheck, logSession, trainingPicker, howTo } from "./gameui.js";
@@ -57,7 +57,7 @@ export function training(main, arg, sub) {
   const curId = q && !q.done && ordered.some((s) => s.id === q.skillId) ? q.skillId
     : (ordered.find((s) => ((a.progress[s.id] || {}).level || 0) < 3) || ordered[0] || {}).id;
   put(main, sampleStrip(p),
-    pageHead("Train"), trainNav("skills"),
+    pageHead("Train"), trainNav("skills"), levelStrip(p, a),
     novaSay(!skills.length ? `Skills for ${kindOf(p)} are coming. Stamps and lessons are open now.` : q && q.done ? "Today's quest is done. Proud of you both." : q ? `Weakest link first: ${q.statLabel}. Five minutes. Go.` : "Short, happy sessions. Stop while it's still fun.", !skills.length ? "think" : q && q.done ? "proud" : ""));
   if (!skills.length) {
     put(main, h("div.card.soon-card",
@@ -92,6 +92,16 @@ export function training(main, arg, sub) {
     h("p.small", `Levels need ${LEVEL_REQ.slice(1).join(", ")} sessions, each with a self-check at a harder place: home, garden, street, park (or, for skills like stay and alone time, a little longer each time). Up to ${CAPS.sessions} sessions per skill, and ${CAPS.sessionsPerDay} in total, count each day.`),
     h("p.small", "Every 4 weeks of practice earns a grace week (up to 2), so one busy week won't break your practice weeks."),
     h("p.small", "💛 Kind methods only: treats, toys and praise. No shouting, no shock, prong or choke collars.")));
+}
+
+/** The partner's level at the top of the path: "Bran · Level 3 · 40 XP to next", with a gold bar (XP is a reward). */
+function levelStrip(p, a) {
+  const lv = a.level;
+  return h("section.tr-strip", { "aria-label": `${p.name}'s level` },
+    h("span.tr-av", avatar(p, 40)),
+    h("p.tr-line", h("b.tr-name", p.name), h("span.tr-lv", h("span", { "aria-hidden": "true" }, "· "), `Level ${lv.level}`),
+      h("span.tr-xp", lv.max ? "Top level" : `${lv.need - lv.into} XP to next`)),
+    bar(lv.max ? 1 : lv.into, lv.max ? 1 : lv.need, "gold"));
 }
 
 /** One section of the path: a banner (what it is, how far you are) and the winding nodes. */
@@ -179,7 +189,7 @@ function skillPage(main, p, sk) {
   put(main,
     subBar(sk.title, "#/train", "Back to all skills"),
     sampleStrip(p),
-    h("section.sk-hero", { "aria-labelledby": "lv-h" },
+    h(`section.sk-hero${pr.level >= 3 ? ".gold" : ""}`, { "aria-labelledby": "lv-h" },
       h("div.sk-top",
         h("span.sk-ring", { style: `--p:${pr.level >= 5 ? 100 : Math.round(pr.frac * 100)}`, "aria-hidden": "true" }, h("span.sk-face", skillEmoji(sk.id))),
         h("div.sk-head",

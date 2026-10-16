@@ -62,7 +62,7 @@ export function trainer(main, arg) {
         h("div", h("h2.sec-title", { id: "ac-h" }, "Academy"), h("p.small.muted", `${doneHere} of ${lessons.length} done`)),
         h("span.ac-ring", { "aria-hidden": "true", style: `--p:${lessons.length ? Math.round((doneHere / lessons.length) * 100) : 0}` }, h("span", `${doneHere}/${lessons.length}`))),
       novaSay(`1 to 2 minutes each, reward-based, with sources. Pass the ${(lessons[0] && lessons[0].check.length) || 2}-question check for +${XP.lesson} XP, once.`),
-      h("ul.lesson-list", lessons.map((l, i) => h("li", h(`a.lesson-row.ls7${done.has(l.id) ? ".done" : ""}${l.id === curId ? ".cur" : ""}`, { href: `#/trainer/${encodeURIComponent(l.id)}`, "data-k": `ls-${l.id}` },
+      h("ul.lesson-list.ls-path", lessons.map((l, i) => h(`li${done.has(l.id) ? ".done" : ""}`,h(`a.lesson-row.ls7${done.has(l.id) ? ".done" : ""}${l.id === curId ? ".cur" : ""}`, { href: `#/trainer/${encodeURIComponent(l.id)}`, "data-k": `ls-${l.id}` },
         ringIcon(done.has(l.id) ? "✅" : l.emoji, done.has(l.id) ? 100 : 0, "ls-em"),
         h("span.ls-body", h("span.ls-title", `${i + 1}. ${l.title}`), h("span.ls-meta", done.has(l.id) ? "Done" : `${l.minutes} min · +${XP.lesson} XP`)),
         l.id === curId ? h("span.ls-go", "Start") : chevron()))))),

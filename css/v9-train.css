@@ -1,1 +1,222 @@
-/* v9 train area (docs/v9-agents.md). Loaded after v8-feel.css. */
+/* v9 train area (docs/v9-agents.md). Loaded after v8-feel.css.
+   The skills path in the training colour (gold from level 3), soft sky section cards, a level strip, the skill hero,
+   the Academy as a path of rings, a die-cut sticker album, and v8 option tiles in the lesson player and level check. */
+
+:root{
+  --tr-sky1:linear-gradient(150deg,#CFE3F3 0%,#EAF3FA 55%,#FBF4E6 100%);
+  --tr-sky2:linear-gradient(150deg,#FFE0C2 0%,#FDF0DF 55%,#E3EEF6 100%);
+  --tr-sky3:linear-gradient(150deg,#F9D3B8 0%,#F6E1D6 50%,#E1D8F0 100%);
+  --tr-sky4:linear-gradient(150deg,#E4E9EE 0%,#F1F2F0 60%,var(--surface) 100%);
+  --tr-sky-ink:#1E1B17;
+  --tr-tint:color-mix(in srgb,var(--c-train) 12%,var(--surface));
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --tr-sky1:linear-gradient(150deg,#1D3446 0%,#1F2A33 55%,#25211C 100%);
+  --tr-sky2:linear-gradient(150deg,#4A3324 0%,#2C2520 55%,#1D2833 100%);
+  --tr-sky3:linear-gradient(150deg,#4A2A22 0%,#33252A 50%,#2A2340 100%);
+  --tr-sky4:linear-gradient(150deg,#2A2D31 0%,#24221F 60%,var(--surface) 100%);
+  --tr-sky-ink:#F5EEE4;
+}}
+:root[data-theme="dark"]{
+  --tr-sky1:linear-gradient(150deg,#1D3446 0%,#1F2A33 55%,#25211C 100%);
+  --tr-sky2:linear-gradient(150deg,#4A3324 0%,#2C2520 55%,#1D2833 100%);
+  --tr-sky3:linear-gradient(150deg,#4A2A22 0%,#33252A 50%,#2A2340 100%);
+  --tr-sky4:linear-gradient(150deg,#2A2D31 0%,#24221F 60%,var(--surface) 100%);
+  --tr-sky-ink:#F5EEE4;
+}
+
+/* ---------- level strip: "Bran · Level 3 · 40 XP to next" ---------- */
+.tr-strip{display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 12px;align-items:center;margin:12px 0 4px;padding:10px 14px;border-radius:20px;background:var(--surface);box-shadow:var(--elev)}
+.tr-av{grid-row:1 / span 2;display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:var(--tr-tint);overflow:hidden}
+.tr-av .avatar{width:40px;height:40px;border-radius:50%;object-fit:cover;border:0;box-shadow:none}
+.tr-line{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 6px;margin:0;font-size:var(--t14);font-weight:700;line-height:1.3;min-width:0}
+.tr-name{font-family:var(--f-display);font-size:var(--t16);font-weight:800;overflow-wrap:anywhere}
+.tr-xp{margin-left:auto;color:var(--muted);font-size:var(--t12);font-weight:800}
+.tr-strip .gbar{height:10px;background:var(--sunk)}
+
+/* ---------- section banners: soft sky cards ---------- */
+.pth-banner{--bn-ink:var(--tr-sky-ink);color:var(--tr-sky-ink);background:var(--tr-sky1);box-shadow:var(--elev);border-radius:22px;padding:16px 16px 14px;position:relative;overflow:hidden}
+.pth-banner.g1{background:var(--tr-sky1)}
+.pth-banner.g2{background:var(--tr-sky2)}
+.pth-banner.g3{background:var(--tr-sky3)}
+.pth-banner.g4{background:var(--tr-sky4)}
+.pth-banner::after{content:"";position:absolute;top:-22px;right:-18px;width:90px;height:90px;border-radius:50%;background:rgba(255,255,255,.35);pointer-events:none}
+.pth-banner > *{position:relative;z-index:1}
+.pb-eyebrow{color:inherit;opacity:.8}
+.pb-sub{opacity:.85}
+.pb-stat{width:56px;height:56px;justify-content:center;border-radius:50%;background:var(--surface);box-shadow:var(--elev);min-width:0}
+.pb-medal{font-size:22px}
+.pb-n{font-size:var(--t12);line-height:1.1}
+.pb-bar{height:10px;background:rgba(255,255,255,.6)}
+.pb-bar span{background:var(--gold)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .pth-banner::after{background:rgba(255,255,255,.05)}
+  :root:not([data-theme="light"]) .pb-bar{background:rgba(255,255,255,.12)}}
+:root[data-theme="dark"] .pth-banner::after{background:rgba(255,255,255,.05)}
+:root[data-theme="dark"] .pb-bar{background:rgba(255,255,255,.12)}
+
+/* ---------- path nodes: training blue, gold from level 3, the current one pulses ---------- */
+.pth-line path{stroke:var(--c-train);opacity:.4}
+.pth-line path.on{stroke:var(--gold);opacity:1}
+.pn{--pn-arc:var(--c-train);--pn-track:color-mix(in srgb,var(--c-train) 16%,var(--surface));--pn-face:var(--surface);--pn-ledge:color-mix(in srgb,var(--c-train) 30%,var(--sunk))}
+.pn.going{--pn-face:var(--tr-tint)}
+.pn.done,.pn.master{--pn-arc:var(--gold);--pn-track:var(--gold-soft);--pn-face:var(--gold-soft);--pn-ledge:var(--gold-ledge)}
+.pn-ring{box-shadow:0 4px 0 var(--pn-ledge),var(--elev);transition:transform .2s var(--spring),box-shadow .2s}
+.pn:active .pn-ring{transform:scale(.93);box-shadow:0 1px 0 var(--pn-ledge),var(--elev)}
+.pn-face{box-shadow:inset 0 0 0 1px var(--hair)}
+.pn-chip{background:var(--c-train);color:var(--on-cat);border-color:var(--bg)}
+.pn.done .pn-chip,.pn.master .pn-chip{background:var(--gold);color:#1E1B17}
+.pn-name{background:color-mix(in srgb,var(--bg) 88%,transparent)}
+.pn-tip{color:var(--c-train);border:0;box-shadow:var(--elev-2)}
+.pn-tip::after{border:0}
+.pn.ready .pn-tip{border:0;box-shadow:0 3px 0 var(--gold-ledge),var(--elev)}
+.pn.cur .pn-ring{animation:v9-pn-pulse 1.8s ease-out infinite}
+.pn.cur.done .pn-ring,.pn.cur.master .pn-ring{--pulse:var(--gold)}
+@keyframes v9-pn-pulse{
+  0%{box-shadow:0 4px 0 var(--pn-ledge),var(--elev),0 0 0 0 color-mix(in srgb,var(--pulse,var(--c-train)) 50%,transparent)}
+  70%{box-shadow:0 4px 0 var(--pn-ledge),var(--elev),0 0 0 16px transparent}
+  100%{box-shadow:0 4px 0 var(--pn-ledge),var(--elev),0 0 0 0 transparent}}
+.pn.off .pn-ring{outline-color:var(--hair);box-shadow:none}
+
+/* the level-check pill: a soft card */
+.lc-pill{background:var(--surface);color:var(--ink);box-shadow:var(--elev);border-radius:18px;transition:transform .18s var(--spring)}
+.lc-pill:active{transform:scale(.98)}
+.lc-pill .chev{color:var(--muted)}
+
+/* ---------- one skill: a sky hero with the emoji in a progress ring ---------- */
+.sk-hero{background:var(--tr-sky1);color:var(--tr-sky-ink);border-radius:26px;padding:18px 16px 16px}
+.sk-hero.gold{background:linear-gradient(150deg,#FBE7BF 0%,#FDF3DD 55%,#EAF2F8 100%)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .sk-hero.gold{background:linear-gradient(150deg,#4A3A1C 0%,#2E2820 55%,#1F2A33 100%)}}
+:root[data-theme="dark"] .sk-hero.gold{background:linear-gradient(150deg,#4A3A1C 0%,#2E2820 55%,#1F2A33 100%)}
+.sk-ring{width:104px;height:104px;background:conic-gradient(var(--c-train) calc(var(--p) * 1%),rgba(255,255,255,.7) 0);box-shadow:var(--elev)}
+.sk-hero.gold .sk-ring{background:conic-gradient(var(--gold) calc(var(--p) * 1%),rgba(255,255,255,.7) 0)}
+.sk-face{width:84px;height:84px;font-size:44px;background:var(--surface)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .sk-ring{background:conic-gradient(var(--c-train) calc(var(--p) * 1%),rgba(255,255,255,.12) 0)}
+  :root:not([data-theme="light"]) .sk-hero.gold .sk-ring{background:conic-gradient(var(--gold) calc(var(--p) * 1%),rgba(255,255,255,.12) 0)}}
+:root[data-theme="dark"] .sk-ring{background:conic-gradient(var(--c-train) calc(var(--p) * 1%),rgba(255,255,255,.12) 0)}
+:root[data-theme="dark"] .sk-hero.gold .sk-ring{background:conic-gradient(var(--gold) calc(var(--p) * 1%),rgba(255,255,255,.12) 0)}
+.sk-head h2{color:inherit}
+.sk-head .eyebrow{color:var(--live-ink)}
+.sk-hero .small,.sk-hero .muted{color:inherit;opacity:.85}
+.sk-goal{color:inherit}
+.sk-hero .gbar{background:rgba(255,255,255,.65)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .sk-hero .gbar{background:rgba(255,255,255,.12)}}
+:root[data-theme="dark"] .sk-hero .gbar{background:rgba(255,255,255,.12)}
+.sk-hero .pips span.on{background:var(--gold)}
+.sk-hero .ready-box{border:0;border-radius:18px;background:var(--surface);box-shadow:var(--elev);color:var(--ink)}
+/* steps: clean numbered cards in the training colour */
+.sk-steps .steps-list{gap:8px}
+.sk-steps .steps-list li{border:0;border-radius:18px;padding:12px 14px;box-shadow:var(--elev);font-weight:600;line-height:1.45}
+.sk-steps .steps-list li::before{background:var(--tr-tint);color:var(--live-ink);box-shadow:none}
+.sk-steps .howto-steps li{border:0;box-shadow:none;background:var(--surface)}
+.sk-folds details.fold{border:1px solid var(--hair);box-shadow:none}
+.sk-cta{-webkit-backdrop-filter:saturate(1.6) blur(14px);backdrop-filter:saturate(1.6) blur(14px)}
+
+/* ---------- Academy: the rank card and the lessons as a path of rings ---------- */
+.rk-medal{border:0;background:var(--surface);box-shadow:var(--elev),0 0 0 4px var(--gold-soft)}
+.rk7 .gbar{height:12px;background:color-mix(in srgb,var(--gold) 18%,var(--surface))}
+.rank-ladder{gap:0;margin-top:8px;padding:6px 0;border-top:1px solid var(--hair)}
+.rank-ladder li{min-height:40px}
+.rl-dot{width:26px;height:26px;border:0;background:var(--sunk)}
+.rank-ladder li.reached .rl-dot{border:0;box-shadow:0 2px 0 var(--gold-ledge)}
+.rank-ladder li.current .rl-name{color:var(--ink)}
+.rank-ladder li.current{position:relative}
+.rank-ladder li.current::before{content:"";position:absolute;inset:2px -8px;z-index:-1;border-radius:12px;background:color-mix(in srgb,var(--gold) 16%,transparent)}
+.rk7{position:relative;isolation:isolate}
+.ac-ring::before{background:var(--surface)}
+.ac-ring{box-shadow:var(--elev)}
+
+.ls-path{position:relative;gap:10px}
+.ls-path::before{content:"";position:absolute;left:39px;top:30px;bottom:30px;width:4px;margin-left:-2px;border-radius:4px;background:repeating-linear-gradient(to bottom,color-mix(in srgb,var(--c-train) 35%,transparent) 0 6px,transparent 6px 12px)}
+.ls-path > li{position:relative}
+.lesson-row.ls7{border:0;box-shadow:var(--elev);border-radius:20px;padding:8px 12px 8px 14px;transition:transform .18s var(--spring),box-shadow .18s}
+.lesson-row.ls7:hover{border:0;box-shadow:var(--elev-2)}
+.lesson-row.ls7:active{transform:scale(.98);box-shadow:var(--elev)}
+.ls7 .rg{position:relative;z-index:1;background:conic-gradient(var(--c-train) calc(var(--p) * 1%),color-mix(in srgb,var(--c-train) 18%,var(--surface)) 0)}
+.ls7 .rg-face{background:var(--surface)}
+.ls7.done{background:color-mix(in srgb,var(--gold) 9%,var(--surface))}
+.ls7.done .rg{background:var(--gold)}
+.ls7.done .rg-face{background:var(--gold-soft)}
+.ls7.done .ls-meta{color:var(--soon-ink,var(--muted));font-weight:800}
+.ls7.cur{border:0;box-shadow:var(--elev),0 0 0 2px color-mix(in srgb,var(--c-train) 55%,transparent)}
+.ls7.cur .rg{animation:v9-ls-pulse 1.8s ease-out infinite}
+@keyframes v9-ls-pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--c-train) 50%,transparent)}70%{box-shadow:0 0 0 12px transparent}100%{box-shadow:0 0 0 0 transparent}}
+.ls-go{background:var(--c-train);color:var(--on-cat);box-shadow:0 3px 0 color-mix(in srgb,var(--c-train) 60%,#000)}
+
+/* the lesson player: v8 option tiles, soft cards, the slide-up feedback */
+.lp-list li{border:0;box-shadow:var(--elev);border-radius:18px}
+.lp-dot{background:var(--tr-tint);color:var(--live-ink)}
+.lp-opt label{border:0;border-radius:18px;background:var(--surface);box-shadow:var(--elev),inset 0 0 0 1px var(--hair);transition:transform .18s var(--spring),box-shadow .15s,background .15s}
+.lp-opt:active label{transform:scale(.98);border-bottom-width:0;margin-bottom:0}
+.lp-key{border:0;background:var(--sunk);border-radius:12px}
+.lp-opt input:checked + label{background:var(--tr-tint);color:var(--ink);box-shadow:var(--elev),inset 0 0 0 2px var(--c-train)}
+.lp-opt input:checked + label .lp-key{background:var(--c-train);color:var(--on-cat)}
+.lp-opt.ok input + label{background:var(--ok-bg);color:var(--ok-ink);box-shadow:inset 0 0 0 2px var(--ok-btn)}
+.lp-opt.no input + label{background:var(--no-bg);color:var(--no-ink);box-shadow:inset 0 0 0 2px var(--no-btn)}
+.lp-opt.ok input + label .lp-key{background:var(--ok-btn);color:var(--ok-on)}
+.lp-opt.no input + label .lp-key{background:var(--no-btn);color:var(--no-on)}
+.lp-foot{border-top:1px solid var(--hair);background:var(--glass);-webkit-backdrop-filter:saturate(1.6) blur(14px);backdrop-filter:saturate(1.6) blur(14px)}
+.lp-fb{border-radius:26px 26px 0 0;box-shadow:var(--elev-2)}
+.lp-fb::before{content:"";align-self:center;width:40px;height:4px;margin:-6px 0 -2px;border-radius:4px;background:currentColor;opacity:.25}
+.tile{border:0;box-shadow:var(--elev)}
+.tile.t-xp{border:0;box-shadow:var(--elev),inset 0 0 0 2px var(--gold)}
+.lp-nova{background:var(--tr-sky1);box-shadow:var(--elev)}
+
+/* ---------- level check: v8 option tiles and the slide-up note ---------- */
+.lc2-emoji{width:96px;height:96px;background:var(--tr-sky1);box-shadow:var(--elev)}
+.lc2-skill{color:var(--c-train)}
+.lc2-opt{border:0;border-radius:18px;background:var(--surface);box-shadow:var(--elev),inset 0 0 0 1px var(--hair);text-align:left;transition:transform .18s var(--spring),box-shadow .15s,background .15s}
+.lc2-opt:active{transform:scale(.98);border-bottom-width:0}
+.lc2-lv{background:var(--tr-tint);color:var(--live-ink)}
+.lc2-opt.on{background:var(--tr-tint);box-shadow:var(--elev),inset 0 0 0 2px var(--c-train)}
+.lc2-opt.on .lc2-lv,.lc2-lv.on{background:var(--c-train);color:var(--on-cat)}
+.lc2-foot .linkish{min-height:44px;padding:0 6px}
+.lc2-res li{border:0;border-radius:16px;box-shadow:var(--elev);min-height:48px}
+.lc-fb{background:var(--surface);color:var(--ink)}
+.lc-fb .fb-title img{background:var(--tr-sky1);border-radius:50%}
+.lc-fb .fb-text{color:var(--muted)}
+
+/* ---------- Adventures: a soft book cover, the walk card, die-cut stickers ---------- */
+.alb-cover{background:var(--tr-sky2);color:var(--tr-sky-ink);box-shadow:var(--elev);border-radius:24px;padding:16px}
+.alb-emoji{display:grid;place-items:center;width:60px;height:60px;border-radius:50%;background:var(--surface);box-shadow:var(--elev);font-size:32px}
+.alb-cover .small{color:inherit;opacity:.85}
+.alb-cover .gbar{background:rgba(255,255,255,.65)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .alb-cover .gbar{background:rgba(255,255,255,.12)}}
+:root[data-theme="dark"] .alb-cover .gbar{background:rgba(255,255,255,.12)}
+
+.wk7{border:0;border-radius:22px;box-shadow:var(--elev)}
+.wk-em{background:color-mix(in srgb,var(--c-walk) 14%,var(--surface));border-radius:50%}
+.wk7 .gbar{height:10px}
+.wk7 details.more-box{border:1px solid var(--hair);box-shadow:none}
+
+.alb-page{border:0;border-radius:24px;box-shadow:var(--elev);padding:0 12px 16px}
+.alb-tab{margin:0 -12px;padding:12px 16px;background:color-mix(in srgb,var(--c-train) 7%,var(--surface));border-bottom:1px solid var(--hair)}
+.alb-count{background:var(--surface);box-shadow:var(--elev)}
+.alb-page.full .alb-tab{background:color-mix(in srgb,var(--gold) 16%,var(--surface))}
+.stk-grid{padding-top:12px}
+/* earned: a die-cut sticker (white cut line, soft drop shadow, a little tilt) */
+.stk-grid .stamp.got .stamp-disc,.stamp-disc.big:not(.locked){border:5px solid #fff;background:var(--gold-soft);box-shadow:0 1px 1px rgba(30,20,10,.12),0 6px 14px rgba(30,20,10,.18)}
+.stk-grid .stamp.got .stamp-disc::after{content:"";position:absolute;inset:-5px;border-radius:50%;background:linear-gradient(135deg,rgba(255,255,255,.55) 0%,rgba(255,255,255,0) 40%);pointer-events:none}
+/* locked: a silhouette in a soft socket, no dashed outline */
+.stk-grid .stamp:not(.got) .stamp-disc,.stamp-disc.locked{border:0;background:var(--sunk);box-shadow:inset 0 2px 6px rgba(30,20,10,.12)}
+.stk-grid .stamp:not(.got) .stamp-meta{background:var(--sunk)}
+.stk-check{border-color:#fff}
+.stk-grid .stamp-btn{transition:transform .18s var(--spring)}
+.stk-grid .stamp-btn:active{transform:scale(.95)}
+.stk-grid .stamp-btn:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .stk-grid .stamp.got .stamp-disc,:root:not([data-theme="light"]) .stamp-disc.big:not(.locked){border-color:#F5EEE4;box-shadow:0 6px 16px rgba(0,0,0,.5)}
+  :root:not([data-theme="light"]) .stk-grid .stamp.got .stamp-disc::after{display:none}
+  :root:not([data-theme="light"]) .stk-grid .stamp:not(.got) .stamp-disc{box-shadow:inset 0 2px 6px rgba(0,0,0,.4)}}
+:root[data-theme="dark"] .stk-grid .stamp.got .stamp-disc,:root[data-theme="dark"] .stamp-disc.big:not(.locked){border-color:#F5EEE4;box-shadow:0 6px 16px rgba(0,0,0,.5)}
+:root[data-theme="dark"] .stk-grid .stamp.got .stamp-disc::after{display:none}
+:root[data-theme="dark"] .stk-grid .stamp:not(.got) .stamp-disc{box-shadow:inset 0 2px 6px rgba(0,0,0,.4)}
+
+/* ---------- motion: still clear without it ---------- */
+@media (prefers-reduced-motion: reduce){
+  .pn.cur .pn-ring,.ls7.cur .rg{animation:none}
+  .pn-ring,.lc-pill,.lesson-row.ls7,.lp-opt label,.lc2-opt,.stk-grid .stamp-btn{transition:none}
+  .pn:active .pn-ring,.lc-pill:active,.lesson-row.ls7:active,.lp-opt:active label,.lc2-opt:active,.stk-grid .stamp-btn:active{transform:none}
+}
+
+/* The lesson player and level check are full-screen flows. Since v8, #main's view-transition-name makes it a stacking
+   context, so the tab bar (z 20) sat on top of the player (z 25 inside #main) and swallowed taps on its bottom button. */
+body:has(.lp) .tabbar,body:has(.lp) .fab{display:none}

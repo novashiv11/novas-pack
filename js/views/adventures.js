@@ -31,7 +31,7 @@ export function adventures(main) {
       const got = list.filter((s) => earned.has(s.id)).length;
       return h(`section.sec.alb-page${got === list.length ? ".full" : ""}`, { "aria-labelledby": `set-${set.id}` },
         h("div.sec-row.alb-tab", h("h2.sec-title", { id: `set-${set.id}` }, em(set.emoji), " ", set.title), h("span.alb-count", `${got} of ${list.length}`)),
-        h("ul.stamp-grid", list.map((s) => stampTile(p, a, s, earned.get(s.id)))));
+        h("ul.stamp-grid.stk-grid", list.map((s) => stampTile(p, a, s, earned.get(s.id)))));
     }),
     h("p.note-line", em("🔒"), " Photos stay on this device. They're shrunk and their location data is removed. No places are ever saved."));
 }
