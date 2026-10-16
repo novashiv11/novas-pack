@@ -1,5 +1,5 @@
 // Nova's Pack: a tiny SVG scene renderer. "A picture is worth 1,000 words": every training step gets one
-// flat, friendly picture (a dog, a cat, a person, a few props and marks) drawn from a small spec.
+// flat, friendly picture (a dog, a cat, a rabbit, a person, a few props and marks) drawn from a small spec.
 //
 //   scene({ bg: "room", parts: [ { t: "dog", v: "sit", x: 110, flip: true }, { t: "bubble", text: "yes!", x: 60, y: 16 } ] })
 //
@@ -8,11 +8,13 @@
 // No network, no libraries. Specs live in data/scenes.js. bg: room (default) | grass | hall | plain.
 // Parts (t, then options):
 //   dog      v stand|walk|run|sit|down|jump|sniff|look-up|nose-in|spin|lean|belly; look up|down, mouth open|yawn, calm, worried, muzzle, strap, coat cream
-//   cat      v sit|stand|carrier; mood calm|happy|upset, swish          carrier  door open|closed, cat, mood
-//   person   v stand|walk|crouch|kneel; arm/arm2 down|out|low|up|point|lead|reach|back or [dx,dy,bend]; hold/hold2 treat|fist|cloth|handle;
+//   cat      v sit|stand|carrier; mood calm|happy|upset, swish, paw up (sit: a raised front paw, for a high five)
+//   rabbit   v sit|hop|carrier; mood calm|happy, ears back            carrier  door open|closed, cat, rabbit, hay, mood
+//   person   v stand|walk|crouch|kneel; arm/arm2 down|out|low|up|point|lead|reach|back or [dx,dy,bend]; hold/hold2 treat|fist|cloth|handle|stick|pot|pot-shake;
 //            shirt blue|pink|gold|green|grey, skin 0-3, hair 0-3, kid, badge cross
 //   hand     (close-up, from the left, tip at x,y) v open|fist|pinch; treat, hold muzzle|cloth, rot
 //   props    door (v closed|ajar|open), mat, toy, treat (n, gap), muzzle (treat), puddle, clock (text), paw (claw false), button (on), bowl, ball, brush, cup (lift, rot),
+//            stick (a target stick: tip at x,y; len, rot = handle angle in degrees), pot (a treat pot to shake; shake),
 //            icon (v sleep|eat|play|vet|garden), lead (v loose|tight; person's hand to dog's collar; p, d pick which)
 //   marks    bubble (text, to [x,y], c gold), label (text), arrow (from, to, bend, both, dash, c blue|gold|pink|green|red), spin (x, y, rx, ry, c),
 //            motion, spark (pts), check, pause, stop, no (r), tally (n, s), ring (r, ry, text), drop
@@ -195,8 +197,11 @@ function cat(o) {
     g += `<path class="sc-tailc" d="${tail}"/>`;
     g += '<path class="sc-cat" d="M-14,-1 C-16,-13 -10,-25 0,-27 C10,-28 15,-19 13,-8 C12,-4 13,-2 13,-1 Z"/>';
     g += '<ellipse class="sc-cat2" cx="-5" cy="-8" rx="10" ry="8"/><path class="sc-cline2" d="M-9,-20 L-5,-17 M-6,-24 L-2,-21 M-11,-14 L-7,-12"/>';
-    g += '<ellipse class="sc-catw" cx="9" cy="-15" rx="3.6" ry="9"/><path class="sc-catl" d="M9,-14 L9,-3"/><ellipse class="sc-catw" cx="9.4" cy="-2" rx="4" ry="2.2"/>';
+    g += '<ellipse class="sc-catw" cx="9" cy="-15" rx="3.6" ry="9"/>';
+    g += o.paw === "up" ? '<path class="sc-catl2" d="M5,-12 L5,-3"/><ellipse class="sc-catw" cx="5.4" cy="-2" rx="4" ry="2.2"/>'
+      : '<path class="sc-catl" d="M9,-14 L9,-3"/><ellipse class="sc-catw" cx="9.4" cy="-2" rx="4" ry="2.2"/>';
     g += catHead(7, -34, mood, 1);
+    if (o.paw === "up") g += '<path class="sc-catl" d="M10,-15 Q17,-16 21,-23"/><circle class="sc-catw" cx="21.6" cy="-24.6" r="3.4"/>';
     if (o.swish || up) g += '<path class="sc-motion" d="M-30,-34 Q-33,-27 -30,-20 M-35,-36 Q-39,-27 -35,-18"/>';
   }
   return `<g transform="${xf(o, s * 0.95)}">${g}</g>`;
@@ -207,13 +212,64 @@ function carrier(o) {
   let g = '<rect class="sc-shell" x="-23" y="-35" width="46" height="35" rx="6"/><path class="sc-handle" d="M-9,-35 C-9,-46 9,-46 9,-35"/>';
   g += '<rect class="sc-inside" x="-17" y="-29" width="34" height="26" rx="5"/>';
   if (o.cat) g += catHead(0, -15, o.mood || "calm", 1.05);
-  g += '<rect class="sc-blanket" x="-17" y="-9" width="34" height="6" rx="3"/>';
+  if (o.rabbit) g += rabbitFace(0, -11.5, o.mood || "calm", 0.86);
+  g += o.hay ? HAY : '<rect class="sc-blanket" x="-17" y="-9" width="34" height="6" rx="3"/>';
   if (closed) {
     g += '<path class="sc-bars" d="M-12,-29 V-3 M-6,-29 V-3 M0,-29 V-3 M6,-29 V-3 M12,-29 V-3"/><circle class="sc-gold" cx="19.5" cy="-16" r="1.8"/>';
   } else {
     g += '<path class="sc-bars" d="M17,-29 L27,-33 L27,-2 L17,-3 Z M22,-31 V-2.5"/>';
   }
   return `<g transform="${xf(o, s)}">${g}</g>`;
+}
+
+// ---------------------------------------------------------------- rabbit
+// A flat brown rabbit: long ears, a round body and a white cotton tail. Faces right (flip: true faces left).
+// The fur colours can be themed with --s-rab and --s-rab2 on .scene; the fallbacks read well on light and dark.
+const RAB = 'style="fill:var(--s-rab,#9A7A60)"', RAB2 = 'style="fill:var(--s-rab2,#7A5C46)"';
+const HAY = '<rect x="-17" y="-7.5" width="34" height="4.5" rx="2.2" style="fill:var(--s-gold)"/>' +
+  '<path style="fill:none;stroke:var(--s-gold-d);stroke-width:1;stroke-linecap:round" d="M-14,-4 l4,-5 M-9,-4 l2,-6 M-4,-4 l-2,-5 M1,-4 l4,-5 M6,-4 l-3,-5 M10,-4 l3,-6 M14,-4 l-2,-5"/>';
+const rabEye = (x, y, mood) => (mood === "happy" || mood === "calm"
+  ? `<path class="sc-eyeline" d="M${n2(x - 1.8)},${n2(y + 0.4)} Q${x},${n2(mood === "happy" ? y - 2.2 : y + 1.6)} ${n2(x + 1.8)},${n2(y + 0.4)}"/>`
+  : `<circle class="sc-eye" cx="${x}" cy="${y}" r="1.7"/><circle class="sc-shine" cx="${n2(x + 0.5)}" cy="${n2(y - 0.7)}" r="0.6"/>`);
+/** Side-on head centred at x,y, nose to the right. ear: the near ear's tilt in degrees (more negative = further back). */
+function rabbitHead(x, y, mood, ear = -12) {
+  let g = `<g transform="translate(${n2(x - 3.5)} ${n2(y - 4.5)}) rotate(${ear - 16})"><ellipse ${RAB2} cx="0" cy="-10" rx="3.1" ry="10.5"/></g>`;
+  g += `<ellipse ${RAB} cx="${x}" cy="${y}" rx="8.6" ry="7"/><circle class="sc-catw" cx="${n2(x + 5.2)}" cy="${n2(y + 3)}" r="3"/>`;
+  g += `<g transform="translate(${n2(x - 1)} ${n2(y - 5.5)}) rotate(${ear})"><ellipse ${RAB} cx="0" cy="-10.5" rx="3.4" ry="11"/><ellipse class="sc-blanket" cx="0" cy="-10.5" rx="1.6" ry="8"/></g>`;
+  g += rabEye(n2(x + 2.6), n2(y - 1.4), mood);
+  g += `<ellipse class="sc-cnose" cx="${n2(x + 8.2)}" cy="${n2(y + 1)}" rx="1.3" ry="1.1"/><path class="sc-whisk" d="M${n2(x + 7)},${n2(y + 2.6)} L${n2(x + 15)},${n2(y + 1)} M${n2(x + 7)},${n2(y + 3.6)} L${n2(x + 15)},${n2(y + 5)}"/>`;
+  return g;
+}
+/** Front-on face (in the carrier), centred at x,y. */
+function rabbitFace(x, y, mood = "calm", sc = 1) {
+  let g = "";
+  for (const k of [-1, 1]) g += `<g transform="translate(${k * 3.4} -6) rotate(${k * 16})"><ellipse ${RAB} cx="0" cy="-9" rx="3.3" ry="9.5"/><ellipse class="sc-blanket" cx="0" cy="-9" rx="1.5" ry="6.8"/></g>`;
+  g += `<circle ${RAB} r="8.6"/><circle class="sc-catw" cx="-2.5" cy="3.6" r="2.9"/><circle class="sc-catw" cx="2.5" cy="3.6" r="2.9"/>`;
+  const eye = mood === "happy" ? "happy" : ""; // open eyes when calm: it's watching from its safe spot
+  g += rabEye(-3.6, -1.4, eye) + rabEye(3.6, -1.4, eye);
+  g += '<path class="sc-cnose" d="M-1.4,1.4 L1.4,1.4 L0,2.9 Z"/><path class="sc-whisk" d="M-5,3.2 L-12,2 M-5,4.4 L-12,5.6 M5,3.2 L12,2 M5,4.4 L12,5.6"/>';
+  return `<g transform="translate(${x} ${y}) scale(${sc})">${g}</g>`;
+}
+function rabbit(o) {
+  if (o.v === "carrier") return carrier({ ...o, rabbit: true, hay: o.hay ?? true });
+  const s = o.s ?? 1, mood = o.mood || "", back = o.ears === "back";
+  let g = "";
+  if (o.v === "hop") {
+    g += '<circle class="sc-catw" cx="-20" cy="-17" r="4.2"/>';
+    g += `<ellipse ${RAB2} cx="-18" cy="-8" rx="9.5" ry="2.6" transform="rotate(22 -18 -8)"/>`;
+    g += `<path ${RAB} d="M-21,-15 C-21,-24 -9,-27 1,-25 C9,-24 14,-20 13,-14 C12,-10 5,-8 -5,-8 C-15,-8 -21,-10 -21,-15 Z"/>`;
+    g += `<ellipse ${RAB2} cx="-11" cy="-15" rx="8" ry="6.5"/>`;
+    g += `<path d="M9,-12 Q14,-9 18,-3" style="fill:none;stroke:var(--s-rab,#9A7A60);stroke-width:4;stroke-linecap:round"/><ellipse ${RAB} cx="19" cy="-2.2" rx="3.6" ry="1.9"/>`;
+    g += rabbitHead(17, -24, mood, back ? -62 : -40);
+    g += '<path class="sc-motion" d="M-30,-6 h-8 M-28,-12 h-6"/>';
+  } else {
+    g += '<circle class="sc-catw" cx="-17.5" cy="-11" r="4.6"/>';
+    g += `<path ${RAB} d="M-18,-3 C-21,-12 -15,-24 -3,-25 C8,-26 14,-18 13,-9 C13,-5 11,-3 8,-3 Z"/>`;
+    g += `<ellipse ${RAB2} cx="-7" cy="-9" rx="9" ry="7.5"/><ellipse ${RAB2} cx="-3" cy="-2.4" rx="10" ry="2.6"/>`;
+    g += `<ellipse class="sc-catw" cx="9.5" cy="-11" rx="3" ry="6"/><ellipse ${RAB} cx="10.5" cy="-2.2" rx="4.2" ry="2.2"/>`;
+    g += rabbitHead(13, -25, mood, back ? -48 : -10);
+  }
+  return `<g transform="${xf(o, s * 0.95)}">${g}</g>`;
 }
 
 // ---------------------------------------------------------------- person
@@ -236,6 +292,8 @@ function held(name, [x, y]) {
     case "fist": return `<g transform="translate(${x} ${y})"><rect class="sc-skin" x="-4.4" y="-4.8" width="10" height="9.6" rx="3.8"/><path class="sc-fline" d="M-0.5,-2 H5 M-0.5,0.4 H5.4 M-0.5,2.8 H5"/></g>`;
     case "cloth": return `<circle class="sc-skin" cx="${x}" cy="${y}" r="3"/><rect class="sc-cloth" x="${x - 1}" y="${y - 2}" width="10" height="7" rx="2" transform="rotate(-18 ${x} ${y})"/>`;
     case "handle": return `<circle class="sc-skin" cx="${x}" cy="${y}" r="3"/><circle class="sc-handlep" cx="${x + 1}" cy="${y + 4}" r="2.6"/>`;
+    case "stick": return stickShape(x + 27, y + 9.4, 28, 19) + `<circle class="sc-skin" cx="${x}" cy="${y}" r="3"/>`;
+    case "pot": case "pot-shake": return `<g transform="translate(${x} ${n2(y + 10)}) scale(.8)">${potShape(name === "pot-shake")}</g><circle class="sc-skin" cx="${x}" cy="${y}" r="3"/>`;
     default: return `<circle class="sc-skin" cx="${x}" cy="${y}" r="3"/>`;
   }
 }
@@ -337,6 +395,18 @@ function cup(o) { // an upside-down cup for scent games; lift raises it (to hide
   return `<g transform="${xf({ ...o, y }, s)} rotate(${o.rot ?? 0})"><path class="sc-shell" d="M-9,0 L-6.5,-15 Q0,-16.6 6.5,-15 L9,0 Z"/>` +
     '<rect class="sc-mat2" x="-9.6" y="-2.8" width="19.2" height="3.2" rx="1.4"/><path class="sc-shine" opacity=".45" d="M-4.4,-12.6 L-5.8,-4.6 L-3.8,-4.6 L-2.6,-12.6 Z"/></g>';
 }
+// A target stick: a thin stick with a bright ball on the tip at (x, y). The handle runs back at `rot` degrees.
+function stickShape(x, y, len = 30, deg = 20) {
+  const a = (deg * Math.PI) / 180, ex = x - len * Math.cos(a), ey = y - len * Math.sin(a);
+  return `<path class="sc-handle" style="stroke-width:2.2" d="M${n2(ex)},${n2(ey)} L${n2(x)},${n2(y)}"/><circle class="sc-pinkf" cx="${n2(x)}" cy="${n2(y)}" r="3.2"/><circle class="sc-shine" cx="${n2(x - 1)}" cy="${n2(y - 1.1)}" r="0.8"/>`;
+}
+function stick(o) { return stickShape(o.x ?? 80, o.y ?? 60, o.len ?? 30, o.rot ?? 20); }
+// A treat pot (a small tub with a lid). shake: little marks either side, for "shake the pot once".
+function potShape(shake) {
+  return '<rect class="sc-mat" x="-7" y="-15" width="14" height="15" rx="2.6"/><rect class="sc-pinkf" x="-8" y="-18.5" width="16" height="4.6" rx="1.6"/>' + treatShape(0, -7.5, 2.6) +
+    (shake ? '<path class="sc-motion" d="M-11,-15 Q-14,-9 -11,-3 M11,-15 Q14,-9 11,-3 M-15.5,-17 Q-19.5,-9 -15.5,-1 M15.5,-17 Q19.5,-9 15.5,-1"/>' : "");
+}
+function pot(o) { return `<g transform="${xf(o, o.s ?? 1)}">${potShape(o.shake)}</g>`; }
 function brush(o) {
   return `<g transform="${xf(o, o.s ?? 1)}"><rect class="sc-fur" x="-3.5" y="-14" width="7" height="16" rx="3"/><rect class="sc-bowl" x="-9" y="-22" width="18" height="9" rx="3"/><path class="sc-fline" d="M-6,-22 v-4 M-2,-22 v-4 M2,-22 v-4 M6,-22 v-4"/></g>`;
 }
@@ -447,7 +517,7 @@ function lead(o, A) {
 }
 
 const DRAW = {
-  dog, person, cat, carrier, hand, door, mat, toy, treat, muzzle: muzzleProp, puddle, clock, paw, icon, button, bowl, ball, brush, cup,
+  dog, person, cat, rabbit, carrier, hand, door, mat, toy, treat, muzzle: muzzleProp, puddle, clock, paw, icon, button, bowl, ball, brush, cup, stick, pot,
   bubble, arrow, spin, motion, spark, check, pause, stop, no, tally, label, ring, drop,
 };
 

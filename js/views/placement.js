@@ -20,6 +20,14 @@ export const QUIZ = {
   handling: { e: "🖐️", q: "You touch {name}'s paws and ears…", a: ["Pulls away", "OK with treats", "Relaxed at home", "Relaxed with visitors", "Relaxed at the vet"] },
   "cat-carrier": { e: "🧳", q: "The carrier comes out. {name}…", a: ["Hides", "Sniffs from afar", "Goes in for treats", "Calm when carried", "Calm at the vet"] },
   "cat-handling": { e: "🐾", q: "You touch {name}'s paws…", a: ["Pulls away", "OK with treats", "Relaxed at home", "Lets me see a claw", "Calm for a trim"] },
+  // Cats and rabbits (v10): answers 1–4 read back each skill's own ladder in data/skills.js.
+  "cat-target": { e: "👆", q: "You hold out a finger near {name}'s nose. They…", a: ["Ignore it", "Touch it when it's right by their nose", "Step over to touch it at the side", "Follow it a few steps", "Follow it onto a mat or the scales"] },
+  "cat-come": { e: "🔔", q: "You shake the treat pot. {name}…", a: ["Doesn't come yet", "Comes when right next to me", "Comes from across the room", "Comes from another room", "Comes from anywhere at home"] },
+  "cat-sit": { e: "🪑", q: "You hold a treat over {name}'s head. They…", a: ["Stand or reach up", "Sit for the treat lure", "Sit for a small hand signal", "Sit on the word alone", "Sit in new spots too"] },
+  "cat-high-five": { e: "🙌", q: "You hold a closed hand by {name}'s paw. They…", a: ["Just sniff it", "Lift a paw", "Tap my hand", "High-five my open palm", "High-five on the cue alone"] },
+  "rabbit-come": { e: "🐇", q: "You say {name}'s name or shake the pellet pot. They…", a: ["Don't come yet", "Come when right beside me", "Hop over from a few hops away", "Come from across the room", "Come from out of sight"] },
+  "rabbit-target": { e: "🥢", q: "You hold a target stick near {name}'s nose. They…", a: ["Ignore it", "Touch it", "Hop once to touch it", "Follow it a few hops", "Follow it onto a mat or the scales"] },
+  "rabbit-carrier": { e: "🧳", q: "The carrier is out, door open. {name}…", a: ["Hides or thumps", "Hops in for a pellet", "Rests inside", "Stays calm with the door closed", "Stays calm when it's carried"] },
   // Advanced (v10): answers 1–4 read back each skill's own ladder in data/skills.js (heel uses the default one).
   heel: { e: "🎖️", q: "You say \"heel\" and set off. {name}…", a: ["Wanders off or pulls", "Stays by my leg indoors, for a few steps", "Stays by my leg at home, with life going on", "Stays by my leg in the garden", "Stays by my leg on the street"] },
   "distance-down": { e: "📡", q: "You ask for \"down\" from a few steps away. {name}…", a: ["Walks over to me first", "Lies down from one step away", "Lies down from three steps away", "Lies down from metres away, in the garden", "Lies down from metres away, in a quiet park"] },
@@ -35,6 +43,8 @@ export const quizSkills = (p) => (p ? skillsFor(p).filter((s) => QUIZ[s.id]) : [
 
 // What Nova says once an answer is tapped (the slide-up banner). No right or wrong here: it just reads the answer back.
 const REACT = ["Okay, a fresh start. Everyone has one.", "Getting the idea. Good.", "Solid at home.", "Even outside the house. Nice.", "On real walks too. Impressive."];
+// Cats, rabbits and the rest don't do walks: their answers climb by steps, not places.
+const REACT_PET = ["Okay, a fresh start. Everyone has one.", "Getting the idea. Good.", "Solid progress.", "That's a real skill now. Nice.", "Top of the class. Impressive."];
 
 export function placement(main) {
   const p = pet();
@@ -73,7 +83,7 @@ export function placement(main) {
         card.querySelectorAll(".lc2-opt").forEach((b) => { b.classList.remove("on"); b.disabled = b !== e.currentTarget; });
         e.currentTarget.classList.add("on");
         banner.className = "lp-fb lc-fb show";
-        banner.replaceChildren(h("div.fb-body", h("p.fb-title", h("img.disc", { src: NOVA, alt: "", width: "36", height: "36" }), n ? `Level ${n}: noted.` : "Noted."), h("p.fb-text", REACT[n])));
+        banner.replaceChildren(h("div.fb-body", h("p.fb-title", h("img.disc", { src: NOVA, alt: "", width: "36", height: "36" }), n ? `Level ${n}: noted.` : "Noted."), h("p.fb-text", (p.species === "dog" ? REACT : REACT_PET)[n])));
         setTimeout(() => { i++; show(); }, motionOK() ? 700 : 0);
       } }, h("span.lc2-lv", { "aria-hidden": "true" }, DOTS[n]), h("span", label)))),
       h("div.lc2-foot",

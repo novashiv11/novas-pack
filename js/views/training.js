@@ -20,7 +20,8 @@ const GROUP_EM = { Foundation: "🌱", "Next steps": "🪜", Fun: "🎉", Advanc
 // The skill emoji for the path (data/skills.js has none). Same family as the level check's.
 const SKILL_EM = { recall: "📣", "loose-lead": "🦮", settle: "🛏️", greetings: "🤝", "leave-it": "✋", "wait-doors": "🚪", handling: "🖐️", "trick-spin": "🌀", muzzle: "🐕",
   "toilet-training": "🚽", "alone-time": "🏠", "cat-carrier": "🧳", "cat-handling": "🐾", sit: "🪑", down: "⬇️", stay: "🛑", "check-in": "👀", "drop-it": "🎾", "look-at-that": "🔭", "talk-buttons": "💬",
-  heel: "🎖️", "distance-down": "📡", "emergency-stop": "🛑", place: "🛏️", "find-it": "👃", "roll-over": "🌀" };
+  heel: "🎖️", "distance-down": "📡", "emergency-stop": "🛑", place: "🛏️", "find-it": "👃", "roll-over": "🌀",
+  "cat-target": "👆", "cat-come": "🔔", "cat-sit": "🪑", "cat-high-five": "🙌", "rabbit-come": "🐇", "rabbit-target": "🥢", "rabbit-carrier": "🧳" };
 export const skillEmoji = (id) => SKILL_EM[id] || "⭐";
 // Winding path: each node sits this many % left (-) or right (+) of the centre.
 const WIND = [0, 16, 26, 16, 0, -16, -26, -16];

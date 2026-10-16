@@ -62,6 +62,8 @@ export const SHORT = {
   "alone-time": "Alone time", "cat-carrier": "Carrier", "cat-handling": "Handling", "talk-buttons": "Talk buttons",
   sit: "Sit", down: "Down", "check-in": "Check-in", "drop-it": "Drop it", stay: "Stay", "look-at-that": "Look at that",
   heel: "Heel", "distance-down": "Distance down", "emergency-stop": "Emergency stop", place: "Go to bed", "find-it": "Find it", "roll-over": "Roll over",
+  "cat-target": "Nose touch", "cat-come": "Come", "cat-sit": "Sit", "cat-high-five": "High five",
+  "rabbit-come": "Come", "rabbit-target": "Target stick", "rabbit-carrier": "Carrier",
 };
 
 export const SKILL_BADGES = [
@@ -83,6 +85,14 @@ export const SKILL_BADGES = [
   { id: "b-place", skill: "place", name: "Bed Boss", emoji: "🛏️" },
   { id: "b-find-it", skill: "find-it", name: "Super Nose", emoji: "👃" },
   { id: "b-roll-over", skill: "roll-over", name: "Show-off", emoji: "🌀" },
+  // Cats and rabbits (v10). Not in STATS on purpose, so no existing pet's stats change.
+  { id: "b-cat-target", skill: "cat-target", name: "Nose Boop", emoji: "👆" },
+  { id: "b-cat-come", skill: "cat-come", name: "On My Way", emoji: "🔔" },
+  { id: "b-cat-sit", skill: "cat-sit", name: "Polite Paws", emoji: "🪑" },
+  { id: "b-cat-high-five", skill: "cat-high-five", name: "High Five", emoji: "🙌" },
+  { id: "b-rabbit-come", skill: "rabbit-come", name: "Happy Hopper", emoji: "🐇" },
+  { id: "b-rabbit-target", skill: "rabbit-target", name: "Stick Star", emoji: "🥢" },
+  { id: "b-rabbit-carrier", skill: "rabbit-carrier", name: "Calm Traveller", emoji: "🧳" },
 ];
 export const MILESTONE_BADGES = [
   { id: "m-first", name: "First step", emoji: "🐣", need: "Log your first training session", sessions: 1 },

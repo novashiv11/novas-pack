@@ -92,6 +92,50 @@ export const SCENES = {
     { bg: "room", parts: [{ t: "cat", v: "sit", x: 82, s: 1.5, mood: "upset", swish: true }, { t: "stop", x: 134, y: 24, s: 1.2 }] },
     { bg: "room", parts: [{ t: "cat", v: "sit", x: 108, s: 1.3, mood: "calm" }, { t: "person", x: 46, arm: "reach", shirt: "green", badge: "cross", hair: 3 }, { t: "icon", v: "vet", x: 134, y: 20, s: 1.4 }] },
   ],
+  // ---------- Cats (v10) ----------
+  "cat-target": [
+    { bg: "room", parts: [{ t: "cat", v: "sit", x: 116, s: 1.45, flip: true }, { t: "hand", v: "open", x: 92, y: 50, s: .9 }, { t: "label", text: "keep still", x: 48, y: 16 }] },
+    { bg: "room", parts: [{ t: "cat", v: "sit", x: 114, s: 1.45, flip: true, mood: "happy" }, { t: "person", v: "kneel", x: 46, arm: "out", hold: "treat", hair: 2, skin: 1 }, { t: "bubble", text: "yes!", x: 46, y: 16, c: "gold", to: [50, 34] }, { t: "spark", x: 140, y: 26 }] },
+    { bg: "room", parts: [{ t: "cat", v: "sit", x: 116, s: 1.45, flip: true }, { t: "person", v: "kneel", x: 46, arm: "back", hair: 2, skin: 1 }, { t: "label", text: "hide… then show", x: 80, y: 16 }] },
+    { bg: "room", parts: [{ t: "cat", v: "stand", x: 108, s: 1.35, flip: true }, { t: "hand", v: "open", x: 64, y: 70, s: .9 }, { t: "motion", x: 150, y: 62, len: 11, dir: -1 }, { t: "label", text: "to the side", x: 50, y: 16 }, { t: "tally", x: 128, y: 16, n: 5, s: 1.2 }] },
+  ],
+  "cat-come": [
+    { bg: "room", parts: [{ t: "cat", v: "sit", x: 116, s: 1.4, flip: true, mood: "happy" }, { t: "person", v: "kneel", x: 46, arm: "out", hold: "pot-shake", hair: 2, skin: 1 }, { t: "treat", x: 96, y: 89 }, { t: "label", text: "shake once", x: 46, y: 16 }] },
+    { bg: "room", parts: [{ t: "person", x: 30, arm: "out", hold: "pot-shake", hair: 2, skin: 1 }, { t: "cat", v: "sit", x: 132, s: 1.15, flip: true }, { t: "arrow", from: [64, 78], to: [112, 78], c: "gold", both: true, dash: true }, { t: "label", text: "2 steps", x: 88, y: 16 }] },
+    { bg: "room", parts: [{ t: "cat", v: "stand", x: 94, s: 1.35, flip: true, mood: "happy" }, { t: "motion", x: 126, y: 66, len: 11, dir: -1 }, { t: "person", v: "kneel", x: 36, arm: "out", hold: "treat", hair: 2, skin: 1 }, { t: "bubble", text: "good", x: 40, y: 16, c: "gold", to: [42, 34] }] },
+    { bg: "hall", parts: [{ t: "person", x: 30, s: .95, arm: "out", hold: "pot-shake", hair: 2, skin: 1 }, { t: "cat", v: "stand", x: 128, s: .9, flip: true }, { t: "arrow", from: [110, 60], to: [58, 60], c: "gold", dash: true }, { t: "label", text: "across the room", x: 80, y: 16 }] },
+  ],
+  "cat-sit": [
+    { bg: "room", parts: [{ t: "cat", v: "stand", x: 118, s: 1.4, flip: true }, { t: "hand", v: "pinch", treat: true, x: 84, y: 40, s: .85 }, { t: "label", text: "just above the nose", x: 70, y: 16 }] },
+    { bg: "room", parts: [{ t: "cat", v: "stand", x: 118, s: 1.4, flip: true }, { t: "hand", v: "pinch", treat: true, x: 100, y: 28, s: .85 }, { t: "arrow", from: [70, 48], to: [96, 36], c: "gold", bend: -6 }, { t: "label", text: "slowly back", x: 46, y: 16 }] },
+    { bg: "room", parts: [{ t: "cat", v: "sit", x: 114, s: 1.45, flip: true, mood: "happy" }, { t: "person", v: "kneel", x: 46, arm: "out", hold: "treat", hair: 2, skin: 1 }, { t: "bubble", text: "yes!", x: 46, y: 16, c: "gold", to: [50, 34] }, { t: "spark", x: 140, y: 30 }] },
+    { bg: "room", parts: [{ t: "cat", v: "sit", x: 112, s: 1.4, flip: true, mood: "happy" }, { t: "ball", x: 60, y: 90, s: 1.2 }, { t: "tally", x: 60, y: 16, n: 5, s: 1.2 }, { t: "label", text: "then play", x: 60, y: 40 }] },
+  ],
+  "cat-high-five": [
+    { bg: "room", parts: [{ t: "cat", v: "sit", x: 118, s: 1.45, flip: true }, { t: "hand", v: "fist", treat: true, x: 88, y: 80, s: 1 }, { t: "label", text: "closed hand, low", x: 64, y: 16 }] },
+    { bg: "room", parts: [{ t: "cat", v: "sit", x: 118, s: 1.45, flip: true, paw: "up" }, { t: "hand", v: "fist", x: 82, y: 64, s: 1 }, { t: "bubble", text: "yes!", x: 46, y: 16, c: "gold", to: [60, 40] }, { t: "spark", x: 140, y: 26 }] },
+    { bg: "room", parts: [{ t: "cat", v: "sit", x: 118, s: 1.45, flip: true }, { t: "hand", v: "fist", x: 82, y: 52, s: 1 }, { t: "arrow", from: [40, 78], to: [40, 54], c: "gold" }, { t: "label", text: "a bit higher", x: 54, y: 16 }] },
+    { bg: "room", parts: [{ t: "cat", v: "sit", x: 118, s: 1.45, flip: true, paw: "up", mood: "happy" }, { t: "hand", v: "open", x: 82, y: 56, s: 1, rot: -24 }, { t: "bubble", text: "high five!", x: 52, y: 16, c: "gold" }, { t: "spark", pts: [[92, 40, 1.4], [140, 28, 1.2]] }] },
+  ],
+  // ---------- Rabbits (v10): always at floor level, no lifting ----------
+  "rabbit-come": [
+    { bg: "room", parts: [{ t: "person", v: "kneel", x: 46, arm: "low", hair: 3, skin: 2 }, { t: "rabbit", v: "sit", x: 114, s: 1.4, flip: true }, { t: "label", text: "floor level", x: 80, y: 16 }] },
+    { bg: "room", parts: [{ t: "person", v: "kneel", x: 46, arm: "out", hold: "treat", hair: 3, skin: 2 }, { t: "rabbit", v: "sit", x: 112, s: 1.4, flip: true, mood: "happy" }, { t: "bubble", text: "Pip!", x: 46, y: 16, c: "gold", to: [50, 34] }] },
+    { bg: "room", parts: [{ t: "person", v: "kneel", x: 30, arm: "out", hair: 3, skin: 2 }, { t: "rabbit", v: "sit", x: 132, s: 1.15, flip: true }, { t: "arrow", from: [64, 76], to: [110, 76], c: "gold", both: true, dash: true }, { t: "bubble", text: "Pip!", x: 40, y: 16, c: "gold", to: [36, 40] }, { t: "label", text: "a few hops", x: 108, y: 16 }] },
+    { bg: "room", parts: [{ t: "rabbit", v: "hop", x: 98, s: 1.35, flip: true }, { t: "person", v: "kneel", x: 36, arm: "out", hold: "treat", hair: 3, skin: 2 }, { t: "clock", x: 134, y: 22, text: "2 min" }] },
+  ],
+  "rabbit-target": [
+    { bg: "room", parts: [{ t: "person", v: "kneel", x: 38, arm: "out", hold: "stick", hair: 3, skin: 2 }, { t: "rabbit", v: "sit", x: 120, s: 1.4, flip: true }, { t: "label", text: "keep it still", x: 104, y: 16 }] },
+    { bg: "room", parts: [{ t: "person", v: "kneel", x: 38, arm: "out", hold: "stick", arm2: "low", hold2: "treat", hair: 3, skin: 2 }, { t: "rabbit", v: "sit", x: 114, s: 1.4, flip: true, mood: "happy" }, { t: "bubble", text: "yes!", x: 44, y: 16, c: "gold", to: [46, 34] }, { t: "spark", x: 140, y: 30 }] },
+    { bg: "room", parts: [{ t: "person", v: "kneel", x: 46, arm: "back", hair: 3, skin: 2 }, { t: "rabbit", v: "sit", x: 118, s: 1.4, flip: true }, { t: "label", text: "hide… then show", x: 80, y: 16 }] },
+    { bg: "room", parts: [{ t: "stick", x: 74, y: 84, len: 40, rot: 50 }, { t: "rabbit", v: "hop", x: 112, s: 1.3, flip: true }, { t: "label", text: "1 hop", x: 112, y: 16 }, { t: "clock", x: 30, y: 24, text: "2 min" }] },
+  ],
+  "rabbit-carrier": [
+    { bg: "room", parts: [{ t: "carrier", x: 68, s: 1.7, door: "open", hay: true }, { t: "rabbit", v: "sit", x: 136, s: 1.05, flip: true }] },
+    { bg: "room", parts: [{ t: "carrier", x: 104, s: 1.5, door: "open", hay: true }, { t: "treat", x: 96, y: 76, n: 2, gap: 10 }, { t: "treat", x: 62, y: 89, n: 3, gap: 10 }, { t: "rabbit", v: "sit", x: 26, s: 1.1 }] },
+    { bg: "room", parts: [{ t: "rabbit", v: "carrier", x: 76, s: 1.7, door: "open", mood: "happy" }, { t: "bubble", text: "good", x: 130, y: 30, c: "gold", to: [100, 60] }, { t: "spark", pts: [[140, 56, 1.5], [24, 34, 1.3]] }] },
+    { bg: "room", parts: [{ t: "rabbit", v: "carrier", x: 70, s: 1.7, door: "closed" }, { t: "clock", x: 130, y: 26, text: "3 sec" }, { t: "treat", x: 130, y: 88, n: 2 }] },
+  ],
   sit: [
     { bg: "room", parts: [{ t: "dog", v: "stand", x: 100, s: 1.3, flip: true }, { t: "person", x: 34, arm: "out", hold: "treat", hair: 1 }] },
     { bg: "room", parts: [{ t: "dog", v: "sit", x: 100, s: 1.3, flip: true, look: "up" }, { t: "hand", v: "pinch", treat: true, x: 84, y: 34, s: .9 }, { t: "arrow", from: [70, 52], to: [84, 30], c: "gold", bend: -4 }] },

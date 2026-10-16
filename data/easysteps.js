@@ -145,6 +145,76 @@ export const EASY = {
     ],
     win: "One calm paw touch is a win.",
   },
+  "cat-target": {
+    need: "your finger (or a chopstick) and tiny treats",
+    steps: [
+      "Hold one finger near your cat's nose. Keep it still.",
+      "They sniff it? Say \"yes!\" and give a treat.",
+      "Hide your hand. Then show it again.",
+      "Hold it a little to the side. Stop after 5.",
+    ],
+    win: "A nose boop on your finger is a win.",
+  },
+  "cat-come": {
+    need: "a treat pot to shake and tiny treats",
+    steps: [
+      "Sit by your cat. Shake the pot once. Give a treat.",
+      "Take 2 steps away. Shake once.",
+      "Cat comes? Treat, and a quiet \"good\".",
+      "Next time, try from across the room.",
+    ],
+    win: "Did they come to the shake? That's a win.",
+  },
+  "cat-sit": {
+    need: "tiny treats",
+    steps: [
+      "Hold a treat just above your cat's nose.",
+      "Move it slowly back over their head.",
+      "Bottom goes down? Say \"yes!\" Treat!",
+      "Do 3 to 5, then stop and play.",
+    ],
+    win: "One sit is a win.",
+  },
+  "cat-high-five": {
+    need: "tiny treats",
+    steps: [
+      "Your cat sits. Hold a treat in your closed hand, low.",
+      "Wait. Paw lifts or taps? \"Yes!\" Open your hand.",
+      "Next time, hold your hand a bit higher.",
+      "Then hold up your open hand, like a high five.",
+    ],
+    win: "A paw tap on your hand is a win.",
+  },
+  "rabbit-come": {
+    need: "a few pellets from today's food",
+    steps: [
+      "Sit on the floor near your rabbit.",
+      "Say their name. Give a pellet.",
+      "Move a few hops away. Say their name again.",
+      "They hop over? Pellet! Stop after 2 minutes.",
+    ],
+    win: "Did they hop to you? That's a win.",
+  },
+  "rabbit-target": {
+    need: "a chopstick or wooden spoon and a few pellets",
+    steps: [
+      "Sit on the floor. Hold the stick near your rabbit's nose. Keep it still.",
+      "Nose touches it? Say \"yes!\" Give a pellet.",
+      "Hide the stick. Then show it again.",
+      "Hold it 1 hop away. Stop after 2 minutes.",
+    ],
+    win: "A nose touch on the stick is a win.",
+  },
+  "rabbit-carrier": {
+    need: "the carrier, some hay and a few pellets",
+    steps: [
+      "Leave the carrier open, with hay inside.",
+      "Put pellets by the door, then just inside.",
+      "Rabbit hops in? Quiet praise. Let them hop out.",
+      "Later, close the door for a few seconds. Then open it.",
+    ],
+    win: "One hop inside is a win.",
+  },
   sit: {
     need: "tiny treats",
     steps: [
