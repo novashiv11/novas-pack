@@ -5,15 +5,16 @@
 import { planSheet, planText, showUpDates, weekAndSticker } from "./doitnow.js";
 import { STICKERS } from "../../data/stickers.js";
 import { S, pet, setSetting, wipe, load, refresh, units, UI } from "../state.js";
-import { h, put, sheet, toast, confirmBox, fmtDate, isoDate, ageText, telHref, shareOrSave } from "../util.js";
+import { h, put, em, sheet, toast, confirmBox, fmtDate, isoDate, ageText, telHref, shareOrSave } from "../util.js";
 import { exportData, validateBackup, importData } from "../db.js";
 import { installCard, isStandalone } from "../install.js";
-import { openPetSheet, speciesOf, segmented, deletePetFlow, adoptSampleFlow, unarchivePet } from "../forms.js";
+import { openPetSheet, speciesOf, segmented, deletePetFlow, adoptSampleFlow, unarchivePet, TYPES, eventSheet } from "../forms.js";
 import { subBar, avatar, chevron, sampleStrip, emptyState, NOVA } from "./parts.js";
 import { gameOf, trainerFor } from "./gameui.js";
 import { openPartnerCard } from "../sharecard.js";
 import { sound } from "../sound.js";
 import { recapSheet } from "./recap.js";
+import { timeOfDay } from "./today.js";
 
 export const APP_VERSION = "2.0";
 const CARD_SPECIES = { dog: "dog", cat: "cat", rabbit: "small", bird: "bird", other: "other" };
@@ -33,7 +34,7 @@ export async function exportBackup() {
   } catch { toast("Couldn't make the backup file."); }
 }
 
-const PAGES = { pets, profile, units: unitsPage, backup, install, sources, badges, jar };
+const PAGES = { pets, profile, units: unitsPage, backup, install, sources, badges, jar, memories };
 const novaFace = (size = 40) => h("img.disc.nova-face", { src: NOVA, alt: "", width: String(size), height: String(size) });
 const buzz = () => { try { navigator.vibrate && navigator.vibrate(12); } catch { /* not everywhere */ } };
 
@@ -99,6 +100,7 @@ export function more(main, arg) {
     hero(p),
     a ? group("g-lvl", "Level up",
       p ? btnRow("🗓️", "t-blue", "This week", "Recap", () => recapSheet(p, 0), "m-recap") : null,
+      row("📸", "t-tan", "Memories", memoryCount(p), "#/more/memories", "m-memories"),
       row("🍪", "t-gold", "Nova's treat jar", "Stickers", "#/more/jar", "m-jar"),
       row("🎨", "t-tan", "Art studio", "Play", "#/studio", "m-studio"),
       row("🏅", "t-gold", "Badges", `${earned} of ${a.badges.length}`, "#/more/badges", "m-badges"),
@@ -108,6 +110,7 @@ export function more(main, arg) {
     group("g-pets", "Your pets",
       row("🐾", "t-tan", "Pets", String(S.pets.filter((x) => !x.archivedAt).length), "#/more/pets", "m-pets"),
       row("📇", "t-blue", "Profile and contacts", p ? p.name : "", "#/more/profile", "m-profile"),
+      p && !a ? row("📸", "t-tan", "Memories", memoryCount(p), "#/more/memories", "m-memories") : null,
       row("🌱", "t-gold", "Getting a new pet?", "Checklist", "#/ready", "m-ready")),
     group("g-rem", "Reminders and mode",
       p && !careOnly ? btnRow("⏰", "t-gold", "Nudge time", S.settings.plan && S.settings.plan.anchor ? planText(S.settings.plan).replace(/^./, (c) => c.toUpperCase()) : "Pick one", () => planSheet(p), "m-plan", "One gentle daily reminder, at a time you choose") : null,
@@ -159,6 +162,81 @@ const back = (title) => subBar(title, "#/more", "Back to More");
 const needPet = (main, title) => put(main, back(title), emptyState("Add your pet first, then this page fills up.", h("button.btn.btn-blue", { type: "button", "data-k": "add-pet", onclick: () => openPetSheet() }, "Add your pet")));
 const bar = (frac, label) => h("div.bar7", { role: "progressbar", "aria-label": label, "aria-valuemin": "0", "aria-valuemax": "100", "aria-valuenow": String(Math.round(frac * 100)) }, h("i", { style: { width: `${Math.round(frac * 100)}%` } }));
 
+// --- Memories (v9): every photo on this device for the current pet, newest first, grouped by month as polaroids.
+// Walk, play and training photos (e.photo), stamp photos (S.adventures[].photo), and the pet's own photo at the top.
+// Nothing new is stored: it's a view of what's already in the diary.
+const stampInfo = (id) => (S.content.STAMPS || []).find((s) => s.id === id) || { emoji: "📍", title: "Stamp" };
+export function memoriesOf(p) {
+  if (!p) return [];
+  const ev = S.events.filter((e) => e.petId === p.id && e.photo).map((e) => {
+    const t = TYPES[e.type] || { emoji: "📷", label: "Photo" };
+    return { key: `e-${e.id}`, src: e.photo, at: e.at, emoji: t.emoji, label: t.label, note: e.note || "", ev: e };
+  });
+  const st = (S.adventures || []).filter((s) => s.petId === p.id && s.photo).map((s) => {
+    const info = stampInfo(s.stampId);
+    const at = s.date ? new Date(`${s.date}T12:00`).getTime() : s.at || 0;
+    return { key: `s-${s.id}`, src: s.photo, at, emoji: info.emoji, label: info.title, note: s.note || "", stamp: true };
+  });
+  return [...ev, ...st].sort((x, y) => y.at - x.at);
+}
+const memoryCount = (p) => { const n = memoriesOf(p).length + (p && p.photo ? 1 : 0); return n ? `${n} photo${n === 1 ? "" : "s"}` : ""; };
+const shortDay = (ms) => fmtDate(ms, { day: "numeric", month: "short" });
+
+function memorySheet(p, m) {
+  sheet(m.profile ? `${p.name}` : "A memory", (body, close) => {
+    put(body, h("figure.mem-big",
+      h("img", { src: m.src, alt: m.profile ? `Photo of ${p.name}` : `${m.label} photo, ${shortDay(m.at)}` }),
+      h("figcaption",
+        h("b", m.profile ? `${p.name}'s photo` : `${m.emoji} ${m.label} · ${shortDay(m.at)}`),
+        m.profile ? h("span.small.muted.block", "The photo on Today and your profile.") : h("span.small.muted.block", fmtDate(m.at, { weekday: "long", day: "numeric", month: "long", year: "numeric" })),
+        m.note ? h("span.mem-note", m.note) : null)),
+    m.ev && !p.sample ? h("button.btn.btn-line.wide", { type: "button", "data-k": "mem-edit", onclick: () => { close(); setTimeout(() => eventSheet(m.ev.type, m.ev), 0); } }, "Open this entry") : null,
+    m.stamp ? h("a.btn.btn-line.wide", { href: "#/adventures", "data-k": "mem-stamp", onclick: close }, "See the Adventure Book") : null,
+    m.profile && !p.sample ? h("button.btn.btn-line.wide", { type: "button", "data-k": "mem-pet", onclick: () => { close(); setTimeout(() => openPetSheet(p), 0); } }, "Change the photo") : null,
+    h("p.small.muted.mem-priv", em("🔒"), " Only on this phone. Never uploaded."));
+  });
+}
+
+function memories(main) {
+  const p = pet();
+  if (!p) { needPet(main, "Memories"); return; }
+  const list = memoriesOf(p);
+  const months = [];
+  for (const m of list) {
+    const d = new Date(m.at);
+    const k = `${d.getFullYear()}-${d.getMonth()}`;
+    if (!months.length || months[months.length - 1].k !== k) months.push({ k, at: m.at, items: [] });
+    months[months.length - 1].items.push(m);
+  }
+  const thisYear = new Date().getFullYear();
+  const tilt = (i) => [-2.5, 1.5, -1, 2, -2, 1][i % 6];
+  const total = list.length + (p.photo ? 1 : 0);
+  put(main,
+    back("Memories"),
+    sampleStrip(p),
+    h(`section.mem-hero.stage.tod-${timeOfDay()}`, { "aria-label": `${p.name}'s memories` },
+      h("div.st-sky", { "aria-hidden": "true" }, h("span.st-sun"), h("span.st-cloud.c1"), h("span.st-cloud.c2")),
+      p.photo ? h("button.mem-face", { type: "button", "data-k": "mem-profile", onclick: () => memorySheet(p, { src: p.photo, profile: true, emoji: "🐾", label: "Profile photo", at: Date.now() }) },
+        avatar(p, 88), h("span.vh", `Open ${p.name}'s photo`)) : h("span.mem-face", avatar(p, 88)),
+      h("h2.mem-title", `${p.name}'s memories`),
+      h("p.mem-count", total ? `${total} photo${total === 1 ? "" : "s"} · only on this phone` : "Only on this phone")),
+    list.length ? months.map((mo, mi) => {
+      const d = new Date(mo.at);
+      const title = d.toLocaleDateString(undefined, d.getFullYear() === thisYear ? { month: "long" } : { month: "long", year: "numeric" });
+      return h("section.mem-month", { "aria-labelledby": `mem-m${mi}` },
+        h("div.sec-row", h("h2.sec-title", { id: `mem-m${mi}` }, title), h("span.pill", `${mo.items.length}`)),
+        h("ul.mem-grid", mo.items.map((m, i) => h("li", h("button.mem-pol", { type: "button", "data-k": `mem-${m.key}`, style: `--r:${tilt(i)}deg`, onclick: () => memorySheet(p, m) },
+          h("img", { src: m.src, alt: "", width: "120", height: "120", loading: "lazy" }),
+          h("span.mem-cap", h("span", { "aria-hidden": "true" }, m.emoji), ` ${shortDay(m.at)}`),
+          h("span.vh", `: ${m.label}`))))));
+    }) : h("div.mem-empty",
+      h("img.disc.nova-face", { src: NOVA, alt: "", width: "56", height: "56" }),
+      h("p.mem-empty-t", "No photos yet."),
+      h("p", "Add a photo after a walk: tap 📷 on the toast."),
+      h("p.small.muted", "Games, training and Adventure Book stamps can have photos too. They stay on this phone."),
+      h("a.btn.btn-blue.wide", { href: "#/home", "data-k": "mem-today" }, "Go to Today")));
+}
+
 // --- Sticker album (More → Treat jar): one sticker for every day you showed up, in order. Real data only.
 function jar(main) {
   const p = pet();
@@ -167,6 +245,8 @@ function jar(main) {
   const n = STICKERS.length;
   const counts = STICKERS.map((_, i) => dates.filter((_d, j) => j % n === i).length);
   const got = counts.filter(Boolean).length;
+  const pages = [];
+  STICKERS.forEach((s, i) => { if (i % 6 === 0) pages.push([]); pages[pages.length - 1].push({ s, i }); });
   const die = (s, i, big) => h(`span.stk-die${big ? ".big" : ""}`, { style: { transform: `rotate(${[-4, 3, -2, 5, -5, 2][i % 6]}deg)` }, "aria-hidden": "true" }, s);
   const peek = (s, i) => sheet(`Sticker ${i + 1} of ${n}`, (body) => {
     put(body, h("div.stk-sheet",
@@ -183,11 +263,19 @@ function jar(main) {
       h("div.stk-sum-top", h("b.stk-big", `${got}`), h("span", ` of ${n} stickers`)),
       bar(got / n, "Stickers collected"),
       h("p.small.muted", `${dates.length} day${dates.length === 1 ? "" : "s"} of showing up. One sticker for each day you spend a minute together. Never lost, never bought.`)),
-    h("ul.album", STICKERS.map((s, i) => h("li", h(`button.stk${counts[i] ? "" : ".locked"}`, { type: "button", "data-k": `sticker-${i + 1}`, onclick: () => peek(s, i) },
-      counts[i] ? die(s.e, i) : h("span.stk-die.locked", { "aria-hidden": "true" }, h("span.stk-ghost", s.e)),
-      counts[i] > 1 ? h("span.stk-n", `×${counts[i]}`) : null,
-      h("span.stk-d", `Day ${i + 1}`),
-      h("span.vh", counts[i] ? `: ${s.t}` : ": locked"))))));
+    // v9: a collectible album, six stickers to a page; a full page gets a gold "Page complete" ribbon.
+    pages.map((pg, pi) => {
+      const have = pg.filter(({ i }) => counts[i]).length;
+      const full = have === pg.length;
+      return h(`section.alb-pg${full ? ".full" : ""}`, { "aria-labelledby": `alb-p${pi}` },
+        h("div.alb-pg-head", h("h2", { id: `alb-p${pi}` }, `Page ${pi + 1}`, h("span.alb-pg-days", ` · days ${pg[0].i + 1}–${pg[pg.length - 1].i + 1}`)),
+          h(`span.alb-pg-n${full ? ".gold" : ""}`, full ? "★ Page complete" : `${have} of ${pg.length}`)),
+        h("ul.album", pg.map(({ s, i }) => h("li", h(`button.stk${counts[i] ? "" : ".locked"}`, { type: "button", "data-k": `sticker-${i + 1}`, onclick: () => peek(s, i) },
+          counts[i] ? die(s.e, i) : h("span.stk-die.locked", { "aria-hidden": "true" }, h("span.stk-ghost", s.e)),
+          counts[i] > 1 ? h("span.stk-n", `×${counts[i]}`) : null,
+          h("span.stk-d", `Day ${i + 1}`),
+          h("span.vh", counts[i] ? `: ${s.t}` : ": locked"))))));
+    }));
 }
 
 // --- Badges: medals in colour when earned, greyed with a real progress bar when not.

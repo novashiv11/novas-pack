@@ -1,1 +1,120 @@
-/* v9 more area (docs/v9-agents.md). Loaded after v8-feel.css. */
+/* v9 more area (docs/v9-agents.md, brief D). Loaded after v8-feel.css.
+   Memories (polaroids by month), v8 medals, the treat jar as an album, pet cards, the journal as a chat, recap link. */
+
+/* ---------- spring presses ---------- */
+.pc,.medal-cell,.stk,.mem-pol,.mem-face,.mh-stat{transition:transform .18s var(--spring),box-shadow .18s,background-color .15s}
+.pc:active,.medal-cell:active,.stk:active,.mh-stat:active{transform:scale(.95)}
+
+/* ---------- Memories ---------- */
+.mem-hero{margin-top:8px;padding:18px 14px 16px;gap:4px}
+.mem-face{display:grid;place-items:center;padding:0;border:0;background:none;border-radius:50%;cursor:pointer;min-width:44px;min-height:44px}
+.mem-face .avatar{width:88px;height:88px;border:4px solid #fff;box-shadow:var(--elev-2);border-radius:50%;object-fit:cover}
+.mem-face .avatar.av-emoji{display:grid;place-items:center;background:var(--tan-soft)}
+button.mem-face:active{transform:scale(.95)}
+.mem-title{margin:8px 0 0;font-family:var(--f-display);font-size:var(--t22);line-height:1.15;color:inherit;overflow-wrap:anywhere}
+.mem-count{margin:0;font-size:var(--t14);font-weight:700;color:inherit}
+.mem-month{margin-top:22px}
+.mem-month .sec-row{margin-bottom:10px}
+.mem-grid{list-style:none;margin:0;padding:4px 2px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 10px}
+.mem-grid > li{min-width:0}
+.mem-pol{display:flex;flex-direction:column;gap:4px;width:100%;padding:5px 5px 6px;border:0;border-radius:4px;background:#FFFDF8;color:#1E1B17;font:inherit;text-align:center;cursor:pointer;box-shadow:0 4px 14px rgba(30,20,10,.18);transform:rotate(var(--r,0deg))}
+.mem-pol img{display:block;width:100%;height:auto;aspect-ratio:1;object-fit:cover;border-radius:2px;background:#EDE7DC}
+.mem-cap{font-size:var(--t12);font-weight:800;line-height:1.3;color:#3A332C;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mem-pol:active{transform:rotate(0deg) scale(.95)}
+.mem-pol:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
+.mem-empty{display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:16px;padding:22px 16px;border-radius:22px;background:var(--surface);box-shadow:var(--elev);text-align:center}
+.mem-empty p{margin:0}
+.mem-empty-t{font-family:var(--f-display);font-weight:800;font-size:var(--t18)}
+.mem-empty .btn{margin-top:6px}
+.mem-big{margin:0 0 14px;display:flex;flex-direction:column;align-items:center;gap:12px}
+.mem-big img{display:block;max-width:100%;max-height:58vh;width:auto;height:auto;border:8px solid #FFFDF8;border-bottom-width:22px;border-radius:4px;box-shadow:0 8px 24px rgba(30,20,10,.22);background:#FFFDF8}
+.mem-big figcaption{display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center}
+.mem-big figcaption b{font-family:var(--f-display);font-size:var(--t18)}
+.mem-note{margin-top:6px;padding:8px 12px;border-radius:14px;background:var(--sunk);font-size:var(--t14);font-weight:600;overflow-wrap:anywhere;white-space:pre-wrap}
+.mem-big + .btn,.mem-big ~ .btn{margin-top:4px}
+.mem-priv{margin-top:12px;text-align:center}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .mem-pol,:root:not([data-theme="light"]) .mem-big img{background:#F5EEE4;border-color:#F5EEE4;box-shadow:0 6px 18px rgba(0,0,0,.5)}}
+:root[data-theme="dark"] .mem-pol,:root[data-theme="dark"] .mem-big img{background:#F5EEE4;border-color:#F5EEE4;box-shadow:0 6px 18px rgba(0,0,0,.5)}
+@media (max-width:359px){.mem-grid{gap:12px 8px}.mem-pol{padding:4px 4px 5px}}
+
+/* the week recap's link to Memories */
+.rc-mem{display:flex;align-items:center;justify-content:center;min-height:44px;margin-top:8px;font-weight:800;color:var(--blue);text-decoration:none;border-radius:12px}
+.rc-mem:hover{text-decoration:underline}
+
+/* ---------- badges: an achievement grid with v8 medals ---------- */
+.bd-sum,.stk-sum{border:0;border-radius:22px;background:linear-gradient(150deg,var(--gold-soft) 0%,var(--surface) 70%);box-shadow:var(--elev)}
+.medal-grid{gap:10px}
+.medal-cell{border:0;border-radius:18px;background:var(--surface);box-shadow:var(--elev);padding:16px 4px 12px}
+.medal-grid > li.earned .medal-cell{background:linear-gradient(180deg,var(--gold-soft) 0%,var(--surface) 78%)}
+.medal.earned{background:radial-gradient(circle at 34% 28%,#FFF1C4 0,#F7C95E 38%,var(--gold) 62%,#D9952A 100%);box-shadow:0 6px 14px rgba(194,122,58,.35),inset 0 -4px 0 rgba(140,80,20,.18),inset 0 3px 0 rgba(255,255,255,.55)}
+.medal.earned::after{inset:calc(var(--m) * .1);border:2px solid rgba(255,255,255,.55)}
+.medal.locked{border:0;background:var(--sunk);box-shadow:inset 0 2px 6px rgba(30,27,23,.12)}
+.medal.locked .medal-e{filter:grayscale(1) brightness(.4);opacity:.28}
+.medal-lock{border:0;box-shadow:var(--elev)}
+.medal-cell .bar7{height:6px}
+.medal-cell .bar7 i{background:var(--c-train)}
+.medal-grid > li.earned .medal-sub{color:var(--muted)}
+
+/* ---------- treat jar: a collectible album, six to a page ---------- */
+.alb-pg{position:relative;margin-top:16px;padding:12px 10px 14px 18px;border-radius:20px;background-color:var(--surface);background-image:radial-gradient(color-mix(in srgb,var(--c-meals) 22%,transparent) 1.2px,transparent 1.6px);background-size:16px 16px;box-shadow:var(--elev),inset 8px 0 0 color-mix(in srgb,var(--c-meals) 14%,var(--surface))}
+.alb-pg.full{box-shadow:var(--elev),inset 8px 0 0 var(--gold),0 0 0 2px color-mix(in srgb,var(--gold) 45%,transparent)}
+.alb-pg-head{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin:0 0 8px}
+.alb-pg-head h2{margin:0;font-family:var(--f-display);font-size:var(--t18);line-height:1.2}
+.alb-pg-days{font-family:var(--f-body);font-size:var(--t12);font-weight:700;color:var(--muted)}
+.alb-pg-n{padding:3px 10px;border-radius:999px;background:var(--sunk);font-size:var(--t12);font-weight:800;color:var(--ink)}
+.alb-pg-n.gold{background:var(--gold);color:#1E1B17}
+.alb-pg .album{margin:0;padding:0;border:0;border-radius:0;background:none;box-shadow:none;grid-template-columns:repeat(3,minmax(0,1fr))}
+.stk-die{box-shadow:0 0 0 3px #fff,0 5px 10px rgba(30,27,23,.28)}
+.stk-die.locked{border:0;background:color-mix(in srgb,var(--ink) 6%,transparent);box-shadow:inset 0 2px 5px rgba(30,27,23,.14)}
+.stk-ghost{filter:grayscale(1) brightness(.35);opacity:.3}
+.stk:hover .stk-die:not(.locked){transform:rotate(0deg) scale(1.06)!important}
+.stk .stk-die{transition:transform .2s var(--spring)}
+
+/* ---------- pets: v8 cards ---------- */
+.pc-grid{gap:12px}
+.pc{border:0;border-radius:22px;background:var(--surface);box-shadow:var(--elev);overflow:hidden;position:relative;isolation:isolate}
+.pc::before{content:"";position:absolute;inset:0 0 auto;height:52px;z-index:-1;background:linear-gradient(165deg,#E4EEF5 0%,var(--surface) 100%)}
+.pc.cur::before{background:linear-gradient(165deg,#BFDDF2 0%,#E4F0F7 60%,var(--surface) 100%)}
+.pc .avatar,.pc.cur .avatar{border-radius:50%;box-shadow:0 0 0 3px var(--surface),var(--elev-2)}
+.pc.cur .avatar{box-shadow:0 0 0 3px var(--surface),0 0 0 6px var(--c-train),var(--elev-2)}
+.pc:hover{box-shadow:var(--elev-2)}
+.pc-tag{background:var(--sunk)}
+.pc-tag.now{background:color-mix(in srgb,var(--c-train) 16%,var(--surface))}
+.pc-add{border:0;background:color-mix(in srgb,var(--blue) 6%,var(--surface));box-shadow:var(--elev)}
+.pc-add::before{display:none}
+.pc-plus{box-shadow:0 3px 0 var(--blue-ledge),var(--elev)}
+.pc-fold{border:0;border-radius:18px;box-shadow:var(--elev)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .pc::before{background:linear-gradient(165deg,#22303B 0%,var(--surface) 100%)}
+  :root:not([data-theme="light"]) .pc.cur::before{background:linear-gradient(165deg,#1D3446 0%,#1E2830 60%,var(--surface) 100%)}}
+:root[data-theme="dark"] .pc::before{background:linear-gradient(165deg,#22303B 0%,var(--surface) 100%)}
+:root[data-theme="dark"] .pc.cur::before{background:linear-gradient(165deg,#1D3446 0%,#1E2830 60%,var(--surface) 100%)}
+
+/* ---------- Growth Journal: a v8 chat ---------- */
+.jb-nova{background:color-mix(in srgb,var(--blue) 8%,var(--surface));box-shadow:var(--elev)}
+.jb-nova::before{background:color-mix(in srgb,var(--blue) 8%,var(--surface))}
+.jb-me{box-shadow:var(--elev)}
+.jb-me.ghost{border:0;background:var(--sunk);color:var(--muted);box-shadow:none}
+.jr-box{border:0;border-radius:20px;box-shadow:var(--elev)}
+.jr-box:focus-within{border:0;box-shadow:var(--elev),0 0 0 3px var(--blue)}
+.jr-week{border:0;border-radius:22px;box-shadow:var(--elev)}
+.jr-dot{border:0}
+.jr-dots li.on .jr-dot{box-shadow:0 2px 6px rgba(194,122,58,.3)}
+.jr-dots li.today .jr-dot{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--blue)}
+.jr-feed{position:relative;padding-top:4px}
+.jr-date{background:color-mix(in srgb,var(--ink) 6%,var(--surface));box-shadow:none}
+.jr-day{animation:v9m-in .3s ease-out both}
+.jr-fold{border:0;border-radius:18px;box-shadow:var(--elev)}
+@keyframes v9m-in{from{opacity:0;transform:translateY(6px)}}
+
+/* ---------- settings rows: tidy the last v7 bits ---------- */
+.set-list{border:0}
+.set-ico{border-radius:12px}
+.pf-list{border:0}
+
+@media (prefers-reduced-motion:reduce){
+  .pc,.medal-cell,.stk,.mem-pol,.mem-face,.mh-stat,.stk .stk-die{transition:none}
+  .pc:active,.medal-cell:active,.stk:active,.mh-stat:active,button.mem-face:active{transform:none}
+  .mem-pol:active{transform:rotate(var(--r,0deg))}
+  .stk:hover .stk-die:not(.locked){transform:none}
+  .jr-day{animation:none}
+}

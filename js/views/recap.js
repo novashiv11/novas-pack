@@ -42,12 +42,13 @@ const subLine = (r) => tiles(r).slice(1, 4).map(([, n, l]) => `${n} ${l.toLowerC
 /** The full recap in a sheet, with "Share the week". */
 export function recapSheet(p, offset = 0) {
   const r = weekRecap(p, offset);
-  sheet(offset ? `${p.name}'s last week` : `${p.name}'s week`, (body) => {
+  sheet(offset ? `${p.name}'s last week` : `${p.name}'s week`, (body, close) => {
     put(body,
       h("div.rc-hero", avatar(p, 72), h("p.rc-range", range(r))),
       r.total ? h("ul.rc-tiles", tiles(r).map(([e, n, l]) => h("li.rc-tile", h("span.rc-e", { "aria-hidden": "true" }, e), h("b", String(n)), h("span", l))))
         : h("p.muted", "Nothing logged this week yet. One tap on Today starts it."),
       r.photos.length ? h("div.rc-photos", { role: "group", "aria-label": "Photos this week" }, r.photos.map((src, i) => h("img", { src, alt: "", width: "120", height: "120", style: `--r:${[-3, 2, -1, 3, -2, 1][i]}deg` }))) : null,
+      r.photos.length ? h("a.rc-mem", { href: "#/more/memories", "data-k": "rc-memories", onclick: close }, "📸 See all of ", p.name, "'s memories", h("span", { "aria-hidden": "true" }, " →")) : null,
       r.badges.length ? h("p.rc-badges", "New: ", r.badges.map((x) => `${x.emoji} ${x.name}`).join(", ")) : null,
       r.days ? h("p.rc-line", LINE(r.days, p.name)) : null,
       r.total && !p.sample ? h("button.btn.btn-blue.wide", { type: "button", "data-k": "rc-share", onclick: async () => {
