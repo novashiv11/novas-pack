@@ -300,3 +300,14 @@ details.howto,.sk-steps .howto{border:0;background:color-mix(in srgb,var(--blue)
 .fab{transition:transform .25s var(--spring),opacity .2s}
 .fab.tuck{transform:translateY(140%);opacity:0;pointer-events:none}
 @media (prefers-reduced-motion: reduce){.fab{transition:none}}
+
+/* ================= v11: one tap, not typing ================= */
+.form .pick-row,.pick-row{display:flex;flex-wrap:wrap;gap:8px;margin:-4px 0 12px;padding:0;border:0;background:none;box-shadow:none}
+.chip.pick{min-height:44px;padding:0 14px;border:0;border-radius:999px;background:var(--sunk);color:var(--ink);font:inherit;font-weight:700;font-size:var(--t14);cursor:pointer;transition:transform .15s var(--spring)}
+.chip.pick[aria-pressed="true"]{background:var(--blue);color:var(--on-blue)}
+.chip.pick:active{transform:scale(.95)}
+.note-fold{border:0!important;background:none;margin:4px 0 8px}
+.note-fold>summary{min-height:44px;display:flex;align-items:center;font-weight:800;color:var(--blue);cursor:pointer;list-style:none}
+.note-fold>summary::-webkit-details-marker{display:none}
+.td-row.next .td-s{font-weight:700}
+@media (prefers-reduced-motion: reduce){.chip.pick{transition:none}}

@@ -46,13 +46,33 @@ export function dayPreview(p) {
   });
 }
 
+/** v11: when this usually happens. The k-th log of this type on each of the last 14 days, needing at least 3 days;
+ *  the median, in minutes after midnight. Learned only from your own logs, on this phone. */
+function usualAt(p, type, k) {
+  const t0 = startOfDay(), since = t0 - 14 * 864e5, byDay = new Map();
+  for (const e of S.events) {
+    if (e.petId !== p.id || e.type !== type || e.at < since || e.at >= t0) continue;
+    const d = new Date(e.at), key = d.toDateString();
+    if (!byDay.has(key)) byDay.set(key, []);
+    byDay.get(key).push(d.getHours() * 60 + d.getMinutes());
+  }
+  const xs = [...byDay.values()].map((l) => l.sort((a, b) => a - b)[k]).filter((x) => x != null).sort((a, b) => a - b);
+  return xs.length >= 3 ? xs[Math.floor(xs.length / 2)] : null;
+}
+const hhmm = (m) => new Date(2000, 0, 1, Math.floor(m / 60), m % 60).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
 /** The rows for today: chosen items plus medicines due today. Each { key, e, label, sub, done, n, need, tap }. */
 export function todayRows(p) {
   const rows = checklistOf(p).map((id) => {
     const it = ITEMS[id], list = todayOf(p, it.type), need = it.target(p), n = Math.min(list.length, need);
     const last = list[0] ? new Date(list[0].at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "";
-    return { key: id, e: it.e, label: it.label(p), done: list.length >= need, n, need, events: () => todayOf(p, it.type),
-      sub: list.length ? `${need > 1 ? `${n} of ${need} · ` : ""}${last}` : need > 1 ? `0 of ${need}` : it.hint ? it.hint(p) : "Tap when done", tap: () => it.tap(p) };
+    const done = list.length >= need;
+    const usual = done || p.id === "__new" ? null : usualAt(p, it.type, list.length);
+    const nowM = new Date().getHours() * 60 + new Date().getMinutes();
+    const due = usual != null && nowM >= usual - 30 && nowM <= usual + 90;
+    const base = list.length ? `${need > 1 ? `${n} of ${need} · ` : ""}${last}` : need > 1 ? `0 of ${need}` : it.hint ? it.hint(p) : "Tap when done";
+    return { key: id, e: it.e, label: it.label(p), done, n, need, due, events: () => todayOf(p, it.type),
+      sub: usual == null ? base : due ? `Usually now · ${hhmm(usual)}` : `${list.length ? `${base} · ` : ""}usually ${hhmm(usual)}`, tap: () => it.tap(p) };
   });
   // Your own items ("Eye drops", "Brush teeth"): one tap logs a task, no XP.
   for (const c of customsOf(p)) {
@@ -211,6 +231,9 @@ function rowTile(p, r, prev, next = false) {
   return h("li", btn);
 }
 
+/** The row that pulses "Next": one that's usually done about now, else the first one not done. */
+const nextIdx = (rows) => { const d = rows.findIndex((x) => !x.done && x.due); return d >= 0 ? d : rows.findIndex((x) => !x.done); };
+
 /** Nova's line for the top of Today: 0 done, some done, all done. */
 function greeting(p, done, total) {
   const nm = (S.settings.trainerName || "").trim();
@@ -246,7 +269,7 @@ export function todayCard(p) {
     h("section.td", { "aria-labelledby": "td-sec-h" },
     h("div.td-sec", h("h2", { id: "td-sec-h" }, "Today"),
       h("button.linkish", { type: "button", "data-k": "td-edit", onclick: () => editList(p) }, "Edit list")),
-    h("ul.td-list", rows.map((r, i) => rowTile(p, r, prevs[i], i === rows.findIndex((x) => !x.done)))),
+    h("ul.td-list", rows.map((r, i) => rowTile(p, r, prevs[i], i === nextIdx(rows)))),
     h("div.td-foot",
       S.settings.plan && S.settings.plan.anchor
         ? h("button.linkish", { type: "button", "data-k": "plan-edit", onclick: () => planSheet(p) }, `⏰ ${planText(S.settings.plan)}`)

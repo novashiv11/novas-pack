@@ -57,3 +57,19 @@ The shared rules are the same as in `docs/v9-agents.md`: the look and feel, hone
   - Start opens the normal timer. No extra XP.
   - `settings.challenge` remembers the last challenge.
 - **H:** 3 dog lessons: "Fading the treats", "Cues that work" and "Proofing: from home to the park". That makes 16 lessons in total, and rank thresholds are unchanged. The game test now expects 16.
+
+## v11 (16 Oct): one tap, not typing
+Shiv: "Make it easier: one-click select, autocomplete, future stuff."
+
+- **Quick-pick chips under every text field** in the log forms:
+  - meal and treat names and amounts (your history first, then common amounts such as "1 cup" or "2");
+  - medicine names (your active medicines);
+  - vet clinics.
+  
+  Tap a chip to fill the field, tap it again to clear it. The same list also feeds the phone's autocomplete (`datalist`).
+- **The note is folded** behind "＋ Add a note", except for vet visits.
+- **One-tap walks** save your usual length: the median of your last 5 walks ("🚶 Walk · 30 min logged").
+- **"Usually now" on Today:**
+  - The app learns when each row usually happens from the last 14 days, needing at least 3 days. It uses only your own logs, on the phone.
+  - A row says "Usually now · 08:05" when it's time, or "usually 18:00" otherwise.
+  - The "Next" pulse goes to the row that's due now.

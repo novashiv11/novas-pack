@@ -521,7 +521,7 @@ export function logTreat() {
   else if (inUse.length) name = inUse[0].name;
   return quickLog("treat", { name: name || undefined }, name);
 }
-export function logWalk() { return quickLog("walk"); }
+export function logWalk() { const m = usualMinutes(); return quickLog("walk", { minutes: m }, m ? `walk · ${m} min` : ""); }
 export function logTraining() { return quickLog("training"); }
 /** Medicine: one tap when there's exactly one active medicine, otherwise the sheet. */
 export function logMed() {
@@ -603,7 +603,10 @@ export function eventSheet(type, existing, { details = false } = {}) {
       if (cur && foodName(cur) && (!last || last.name !== foodName(cur))) chips.push(h("button.chip", { type: "button", onclick: (e) => { fill(foodName(cur), ""); mark(e.currentTarget); } }, foodName(cur)));
       if (type === "treat") treatsInUse().filter((f) => !last || f.name !== last.name).forEach((f) => chips.push(h("button.chip", { type: "button", onclick: (e) => { fill(f.name, ""); mark(e.currentTarget); } }, f.name)));
       if (chips.length) parts.push(h("div.chips-row.quick-fill", { role: "group", "aria-label": "Quick fill" }, chips));
-      parts.push(field(h("span", type === "meal" ? "What" : "Which treat", opt()), nameIn), field(h("span", "How much", opt()), amount));
+      const nameExtra = type === "meal" ? [cur && foodName(cur)] : treatsInUse().map((f) => f.name);
+      const amountExtra = type === "meal" ? ["½ cup", "1 cup", "1 pouch", "100 g"] : ["1", "2", "3", "A few"];
+      parts.push(field(h("span", type === "meal" ? "What" : "Which treat", opt()), nameIn), pickRow(nameIn, recentValues(type, "name", nameExtra), "Recent"),
+        field(h("span", "How much", opt()), amount), pickRow(amount, recentValues(type, "amount", amountExtra), "Amounts"));
       collect = () => ({ name: nameIn.value.trim() || undefined, amount: amount.value.trim() || undefined });
     }
 
@@ -624,7 +627,7 @@ export function eventSheet(type, existing, { details = false } = {}) {
 
     if (type === "med") {
       const nameIn = textIn({ maxlength: "120", value: ev.name || "", required: true });
-      parts.push(field("Medicine", nameIn));
+      parts.push(field("Medicine", nameIn), pickRow(nameIn, recentValues("med", "name", forPet("meds").filter((m) => medIsActive(m)).map((m) => m.name)), "Your medicines"));
       collect = () => (nameIn.value.trim() ? { name: nameIn.value.trim() } : { error: "Add the medicine's name." });
     }
 
@@ -648,7 +651,7 @@ export function eventSheet(type, existing, { details = false } = {}) {
 
     if (type === "vet") {
       const clinic = textIn({ maxlength: "120", value: ev.clinic || "" });
-      parts.push(field(h("span", "Clinic", opt()), clinic));
+      parts.push(field(h("span", "Clinic", opt()), clinic), pickRow(clinic, recentValues("vet", "clinic", [p.vet && p.vet.name]), "Your clinics"));
       collect = () => ({ clinic: clinic.value.trim() || undefined });
     }
 
@@ -675,7 +678,8 @@ export function eventSheet(type, existing, { details = false } = {}) {
       ...parts,
       photoBox,
       wc.node,
-      field(h("span", type === "vet" ? "What the vet said" : "Note", opt()), note),
+      type === "vet" || ev.note ? field(h("span", type === "vet" ? "What the vet said" : "Note", opt()), note)
+        : h("details.fold.note-fold", h("summary", { "data-k": "add-note" }, "＋ Add a note"), field(h("span", "Note", opt()), note)),
       err,
       h("div.row-btns",
         existing ? h("button.btn.btn-line", { type: "button", onclick: async () => {
@@ -1128,3 +1132,33 @@ export function treatSheet(existing) {
 }
 
 export function lastOf(type) { return eventsOf(type)[0] || null; }
+
+// v11 "one tap, not typing": what you've written before for a field, most used first (then most recent).
+export function recentValues(type, key, extra = [], max = 6) {
+  const score = new Map();
+  eventsOf(type).slice(0, 200).forEach((e, i) => {
+    const v = (e[key] == null ? "" : String(e[key])).trim();
+    if (!v) return;
+    const k = v.toLowerCase(), cur = score.get(k) || { v, n: 0, last: i };
+    score.set(k, { v: cur.v, n: cur.n + 1, last: Math.min(cur.last, i) });
+  });
+  const out = [...score.values()].sort((a, b) => b.n - a.n || a.last - b.last).map((x) => x.v);
+  for (const x of extra) if (x && !out.some((v) => v.toLowerCase() === String(x).toLowerCase())) out.push(String(x));
+  return out.slice(0, max);
+}
+/** One-tap chips under a text field (tap to fill, tap again to clear) plus the phone's autocomplete from the same list. */
+export function pickRow(input, values, label = "Quick pick") {
+  if (!values.length) return null;
+  const id = `dl-${uid()}`;
+  input.setAttribute("list", id);
+  const row = h("div.pick-row", { role: "group", "aria-label": label },
+    values.map((v) => h("button.chip.pick", { type: "button", "aria-pressed": String(input.value === v), onclick: () => { input.value = input.value === v ? "" : v; input.dispatchEvent(new Event("input")); buzz(8); } }, v)),
+    h("datalist", { id }, values.map((v) => h("option", { value: v }))));
+  input.addEventListener("input", () => row.querySelectorAll(".pick").forEach((b) => b.setAttribute("aria-pressed", String(input.value === b.textContent))));
+  return row;
+}
+/** The usual walk length (median of the last 5 walks that had minutes), or undefined. */
+export function usualMinutes(type = "walk") {
+  const m = eventsOf(type).map((e) => e.minutes).filter((x) => x > 0).slice(0, 5).sort((a, b) => a - b);
+  return m.length ? m[Math.floor(m.length / 2)] : undefined;
+}
