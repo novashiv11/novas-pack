@@ -73,3 +73,10 @@ Shiv: "Make it easier: one-click select, autocomplete, future stuff."
   - The app learns when each row usually happens from the last 14 days, needing at least 3 days. It uses only your own logs, on the phone.
   - A row says "Usually now · 08:05" when it's time, or "usually 18:00" otherwise.
   - The "Next" pulse goes to the row that's due now.
+
+## v11.1 (16 Oct): cats and rabbits can train too
+- **Builder I:** added 4 cat skills (nose touch, come to the treat pot, sit for a treat, high five) and 3 rabbit skills (come to your name, target stick, happy in the carrier).
+  - Each comes with steps, a ladder, simple steps with pictures (a new flat rabbit, a target stick and a treat pot), a badge and a level-check question.
+  - Rabbit sessions are 1 to 3 minutes, on the floor, and never involve chasing or lifting. Stats are unchanged.
+  - Rabbits no longer see "coming soon".
+- **Co-captain:** Challenge mode now covers these 7 skills, with indoor-only challenges (no outdoor, jogging or ball challenges for cats and rabbits).

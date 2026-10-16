@@ -16,7 +16,13 @@ const KIND = {
   recall: "move", "loose-lead": "move", heel: "move", "check-in": "move", "emergency-stop": "move",
   "trick-spin": "cue", "roll-over": "cue", "find-it": "cue", "talk-buttons": "cue", "drop-it": "cue", "leave-it": "cue", "look-at-that": "social", greetings: "social",
   handling: "care", "cat-handling": "care", muzzle: "care", "cat-carrier": "care",
+  // v11: cats and rabbits (indoor-friendly challenges only, see INDOOR_ONLY)
+  "cat-target": "cue", "cat-come": "cue", "cat-sit": "hold", "cat-high-five": "cue",
+  "rabbit-come": "cue", "rabbit-target": "cue", "rabbit-carrier": "care",
 };
+// Small pets and cats: no outdoor, jogging or ball-bouncing challenges.
+const INDOOR_ONLY = /^(cat|rabbit)-/;
+const NOT_INDOORS = new Set(["dx-out", "dx-jog", "dx-ball"]);
 
 // Safety notes that show with every challenge for these skills.
 const SAFE = {
@@ -94,7 +100,7 @@ const LV = (level) => Math.max(0, Math.min(5, level) - 2); // level 2 → 0 … 
 export function challengesFor(skillId) {
   const kind = KIND[skillId];
   if (!kind) return [];
-  return C.filter((c) => (c.skills ? c.skills.includes(skillId) : (c.kinds || []).includes(kind)));
+  return C.filter((c) => (c.skills ? c.skills.includes(skillId) : (c.kinds || []).includes(kind)) && !(INDOOR_ONLY.test(skillId) && NOT_INDOORS.has(c.id)));
 }
 
 /** The text for one challenge at a level, normal or easier. */
