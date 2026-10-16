@@ -172,3 +172,18 @@ All five areas were built in parallel and merged with no conflicts, thanks to pe
   - Forms take their care colour, and the time row reads "Now · Change".
   - The timer and Mission complete sit in the sky, and the pet sheet has a sky hero.
 - **Co-captain:** Day complete in the time-of-day sky, with tinted tiles.
+
+## v9.1 (16 Oct): Advanced training, and the "+" tucks away
+Shiv: "Yaar, training mein kuch advanced daal."
+
+- **A new "Advanced 🏆" section on the skills path** ("For pros: best once the basics work") has 6 dog skills. Each has full steps, a common mistake, a when-to-see-a-pro note, simple steps and its own 5-level ladder:
+  - Heel: walk in step with you;
+  - Down at a distance;
+  - Emergency stop (built as a game, practised only in safe spaces);
+  - Go to your bed (send to place, up to "when the doorbell rings");
+  - Scent game: find it (cups → rooms → outdoors);
+  - Trick: roll over (soft surface only; vet check if stiff).
+- **6 new skill badges** at level 3: Heelwork, Remote Control, Safe Stop, Bed Boss, Super Nose, Show-off.
+- **Advanced skills never become automatic weekly quests** (they aren't in the stats). You pick one as this week's skill when you're ready, so no stats change for anyone.
+- **The "+" button tucks away** while you scroll down and comes back on scroll up, so it no longer sits on a row's own button.
+- **QA:** the QA agent was cut short by the usage limit before it finished. Its saved results still showed 0 issues across the More, hens, sheet-swipe and Back journeys. The rest was checked with its scripts and ours: XP is capped, reduced motion means no animations, and there are no errors, overflow or small targets.

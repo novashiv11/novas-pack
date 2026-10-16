@@ -13,12 +13,13 @@ import { weekly } from "./home.js";
 import { gameOf, pips, bar, levelText, placeFor, skillName, startSession, selfCheck, logSession, trainingPicker, howTo } from "./gameui.js";
 import { LEVEL_REQ, CAPS, countedSessions, dayKey, weekBounds } from "../game.js";
 
-const GROUPS = ["Foundation", "Next steps", "Fun"];
-const BLURB = { Foundation: "The basics for everyday life", "Next steps": "Build on the basics", Fun: "Tricks and play" };
-const GROUP_EM = { Foundation: "🌱", "Next steps": "🪜", Fun: "🎉" };
+const GROUPS = ["Foundation", "Next steps", "Fun", "Advanced"];
+const BLURB = { Foundation: "The basics for everyday life", "Next steps": "Build on the basics", Fun: "Tricks and play", Advanced: "For pros: best once the basics work" };
+const GROUP_EM = { Foundation: "🌱", "Next steps": "🪜", Fun: "🎉", Advanced: "🏆" };
 // The skill emoji for the path (data/skills.js has none). Same family as the level check's.
 const SKILL_EM = { recall: "📣", "loose-lead": "🦮", settle: "🛏️", greetings: "🤝", "leave-it": "✋", "wait-doors": "🚪", handling: "🖐️", "trick-spin": "🌀", muzzle: "🐕",
-  "toilet-training": "🚽", "alone-time": "🏠", "cat-carrier": "🧳", "cat-handling": "🐾", sit: "🪑", down: "⬇️", stay: "🛑", "check-in": "👀", "drop-it": "🎾", "look-at-that": "🔭", "talk-buttons": "💬" };
+  "toilet-training": "🚽", "alone-time": "🏠", "cat-carrier": "🧳", "cat-handling": "🐾", sit: "🪑", down: "⬇️", stay: "🛑", "check-in": "👀", "drop-it": "🎾", "look-at-that": "🔭", "talk-buttons": "💬",
+  heel: "🎖️", "distance-down": "📡", "emergency-stop": "🛑", place: "🛏️", "find-it": "👃", "roll-over": "🌀" };
 export const skillEmoji = (id) => SKILL_EM[id] || "⭐";
 // Winding path: each node sits this many % left (-) or right (+) of the centre.
 const WIND = [0, 16, 26, 16, 0, -16, -26, -16];

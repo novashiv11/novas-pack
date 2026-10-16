@@ -1,6 +1,12 @@
 // Simple steps for every skill: short words, one action per line, easy enough for a child to follow
 // (with a grown-up). The full steps, mistakes and "when to see a pro" stay in skills.js.
 export const EASY = {
+  heel: { need: "tiny treats", steps: ["Hold a treat by your leg.", "When your dog stands by your leg, give it.", "Take 1 step. Treat by your leg.", "Then 2 steps, then 3. Stop while it's fun."], win: "Did they walk a few steps by your leg? That's a win." },
+  "distance-down": { need: "tiny treats", steps: ["Ask for \"down\" right next to your dog. Treat.", "Take 1 small step back. Ask again.", "When they lie down, throw a treat to them.", "Try 2 steps. Too hard? Go closer."], win: "Did they lie down with you a step away? That's a win." },
+  "emergency-stop": { need: "tiny treats", steps: ["Say \"stop!\" and throw a treat behind your dog.", "They stop and turn to find it. Yay!", "Do it 5 times.", "Then try when they walk slowly to you."], win: "Did they stop when they heard the word? That's a win." },
+  place: { need: "tiny treats and their bed", steps: ["Stand by the bed. Say \"bed\".", "Throw a treat onto the bed.", "When they lie down, give another.", "Take 1 step away and try again."], win: "Did they go to the bed? That's a win." },
+  "find-it": { need: "3 cups and a few treats", steps: ["Turn 3 cups upside down.", "Let your dog watch you hide a treat under one.", "Say \"find it!\"", "Let them sniff and get it. Cheer!"], win: "Did they find the treat? That's a win." },
+  "roll-over": { need: "a soft rug and tiny treats", steps: ["Ask for a down on the rug.", "Move a treat from their nose to their shoulder.", "They lean onto one hip. Treat!", "Next time a bit further. Stop after 3 tries."], win: "Did they lean or roll a little? That's a win." },
   recall: {
     need: "tiny treats and a happy voice",
     steps: [

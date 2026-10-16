@@ -49,6 +49,14 @@ const tabbar = document.getElementById("tabbar");
 // The "+" button: every log type in one sheet, from any main screen (v6).
 const fab = h("button.fab", { type: "button", "data-k": "fab", "aria-label": "Log something", hidden: true, onclick: () => logSheet(pet()) }, h("span", { "aria-hidden": "true" }, "+"));
 document.body.append(fab);
+// v9.1: the "+" tucks away while you scroll down (so it never sits on a row's own button) and comes back on scroll up.
+let lastY = 0;
+addEventListener("scroll", () => {
+  const y = window.scrollY, down = y > lastY + 6, up = y < lastY - 6;
+  if (down && y > 80) fab.classList.add("tuck");
+  else if (up || y < 40) fab.classList.remove("tuck");
+  if (down || up) lastY = y;
+}, { passive: true });
 
 function route() {
   let [name, arg, sub] = location.hash.replace(/^#\/?/, "").split("/").map((x) => { try { return decodeURIComponent(x || ""); } catch { return ""; } });

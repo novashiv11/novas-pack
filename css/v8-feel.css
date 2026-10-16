@@ -295,3 +295,8 @@ details.howto,.sk-steps .howto{border:0;background:color-mix(in srgb,var(--blue)
 .dd-tile{border:0;box-shadow:var(--elev)}
 .dd-tile.dd-week{background:color-mix(in srgb,var(--c-walk) 9%,var(--surface))}
 .dd-tile.dd-sticker{background:linear-gradient(160deg,var(--gold-soft),var(--surface) 80%)}
+
+/* v9.1: the "+" tucks away on scroll down */
+.fab{transition:transform .25s var(--spring),opacity .2s}
+.fab.tuck{transform:translateY(140%);opacity:0;pointer-events:none}
+@media (prefers-reduced-motion: reduce){.fab{transition:none}}

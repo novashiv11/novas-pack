@@ -61,6 +61,7 @@ export const SHORT = {
   "wait-doors": "Wait at doors", handling: "Handling", "trick-spin": "Spin", muzzle: "Muzzle", "toilet-training": "Toilet training",
   "alone-time": "Alone time", "cat-carrier": "Carrier", "cat-handling": "Handling", "talk-buttons": "Talk buttons",
   sit: "Sit", down: "Down", "check-in": "Check-in", "drop-it": "Drop it", stay: "Stay", "look-at-that": "Look at that",
+  heel: "Heel", "distance-down": "Distance down", "emergency-stop": "Emergency stop", place: "Go to bed", "find-it": "Find it", "roll-over": "Roll over",
 };
 
 export const SKILL_BADGES = [
@@ -76,6 +77,12 @@ export const SKILL_BADGES = [
   { id: "b-drop-it", skill: "drop-it", name: "Swap Star", emoji: "🔄" },
   { id: "b-stay", skill: "stay", name: "Statue", emoji: "🗿" },
   { id: "b-look", skill: "look-at-that", name: "Brave Looker", emoji: "🦁" },
+  { id: "b-heel", skill: "heel", name: "Heelwork", emoji: "🎖️" },
+  { id: "b-distance-down", skill: "distance-down", name: "Remote Control", emoji: "📡" },
+  { id: "b-emergency-stop", skill: "emergency-stop", name: "Safe Stop", emoji: "🛑" },
+  { id: "b-place", skill: "place", name: "Bed Boss", emoji: "🛏️" },
+  { id: "b-find-it", skill: "find-it", name: "Super Nose", emoji: "👃" },
+  { id: "b-roll-over", skill: "roll-over", name: "Show-off", emoji: "🌀" },
 ];
 export const MILESTONE_BADGES = [
   { id: "m-first", name: "First step", emoji: "🐣", need: "Log your first training session", sessions: 1 },
