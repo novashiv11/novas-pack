@@ -25,7 +25,7 @@ export function home(main) {
     todayCard(p),
     recapCard(p),
     dueToday(p),
-    todaySoFar(p),
+    soFar(p),
     care ? careLinks() : homeMore(p, a, tr),
     nudge(p, a, tr),
   );
@@ -37,6 +37,20 @@ export function home(main) {
       planSheet(p);
     }, 2500);
   }
+}
+
+// ---------- "Today so far" as a timeline, each dot in its care colour ----------
+/** The colour family of each log type (matches Today's rows and the "+" sheet). */
+const EV_CAT = { meal: "meals", treat: "meals", walk: "walk", play: "play", training: "train", poop: "poop", eggs: "eggs", med: "med", symptom: "med", vet: "train", weight: "own", care: "own", task: "own" };
+function soFar(p) {
+  const sec = todaySoFar(p);
+  sec.classList.add("hm-sofar");
+  const rows = sec.querySelectorAll(".tl-row[data-k^='ev-']");
+  if (rows.length) {
+    const byId = new Map(S.events.map((e) => [String(e.id), e]));
+    rows.forEach((b) => { const e = byId.get(b.dataset.k.slice(3)); const li = b.closest(".tl-item"); if (e && li) li.dataset.cat = EV_CAT[e.type] || "own"; });
+  }
+  return sec;
 }
 
 // ---------- the top bar's stat pills (app.js draws them): honest numbers, each one explained in a small sheet ----------
@@ -75,7 +89,7 @@ function homeMore(p, a, tr) {
   const lv = a.level;
   const d = h("details.home-more", { open: moreOpen, ontoggle: (e) => { moreOpen = e.currentTarget.open; } },
     h("summary", { "data-k": "home-more" },
-      h("span.hm-av", { "aria-hidden": "true" }, avatar(p, 36)),
+      h("span.hm-av", { "aria-hidden": "true" }, avatar(p, 40), h("b.hm-lv", String(lv.level))),
       h("span.hm-t", h("b", `${p.name}: level ${lv.level}`), h("span", lv.max ? "Top level" : `${lv.need - lv.into} XP to level ${lv.level + 1} · badges, art, journal`))),
     partnerCard(p, a, tr),
     extras(p, a, tr));
@@ -133,11 +147,13 @@ function dueToday(p) {
       if (it.kind === "med" && x.id === p.id) continue; // on the Today list
       if (it.kind === "med") {
         const st = it.st;
-        rows.push(h("li.due-row",
+        rows.push(h("li.due-row", { "data-cat": "med" },
+          h("span.due-e", { "aria-hidden": "true" }, "💊"),
           h("span.due-row-t", h("b", `${it.med.name}`), pets.length > 1 ? ` · ${x.name}` : "", h("span.small.muted.block", st.daily ? `${st.given} of ${st.need} given today${st.next ? ` · next ${st.next}` : ""}` : st.overdue ? "Overdue" : "Due today")),
           h("button.btn.btn-blue.sm", { type: "button", "data-k": `home-give-${it.med.id}`, onclick: () => markGiven(it.med) }, "Given", h("span.vh", `: ${it.med.name}`))));
       } else {
-        rows.push(h("li.due-row",
+        rows.push(h(`li.due-row${it.st.state === "overdue" ? ".overdue" : ""}`, { "data-cat": "med" },
+          h("span.due-e", { "aria-hidden": "true" }, it.rec.kind === "vaccine" ? "💉" : "🛡️"),
           h("span.due-row-t", h("b", it.rec.name), pets.length > 1 ? ` · ${x.name}` : "", h("span.small.muted.block", dueText(it.st))),
           h("button.btn.btn-line.sm", { type: "button", "data-k": `home-done-${it.rec.id}`, onclick: () => doneRecord(it.rec) }, "Done", h("span.vh", `: ${it.rec.name}`))));
       }
@@ -145,7 +161,7 @@ function dueToday(p) {
   }
   if (!rows.length) return null;
   return h("section.due-today", { "aria-labelledby": "dt-h" },
-    h("h2.sec-title", { id: "dt-h" }, "💊 Due today"),
+    h("h2.sec-title", { id: "dt-h" }, "Due today", h("span.dt-n", { "aria-hidden": "true" }, String(rows.length))),
     h("ul.due-rows", rows.slice(0, 6)),
     rows.length > 6 ? h("a.text-link", { href: "#/health" }, `${rows.length - 6} more in Health`) : null);
 }
@@ -191,22 +207,22 @@ function nudge(p, a, tr) {
   if (card) return h("div.nudge-slot", card);
   if (!logs.length) return null;
   if (backupDue(now)) {
-    return h("aside.nudge", { "aria-labelledby": "nudge-h" },
-      h("h2.nudge-h", { id: "nudge-h" }, "Back up the diary?"),
+    return h("aside.nudge.nudge-backup", { "aria-labelledby": "nudge-h" },
+      h("div.nudge-top", h("span.nudge-ic", { "aria-hidden": "true" }, "💾"), h("h2.nudge-h", { id: "nudge-h" }, "Back up the diary?")),
       h("p", S.settings.lastBackup ? `Last backup ${fmtDate(S.settings.lastBackup, { day: "numeric", month: "short" })}. ` : "It lives only on this phone. ",
         "One file in your email or cloud drive keeps it safe if the phone is lost or cleared."),
       h("div.row-btns.left",
         h("button.btn.btn-blue.sm", { type: "button", "data-k": "nudge-backup", onclick: exportBackup }, "Back up now"),
-        h("button.btn.btn-line.sm", { type: "button", onclick: () => setSetting("backupSnooze", now, { quiet: false }) }, "Not now")));
+        h("button.btn.btn-line.sm", { type: "button", "data-k": "nudge-snooze", onclick: () => setSetting("backupSnooze", now, { quiet: false }) }, "Not now")));
   }
   const days = new Set(logs.filter((e) => LOG_TYPES.includes(e.type)).map((e) => isoDate(new Date(e.at)))).size;
   if (!S.settings.partnerCardOffered && days >= 7 && a && tr) {
     return h("aside.nudge.nudge-card", { "aria-labelledby": "nudge-h" },
-      h("h2.nudge-h", { id: "nudge-h" }, `A week in. Share ${p.name}'s card?`),
+      h("div.nudge-top", h("span.nudge-ic", { "aria-hidden": "true" }, "📸"), h("h2.nudge-h", { id: "nudge-h" }, `A week in. Share ${p.name}'s card?`)),
       h("p", "Level, stats and badges on one image. Made on your phone; the photo never leaves it unless you share it."),
       h("div.row-btns.left",
-        h("button.btn.btn-blue.sm", { type: "button", onclick: async () => { await setSetting("partnerCardOffered", true); openPartnerCard(p, a, tr); } }, "Make the card"),
-        h("button.btn.btn-line.sm", { type: "button", onclick: () => setSetting("partnerCardOffered", true, { quiet: false }) }, "Not now")));
+        h("button.btn.btn-blue.sm", { type: "button", "data-k": "nudge-card", onclick: async () => { await setSetting("partnerCardOffered", true); openPartnerCard(p, a, tr); } }, "Make the card"),
+        h("button.btn.btn-line.sm", { type: "button", "data-k": "nudge-card-no", onclick: () => setSetting("partnerCardOffered", true, { quiet: false }) }, "Not now")));
   }
   return null;
 }

@@ -1,1 +1,204 @@
-/* v9 home area (docs/v9-agents.md). Loaded after v8-feel.css. */
+/* v9 home area (docs/v9-agents.md, brief A). Loaded after v8-feel.css.
+   The add-pet wizard in the time-of-day sky, the "Welcome to the pack" moment, Home below Today, and "Get ready". */
+
+/* ================= the add-pet wizard ================= */
+/* each step sits on a soft sky header (the same sky as Today's pet stage) */
+.ob-sky{justify-items:stretch;gap:8px;margin:0 0 16px;padding:8px 12px 16px}
+.ob-sky .ob-top{padding:0}
+.ob-sky .ob-back{color:inherit}
+.ob-sky .ob-back:hover{background:rgba(255,255,255,.35)}
+.ob-sky .ob-prog{background:rgba(255,255,255,.6);box-shadow:inset 0 1px 2px rgba(30,20,10,.08)}
+.ob-sky .ob-prog span{background:var(--c-walk)}
+.tod-night.ob-sky .ob-prog{background:rgba(255,255,255,.18)}
+.tod-night.ob-sky .ob-prog span{background:#6CC48A}
+.ob-sky-in{display:grid;justify-items:center;gap:6px;padding-top:4px;animation:ob-in .3s ease-out both}
+.ob-sky .ob-h{margin:0;color:inherit;font-size:clamp(1.5rem,7.4vw,1.9rem);line-height:1.1;letter-spacing:-.015em;overflow-wrap:anywhere}
+.ob-sky .ob-h:focus{outline:none}
+.ob-sky .nova-say{margin:2px 0 0;max-width:100%;text-align:left}
+.ob-sky .nova-say .ns-bubble{background:rgba(255,255,255,.74);color:#1E1B17;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.ob-sky .nova-say.mood-proud .ns-bubble{background:rgba(251,235,198,.94)}
+.ob-sky-e{display:grid;place-items:center;width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.7);font-size:2.2rem;line-height:1;box-shadow:0 6px 18px rgba(30,20,10,.14)}
+.tod-night.ob-sky .nova-say .ns-bubble,.tod-night .ob-sky-e{background:rgba(255,255,255,.14);color:#F5EEE4}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .ob-sky .nova-say .ns-bubble,:root:not([data-theme="light"]) .ob-sky-e{background:rgba(255,255,255,.12);color:#F5EEE4}
+  :root:not([data-theme="light"]) .ob-sky .ob-prog{background:rgba(255,255,255,.16)}
+  :root:not([data-theme="light"]) .ob-sky .ob-prog span{background:var(--c-walk)}}
+:root[data-theme="dark"] .ob-sky .nova-say .ns-bubble,:root[data-theme="dark"] .ob-sky-e{background:rgba(255,255,255,.12);color:#F5EEE4}
+:root[data-theme="dark"] .ob-sky .ob-prog{background:rgba(255,255,255,.16)}
+.ob-card{gap:16px}
+
+/* the photo step: the photo or icon in the stage ring */
+.ob-sky .ob-face{width:128px;height:128px}
+.ob-sky .ob-face .st-fill{stroke:var(--c-walk)}
+.ob-photo{gap:6px}
+
+/* option cards: v8 soft tiles, a spring press, a tinted emoji disc */
+.ob-opts label{--cat:var(--c-train);border:0;box-shadow:var(--elev);transition:transform .22s var(--spring),box-shadow .2s,background .2s}
+.ob-opts label:active{transform:scale(.96);box-shadow:var(--elev)}
+.ob-opts input:checked+label{border:0;background:color-mix(in srgb,var(--cat) 10%,var(--surface));box-shadow:0 0 0 2.5px var(--cat),var(--elev);animation:v9-pick .35s var(--spring)}
+.ob-opts input:checked+label:active{box-shadow:0 0 0 2.5px var(--cat)}
+@keyframes v9-pick{0%{transform:scale(.95)}60%{transform:scale(1.03)}100%{transform:scale(1)}}
+.ob-species label{gap:6px;min-height:112px}
+.ob-species .ob-e{display:grid;place-items:center;width:62px;height:62px;border-radius:50%;background:color-mix(in srgb,var(--cat) 14%,var(--surface));font-size:2.1rem;transition:background .2s,transform .25s var(--spring)}
+.ob-species input:checked+label .ob-e{background:color-mix(in srgb,var(--cat) 26%,var(--surface));transform:scale(1.06)}
+.ob-species label:last-of-type{min-height:76px}
+.ob-species label:last-of-type .ob-e{width:50px;height:50px;font-size:1.7rem}
+.ob-species label[for$="-dog"]{--cat:var(--c-walk)}
+.ob-species label[for$="-cat"]{--cat:var(--c-play)}
+.ob-species label[for$="-rabbit"]{--cat:var(--c-meals)}
+.ob-species label[for$="-bird"]{--cat:var(--c-train)}
+.ob-species label[for$="-chicken"]{--cat:var(--c-eggs)}
+.ob-species label[for$="-horse"]{--cat:var(--c-poop)}
+.ob-species label[for$="-other"]{--cat:var(--c-own)}
+.ob-times .ob-e{display:grid;place-items:center;flex:none;width:46px;height:46px;border-radius:50%;background:color-mix(in srgb,var(--cat) 12%,var(--surface));font-size:1.5rem}
+.ob-icons label{box-shadow:var(--elev)}
+.ob-form input[type="text"]{border:0;box-shadow:var(--elev),inset 0 0 0 1.5px var(--hair)}
+.ob-form input[type="text"]:focus{border:0;box-shadow:var(--elev),inset 0 0 0 2.5px var(--blue);outline:3px solid var(--blue-soft);outline-offset:0}
+
+/* "Here's Bran's day": the rows in their care colours, like Today */
+.ob-daytile{--cat:var(--c-own);border:0;box-shadow:var(--elev);border-radius:22px}
+.ob-daytile[data-cat="meals"]{--cat:var(--c-meals)}
+.ob-daytile[data-cat="walk"]{--cat:var(--c-walk)}
+.ob-daytile[data-cat="play"]{--cat:var(--c-play)}
+.ob-daytile[data-cat="train"]{--cat:var(--c-train)}
+.ob-daytile[data-cat="poop"]{--cat:var(--c-poop)}
+.ob-daytile[data-cat="eggs"]{--cat:var(--c-eggs)}
+.ob-daytile[data-cat="med"]{--cat:var(--c-med)}
+.ob-daytile .td-node::before{border-color:color-mix(in srgb,var(--cat) 30%,transparent)}
+.ob-daytile .td-e{background:color-mix(in srgb,var(--cat) 14%,var(--surface));border-radius:50%}
+.ob-day li:nth-child(1){animation:v9-rise .4s .05s ease-out both}
+.ob-day li:nth-child(2){animation:v9-rise .4s .12s ease-out both}
+.ob-day li:nth-child(3){animation:v9-rise .4s .19s ease-out both}
+.ob-day li:nth-child(n+4){animation:v9-rise .4s .26s ease-out both}
+@keyframes v9-rise{from{opacity:0;transform:translateY(10px)}}
+
+/* ================= "Welcome to the pack" ================= */
+.ob-done{gap:16px}
+.ob-sky.ob-welcome{justify-items:center;gap:6px;padding:28px 16px 22px;margin-top:8px}
+.ob-welcome .ob-face{width:148px;height:148px;margin-bottom:6px}
+.ob-welcome .st-face{width:116px;height:116px}
+.ob-welcome .ob-face .st-fill{stroke:var(--gold)}
+.ob-welcome .st-emoji{font-size:62px}
+.ob-w-eyebrow{margin:0;font:800 var(--t12)/1.2 var(--f-body);letter-spacing:.1em;text-transform:uppercase;opacity:.85}
+.ob-welcome .ob-h{margin:0;color:inherit;font-size:clamp(1.6rem,8vw,2.1rem);line-height:1.1;overflow-wrap:anywhere}
+.ob-welcome .ob-h:focus{outline:none}
+.ob-welcome .nova-say{margin:6px 0 0;text-align:left}
+.ob-welcome .ob-face{animation:v9-pop .6s var(--spring) both}
+@keyframes v9-pop{0%{transform:scale(.6);opacity:0}100%{transform:scale(1);opacity:1}}
+.ob-welcome .st-fill{transition:stroke-dashoffset 1.1s cubic-bezier(.2,.8,.2,1) .2s}
+
+/* ================= Home below Today ================= */
+/* Due today: a soft card, each row with a red-tinted care disc */
+.due-today{border:0;border-radius:22px;padding:14px;box-shadow:var(--elev)}
+.due-today .sec-title{display:flex;align-items:center;gap:8px}
+.dt-n{display:inline-grid;place-items:center;min-width:24px;height:24px;padding:0 7px;border-radius:99px;background:var(--c-med);color:var(--on-cat);font:800 var(--t12)/1 var(--f-body)}
+.due-row{--cat:var(--c-med);border-top:1px solid var(--hair);min-height:60px}
+.due-e{flex:none;display:grid;place-items:center;width:42px;height:42px;border-radius:50%;background:color-mix(in srgb,var(--cat) 13%,var(--surface));font-size:1.3rem}
+.due-row.overdue .due-row-t .block{color:var(--c-med);font-weight:700}
+
+/* Today so far: a clean timeline, each dot in its care colour */
+.hm-sofar{margin-top:18px;padding:14px 12px 10px;border-radius:22px;background:var(--surface);box-shadow:var(--elev)}
+.hm-sofar .sec-title{margin:0 0 4px 4px}
+.hm-sofar .nova-say{margin:4px 0}
+.hm-sofar .tl-item{--cat:var(--c-own);position:relative;border:0}
+.hm-sofar .tl-item[data-cat="meals"]{--cat:var(--c-meals)}
+.hm-sofar .tl-item[data-cat="walk"]{--cat:var(--c-walk)}
+.hm-sofar .tl-item[data-cat="play"]{--cat:var(--c-play)}
+.hm-sofar .tl-item[data-cat="train"]{--cat:var(--c-train)}
+.hm-sofar .tl-item[data-cat="poop"]{--cat:var(--c-poop)}
+.hm-sofar .tl-item[data-cat="eggs"]{--cat:var(--c-eggs)}
+.hm-sofar .tl-item[data-cat="med"]{--cat:var(--c-med)}
+.hm-sofar .tl-item::before{content:"";position:absolute;left:21px;top:0;bottom:0;width:2px;border-radius:2px;background:var(--hair)}
+.hm-sofar .tl-item:first-child::before{top:30px}
+.hm-sofar .tl-item:last-child::before{bottom:calc(100% - 30px)}
+.hm-sofar .tl-item:only-child::before{display:none}
+.hm-sofar .tl-row{position:relative;padding:8px 4px;align-items:start}
+.hm-sofar .tl-row:hover{background:color-mix(in srgb,var(--cat) 6%,transparent)}
+.hm-sofar .tl-dot{width:36px;height:36px;margin-top:2px;background:color-mix(in srgb,var(--cat) 15%,var(--surface));box-shadow:0 0 0 2px var(--cat),0 0 0 5px var(--surface)}
+.hm-sofar .tl-item.flagged .tl-dot{background:var(--tan-soft);box-shadow:0 0 0 2px var(--tan),0 0 0 5px var(--surface)}
+.hm-sofar .tl-body{padding-top:3px}
+.hm-sofar .tl-time{color:var(--cat);font-variant-numeric:tabular-nums}
+.hm-sofar .tl-item[data-cat] .tl-time{color:color-mix(in srgb,var(--cat) 78%,var(--ink))}
+.hm-sofar .tl-type{color:var(--ink);font-weight:700}
+.hm-sofar .tl-row > .poop-pill,.hm-sofar .tl-row > [class*="pill"]{align-self:center}
+
+/* "More for Bran": a soft row with the pet's face and level */
+.home-more{border:0;border-radius:22px;box-shadow:var(--elev);background:var(--surface)}
+.home-more>summary{min-height:72px;border-radius:22px;transition:background .2s}
+.home-more>summary:active{background:var(--sunk)}
+.home-more>summary:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.hm-av{position:relative;display:grid;place-items:center;width:52px;height:52px;border-radius:50%;background:color-mix(in srgb,var(--gold) 22%,var(--surface));box-shadow:0 0 0 2.5px var(--gold)}
+.hm-av .avatar{width:44px;height:44px;border-radius:50%;object-fit:cover}
+.hm-lv{position:absolute;right:-6px;bottom:-4px;display:grid;place-items:center;min-width:22px;height:22px;padding:0 5px;border-radius:99px;background:var(--gold);color:#1E1B17;font:800 var(--t12)/1 var(--f-body);box-shadow:0 0 0 2px var(--surface)}
+.hm-t b{font-family:var(--f-display);font-size:var(--t16)}
+.home-more>summary::after{display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:var(--sunk);color:var(--ink);font-size:.85rem}
+/* the partner card inside: a soft tinted panel, not a card in a card */
+.home-more .partner{margin:0 10px;padding:14px;border-radius:18px;box-shadow:none;background:linear-gradient(160deg,color-mix(in srgb,var(--gold) 14%,var(--surface)) 0%,var(--surface) 75%)}
+.home-more .partner-av .avatar{border-radius:50%;box-shadow:0 0 0 3px var(--surface),0 4px 12px rgba(30,20,10,.14)}
+.home-more .lv-medal{box-shadow:0 3px 0 var(--gold-ledge),0 6px 14px rgba(242,181,68,.3)}
+.home-more .stats-fold{border-top:1px solid var(--hair)}
+.home-more .extras{margin:12px 10px 0;gap:8px}
+/* the five extras: soft tiles with a tinted disc */
+.ex-tile{--cat:var(--c-own);border:0;box-shadow:var(--elev);transition:transform .2s var(--spring)}
+.ex-tile:active{transform:scale(.94);box-shadow:var(--elev)}
+.ex-tile .ex-e{display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:color-mix(in srgb,var(--cat) 14%,var(--surface));font-size:1.2rem}
+@media (max-width:359px){.home-more .extras{gap:5px;margin-inline:8px}.ex-tile{padding-inline:1px}.ex-tile .ex-e{width:30px;height:30px;font-size:1.05rem}}
+.ex-tile[data-k="ex-art"],.ex-tile[data-k="care-food"]{--cat:var(--c-play)}
+.ex-tile[data-k="ex-jar"],.ex-tile[data-k="ex-badges"]{--cat:var(--gold)}
+.ex-tile[data-k="ex-journal"],.ex-tile[data-k="care-profile"]{--cat:var(--c-own)}
+.ex-tile[data-k="ex-trainer"],.ex-tile[data-k="care-vet"]{--cat:var(--c-train)}
+.ex-tile[data-k="care-health"]{--cat:var(--c-med)}
+.care-links{gap:8px}
+.care-links .ex-tile{min-height:80px}
+
+/* the nudge: a soft card with an icon disc */
+.nudge{border:0;border-radius:22px;padding:14px;box-shadow:var(--elev);background:linear-gradient(150deg,color-mix(in srgb,var(--blue) 10%,var(--surface)) 0%,var(--surface) 80%)}
+.nudge-card{background:linear-gradient(150deg,var(--gold-soft) 0%,var(--surface) 80%)}
+.nudge-top{display:flex;align-items:center;gap:10px}
+.nudge-ic{flex:none;display:grid;place-items:center;width:42px;height:42px;border-radius:50%;background:var(--surface);font-size:1.3rem;box-shadow:var(--elev)}
+.nudge p{margin:0;line-height:1.45}
+
+/* ================= "No pet yet? Get ready" ================= */
+.ready-hero{gap:4px;margin:4px 0 14px;padding:16px 14px 16px}
+.rh-nova{width:84px;height:84px;border-radius:50%;background:var(--surface);padding:4px;box-shadow:0 8px 22px rgba(30,20,10,.18)}
+.ready-hero .ready-say{margin:0;width:100%}
+.ready-hero .nova-say{margin:4px 0 0;justify-content:center}
+.ready-hero .nova-say .ns-face{display:none}
+.ready-hero .nova-say .ns-bubble{background:rgba(255,255,255,.74);color:#1E1B17;text-align:center}
+.ready-hero .nova-say.mood-proud .ns-bubble{background:rgba(251,235,198,.94)}
+.tod-night.ready-hero .nova-say .ns-bubble{background:rgba(255,255,255,.14);color:#F5EEE4}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .ready-hero .nova-say .ns-bubble{background:rgba(255,255,255,.12);color:#F5EEE4}}
+:root[data-theme="dark"] .ready-hero .nova-say .ns-bubble{background:rgba(255,255,255,.12);color:#F5EEE4}
+.ready-hero .ready-prog{width:100%;max-width:340px;margin:10px 0 0}
+.ready-hero .ready-count{color:inherit;text-align:center}
+.ready-hero .gbar{background:rgba(255,255,255,.6)}
+.tod-night.ready-hero .gbar{background:rgba(255,255,255,.18)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .ready-hero .gbar{background:rgba(255,255,255,.16)}}
+:root[data-theme="dark"] .ready-hero .gbar{background:rgba(255,255,255,.16)}
+.ready-hero.all .rh-nova{box-shadow:0 0 0 4px var(--gold),0 8px 22px rgba(30,20,10,.18)}
+
+.ready-item{--cat:var(--c-own);grid-template-columns:34px minmax(0,1fr);border:0;border-radius:22px;box-shadow:var(--elev);transition:background .2s,box-shadow .2s,transform .2s var(--spring)}
+.ready-item[data-step="time"]{--cat:var(--c-meals)}
+.ready-item[data-step="where"]{--cat:var(--c-walk)}
+.ready-item[data-step="vet"]{--cat:var(--c-med)}
+.ready-item[data-step="learn"]{--cat:var(--c-train)}
+.ready-item[data-step="proof"]{--cat:var(--c-poop)}
+.ready-item[data-step="spot"]{--cat:var(--c-play)}
+.ready-item[data-step="week"]{--cat:var(--c-own)}
+.ready-item:active{transform:scale(.98)}
+.ready-item:has(input:checked){border:0;background:color-mix(in srgb,var(--gold) 12%,var(--surface));box-shadow:0 0 0 2px color-mix(in srgb,var(--gold) 70%,transparent)}
+.ready-item label{display:grid;grid-template-columns:44px minmax(0,1fr);gap:10px;align-items:center}
+.ready-e{display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:color-mix(in srgb,var(--cat) 14%,var(--surface));font-size:1.35rem}
+.ready-item input{border-color:color-mix(in srgb,var(--cat) 55%,var(--ctl))}
+.ready-item input:checked{animation:v9-pick .35s var(--spring)}
+
+@media (prefers-reduced-motion: reduce){
+  .ob-sky-in,.ob-day li,.ob-welcome .ob-face,.ob-opts input:checked+label,.ready-item input:checked{animation:none}
+  .ob-opts label,.ob-opts label:active,.ob-species .ob-e,.ex-tile,.ex-tile:active,.ready-item,.ready-item:active,.home-more>summary{transition:none;transform:none}
+  .ob-species input:checked+label .ob-e{transform:none}
+  .ob-welcome .st-fill,.ob-sky .st-fill{transition:none}
+}
+@media (max-width:359px){
+  .ready-item{padding:10px 10px 10px 12px;gap:10px}
+  .ready-item label{grid-template-columns:34px minmax(0,1fr);gap:8px}
+  .ready-e{width:34px;height:34px;font-size:1.1rem}
+}

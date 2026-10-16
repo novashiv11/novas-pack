@@ -6,12 +6,13 @@
 import { S, pet, refresh, UI, save, setSetting } from "../state.js";
 import { h, put, em, toast, motionOK, uid, isoDate, buzz, resizePhoto } from "../util.js";
 import { eventSheet, unwellSheet, logPoop, logMeal, logEggs, logTreat, logWalk, logMed, SPECIES, PET_ICONS, speciesOf, saveError } from "../forms.js";
-import { NOVA, avatar, chevron } from "./parts.js";
+import { NOVA, chevron } from "./parts.js";
 import { importForm } from "./more.js";
 import { inAppBanner, installCard } from "../install.js";
 import { trainingPicker, confetti } from "./gameui.js";
 import { ANCHORS } from "./doitnow.js";
-import { dayPreview, novaSay, timeOfDay } from "./today.js";
+import { dayPreview, checklistOf, novaSay, timeOfDay } from "./today.js";
+import { sound } from "../sound.js";
 import { scene } from "../scenes.js";
 import { SCENES } from "../../data/scenes.js";
 import * as ics from "../ics.js";
@@ -30,6 +31,24 @@ const NOVA_SAYS = {
   bird: "A bird! I'll try not to stare.", chicken: "Chickens! A whole flock. I respect that.", horse: "A horse! Big plans. I love it.", other: "Someone special. I like them already.",
 };
 const goStep = (n) => { location.hash = `#/welcome/add/${n}`; };
+let justAdded = null; // the pet saved a moment ago, for the "Welcome to the pack" moment
+
+// v9: each step sits in the time-of-day sky (the same sky as Today's pet stage).
+const SVGNS = "http://www.w3.org/2000/svg";
+const svgEl = (t, a) => { const x = document.createElementNS(SVGNS, t); for (const [n, v] of Object.entries(a)) x.setAttribute(n, v); return x; };
+const skyBits = () => h("span.st-sky", { "aria-hidden": "true" }, h("span.st-sun"), h("span.st-cloud.c1"), h("span.st-cloud.c2"));
+/** The pet's face in the stage ring. k is how full the ring is (0 to 1); box.setRing(k) slides it. */
+function faceRing(p, k) {
+  const R = 62, C = 2 * Math.PI * R;
+  const svg = svgEl("svg", { class: "st-ring", viewBox: "0 0 136 136", "aria-hidden": "true" });
+  const fill = svgEl("circle", { class: "st-fill", cx: "68", cy: "68", r: String(R), "stroke-dasharray": String(C), "stroke-dashoffset": String(C * (1 - k)) });
+  svg.append(svgEl("circle", { class: "st-track", cx: "68", cy: "68", r: String(R) }), fill);
+  const face = p.photo ? h("img.st-face", { src: p.photo, alt: "", width: "112", height: "112" })
+    : h("span.st-face.st-emoji", { "aria-hidden": "true" }, p.icon || speciesOf(p.species).emoji);
+  const box = h("span.st-pic", svg, face);
+  box.setRing = (to) => fill.setAttribute("stroke-dashoffset", String(C * (1 - to)));
+  return box;
+}
 
 /** A set of big tap cards: real radio inputs underneath, so arrow keys and screen readers just work. */
 function optionCards(group, items, value, onpick, cls = "") {
@@ -55,14 +74,15 @@ function wizard(main, step) {
   const next = (label, fn, { disabled = false } = {}) => h("button.btn.btn-blue.wide.ob-next", { type: "button", "data-k": "ob-next", "aria-disabled": disabled ? "true" : null, onclick: (e) => { if (e.currentTarget.getAttribute("aria-disabled") === "true") return; fn(); } }, label);
   const setNext = (btn, on, label) => { btn.setAttribute("aria-disabled", on ? "false" : "true"); if (label) btn.textContent = label; };
   const card = (...kids) => h("section.ob-card", { "aria-labelledby": "page-title" }, ...kids);
-  let body;
+  const title = (text) => h("h1.ob-h", { id: "page-title", tabindex: "-1" }, text);
+  const sky = (...kids) => h(`header.stage.ob-sky.tod-${timeOfDay()}`, skyBits(), top, h("div.ob-sky-in", ...kids));
+  let head, body;
 
   if (step === 1) {
     const say = h("span", wiz.species ? NOVA_SAYS[wiz.species] : "Pick your partner. Whoever it is, they're welcome.");
     const btn = next("Continue", () => goStep(2), { disabled: !wiz.species });
+    head = sky(title("Who's in your family?"), novaSay(say, "happy"));
     body = card(
-      novaSay(say, "happy"),
-      h("h1.ob-h", { id: "page-title", tabindex: "-1" }, "Who's in your family?"),
       optionCards("Species", SPECIES.map((s) => [s.id, s.emoji, s.label]), wiz.species, (v) => { wiz.species = v; wiz.icon = null; say.textContent = NOVA_SAYS[v]; setNext(btn, true); }, "ob-species"),
       h("p.ob-alt", h("a.text-link", { href: "#/ready", "data-k": "ob-noped" }, "No pet yet? Get ready")),
       h("div.ob-foot", btn));
@@ -74,20 +94,25 @@ function wizard(main, step) {
     name.addEventListener("input", () => { wiz.name = name.value; setNext(btn, !!name.value.trim()); });
     if (you) you.addEventListener("input", () => { wiz.you = you.value; });
     for (const inp of [name, you]) if (inp) inp.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); go(); } });
+    head = sky(h("span.ob-sky-e", { "aria-hidden": "true" }, sp.emoji), title("What's their name?"), novaSay(`${NOVA_SAYS[wiz.species] || "Nice."} What do they answer to?`, "think"));
     body = card(
-      novaSay(`${sp.emoji} ${NOVA_SAYS[wiz.species] || "Nice."} What do they answer to?`, "think"),
-      h("h1.ob-h", { id: "page-title", tabindex: "-1" }, "What's their name?"),
       h("form.ob-form", { novalidate: true, onsubmit: (e) => { e.preventDefault(); go(); } },
         h("label.vh", { for: "ob-name" }, "Name"), name,
         you ? h("div.ob-you", h("label", { for: "ob-you" }, "And you? ", h("span.opt", "(optional)")), you, h("p.hint", "So Nova can say hi. Stays on this phone.")) : null),
       h("div.ob-foot", btn));
     setTimeout(() => { if (document.contains(name) && !name.value) name.focus({ preventScroll: true }); }, 60);
   } else if (step === 3) {
-    const view = h("div.ob-face");
+    const view = h("div.st-pet.ob-face");
     const shown = () => ({ name: wiz.name, species: wiz.species || "dog", photo: wiz.photo || undefined, icon: wiz.icon || undefined });
     const msg = h("p.hint.ob-msg", { role: "status" }, "Stays on this phone. We shrink it and remove location data.");
     const btn = next(wiz.photo || wiz.icon ? "Continue" : "Skip for now", () => goStep(4));
-    const draw = () => { view.replaceChildren(avatar(shown(), 112)); setNext(btn, true, wiz.photo || wiz.icon ? "Continue" : "Skip for now"); };
+    let ring = null;
+    const draw = () => {
+      const had = !!ring, was = view.dataset.on === "1", on = !!(wiz.photo || wiz.icon);
+      ring = faceRing(shown(), had ? (was ? 1 : 0) : on ? 1 : 0);
+      view.replaceChildren(ring); view.dataset.on = on ? "1" : "0";
+      if (had && was !== on) requestAnimationFrame(() => requestAnimationFrame(() => ring.setRing(on ? 1 : 0)));
+      setNext(btn, true, wiz.photo || wiz.icon ? "Continue" : "Skip for now"); };
     const file = h("input", { type: "file", accept: "image/*", "data-k": "ob-photo", class: "vh" });
     file.addEventListener("change", async () => {
       const f = file.files && file.files[0];
@@ -96,10 +121,9 @@ function wizard(main, step) {
       catch { msg.textContent = "Couldn't read that photo. Try a JPG or PNG."; }
     });
     const iconsBox = optionCards("Icon", PET_ICONS.map((e) => [e, e, ""]), wiz.icon || "", (v) => { wiz.icon = v; wiz.photo = null; draw(); }, "ob-icons");
+    head = sky(view, title(`A face for ${wiz.name || "your pet"}`), novaSay("For the home screen. Skip it if you like, you can add one later.", "happy"));
     body = card(
-      novaSay("A face for the home screen. Skip it if you like, you can add one later.", "happy"),
-      h("h1.ob-h", { id: "page-title", tabindex: "-1" }, `A face for ${wiz.name || "your pet"}`),
-      h("div.ob-photo", view,
+      h("div.ob-photo",
         h("label.btn.btn-line.ob-choose", em("📷"), wiz.photo ? " Choose another photo" : " Choose a photo", file),
         wiz.photo ? h("button.linkish", { type: "button", "data-k": "ob-photo-remove", onclick: () => { wiz.photo = null; refresh(); } }, "Remove photo") : null),
       msg,
@@ -108,11 +132,10 @@ function wizard(main, step) {
       h("div.ob-foot", btn));
     draw();
   } else if (step === 4) {
-    const rows = dayPreview(draft);
+    const rows = dayPreview(draft), ids = checklistOf(draft);
+    head = sky(title(`Here's ${wiz.name || "your pet"}'s day`), novaSay("Tap each one as you do it. The ring fills and you get a tick. That's the whole game.", "proud"));
     body = card(
-      novaSay("Tap each one as you do it. The ring fills and you get a tick. That's the whole game.", "proud"),
-      h("h1.ob-h", { id: "page-title", tabindex: "-1" }, `Here's ${wiz.name || "your pet"}'s day`),
-      h("ul.ob-day", { "aria-label": "Daily checklist" }, rows.map((r) => h("li.ob-daytile",
+      h("ul.ob-day", { "aria-label": "Daily checklist" }, rows.map((r, i) => h("li.ob-daytile", { "data-cat": ids[i] || "own" },
         h("span.td-node", h("span.td-e", { "aria-hidden": "true" }, r.e)), h("span.td-t", h("b", r.label), h("span.td-s", r.sub))))),
       h("div.ob-meals", { role: "group", "aria-label": "Meals a day" }, h("span", "Meals a day"),
         [1, 2, 3].map((n) => h(`button.chip${(wiz.meals || (["dog", "cat"].includes(draft.species) ? 2 : 1)) === n ? ".on" : ""}`, { type: "button", "data-k": `ob-meals-${n}`, "aria-pressed": String((wiz.meals || (["dog", "cat"].includes(draft.species) ? 2 : 1)) === n), onclick: () => { wiz.meals = n; refresh(); } }, String(n)))),
@@ -131,9 +154,8 @@ function wizard(main, step) {
     };
     const err = h("p.form-error", { role: "alert" }, wiz.err);
     const btn = next("Start", () => finish(btn, err));
+    head = sky(title("When should Nova nudge you?"), novaSay("A tiny nudge helps. Your calendar does the reminding, I never buzz you.", "think"));
     body = card(
-      novaSay("A tiny nudge helps. Your calendar does the reminding, I never buzz you.", "think"),
-      h("h1.ob-h", { id: "page-title", tabindex: "-1" }, "When should Nova nudge you?"),
       optionCards("Reminder time", picks, wiz.anchor || "", (v) => {
         const hit = ANCHORS.find((a) => a[0] === v);
         wiz.anchor = hit ? v : ""; wiz.time = hit ? hit[3] : ""; showCal();
@@ -142,7 +164,7 @@ function wizard(main, step) {
       h("div.ob-foot", btn));
     showCal();
   }
-  put(main, h("div.ob", top, body));
+  put(main, h("div.ob", head, body));
 }
 
 async function finish(btn, err) {
@@ -165,14 +187,34 @@ async function finish(btn, err) {
     return;
   }
   resetWiz();
-  toast(`${row.name} is your partner. Here's today's list.`);
-  location.hash = "#/home";
+  justAdded = row;
+  location.replace("#/welcome/add/done");
+}
+
+/** "Welcome to the pack": one short moment (the win sound, confetti if motion is OK), then Today. */
+function welcomeMoment(main, p) {
+  justAdded = null;
+  const ring = faceRing(p, 0);
+  put(main, h("div.ob.ob-done",
+    h(`section.stage.ob-sky.ob-welcome.all.tod-${timeOfDay()}`, { "aria-labelledby": "page-title" }, skyBits(),
+      h("div.st-pet.ob-face", ring, h("span.st-mood", { "aria-hidden": "true" }, "🥰")),
+      h("p.ob-w-eyebrow", "You're in"),
+      h("h1.ob-h", { id: "page-title", tabindex: "-1" }, `Welcome to the pack, ${p.name}!`),
+      novaSay("Everyone's welcome in the pack. Now, today's list. I'll supervise.", "proud")),
+    h("div.ob-foot", h("button.btn.btn-blue.wide.ob-next", { type: "button", "data-k": "ob-next", onclick: () => location.replace("#/home") }, `Start ${p.name}'s day`))));
+  if (motionOK()) requestAnimationFrame(() => requestAnimationFrame(() => ring.setRing(1))); else ring.setRing(1);
+  sound("win");
   buzz(25);
-  if (motionOK()) confetti();
+  if (motionOK()) setTimeout(confetti, 150);
 }
 
 export function welcome(main, arg, sub) {
   document.title = "Nova's Pack · Tiny daily wins with your pet";
+  if (arg === "add" && sub === "done") {
+    const p = justAdded && S.pets.find((x) => x.id === justAdded.id);
+    if (p) welcomeMoment(main, p); else location.replace("#/home");
+    return;
+  }
   if (arg === "add") {
     let step = Math.max(1, Math.min(TOTAL, Number(sub) || 1));
     // A reload or a stale link can land mid-way with nothing chosen: go back to the first question that's missing.

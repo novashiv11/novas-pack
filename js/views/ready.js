@@ -5,8 +5,8 @@
 
 import { S, setSetting, activePets } from "../state.js";
 import { h, put, toast, buzz } from "../util.js";
-import { subBar } from "./parts.js";
-import { novaSay } from "./today.js";
+import { subBar, NOVA } from "./parts.js";
+import { novaSay, timeOfDay } from "./today.js";
 import { bar, confetti } from "./gameui.js";
 import { openPetSheet } from "../forms.js";
 import { addSample } from "../sample.js";
@@ -31,14 +31,20 @@ export function ready(main) {
   const hasPet = activePets().length > 0;
   const prog = h("div.ready-prog");
   const say = h("div.ready-say");
+  // v9: a sky hero (the same time-of-day sky as Today) with Nova, her line and the progress.
+  const hero = h(`section.stage.ready-hero.tod-${timeOfDay()}`, { "aria-label": "Your progress" },
+    h("span.st-sky", { "aria-hidden": "true" }, h("span.st-sun"), h("span.st-cloud.c1"), h("span.st-cloud.c2")),
+    h("img.disc.rh-nova", { src: NOVA, alt: "", width: "84", height: "84" }),
+    say, prog);
   const showProg = () => {
     const n = count();
     prog.replaceChildren(h("p.ready-count", h("b", `${n} of ${STEPS.length}`), n === STEPS.length ? " · You're ready 🎉" : " done"), bar(n, STEPS.length, "gold"));
+    hero.classList.toggle("all", n === STEPS.length);
     say.replaceChildren(novaSay(...SAY(n)));
   };
   const list = h("ul.ready-list", STEPS.map((s) => {
     const id = `ready-${s.id}`;
-    return h("li.ready-item",
+    return h("li.ready-item", { "data-step": s.id },
       h("input", { type: "checkbox", id, "data-k": id, checked: !!done[s.id], onchange: async (e) => {
         done[s.id] = e.target.checked;
         buzz(10);
@@ -52,8 +58,7 @@ export function ready(main) {
   showProg();
   put(main,
     hasPet ? subBar("Get ready", "#/more", "Back to More") : subBar("Get ready", "#/welcome", "Back"),
-    say,
-    prog,
+    hero,
     list,
     h("p.small.muted.ready-vet", "Health questions? Your vet first, always."),
     h("div.ready-foot",
