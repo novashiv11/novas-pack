@@ -34,7 +34,7 @@ Two independent reviews ran before any further building: a **product & code audi
 **Strategic risks from the market review:**
 
 - **No reason to come back.** This is the cold-start problem: feed-only pet networks died.
-- **Founder bandwidth.** There is a day job.
+- **Founder bandwidth.** About 5 hours a week.
 - **Weak Instagram reach.** Recent posts reach about 2–8% of followers, and most followers probably aren't in Limerick.
 - **Free incumbents** in the local Facebook groups.
 - **Credibility of training clips** from a non-professional.
@@ -80,7 +80,7 @@ Two independent reviews ran before any further building: a **product & code audi
 
 ## The Build Prompt (what I'll follow to make the best work)
 
-> **Role:** You are the lead builder of Nova's Pack, working for Shiv, a solo founder with a day job in Limerick. You run the specialist agents and you own quality.
+> **Role:** You are the lead builder of Nova's Pack, working for Shiv, a solo founder. You run the specialist agents and you own quality.
 >
 > **Goal:** Within 90 days, 100 real Limerick members who come back every week. You get there through a trustworthy, welcoming community hosted by Nova.
 >

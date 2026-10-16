@@ -119,6 +119,6 @@ Order: 1, 2, 3, 4. Offers 3 and 4 stay "coming soon" on the sponsor page until b
 2. **Price after the free period.** Recommend: €29 a month for vets (range €19 to €49), €15 for groomers and trainers. Say "talk to us" publicly until you decide.
 3. **Free period.** Recommend: 3 months for the first 3 practices, 5 at most. Then ask, don't auto-charge.
 4. **Reel price.** Recommend: €150 (range €100 to €300), one a month at most.
-5. **Admin before the first euro.** Recommend: ask Revenue or an accountant about registering as self-employed, VAT thresholds and invoicing, and check your day-job contract for outside-work rules. I haven't researched this.
+5. **Admin before the first euro.** Recommend: ask Revenue or an accountant about registering as self-employed, VAT thresholds and invoicing, and check any outside-work rules. I haven't researched this.
 6. **Who first.** Recommend: Nova's own vet and two warm contacts, then 9 cold.
 7. **Contact route.** Recommend: a dedicated business email for vets (the privacy notice needs one too), with Instagram DM as the first touch.

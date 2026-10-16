@@ -3,7 +3,7 @@
 Handoff summary for Claude Code. Read this first, then `docs/00-master-brief.md` and `docs/01-audit-and-build-prompt.md`.
 
 ## What this is
-**Nova's Pack** is a free, friendly community for **everyone who loves animals**: first-time and experienced owners; dogs, cats, chickens, rabbits, horses and more; rescuers and fosters; and people with no pet yet. It is hosted by **Nova**, a ~1-year-old black-and-tan German Shepherd in Limerick, Ireland, whose Instagram is **@novathehumanhandler** (~3.8k followers). The founder is **Shiv**, a solo founder with a day job who works from a phone. **Since 10 Oct 2026: worldwide and online-only** (see `docs/global-plan.md`).
+**Nova's Pack** is a free, friendly community for **everyone who loves animals**: first-time and experienced owners; dogs, cats, chickens, rabbits, horses and more; rescuers and fosters; and people with no pet yet. It is hosted by **Nova**, a ~1-year-old black-and-tan German Shepherd in Limerick, Ireland, whose Instagram is **@novathehumanhandler** (~3.8k followers). The founder is **Shiv**, a solo founder who works from a phone. **Since 10 Oct 2026: worldwide and online-only** (see `docs/global-plan.md`).
 
 - **Tagline:** "Everyone's welcome in the pack."
 - **Nova's voice:** warm, witty, a little bossy in a loving way, adult. No baby talk, and no exclusive or "hiring" language.

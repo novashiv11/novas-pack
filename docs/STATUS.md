@@ -39,7 +39,7 @@ Tests: 27 game tests pass; smoke runs at 320 px light and 390 px dark with no er
 - **Outreach:** the vet and business emails (`docs/outreach-prompt.md`).
 - **CRQ-038:** "people near you" walk groups. Parked: it needs a server and goes against online-only.
 - **CRQ-023:** Learn with Nova paid content (milestone-gated).
-- **CRQ-039/041:** the vet partner price is live on sponsor.html. Check tax/VAT and your day-job contract before the first paid deal.
+- **CRQ-039/041:** the vet partner price is live on sponsor.html. Check tax/VAT and any outside-work rules that apply to you before the first paid deal.
 
 ## Done today (11 Oct)
 Android APK · link preview image · launch kit · Do it now (1-minute win, plan, week dots, stickers, fresh start) · simple steps for kids · 20-user test, with the critical bug and most majors fixed · level check · talk buttons · feeding guide · media slots · art studio · psychology research · CRQ list · agent-org prompt.
