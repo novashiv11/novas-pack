@@ -267,7 +267,7 @@ function dayComplete(p) {
   if (document.querySelector("dialog.daydone[open]")) return;
   sound("win");
   const ws = weekAndSticker(p);
-  const dlg = h("dialog.daydone", { "aria-labelledby": "dd-h" });
+  const dlg = h(`dialog.daydone.dd-${timeOfDay()}`, { "aria-labelledby": "dd-h" });
   const close = () => dlg.close();
   put(dlg, h("div.dd-in",
     h("div.dd-hero", h("span.dd-rays", { "aria-hidden": "true" }), h("img.disc.dd-nova", { src: NOVA, alt: "", width: "132", height: "132" })),

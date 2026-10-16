@@ -283,3 +283,15 @@ details.howto,.sk-steps .howto{border:0;background:color-mix(in srgb,var(--blue)
 .st-polaroid img{display:block;width:64px;height:64px;object-fit:cover;border-radius:2px}
 .st-polaroid:active{transform:rotate(-6deg) scale(.96)}
 @media (max-width:359px){.st-polaroid{width:58px;height:66px}.st-polaroid img{width:50px;height:50px}}
+
+/* ================= v9: Day complete in the time-of-day sky ================= */
+.daydone.dd-morning{background:linear-gradient(180deg,#FFD9B0 0%,#FDEFD9 40%,var(--bg) 75%)}
+.daydone.dd-day{background:linear-gradient(180deg,#BFDDF2 0%,#E4F0F7 40%,var(--bg) 75%)}
+.daydone.dd-evening{background:linear-gradient(180deg,#F7BE95 0%,#F4D3C2 40%,var(--bg) 75%)}
+.daydone.dd-night{background:linear-gradient(180deg,#1B2A4A 0%,#27305A 40%,var(--bg) 80%)}
+.daydone.dd-night #dd-h,.daydone.dd-night .dd-line{color:#F5EEE4}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .daydone.dd-morning,:root:not([data-theme="light"]) .daydone.dd-day,:root:not([data-theme="light"]) .daydone.dd-evening{background:linear-gradient(180deg,#1D3446 0%,#1E2830 40%,var(--bg) 75%)}}
+:root[data-theme="dark"] .daydone.dd-morning,:root[data-theme="dark"] .daydone.dd-day,:root[data-theme="dark"] .daydone.dd-evening{background:linear-gradient(180deg,#1D3446 0%,#1E2830 40%,var(--bg) 75%)}
+.dd-tile{border:0;box-shadow:var(--elev)}
+.dd-tile.dd-week{background:color-mix(in srgb,var(--c-walk) 9%,var(--surface))}
+.dd-tile.dd-sticker{background:linear-gradient(160deg,var(--gold-soft),var(--surface) 80%)}
