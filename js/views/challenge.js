@@ -4,7 +4,7 @@
 // No extra XP and no change to the data: the only thing stored is the last challenge per pet and skill, in
 // settings.challenge = { [petId]: { [skillId]: { id, easy } } }.
 
-import { S, setSetting } from "../state.js";
+import { S, setSetting, UI } from "../state.js";
 import { h, put, em } from "../util.js";
 import { sound } from "../sound.js";
 
@@ -23,6 +23,8 @@ const KIND = {
 // Small pets and cats: no outdoor, jogging or ball-bouncing challenges.
 const INDOOR_ONLY = /^(cat|rabbit)-/;
 const NOT_INDOORS = new Set(["dx-out", "dx-jog", "dx-ball"]);
+// Challenges that clash with a skill's safety note (emergency stop is practised only in a safe, enclosed space).
+const SKIP = { "emergency-stop": ["dx-sniff"] };
 
 // Safety notes that show with every challenge for these skills.
 const SAFE = {
@@ -100,7 +102,7 @@ const LV = (level) => Math.max(0, Math.min(5, level) - 2); // level 2 → 0 … 
 export function challengesFor(skillId) {
   const kind = KIND[skillId];
   if (!kind) return [];
-  return C.filter((c) => (c.skills ? c.skills.includes(skillId) : (c.kinds || []).includes(kind)) && !(INDOOR_ONLY.test(skillId) && NOT_INDOORS.has(c.id)));
+  return C.filter((c) => (c.skills ? c.skills.includes(skillId) : (c.kinds || []).includes(kind)) && !(INDOOR_ONLY.test(skillId) && NOT_INDOORS.has(c.id)) && !(SKIP[skillId] || []).includes(c.id));
 }
 
 /** The text for one challenge at a level, normal or easier. */
@@ -167,7 +169,7 @@ export function challengeCard(p, sk, level) {
           notes.map((t) => h("p.ch-note", em("⚠️"), ` ${pal(t)}`)),
           h("p.small.muted", "Same session, same XP. It just proves the skill holds up.")),
         h("div.ch-btns",
-          h("a.btn.btn-blue.ch-start", { href: `#/train/${encodeURIComponent(sk.id)}/start`, "data-k": "ch-start" }, em("⏱️"), " Start"),
+          h("a.btn.btn-blue.ch-start", { href: `#/train/${encodeURIComponent(sk.id)}/start`, "data-k": "ch-start", onclick: () => { UI.challenge = { skillId: sk.id, text: pal(challengeText(c, level, easy)), notes: notes.map(pal), at: Date.now() }; } }, em("⏱️"), " Start"),
           h("button.btn.btn-line.ch-roll", { type: "button", "data-k": "ch-roll", onclick: roll }, em("🎲"), " New one")),
         easy ? h("button.linkish.ch-easy", { type: "button", "data-k": "ch-harder", onclick: async () => { await remember(p, sk, { id: c.id, easy: false }); draw("ch-harder"); } }, "Ready for the full version?")
           : h("button.linkish.ch-easy", { type: "button", "data-k": "ch-easier", onclick: async () => { await remember(p, sk, { id: c.id, easy: true }); draw("ch-easier"); } }, "Too hard? Make it easier"));

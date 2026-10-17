@@ -80,3 +80,13 @@ Shiv: "Make it easier: one-click select, autocomplete, future stuff."
   - Rabbit sessions are 1 to 3 minutes, on the floor, and never involve chasing or lifting. Stats are unchanged.
   - Rabbits no longer see "coming soon".
 - **Co-captain:** Challenge mode now covers these 7 skills, with indoor-only challenges (no outdoor, jogging or ball challenges for cats and rabbits).
+
+## QA v11 (17 Oct): 0 Critical, 2 Major (both fixed)
+- **Challenge mode reaches the timer.** "🎯 Challenge: …" now shows with its safety notes, instead of the generic "Practise on the street".
+  - Without a challenge, the timer uses the skill's own ladder step, e.g. "all the way over, with the lure".
+  - Recall from level 3 adds "on a long line or in a safely enclosed space".
+- **Unwell:** not eating plus vomiting (dog or cat) now says to call the vet today, instead of "keep an eye".
+- **Minors fixed:**
+  - Emergency stop no longer offers the "past a smelly spot" challenge.
+  - The week recap share card says "MY WEEK" with honest lines, not "WEEKLY GOAL" or "the pack noticed".
+- **Minors left:** session maths text after the level check, focus after "make it easier", Undo after editing an entry, and the overlap in the heel picture.

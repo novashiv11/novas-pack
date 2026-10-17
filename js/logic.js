@@ -290,6 +290,7 @@ function symptomRules(p, now, events) {
       const gid = sp === "cat" ? "not-eating-cat" : "not-eating-dog";
       if (hrs >= DAY) add("not-eating", "today", "Not eating for 24 hours or more.", gid);
       else if (vul.any) add("not-eating", "today", `Not eating, in ${vul.who}.`, gid);
+      else if (in24("vomiting").length) add("not-eating", "today", "Not eating, and vomiting too.", gid);
       else add("not-eating", "watch", "Off their food.", null, sp === "cat"
         ? "Call your vet if they still haven't eaten 24 hours after they stopped, and sooner for kittens, older or overweight cats, or if they're also vomiting or hiding. Log a meal when they eat and this note clears."
         : "Call your vet if they still haven't eaten 24 hours after they stopped, and sooner if they're also vomiting, have a swollen belly or seem unwell. Log a meal when they eat and this note clears.");

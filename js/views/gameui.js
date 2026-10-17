@@ -7,7 +7,7 @@ import { STEP_PHOTOS } from "../../data/media.js";
 import { SCENES } from "../../data/scenes.js";
 import { scene } from "../scenes.js";
 import { stampsFor } from "../../data/adventures.js";
-import { S, pet, save, remove, refresh, realPets } from "../state.js";
+import { S, pet, save, remove, refresh, realPets, UI } from "../state.js";
 import { h, put, em, uid, sheet, toast, motionOK, buzz, isoDate, todNow, skyLayer } from "../util.js";
 import { skillsFor } from "../logic.js";
 import { setLogHooks, eventSheet, saveError } from "../forms.js";
@@ -360,7 +360,13 @@ export function startSession(p, sk, { seconds } = {}) {
   const total = one ? seconds * 1000 : Math.max(1, sk.minutes || 5) * 60000;
   const a = gameOf(p);
   const pr = a.progress[sk.id];
-  const place = pr ? G.QUEST_PLACE[Math.min(5, pr.level + 1)] : "at home";
+  // The next level's own place or step (a skill's ladder, e.g. "on a soft rug"), with a long line for recall outdoors.
+  const nextL = pr ? Math.min(5, pr.level + 1) : 1;
+  let place = (placeFor(sk.id, nextL) || {}).where || "at home";
+  if (sk.id === "recall" && nextL >= 3) place += ", on a long line or in a safely enclosed space";
+  // A challenge rolled on the skill page (Challenge mode) replaces the generic line, with its safety notes.
+  const ch = UI.challenge && UI.challenge.skillId === sk.id && Date.now() - UI.challenge.at < 600000 ? UI.challenge : null;
+  UI.challenge = null;
   let t0 = Date.now(), pausedAt = 0, pausedFor = 0, timer = 0, lastMin = -1, over = false;
   const elapsed = () => (pausedAt || Date.now()) - t0 - pausedFor;
   sheet(one ? `${skillName(sk)}: your 1-minute win` : `${skillName(sk)}: ${sk.minutes || 5}-minute session`, (body, close) => {
@@ -371,7 +377,7 @@ export function startSession(p, sk, { seconds } = {}) {
     const arc = svgEl("circle", { class: "ring-fill", cx: "60", cy: "60", r: String(R), "stroke-dasharray": String(C), "stroke-dashoffset": String(C) });
     const ring = h("div.timer-ring", svgEl("svg", { viewBox: "0 0 120 120", "aria-hidden": "true" }, svgEl("circle", { class: "ring-track", cx: "60", cy: "60", r: String(R) }), arc), clock);
     const first = sk.steps && sk.steps.length ? sk.steps[0] : "";
-    const status = h("p.timer-status", { "aria-live": "polite", "data-k": "timer-status" }, one ? `Just one minute, ${place}.${first ? ` Try: ${first}` : ""}` : `Practise ${place}. Short and happy. End on a win.`);
+    const status = h("p.timer-status", { "aria-live": "polite", "data-k": "timer-status" }, ch ? `🎯 Challenge: ${ch.text}${ch.notes.length ? ` ⚠️ ${ch.notes.join(" ")}` : ""}` : one ? `Just one minute, ${place}.${first ? ` Try: ${first}` : ""}` : `Practise ${place}. Short and happy. End on a win.`);
     const say = h("div.timer-say", h("img.disc.timer-nova", { src: NOVA, alt: "", width: "44", height: "44" }), h("div.nova-say-bubble", status));
     // Nova cheers once at 30 seconds in and again for the last 10 seconds (time only moves while it is running).
     let c30 = false, c10 = false;

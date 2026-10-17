@@ -54,7 +54,7 @@ export function recapSheet(p, offset = 0) {
       r.total && !p.sample ? h("button.btn.btn-blue.wide", { type: "button", "data-k": "rc-share", onclick: async () => {
         try {
           const m = await import("../sharecard.js");
-          m.openTrophyCard({ pet: { name: p.name, photo: p.photo, icon: p.icon, species: p.species }, kind: "week", emoji: "🗓️",
+          m.openTrophyCard({ pet: { name: p.name, photo: p.photo, icon: p.icon, species: p.species }, kind: "recap", emoji: "🗓️",
             title: `${r.days} ${r.days === 1 ? "day" : "days"} together`, sub: subLine(r), date: r.end });
         } catch { toast("Couldn't open the card. Try again."); }
       } }, "📸 Share the week") : null);

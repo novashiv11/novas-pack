@@ -323,6 +323,10 @@ const KINDS = {
     label: "WEEKLY GOAL", closer: "A little every day adds up.",
     nova: ["A whole week of showing up. The pack noticed.", "Week won. Tell everyone, then go for a walk.", "Small steps, done on purpose. That's how a week gets won."],
   },
+  recap: {
+    label: "MY WEEK", closer: "Real days, counted honestly.",
+    nova: ["Time together, counted honestly.", "Every day out together counts.", "A real week with my favourite human."],
+  },
   trick: {
     label: "NAILED IT", closer: "Tiny sessions, big wins.",
     nova: ["Nailed it. Now ask for it in a different room.", "Another one in the bag. Treats were involved. Obviously.", "Neat work. Practise it somewhere new and pay in treats."],
@@ -377,7 +381,7 @@ export function trophyCaption(data) {
   let lead;
   if (!t) lead = who ? `${who} just had a win` : "A win to celebrate";
   else if (d.kind === "badge") lead = `${who || "We"} just earned ${/badge/i.test(t) ? "the" : "a new badge:"} ${t}`;
-  else if (d.kind === "week") lead = `${t}${who ? ` for ${who}` : ""}`;
+  else if (d.kind === "week" || d.kind === "recap") lead = `${t}${who ? ` with ${who}` : ""}`;
   else if (d.kind === "trick") lead = `New trick unlocked${who ? ` for ${who}` : ""}: ${t}`;
   else if (d.kind === "session") lead = `Mission done${who ? ` with ${who}` : ""}: ${t}`;
   else if (d.kind === "first") lead = `A first for ${who || "us"}: ${t}`;
