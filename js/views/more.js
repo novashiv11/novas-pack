@@ -120,6 +120,11 @@ export function more(main, arg) {
         await setSetting("careOnly", on, { quiet: false });
         toast(on ? "Care diary only: levels, quests and stickers are hidden. Your logs keep counting if you switch back." : "The game is back. Everything you logged still counts.");
       } }, ...inner("🧺", "t-blue", "Care diary only", "", "Hide levels, quests and stickers"), h("span.set-sw", { "aria-hidden": "true" }))),
+      h("li", h("button.set-row", { type: "button", role: "switch", "aria-checked": String(!!S.settings.skipTimer), "data-k": "m-skip-timer", onclick: async () => {
+        buzz();
+        await setSetting("skipTimer", !S.settings.skipTimer, { quiet: false });
+        toast(S.settings.skipTimer ? "Timer off: Start goes straight to logging." : "Timer back on.");
+      } }, ...inner("⏱️", "t-blue", "Skip the timer", "", "Train first, log after in one tap"), h("span.set-sw", { "aria-hidden": "true" }))),
       h("li", h("button.set-row", { type: "button", role: "switch", "aria-checked": String(S.settings.sound !== false), "data-k": "m-sound", onclick: async () => {
         const on = S.settings.sound === false;
         buzz();

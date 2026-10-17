@@ -369,7 +369,7 @@ export function startSession(p, sk, { seconds } = {}) {
   UI.challenge = null;
   let t0 = Date.now(), pausedAt = 0, pausedFor = 0, timer = 0, lastMin = -1, over = false;
   const elapsed = () => (pausedAt || Date.now()) - t0 - pausedFor;
-  sheet(one ? `${skillName(sk)}: your 1-minute win` : `${skillName(sk)}: ${sk.minutes || 5}-minute session`, (body, close) => {
+  sheet(S.settings.skipTimer ? `Log ${skillName(sk)}` : one ? `${skillName(sk)}: your 1-minute win` : `${skillName(sk)}: ${sk.minutes || 5}-minute session`, (body, close) => {
     // A ring that fills as the time runs. No dead buttons: "Done" only appears once it does something (after 1 minute);
     // the 1-minute win simply ends by itself and asks how it went.
     const R = 54, C = 2 * Math.PI * R;
@@ -390,10 +390,17 @@ export function startSession(p, sk, { seconds } = {}) {
       if (pausedAt) { pausedFor += Date.now() - pausedAt; pausedAt = 0; pauseBtn.textContent = "Pause"; status.textContent = "Back to it."; ring.classList.remove("paused"); }
       else { pausedAt = Date.now(); pauseBtn.textContent = "Resume"; status.textContent = "Paused. Take your time."; ring.classList.add("paused"); }
     } }, "Pause");
+    // v11.2 "log it after": trained already? Pick how long it was, then how it went. Same caps, same XP as the timer.
+    let afterMins = 0;
+    const minChips = h("div.pick-row.after-mins", { role: "group", "aria-label": "How long was it?", hidden: true },
+      [1, 3, 5, 10, 15].map((m) => h("button.chip.pick", { type: "button", "data-k": `after-${m}`, "aria-pressed": "false", onclick: () => {
+        afterMins = m; minChips.querySelectorAll(".pick").forEach((b) => b.setAttribute("aria-pressed", String(b === minChips.querySelector(`[data-k=after-${m}]`)))); buzz(8);
+      } }, `${m} min`)));
     const moodBox = h("fieldset.fs.mood-box", { hidden: true },
       h("legend", "How did it go?"),
+      minChips,
       h("div.mood-row", MOODS.map(([v, e, label]) => h("button.mood-btn", { type: "button", "data-k": `mood-${v}`, onclick: () => {
-        const mins = Math.max(1, Math.round(elapsed() / 60000));
+        const mins = afterMins || Math.max(1, Math.round(elapsed() / 60000));
         close();
         logSession(p, sk, { minutes: Math.min(mins, 180), mood: v, more: one ? () => startSession(p, sk) : undefined, mission: true });
       } }, h("span.mood-em", { "aria-hidden": "true" }, e), h("span", label)))));
@@ -409,7 +416,17 @@ export function startSession(p, sk, { seconds } = {}) {
     // Done shows up after a minute, so a session is a real one.
     const doneBtn = h("button.btn.btn-blue", { type: "button", "data-k": "timer-done", hidden: true, onclick: finish }, "Done");
     const runRow = h("div.row-btns.timer-btns", pauseBtn, doneBtn,
-      one && !S.events.some((e) => e.petId === p.id && e.type === "training" && isoDate(new Date(e.at)) === isoDate()) ? h("button.linkish", { type: "button", "data-k": "timer-already", onclick: () => { clearInterval(timer); close(); logSession(p, sk, { minutes: 1, mood: 2, mission: true }); } }, "Already did it today") : null);
+      h("button.linkish.timer-after", { type: "button", "data-k": "timer-already", onclick: () => logAfter() }, "✓ Done already · log it"));
+    const logAfter = () => {
+      clearInterval(timer); over = true;
+      afterMins = one ? 1 : Math.max(1, sk.minutes || 5);
+      minChips.hidden = false;
+      minChips.querySelectorAll(".pick").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.k === `after-${afterMins}`)));
+      status.textContent = "Nice. How long was it, and how did it go?";
+      runRow.hidden = true; ring.hidden = true;
+      moodBox.hidden = false;
+      moodBox.querySelector(".mood-btn").focus();
+    };
     const tick = () => {
       const left = total - elapsed();
       clock.textContent = fmtClock(left);
@@ -436,8 +453,8 @@ export function startSession(p, sk, { seconds } = {}) {
       EASY[sk.id] ? h("details.more-box", { open: one }, h("summary", "Simple steps"), h("ol.steps-list.timer-steps", EASY[sk.id].steps.map((s) => h("li", s))))
         : sk.steps && sk.steps.length ? h("details.more-box", h("summary", "Steps"), h("ol.steps-list.timer-steps", sk.steps.map((s) => h("li", s)))) : null,
       h("p.small.muted", "Closing this logs nothing. Treats, toys and praise only."));
-    timer = setInterval(tick, 250);
-    tick();
+    if (S.settings.skipTimer) logAfter(); // More → "Skip the timer": straight to logging
+    else { timer = setInterval(tick, 250); tick(); }
   }, { onClose: () => clearInterval(timer) });
 }
 

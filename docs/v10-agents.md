@@ -90,3 +90,10 @@ Shiv: "Make it easier: one-click select, autocomplete, future stuff."
   - Emergency stop no longer offers the "past a smelly spot" challenge.
   - The week recap share card says "MY WEEK" with honest lines, not "WEEKLY GOAL" or "the pack noticed".
 - **Minors left:** session maths text after the level check, focus after "make it easier", Undo after editing an entry, and the overlap in the heel picture.
+
+## v11.2 (17 Oct): train first, log after
+Shiv: "Let me log training in one click instead of waiting for the timer. I log after it's done, not during."
+
+- **Every timer has "✓ Done already · log it".** It shows minute chips (1, 3, 5, 10 or 15; the skill's usual length is preselected), then the mood buttons, and then Mission complete as usual.
+  - This replaces the old once-a-day "Already did it today" link. The same daily XP caps still apply (3 sessions per skill and 10 in total).
+- **More → "Skip the timer"** (`settings.skipTimer`): Start, the Today training row and Challenge mode open straight on "How long, how did it go?".

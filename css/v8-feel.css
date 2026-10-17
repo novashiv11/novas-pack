@@ -311,3 +311,8 @@ details.howto,.sk-steps .howto{border:0;background:color-mix(in srgb,var(--blue)
 .note-fold>summary::-webkit-details-marker{display:none}
 .td-row.next .td-s{font-weight:700}
 @media (prefers-reduced-motion: reduce){.chip.pick{transition:none}}
+
+/* v11.2 log it after */
+.after-mins[hidden],.timer-ring[hidden]{display:none!important}
+.after-mins{margin:4px 0 12px}
+.timer-after{min-height:44px;font-weight:800}
