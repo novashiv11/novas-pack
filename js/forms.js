@@ -703,7 +703,7 @@ export function eventSheet(type, existing, { details = false } = {}) {
         focusAlert();
       } else if (!existing) {
         toast(`${t.emoji} ${t.label} logged.${hookAfter(row, token)}`, [["Undo", () => remove("events", row.id)]]);
-      } else toast("Saved.");
+      } else toast("Saved.", [["Undo", () => save("events", ev)]]); // puts the entry back as it was
     });
     put(body, form);
   });
