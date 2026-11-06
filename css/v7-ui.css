@@ -1,4 +1,4 @@
-/* v7 ui area (docs/v7-duolingo-screens.md). Shared components: bottom sheets, log forms, timer, Mission complete,
+/* v7 ui area (_archive/docs-v2/v7-duolingo-screens.md). Shared components: bottom sheets, log forms, timer, Mission complete,
    celebrations, toasts. Loaded after app.css, so these rules win. Tap targets 44px+, AA contrast in light and dark,
    reduced motion respected at the bottom. */
 

@@ -1,4 +1,4 @@
-// v6 "Today" (docs/v6-architect-review.md), v7 look (docs/v7-duolingo-screens.md, brief A): the pet's real day as a
+// v6 "Today" (_archive/docs-v2/v6-architect-review.md), v7 look (_archive/docs-v2/v7-duolingo-screens.md, brief A): the pet's real day as a
 // short list of chunky lesson-node tiles you tap as you go (meals, a walk or play, a 1-minute training win, medicines
 // due, eggs). Each tile has its own progress ring and ticks with a pop (+XP only where XP is real). Nova's bubble
 // reacts to how far you are, and finishing the list opens one full-screen "Day complete!" card.

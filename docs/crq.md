@@ -7,11 +7,11 @@ The CEO (Claude, the main session) owns this list: it adds new requests, sets th
 | ID | Request | Source | Priority | Owner | Status |
 |---|---|---|---|---|---|
 | CRQ-001 | Our own take on "1% better every day": a name and concept that's ours, not a borrowed slogan | Shiv | P1 | Co-captain | Done (15 Oct): Shiv picked "Do it for them"; the app's 1% wording is renamed |
-| CRQ-002 | Psychology research: what makes people actually change, and how to apply it ethically in the app | Shiv | P1 | Research agent | Done (`docs/research-psych.md`) |
+| CRQ-002 | Psychology research: what makes people actually change, and how to apply it ethically in the app | Shiv | P1 | Research agent | Done (`_archive/docs-v2/research-psych.md`) |
 | CRQ-003 | More visuals: picture steps for every skill ("a picture is worth 1,000 words"), visual everywhere it helps | Shiv | P1 | Co-captain | Planned (the builder died at the usage limit; `js/scenes.js` is partial) |
 | CRQ-004 | Starting-level quiz: find the dog's current level per skill at the start (no XP for the quiz) | Shiv | P1 | CEO (game engine) | Done (level check after adding a pet; redo from Train) |
 | CRQ-005 | Play space: an interactive generative art studio with celebrations; art unlocked by real-life logs | Shiv | P1 | Studio builder | Done |
-| CRQ-006 | "Agent org" with a CEO reporting to Shiv; master prompt in `docs/org-prompt.md` | Shiv | P1 | CEO | Done |
+| CRQ-006 | "Agent org" with a CEO reporting to Shiv; master prompt in `_archive/docs-v2/org-prompt.md` | Shiv | P1 | CEO | Done |
 | CRQ-007 | Archive a pet (fosters, rehomed) and keep the human's XP and diary | Persona test | P2 | — | Done (12 Oct: Archive in the pet sheet; More → Pets → Archived → Bring back; XP and diary kept) |
 | CRQ-008 | Care-only mode (hide the game for people who only want the diary) | Persona test | P2 | — | Done (12 Oct: More → Care diary only; Home, Health, More; no levels, quests or celebrations) |
 | CRQ-009 | Egg and flock counts; species-aware logs for hens | Persona test | P3 | — | Done (12 Oct: "Chickens" species, egg count tile with the week total; hens follow bird health rules) |
@@ -46,18 +46,18 @@ The CEO (Claude, the main session) owns this list: it adds new requests, sets th
 | CRQ-037 | Remove Discord; Instagram/Facebook Reels now, WhatsApp group later | Shiv | P1 | Co-captain | Done (11 Oct) |
 | CRQ-038 | Location-based walk-group requests with a "people within X km" counter. Needs a server, location data is personal (GDPR), carries stalking and safety risk, and conflicts with the 10 Oct online-only decision. Options: (a) park it; (b) opt-in county-level interest counts, shown only at 10 or more, no meetups organised by us; (c) a WhatsApp group per county. | Shiv | P3 | **Shiv decides** | Waiting on Shiv |
 | CRQ-039 | Businesses and vets section: a clear page Shiv can send, showing why to sponsor and what easy value we provide | Shiv | P1 | Business agent | Done; price waits on Shiv |
-| CRQ-040 | Co-captain: a super-manager who reports to Shiv at his level (strategy, money, roadmap) | Shiv | P1 | Co-captain | Done (`docs/org-prompt.md`, `docs/STATUS.md`) |
+| CRQ-040 | Co-captain: a super-manager who reports to Shiv at his level (strategy, money, roadmap) | Shiv | P1 | Co-captain | Done (`_archive/docs-v2/org-prompt.md`, `docs/STATUS.md`) |
 | CRQ-041 | Business model for vets and pet businesses in Ireland (subscription, sponsorship), with a pitch and outreach | Shiv | P1 | Business agent | Done; price waits on Shiv |
 | CRQ-042 | Shareable Instagram "trophy" card: proud moments (trick done, level up), Story size, funnier | Shiv | P1 | Share agent | Done (11 Oct) |
-| CRQ-043 | Timer "Keep at it…" button did nothing: rethink; then a full GUI pass from a designer prompt (`docs/design-prompt.md`) | Shiv | P1 | Co-captain (timer, done) + Designer agent | Done (11 Oct): `docs/design-system.md` |
+| CRQ-043 | Timer "Keep at it…" button did nothing: rethink; then a full GUI pass from a designer prompt (`_archive/docs-v2/design-prompt.md`) | Shiv | P1 | Co-captain (timer, done) + Designer agent | Done (11 Oct): `docs/design-system.md` |
 | CRQ-045 | Link preview looks bad when sharing: redo it (readable thumbnail, any pet, short text) | Shiv | P1 | Co-captain | Done (11 Oct): `img/og-tiny-wins.jpg` |
-| CRQ-044 | QA sprint 2 logic fixes (`docs/qa-sprint2.md` 1, 2, 3, 6, 8, 9, 11): care taps counted as the 1-minute win, cat first win, dog-only content for cats, XP split, cap warning, sample share | QA | P1 | Co-captain | Done (11 Oct), except 11 (Back with a sheet open): Planned |
+| CRQ-044 | QA sprint 2 logic fixes (`_archive/docs-v2/qa-sprint2.md` 1, 2, 3, 6, 8, 9, 11): care taps counted as the 1-minute win, cat first win, dog-only content for cats, XP split, cap warning, sample share | QA | P1 | Co-captain | Done (11 Oct), except 11 (Back with a sheet open): Planned |
 | CRQ-046 | Final independent QA of 12 Oct batches A–C, picture steps and the rename; fix every Critical/Major | Co-captain | P1 | QA agent | Done (12 Oct): 0 Critical, 0 Major; minors in CRQ-051 |
 | CRQ-047 | Remove the Android address bar: add `.well-known/assetlinks.json` + `.nojekyll` to the `novashiv11.github.io` repo (needs the Claude GitHub App on that repo) and a stable signing key (secret `ANDROID_KEYSTORE_PASSWORD`) | Shiv | P1 | Co-captain | Done 12 Oct for the current APK (assetlinks + .nojekyll live). Stable key still needs the secret, else update the SHA-256 after each new build |
 | CRQ-048 | "Do it for them" replaces "1% better" everywhere (done in the app 12 Oct; check docs, launch kit, Reels scripts) | Shiv | P2 | Co-captain | Done (13 Oct) |
 | CRQ-049 | Credit Shiv: CREDITS.md, README, future commits under Shiv's name | Shiv | P1 | Co-captain | Done (12 Oct) |
 | CRQ-051 | QA minors: Academy and badges dog-centric for other pets; adventures generic for hens/rabbits; hen-specific Unwell signs; Train opens by URL in care-only mode | QA | P3 | Co-captain | Mostly done (13 Oct): hen Unwell signs, rabbit and hen stamps, care-only guard. Academy lessons for cats, rabbits and hens added 13 Oct (sources cited; Mentor now 6 lessons) |
 | CRQ-050 | Reddit/community launch post (copy drafted in chat): link the website, not the APK; hide email on GitHub | Shiv | P2 | **Shiv** | Shiv to post |
-| CRQ-052 | "The app has no feel": research modern GUI and functionality, then improve (pet as the hero, colour per care type, soft depth, glass bars, screen transitions, compact toast) | Shiv | P1 | Co-captain + QA | Done (15 Oct, v8.2, `docs/v8-feel.md`): QA 0 Critical, 2 Major fixed |
+| CRQ-052 | "The app has no feel": research modern GUI and functionality, then improve (pet as the hero, colour per care type, soft depth, glass bars, screen transitions, compact toast) | Shiv | P1 | Co-captain + QA | Done (15 Oct, v8.2, `_archive/docs-v2/v8-feel.md`): QA 0 Critical, 2 Major fixed |
 
 Done earlier on 11 Oct: Do it now (spec v3); simple steps; persona-test batch 1 (decision 48); cartoon photos; pet icons; Add-pet bar; Android APK.

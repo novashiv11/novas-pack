@@ -1,4 +1,4 @@
-/* v7 more area (docs/v7-duolingo-screens.md, brief D). Profile header, grouped settings rows, pets, badges, sticker album,
+/* v7 more area (_archive/docs-v2/v7-duolingo-screens.md, brief D). Profile header, grouped settings rows, pets, badges, sticker album,
    journal. Loaded after app.css. Tokens only (light and dark come from the :root variables); gold is for rewards. */
 
 @keyframes v7m-grow{from{transform:scaleX(0)}}

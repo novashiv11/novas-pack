@@ -1,4 +1,4 @@
-// Nova's Pack: the pet care diary. Training skill library (content contract, part C of docs/build-prompt-v4-app.md).
+// Nova's Pack: the pet care diary. Training skill library (content contract, part C of _archive/docs-v2/build-prompt-v4-app.md).
 //
 // Shape: { id, title, species, level, minutes, why, steps, mistake, pro, clip, ladder? }
 //   level   "Foundation" | "Next steps" | "Fun" | "Advanced"

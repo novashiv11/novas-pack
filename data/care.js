@@ -1,4 +1,4 @@
-// Nova's Pack: the pet care diary. Care reference (content contract, part C of docs/build-prompt-v4-app.md).
+// Nova's Pack: the pet care diary. Care reference (content contract, part C of _archive/docs-v2/build-prompt-v4-app.md).
 //
 // Everything here is general information, written as suggestions. Your vet decides your pet's schedule.
 // No drug names, no doses, no diagnosis. Sources are listed in SOURCES at the bottom.

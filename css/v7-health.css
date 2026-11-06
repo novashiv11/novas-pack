@@ -1,4 +1,4 @@
-/* v7 health area (docs/v7-duolingo-screens.md). Owned by one agent; loaded after app.css.
+/* v7 health area (_archive/docs-v2/v7-duolingo-screens.md). Owned by one agent; loaded after app.css.
    Everything here is scoped to hv-* classes (plus the few app classes the Health views reuse). Tokens only, so dark mode follows. */
 
 /* ---------- shared bits ---------- */

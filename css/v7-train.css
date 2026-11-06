@@ -1,4 +1,4 @@
-/* v7 train area (docs/v7-duolingo-screens.md): the skills path, skill page, Academy list + lesson player, Adventure sticker album,
+/* v7 train area (_archive/docs-v2/v7-duolingo-screens.md): the skills path, skill page, Academy list + lesson player, Adventure sticker album,
    level check. Owned by one agent; loaded after app.css. Tokens come from site.css; the few new ones are below. */
 
 :root{
