@@ -323,6 +323,10 @@ const KINDS = {
     label: "WEEKLY GOAL", closer: "A little every day adds up.",
     nova: ["A whole week of showing up. The pack noticed.", "Week won. Tell everyone, then go for a walk.", "Small steps, done on purpose. That's how a week gets won."],
   },
+  day: {
+    label: "TODAY", closer: "Small days add up.",
+    nova: ["Another real day together. I counted.", "Showing up again. That's the whole trick.", "Day logged. Treats were earned. Obviously."],
+  },
   recap: {
     label: "MY WEEK", closer: "Real days, counted honestly.",
     nova: ["Time together, counted honestly.", "Every day out together counts.", "A real week with my favourite human."],
@@ -381,6 +385,7 @@ export function trophyCaption(data) {
   let lead;
   if (!t) lead = who ? `${who} just had a win` : "A win to celebrate";
   else if (d.kind === "badge") lead = `${who || "We"} just earned ${/badge/i.test(t) ? "the" : "a new badge:"} ${t}`;
+  else if (d.kind === "day") lead = `${t}${who && !t.includes(who) ? ` with ${who}` : ""}`;
   else if (d.kind === "week" || d.kind === "recap") lead = `${t}${who ? ` with ${who}` : ""}`;
   else if (d.kind === "trick") lead = `New trick unlocked${who ? ` for ${who}` : ""}: ${t}`;
   else if (d.kind === "session") lead = `Mission done${who ? ` with ${who}` : ""}: ${t}`;

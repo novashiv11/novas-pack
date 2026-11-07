@@ -10,7 +10,7 @@ import { h, put, sheet, toast, isoDate, ago, buzz, motionOK, parseDate } from ".
 import { dueItems, skillsFor } from "../logic.js";
 import { logMeal, logTreat, logPoop, logWalk, logPlay, logEggs, logMed, markGiven, eventSheet, unwellSheet, quickLog, openPetSheet, speciesOf } from "../forms.js";
 import { eventList, NOVA } from "./parts.js";
-import { trainingPicker, confetti, shareWinBtn, xpProgress, gameOf } from "./gameui.js";
+import { trainingPicker, confetti, shareWinBtn, xpProgress, gameOf, skillName } from "./gameui.js";
 import { doNow, planSheet, planText, weekAndSticker } from "./doitnow.js";
 import * as G from "../game.js";
 import { sound } from "../sound.js";
@@ -116,6 +116,28 @@ function todaysPhoto(p) {
   return h("button.st-polaroid", { type: "button", "data-k": "stage-polaroid", "aria-label": "Today's photo", onclick: () => eventSheet(e.type, e) }, h("img", { src: e.photo, alt: "", width: "64", height: "64" }));
 }
 
+/** v12 "Today's story": today's real logs as a ready Instagram Story card. A series title when one skill is
+ *  being trained ("Day 12 of Heel"), today's photo if there is one, and a caption. No XP for sharing. */
+function todayStory(p) {
+  const t0 = startOfDay(), mine = S.events.filter((e) => e.petId === p.id), today = mine.filter((e) => e.at >= t0);
+  const sum = (type) => today.filter((e) => e.type === type).reduce((n, e) => n + (e.minutes || 0), 0);
+  const count = (type) => today.filter((e) => e.type === type).length;
+  const trainedToday = today.filter((e) => e.type === "training" && e.skillId);
+  let title = "", emoji = "🐾";
+  if (trainedToday.length) {
+    const id = trainedToday[0].skillId, sk = (S.content.SKILLS || []).find((s) => s.id === id);
+    const days = new Set(mine.filter((e) => e.type === "training" && e.skillId === id).map((e) => isoDate(new Date(e.at)))).size;
+    title = `Day ${days} of ${sk ? skillName(sk) : "training"}`; emoji = "🎯";
+  }
+  const bits = [count("walk") && `${sum("walk") ? `${sum("walk")} min` : count("walk")} walk${count("walk") > 1 && !sum("walk") ? "s" : ""}`,
+    count("training") && `${sum("training") || count("training")} ${sum("training") ? "min" : ""} training`.replace("  ", " "),
+    count("play") && "play time", count("meal") && `${count("meal")} meal${count("meal") > 1 ? "s" : ""}`].filter(Boolean);
+  if (!title) title = `${p.name}'s day`;
+  const photo = (today.filter((e) => e.photo).sort((a, b) => b.at - a.at)[0] || {}).photo || p.photo;
+  import("../sharecard.js").then((m) => m.openTrophyCard({ pet: { name: p.name, photo, icon: p.icon, species: p.species }, kind: "day", title, sub: bits.join(" · "), emoji, date: Date.now() }))
+    .catch(() => toast("Couldn't open the card. Try again."));
+}
+
 /** The pet as the hero of Today (Finch-style): their photo big, the day's ring round them, their name, Nova's line, the week. */
 function petStage(p, done, total, line, mood) {
   const k = total ? done / total : 0;
@@ -139,6 +161,7 @@ function petStage(p, done, total, line, mood) {
       h("span.st-mood", { "aria-hidden": "true" }, moodE),
       p.photo || p.sample ? null : h("button.st-cam", { type: "button", "data-k": "stage-photo", "aria-label": `Add a photo of ${p.name}`, onclick: () => openPetSheet(p) }, "📷")),
     h("h1.st-name", { id: "page-title", tabindex: "-1" }, p.name, h("span.vh", ", today")),
+    done && !p.sample ? h("button.st-story", { type: "button", "data-k": "stage-story", onclick: () => todayStory(p) }, "📸 Today's story") : null,
     h("p.st-count", total ? (done === total ? "All done today" : `${done} of ${total} done today`) : "Nothing on the list yet"),
     h(`div.st-say.mood-${mood}`, h("img.disc", { src: NOVA, alt: "", width: "30", height: "30" }), h("p", h("span.vh", "Nova says: "), line)),
     weekStrip(p));

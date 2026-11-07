@@ -316,3 +316,10 @@ details.howto,.sk-steps .howto{border:0;background:color-mix(in srgb,var(--blue)
 .after-mins[hidden],.timer-ring[hidden]{display:none!important}
 .after-mins{margin:4px 0 12px}
 .timer-after{min-height:44px;font-weight:800}
+
+/* v12 Today's story */
+.st-story{min-height:44px;margin-top:8px;padding:0 16px;border:0;border-radius:999px;background:rgba(255,255,255,.75);color:#1E1B17;font:inherit;font-weight:800;font-size:var(--t14);cursor:pointer;box-shadow:0 2px 8px rgba(30,20,10,.12)}
+.st-story:active{transform:scale(.96)}
+.tod-night .st-story{background:rgba(255,255,255,.18);color:#F5EEE4}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .st-story{background:rgba(255,255,255,.14);color:#F5EEE4}}
+:root[data-theme="dark"] .st-story{background:rgba(255,255,255,.14);color:#F5EEE4}

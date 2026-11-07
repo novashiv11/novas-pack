@@ -2,7 +2,7 @@
 
 The **co-captain** (Claude, the main session) updates this file after every step and commits it, so no work is lost when a session stops or hits a usage limit. The full backlog is in `docs/crq.md` and decisions are in `docs/decisions.md`.
 
-**Last updated:** 15 Oct 2026 (v10 live; all buildable work done).
+**Last updated:** 7 Nov 2026 (v12 live: Today's story).
 
 ## How we never lose work
 1. Every request from Shiv goes into `docs/crq.md` first, with an ID, before any work starts.
@@ -15,7 +15,7 @@ The **co-captain** (Claude, the main session) updates this file after every step
 - `CLAUDE.md` cut from 8.5 KB to ~3.5 KB and no longer sends sessions to the two big briefs; 18 superseded docs moved to `_archive/docs-v2/`; `.claude/settings.json` blocks reading `_archive/`. Saves roughly 30–40 KB of reading per new session.
 - Next perf idea (not started): merge the v7/v8/v9 CSS layers (326 KB, 15 files) into one trimmed file.
 
-## Now (16 Oct): v10 live, nothing buildable left
+## Now (7 Nov): v12 live
 
 | Version | What shipped |
 |---|---|
@@ -33,6 +33,8 @@ The **co-captain** (Claude, the main session) updates this file after every step
 | v9 (16 Oct) | 5 agents in parallel (`_archive/docs-v2/v9-agents.md`): sky onboarding and Welcome-to-the-pack, Train path/skill/Academy/sticker album, Health hero with weight sparkline, Memories photo page, swipe-down sheets, sky Mission/Day complete |
 | v9.1 (16 Oct) | Advanced training: 6 new dog skills (heel, distance down, emergency stop, go to bed, find it, roll over) with ladders and badges; the + tucks away on scroll |
 | v10 (16 Oct) | Pro training: pictures and level-check questions for the Advanced skills, Challenge mode (the 3 Ds) from level 2, 3 new Academy lessons |
+| v11–v11.2 (16–17 Oct) | One tap, not typing (chips, autocomplete, usually-now); cat and rabbit skills; QA fixes; train first, log after (Skip the timer) |
+| v12 (7 Nov) | "📸 Today's story" on Today: real logs become a Story card ("Day 4 of Heel", today's photo, walk/training minutes) plus caption with @novathehumanhandler. No XP for sharing |
 
 Tests: 27 game tests pass; smoke runs at 320 px light and 390 px dark with no errors, no sideways scroll and no small targets.
 
